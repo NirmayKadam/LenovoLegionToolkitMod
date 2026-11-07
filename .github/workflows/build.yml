@@ -1,0 +1,79 @@
+name: Build
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ master ]
+    paths-ignore:
+      - '**.md'
+      - 'crowdin.yml'
+      - '.github/workflows/stale.yml'
+      - '.github/workflows/review.yml*'
+  pull_request:
+    branches: [ master, dev ]
+    paths-ignore:
+      - '**.md'
+      - 'crowdin.yml'
+      - '.github/workflows/stale.yml'
+      - '.github/workflows/review.yml*'
+
+concurrency:
+  group: build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+
+    runs-on: windows-2022
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+    - name: Setup .NET
+      uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+      with:
+        dotnet-version: 9.0.x
+        cache: true
+        cache-dependency-path: '**/*.csproj'
+    - name: Restore
+      run: dotnet restore
+    # The signing key is only used for pushes and manual runs. Pull request builds run code from the PR
+    # (including build scripts and NuGet package build logic), so they never get the key and build unsigned.
+    - name: Restore identity package signing key
+      if: github.event_name != 'pull_request'
+      env:
+        LLT_CERT_PFX: ${{ secrets.LLT_CERT_PFX }}
+      run: |
+        if (-not $env:LLT_CERT_PFX) {
+          Write-Error "Missing LLT_CERT_PFX secret. The identity MSIX package cannot be signed."
+          exit 1
+        }
+
+        [IO.File]::WriteAllBytes("LenovoLegionToolkit.pfx", [Convert]::FromBase64String($env:LLT_CERT_PFX))
+      shell: powershell
+    - name: Build
+      if: github.event_name != 'pull_request'
+      env:
+        LLT_CERT_PASSWORD: ${{ secrets.LLT_CERT_PASSWORD }}
+      run: .\make_action.bat
+    - name: Build (unsigned, pull request)
+      if: github.event_name == 'pull_request'
+      env:
+        LLT_UNSIGNED_BUILD: '1'
+      run: .\make_action.bat raw
+    - name: Verify installer
+      run: |
+        $installerPath = "build_installer\LenovoLegionToolkitSetup.exe"
+        if (-not (Test-Path $installerPath)) {
+          Write-Error "Installer file not found at $installerPath"
+          exit 1
+        }
+      shell: powershell
+    - name: Upload artifact
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      with:
+        name: installer
+        path: build_installer\LenovoLegionToolkitSetup.exe

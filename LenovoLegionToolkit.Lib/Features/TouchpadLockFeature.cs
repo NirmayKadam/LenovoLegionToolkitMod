@@ -1,0 +1,4 @@
+namespace LenovoLegionToolkit.Lib.Features;
+
+public class TouchpadLockFeature(PrecisionTouchpadLockFeature precisionTouchpadLockFeature, TouchpadLockWmiFeature touchpadLockWmiFeature)
+    : AbstractCompositeFeature<TouchpadLockState>(precisionTouchpadLockFeature, touchpadLockWmiFeature);

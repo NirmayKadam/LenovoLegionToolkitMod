@@ -1,0 +1,106 @@
+using System;
+
+namespace LenovoLegionToolkit.Lib.Automation;
+
+public interface IAutomationEvent;
+
+public readonly struct HDRAutomationEvent(bool? isHDROn) : IAutomationEvent
+{
+    public bool? IsHDROn { get; } = isHDROn;
+}
+
+public readonly struct NativeWindowsMessageEvent(NativeWindowsMessage message, object? data) : IAutomationEvent
+{
+    public NativeWindowsMessage Message { get; } = message;
+    public object? Data { get; } = data;
+}
+
+public struct StartupAutomationEvent : IAutomationEvent;
+
+public readonly struct PowerStateAutomationEvent(PowerStateEvent powerStateEvent, bool powerAdapterStateChanged)
+    : IAutomationEvent
+{
+    public PowerStateEvent PowerStateEvent { get; } = powerStateEvent;
+    public bool PowerAdapterStateChanged { get; } = powerAdapterStateChanged;
+}
+
+public readonly struct ITSModeAutomationEvent(ITSMode powerModeState) : IAutomationEvent
+{
+    public ITSMode ITSModeState { get; } = powerModeState;
+}
+
+public readonly struct ITSModeStateAutomationEvent(ITSModeStateEvent powerStateEvent, bool powerAdapterStateChanged)
+    : IAutomationEvent
+{
+    public ITSModeStateEvent PowerStateEvent { get; } = powerStateEvent;
+    public bool PowerAdapterStateChanged { get; } = powerAdapterStateChanged;
+}
+
+public readonly struct HybridModeAutomationEvent(HybridModeState hybridModeState) : IAutomationEvent
+{
+    public HybridModeState HybridModeState { get; } = hybridModeState;
+}
+
+public readonly struct HybridModeStateAutomationEvent(HybridModeStateEvent hybridModeStateEvent)
+    : IAutomationEvent
+{
+    public HybridModeStateEvent HybridModeStateEvent { get; } = hybridModeStateEvent;
+}
+
+public readonly struct PowerModeAutomationEvent(PowerModeState powerModeState) : IAutomationEvent
+{
+    public PowerModeState PowerModeState { get; } = powerModeState;
+}
+
+public readonly struct CustomModePresetAutomationEvent(Guid id) : IAutomationEvent
+{
+    public Guid Id { get; } = id;
+}
+
+public readonly struct GameAutomationEvent(bool running) : IAutomationEvent
+{
+    public bool Running { get; } = running;
+
+    public override string ToString() => $"Running={Running}";
+}
+
+public readonly struct ProcessAutomationEvent(ProcessEventInfoType type, ProcessInfo processInfo) : IAutomationEvent
+{
+    public ProcessEventInfoType Type { get; } = type;
+
+    public ProcessInfo ProcessInfo { get; } = processInfo;
+}
+
+public readonly struct SessionLockUnlockAutomationEvent(bool locked) : IAutomationEvent
+{
+    public bool Locked { get; } = locked;
+}
+
+/// <summary>
+/// A clock tick. <see cref="Time"/> and <see cref="Day"/> are both in local time,
+/// because the days a user ticks in the UI are local days.
+/// </summary>
+public readonly struct TimeAutomationEvent(Time time, DayOfWeek day) : IAutomationEvent
+{
+    public Time Time { get; } = time;
+    public DayOfWeek Day { get; } = day;
+
+    public static TimeAutomationEvent FromLocal(DateTime local) => new(new Time(local.Hour, local.Minute, local.Second), local.DayOfWeek);
+}
+
+public readonly struct UserInactivityAutomationEvent(TimeSpan inactivityTimeSpan)
+    : IAutomationEvent
+{
+    public TimeSpan InactivityTimeSpan { get; } = inactivityTimeSpan;
+}
+
+public readonly struct WiFiAutomationEvent(bool isConnected, string? ssid) : IAutomationEvent
+{
+    public bool IsConnected { get; } = isConnected;
+    public string? Ssid { get; } = ssid;
+}
+
+public readonly struct BatteryPercentageAutomationEvent(int percentage) : IAutomationEvent
+{
+    public int Percentage { get; } = percentage;
+}

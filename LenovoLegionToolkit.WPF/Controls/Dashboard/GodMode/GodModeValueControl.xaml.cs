@@ -1,0 +1,204 @@
+using System;
+using System.Linq;
+using System.Windows;
+using System.Windows.Automation;
+using LenovoLegionToolkit.Lib;
+using LenovoLegionToolkit.Lib.Extensions;
+using LenovoLegionToolkit.WPF.Extensions;
+
+namespace LenovoLegionToolkit.WPF.Controls.Dashboard.GodMode;
+
+public partial class GodModeValueControl
+{
+    private int? _defaultValue;
+
+    public bool AllowValuesAbove255 { get; set; }
+
+    public string Title
+    {
+        get => _cardControlHeader.Title;
+        set
+        {
+            _cardControlHeader.Title = value;
+
+            AutomationProperties.SetName(_slider, _cardControlHeader.Title);
+            AutomationProperties.SetName(_comboBox, _cardControlHeader.Title);
+            AutomationProperties.SetName(_resetToDefaultButton, _cardControlHeader.Title);
+        }
+    }
+
+    public string Description
+    {
+        get => _cardControlHeader.Subtitle;
+        set => _cardControlHeader.Subtitle = value;
+    }
+
+    public string Warning
+    {
+        get => _cardControlHeader.Warning;
+        set => _cardControlHeader.Warning = value;
+    }
+
+    public string Info
+    {
+        get => _cardControlHeader.Info;
+        set => _cardControlHeader.Info = value;
+    }
+
+    public string Error
+    {
+        get => _cardControlHeader.Error;
+        set => _cardControlHeader.Error = value;
+    }
+
+    public string Success
+    {
+        get => _cardControlHeader.Success;
+        set => _cardControlHeader.Success = value;
+    }
+
+    public string Unit { get; set; } = string.Empty;
+
+    public int Value
+    {
+        get
+        {
+            if (_slider.Visibility == Visibility.Visible)
+                return (int)_slider.Value;
+
+            if (_comboBox.Visibility == Visibility.Visible && _comboBox.TryGetSelectedItem(out int value))
+                return value;
+
+            throw new InvalidOperationException("Unable to get Value");
+        }
+        set
+        {
+            if (_slider.Visibility == Visibility.Visible)
+            {
+                double newValue = value;
+
+                if (_defaultValue.HasValue && (newValue < _slider.Minimum || newValue > _slider.Maximum))
+                    newValue = _defaultValue.Value;
+
+                newValue = Math.Clamp(MathExtensions.RoundNearest((int)newValue, (int)_slider.TickFrequency), _slider.Minimum, _slider.Maximum);
+                _slider.Value = newValue;
+                UpdateSliderLabelContent();
+                return;
+            }
+
+            if (_comboBox.Visibility == Visibility.Visible)
+            {
+                var newValue = value;
+                var items = _comboBox.GetItems<int>().ToArray();
+                if (!items.Contains(newValue))
+                {
+                    var valueTemp = newValue;
+                    newValue = items.MinBy(v => Math.Abs((long)v - valueTemp));
+                }
+
+                _comboBox.SelectItem(newValue);
+                return;
+            }
+
+            throw new InvalidOperationException("Unable to set Value");
+        }
+    }
+
+    public event RoutedPropertyChangedEventHandler<double> ValueChanged
+    {
+        add => _slider.ValueChanged += value;
+        remove => _slider.ValueChanged -= value;
+    }
+
+    public GodModeValueControl()
+    {
+        InitializeComponent();
+
+        _slider.ValueChanged += (s, e) => UpdateSliderLabelContent();
+    }
+
+    public void Set(StepperValue? stepperValue)
+    {
+        if (!stepperValue.HasValue)
+        {
+            Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        var value = stepperValue.Value;
+
+        if (value.Steps.Length > 0)
+        {
+            _slider.Visibility = Visibility.Collapsed;
+            _sliderLabel.Visibility = Visibility.Collapsed;
+            _comboBox.Visibility = Visibility.Visible;
+
+            _slider.Minimum = 0;
+            _slider.Maximum = 0;
+            _slider.TickFrequency = 0;
+            _slider.Value = 0;
+
+            _sliderLabel.ContentStringFormat = null;
+
+            var targetValue = value.Value;
+            if (!value.Steps.Contains(targetValue))
+            {
+                targetValue = value.Steps.MinBy(v => Math.Abs((long)v - targetValue));
+            }
+
+            _comboBox.SetItems(value.Steps, targetValue, v => $"{v} {Unit}");
+
+            _defaultValue = value.DefaultValue;
+            _resetToDefaultButton.Visibility = _defaultValue.HasValue ? Visibility.Visible : Visibility.Collapsed;
+
+            Visibility = Visibility.Visible;
+            return;
+        }
+
+        if (value.Step > 0)
+        {
+            _slider.Visibility = Visibility.Visible;
+            _sliderLabel.Visibility = Visibility.Visible;
+            _comboBox.Visibility = Visibility.Collapsed;
+
+            _slider.Minimum = value.Min;
+            _slider.Maximum = AllowValuesAbove255 ? value.Max : Math.Min(value.Max, 255);
+            _slider.TickFrequency = value.Step;
+            _slider.Value = value.Value;
+
+            _sliderLabel.ContentStringFormat = $"{0} {Unit}";
+            UpdateSliderLabelContent();
+
+            _comboBox.Items.Clear();
+            _comboBox.SelectedItem = null;
+
+            _defaultValue = value.DefaultValue;
+            _resetToDefaultButton.Visibility = _defaultValue.HasValue ? Visibility.Visible : Visibility.Collapsed;
+
+            Visibility = Visibility.Visible;
+            return;
+        }
+
+        Visibility = Visibility.Collapsed;
+    }
+
+    private void ResetToDefaultButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (!_defaultValue.HasValue)
+            return;
+
+        if (_slider.Visibility == Visibility.Visible)
+            _slider.Value = _defaultValue.Value;
+
+        if (_comboBox.Visibility == Visibility.Visible)
+            _comboBox.SelectItem(_defaultValue.Value);
+    }
+
+    private void UpdateSliderLabelContent()
+    {
+        if (_sliderLabel.Visibility == Visibility.Visible)
+        {
+            _sliderLabel.Content = _slider.Value;
+        }
+    }
+}

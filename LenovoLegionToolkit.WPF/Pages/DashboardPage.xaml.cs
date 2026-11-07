@@ -1,0 +1,224 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using LenovoLegionToolkit.Lib;
+using LenovoLegionToolkit.Lib.Messaging;
+using LenovoLegionToolkit.Lib.Messaging.Messages;
+using LenovoLegionToolkit.Lib.Settings;
+using LenovoLegionToolkit.Lib.Utils;
+using LenovoLegionToolkit.WPF.Controls.Dashboard;
+using LenovoLegionToolkit.WPF.Resources;
+using LenovoLegionToolkit.WPF.Settings;
+using LenovoLegionToolkit.WPF.Utils;
+using LenovoLegionToolkit.WPF.Windows.Dashboard;
+using Wpf.Ui.Common;
+using Wpf.Ui.Controls;
+
+namespace LenovoLegionToolkit.WPF.Pages;
+
+public partial class DashboardPage
+{
+    private readonly ApplicationSettings _settings = IoCContainer.Resolve<ApplicationSettings>();
+    private readonly DashboardSettings _dashboardSettings = IoCContainer.Resolve<DashboardSettings>();
+    private readonly SensorsControlSettings _sensorsControlSettings = IoCContainer.Resolve<SensorsControlSettings>();
+    private readonly HardwareSensorSettings _hardwareSensorSettings = IoCContainer.Resolve<HardwareSensorSettings>();
+
+    private readonly List<DashboardGroupControl> _dashboardGroupControls = [];
+    private FrameworkElement sensorControl = null!;
+
+    public DashboardPage()
+    {
+        InitializeComponent();
+
+        RefreshSensorControl();
+        EnsureConfigFilesExist();
+
+        MessagingCenter.Subscribe<SensorDashboardSwappedMessage>(this, _ =>
+        {
+            Dispatcher.Invoke(() =>
+            {
+                EnsureConfigFilesExist();
+                RefreshSensorControl();
+            });
+        });
+    }
+
+    private void RefreshSensorControl()
+    {
+        if (sensorControl != null)
+        {
+            _panel.Children.Remove(sensorControl);
+        }
+
+        if (!_settings.Store.EnableHardwareSensors || !_settings.Store.UseNewSensorDashboard)
+        {
+            sensorControl = new SensorsControl();
+        }
+        else if (PawnIOHelper.GetPawnIOState() == PawnIOState.Installed)
+        {
+            sensorControl = new SensorsControlV2();
+        }
+        else
+        {
+            PawnIOHelper.ShowPawnIONotify();
+            sensorControl = new SensorsControl();
+        }
+
+        int contentIndex = _panel.Children.IndexOf(_content);
+        if (contentIndex == -1) contentIndex = 0;
+        
+        sensorControl.Margin = new Thickness(0, 16, 16, 0);
+        _panel.Children.Insert(contentIndex, sensorControl);
+
+        if (_dashboardSettings != null && _loader != null && !_loader.IsLoading)
+        {
+            sensorControl.Visibility = _dashboardSettings.Store.ShowSensors
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+        }
+    }
+
+    private void EnsureConfigFilesExist()
+    {
+        if (_settings.Store.EnableHardwareSensors && _settings.Store.UseNewSensorDashboard)
+        {
+            _sensorsControlSettings.EnsureFileExists();
+            _hardwareSensorSettings.EnsureFileExists();
+        }
+    }
+
+    private async void DashboardPage_Initialized(object? sender, EventArgs e)
+    {
+        await RefreshAsync();
+    }
+
+    private async Task RefreshAsync()
+    {
+        _loader.IsLoading = true;
+
+        try
+        {
+            ScrollHost?.ScrollToTop();
+
+            if (sensorControl != null)
+            {
+                sensorControl.Visibility = _dashboardSettings.Store.ShowSensors
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
+            }
+
+            _dashboardGroupControls.Clear();
+            _content.ColumnDefinitions.Clear();
+            _content.RowDefinitions.Clear();
+            _content.Children.Clear();
+
+            var groups = _dashboardSettings.Store.Groups ?? DashboardGroup.DefaultGroups;
+
+            Log.Instance.Trace($"Groups:");
+            foreach (var group in groups)
+            {
+                Log.Instance.Trace($" - {group}");
+            }
+
+            _content.ColumnDefinitions.Add(new ColumnDefinition { Width = new(1, GridUnitType.Star) });
+            _content.ColumnDefinitions.Add(new ColumnDefinition { Width = new(1, GridUnitType.Star) });
+
+            var initializationTasks = new List<Task> { Task.Delay(TimeSpan.FromSeconds(1)) };
+            var controls = new List<DashboardGroupControl>();
+
+            foreach (var group in groups)
+            {
+                _content.RowDefinitions.Add(new RowDefinition { Height = new(1, GridUnitType.Auto) });
+
+                var control = new DashboardGroupControl(group);
+                _content.Children.Add(control);
+                controls.Add(control);
+                _dashboardGroupControls.Add(control);
+            }
+
+            foreach (var control in controls)
+            {
+                initializationTasks.Add(control.InitializedTask);
+            }
+
+            _content.RowDefinitions.Add(new RowDefinition { Height = new(1, GridUnitType.Auto) });
+
+            var editDashboardHyperlink = new Hyperlink
+            {
+                Icon = SymbolRegular.Edit24,
+                Content = Resource.DashboardPage_Customize,
+                Margin = new(0, 16, 0, 0),
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+            editDashboardHyperlink.Click += (_, _) =>
+            {
+                var window = new EditDashboardWindow { Owner = Window.GetWindow(this) };
+                window.Apply += async (_, _) => await RefreshAsync();
+                window.ShowDialog();
+            };
+
+            Grid.SetRow(editDashboardHyperlink, groups.Length);
+            Grid.SetColumn(editDashboardHyperlink, 0);
+            Grid.SetColumnSpan(editDashboardHyperlink, 2);
+
+            _content.Children.Add(editDashboardHyperlink);
+
+            LayoutGroups(ActualWidth);
+
+            await Task.WhenAll(initializationTasks);
+
+            App.MainWindowInstance!.SetVisual();
+        }
+        finally
+        {
+            _loader.IsLoading = false;
+        }
+    }
+
+    private void DashboardPage_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        if (!e.WidthChanged)
+            return;
+
+        LayoutGroups(e.NewSize.Width);
+    }
+
+    private void LayoutGroups(double width)
+    {
+        if (width > 1000)
+            Expand();
+        else
+            Collapse();
+    }
+
+    private void Expand()
+    {
+        var lastColumn = _content.ColumnDefinitions.LastOrDefault();
+        if (lastColumn is not null)
+            lastColumn.Width = new(1, GridUnitType.Star);
+
+        for (var index = 0; index < _dashboardGroupControls.Count; index++)
+        {
+            var control = _dashboardGroupControls[index];
+            Grid.SetRow(control, index - (index % 2));
+            Grid.SetColumn(control, index % 2);
+        }
+    }
+
+    private void Collapse()
+    {
+        var lastColumn = _content.ColumnDefinitions.LastOrDefault();
+        if (lastColumn is not null)
+            lastColumn.Width = new(0, GridUnitType.Pixel);
+
+        for (var index = 0; index < _dashboardGroupControls.Count; index++)
+        {
+            var control = _dashboardGroupControls[index];
+            Grid.SetRow(control, index);
+            Grid.SetColumn(control, 0);
+        }
+    }
+}

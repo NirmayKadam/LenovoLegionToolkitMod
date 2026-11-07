@@ -1,0 +1,1095 @@
+using System;
+using System.ComponentModel.DataAnnotations;
+using LenovoLegionToolkit.Lib.Resources;
+
+namespace LenovoLegionToolkit.Lib;
+
+public enum AccentColorSource
+{
+    [Display(ResourceType = typeof(Resource), Name = "AccentColorSource_System")]
+    System,
+    [Display(ResourceType = typeof(Resource), Name = "AccentColorSource_Custom")]
+    Custom
+}
+
+public enum AlwaysOnUSBState
+{
+    [Display(ResourceType = typeof(Resource), Name = "AlwaysOnUSBState_Off")]
+    Off,
+    [Display(ResourceType = typeof(Resource), Name = "AlwaysOnUSBState_OnWhenSleeping")]
+    OnWhenSleeping,
+    [Display(ResourceType = typeof(Resource), Name = "AlwaysOnUSBState_OnAlways")]
+    OnAlways
+}
+
+public enum AutorunState
+{
+    [Display(ResourceType = typeof(Resource), Name = "AutorunState_Enabled")]
+    Enabled,
+    [Display(ResourceType = typeof(Resource), Name = "AutorunState_EnabledDelayed")]
+    EnabledDelayed,
+    [Display(ResourceType = typeof(Resource), Name = "AutorunState_Disabled")]
+    Disabled
+}
+
+public enum BackgroundImageStretchMode
+{
+    Fill = 0,
+    Fit = 1,
+    Crop = 2
+}
+
+public enum BatteryNightChargeState
+{
+    [Display(ResourceType = typeof(Resource), Name = "BatteryNightChargeState_On")]
+    On,
+    [Display(ResourceType = typeof(Resource), Name = "BatteryNightChargeState_Off")]
+    Off
+}
+
+public enum BatteryState
+{
+    [Display(ResourceType = typeof(Resource), Name = "BatteryState_Conservation")]
+    Conservation,
+    [Display(ResourceType = typeof(Resource), Name = "BatteryState_Normal")]
+    Normal,
+    [Display(ResourceType = typeof(Resource), Name = "BatteryState_RapidCharge")]
+    RapidCharge
+}
+
+public enum CapabilityID
+{
+    IGPUMode = 0x00010000,
+    FlipToStart = 0x00030000,
+    NvidiaGPUDynamicDisplaySwitching = 0x00040000,
+    AMDSmartShiftMode = 0x00050001,
+    AMDSkinTemperatureTracking = 0x00050002,
+    SupportedPowerModes = 0x00070000,
+    LegionZoneSupportVersion = 0x00090000,
+    AutoSwitchRefreshRate = 0x000A0000,
+    GodModeFnQSwitchable = 0x00100000,
+    OverDrive = 0x001A0000,
+    AIChip = 0x000E0000,
+    IGPUModeChangeStatus = 0x000F0000,
+    CPUShortTermPowerLimit = 0x0101FF00,
+    CPULongTermPowerLimit = 0x0102FF00,
+    CPUPeakPowerLimit = 0x0103FF00,
+    CPUTemperatureLimit = 0x0104FF00,
+    APUsPPTPowerLimit = 0x0105FF00,
+    CPUCrossLoadingPowerLimit = 0x0106FF00,
+    CPUPL2Tau = 0x0107FF00,
+    CPUOverclockingEnable = 0x108FF00,
+    GPUPowerBoost = 0x0201FF00,
+    GPUConfigurableTGP = 0x0202FF00,
+    GPUTemperatureLimit = 0x0203FF00,
+    GPUTotalProcessingPowerTargetOnAcOffsetFromBaseline = 0x0204FF00,
+    GPUToCPUDynamicBoost = 0x020BFF00,
+    GPUStatus = 0x02070000,
+    ReevaluatePowerBudgets = 0x02080000,
+    GPUDidVid = 0x02090000,
+    InstantBootAc = 0x03010001,
+    InstantBootUsbPowerDelivery = 0x03010002,
+    FanFullSpeed = 0x04020000,
+    CpuCurrentFanSpeed = 0x04030001,
+    GpuCurrentFanSpeed = 0x04030002,
+    PchCurrentFanSpeed = 0x04030004,
+    PchCurrentTemperature = 0x05010000,
+    CpuCurrentTemperature = 0x05040000,
+    GpuCurrentTemperature = 0x05050000
+}
+
+public enum CPUOverclockingID
+{
+    PrecisionBoostOverdriveScaler = 0x414D4401,
+    PrecisionBoostOverdriveBoostFrequency = 0x414D4402,
+    AllCoreCurveOptimizer = 0x414D4403,
+}
+
+public enum CpuProfileMode
+{
+    Productivity,
+    X3DGaming
+}
+
+public enum CpuVoltageMode
+{
+    [Display(ResourceType = typeof(Resource), Name = "CpuVoltageMode_Average")]
+    Average,
+    [Display(ResourceType = typeof(Resource), Name = "CpuVoltageMode_Maximum")]
+    Maximum,
+    [Display(ResourceType = typeof(Resource), Name = "CpuVoltageMode_Core")]
+    Core,
+}
+
+public enum CurveShapeLevel
+{
+    Min,
+    Low,
+    Med,
+    High,
+    Max
+}
+
+public enum CustomSpecialKey
+{
+    [Display(ResourceType = typeof(Resource), Name = "CustomSpecialKey_Default")]
+    Default,
+    [Display(ResourceType = typeof(Resource), Name = "CustomSpecialKey_Custom")]
+    Custom
+}
+
+[Flags]
+public enum DriverKey
+{
+    FnQ = 1,
+    FnF10 = 32,
+    FnF4 = 256,
+    FnF8 = 8192,
+    FnSpace = 4096,
+}
+
+public enum FanState
+{
+    Auto,
+    Manual,
+}
+
+public enum FanTableType
+{
+    Unknown,
+    CPU,
+    CPUSensor,
+    GPU,
+    GPU2,
+    PCH,
+}
+
+public enum FanType
+{
+    [Display(ResourceType = typeof(Resource), Name = "CustomFanCurveControl_Fan_CPU")]
+    Cpu = 0,
+    [Display(ResourceType = typeof(Resource), Name = "CustomFanCurveControl_Fan_GPU")]
+    Gpu = 1,
+    [Display(ResourceType = typeof(Resource), Name = "CustomFanCurveControl_Fan_System")]
+    System = 2,
+}
+
+public enum FlipToStartState
+{
+    [Display(ResourceType = typeof(Resource), Name = "FlipToStartState_Off")]
+    Off,
+    [Display(ResourceType = typeof(Resource), Name = "FlipToStartState_On")]
+    On
+}
+
+public enum FnLockState
+{
+    [Display(ResourceType = typeof(Resource), Name = "FnLockState_Off")]
+    Off,
+    [Display(ResourceType = typeof(Resource), Name = "FnLockState_On")]
+    On
+}
+
+public enum GodModePlatform
+{
+    LegacyLegion,
+    Legion,
+    NonGaming
+}
+
+public enum GpuPreference
+{
+    Default = 0,
+    Integrated = 1,
+    Discrete = 2
+}
+
+public enum GPUState
+{
+    Unknown,
+    NvidiaGpuNotFound,
+    MonitorConnected,
+    Active,
+    Inactive,
+    PoweredOff
+}
+
+public enum GSyncState
+{
+    Off,
+    On
+}
+
+public enum HardwareSensorsState
+{
+    [Display(ResourceType = typeof(Resource), Name = "HardwareSensorsState_Off")]
+    Off,
+    [Display(ResourceType = typeof(Resource), Name = "HardwareSensorsState_On")]
+    On
+}
+
+[Flags]
+public enum HardwareUpdateScope
+{
+    None = 0,
+    Cpu = 1,
+    Gpu = 2,
+    Memory = 4,
+    Fans = 8,
+    Storage = 16,
+    AllNonStorage = Cpu | Gpu | Memory | Fans,
+    All = AllNonStorage | Storage
+}
+
+public enum AutoColorManagementState
+{
+    [Display(ResourceType = typeof(Resource), Name = "AutoColorManagementState_Off")]
+    Off,
+    [Display(ResourceType = typeof(Resource), Name = "AutoColorManagementState_On")]
+    On
+}
+
+public enum HDRState
+{
+    [Display(ResourceType = typeof(Resource), Name = "HDRState_Off")]
+    Off,
+    [Display(ResourceType = typeof(Resource), Name = "HDRState_On")]
+    On
+}
+
+public enum HybridModeState
+{
+    [Display(ResourceType = typeof(Resource), Name = "HybridModeState_On")]
+    On,
+    [Display(ResourceType = typeof(Resource), Name = "HybridModeState_OnIGPUOnly")]
+    OnIGPUOnly,
+    [Display(ResourceType = typeof(Resource), Name = "HybridModeState_OnAuto")]
+    OnAuto,
+    [Display(ResourceType = typeof(Resource), Name = "HybridModeState_UMA")]
+    UMA,
+    [Display(ResourceType = typeof(Resource), Name = "HybridModeState_Off")]
+    Off
+}
+
+public enum HybridModeStateEvent
+{
+    Unknown = -1,
+    StatusChange,
+}
+
+public enum IGPUModeState
+{
+    Default,
+    IGPUOnly,
+    Auto
+}
+
+public enum InstantBootState
+{
+    [Display(ResourceType = typeof(Resource), Name = "InstantBootState_Off")]
+    Off,
+    [Display(ResourceType = typeof(Resource), Name = "InstantBootState_AcAdapter")]
+    AcAdapter,
+    [Display(ResourceType = typeof(Resource), Name = "InstantBootState_UsbPowerDelivery")]
+    UsbPowerDelivery,
+    [Display(ResourceType = typeof(Resource), Name = "InstantBootState_AcAdapterAndUsbPowerDelivery")]
+    AcAdapterAndUsbPowerDelivery
+}
+
+public enum ITSMode
+{
+    None,
+    [Display(ResourceType = typeof(Resource), Name = "ITSMode_Intelligent_Cooling")]
+    ItsAuto,
+    [Display(ResourceType = typeof(Resource), Name = "ITSMode_Intelligent_Battery_Saving")]
+    MmcCool,
+    [Display(ResourceType = typeof(Resource), Name = "ITSMode_Intelligent_Extreme_Performance")]
+    MmcPerformance,
+    [Display(ResourceType = typeof(Resource), Name = "ITSMode_Intelligent_Geek")]
+    MmcGeek
+}
+
+public enum ITSModeServiceControlMessage
+{
+    IntelligentCoolingDisable = 134,
+    IntelligentCoolingEnable = 135,
+    IntelligentCoolingCool = 146,
+    IntelligentCoolingHighPerformance = 148,
+    IntelligentCoolingIntelligent = 163,
+    IntelligentCoolingBsm = 164,
+    IntelligentCoolingEpm = 165,
+    IntelligentCoolingGeek = 172
+}
+
+public enum ITSModeStateEvent
+{
+    Unknown = -1,
+    StatusChange,
+    Suspend,
+    Resume,
+}
+
+public enum KeyboardLayout
+{
+    Ansi,
+    Iso,
+    Jis,
+    Keyboard24Zone,
+}
+
+public enum KnownFolder
+{
+    Contacts,
+    Downloads,
+    Favorites,
+    Links,
+    SavedGames,
+    SavedSearches
+}
+
+public enum LampEffectType
+{
+    Static,
+    Breathe,
+    Wave,
+    Rainbow,
+    Meteor,
+    Ripple,
+    Sparkle,
+    Gradient,
+    CustomPattern,
+    RainbowWave,
+    SpiralRainbow,
+    AuroraSync,
+}
+
+public enum LegionSeries
+{
+    Legion_5 = 0,
+    Legion_Pro_5 = 1,
+    Legion_Slim_5 = 2,
+    Legion_7 = 3,
+    Legion_Pro_7 = 4,
+    Legion_9 = 5,
+    Legion_Go = 6,
+    Lenovo_Slim = 7,
+    Legion_Legacy = 8,
+    IdeaPad = 9,
+    IdeaPad_Gaming = 10,
+    LOQ = 11,
+    YOGA = 12,
+    ThinkBook = 13,
+    Motorola = 14,
+    Unknown = 255
+}
+
+public enum LibreHardwareMonitorInitialState
+{
+    Fail = 0,
+    Initialized = 1,
+    Success = 2,
+    PawnIONotInstalled = 3
+}
+
+public enum LightingChangeState
+{
+    Panel = 0,
+    Ports = 1,
+}
+
+public enum MicrophoneState
+{
+    [Display(ResourceType = typeof(Resource), Name = "MicrophoneState_Off")]
+    Off,
+    [Display(ResourceType = typeof(Resource), Name = "MicrophoneState_On")]
+    On
+}
+
+[Flags]
+public enum ModifierKey
+{
+    None = 0,
+    [Display(ResourceType = typeof(Resource), Name = "ModifierKey_Shift")]
+    Shift = 1,
+    [Display(ResourceType = typeof(Resource), Name = "ModifierKey_Ctrl")]
+    Ctrl = 2,
+    [Display(ResourceType = typeof(Resource), Name = "ModifierKey_Alt")]
+    Alt = 4
+}
+
+public enum NativeWindowsMessage
+{
+    LidOpened,
+    LidClosed,
+    MonitorOn,
+    MonitorOff,
+    DeviceConnected,
+    DeviceDisconnected,
+    MonitorConnected,
+    MonitorDisconnected,
+    ExternalMonitorConnected,
+    ExternalMonitorDisconnected,
+    DisplayDeviceChanged,
+    BatterySaverEnabled
+}
+
+public enum NonGamingCapabilityID
+{
+    CPUShortTermPowerLimit = 0x01010000,
+    CPULongTermPowerLimit = 0x01020000,
+    CPUTemperatureLimit = 0x01040000,
+    CPUPL2Tau = 0x01070000,
+    GPUPowerBoost = 0x02010000,
+    GPUConfigurableTGP = 0x02020000,
+    GPUTemperatureLimit = 0x02030000,
+    GPUTotalProcessingPowerTargetOnAcOffsetFromBaseline = 0x02040000,
+    GPUToCPUDynamicBoost = 0x020B0000,
+    FanFullSpeed = 0x04020000,
+}
+
+public enum NvApiCapabilityID : uint
+{
+    GPUTotalProcessingPowerTargetOnAcOffsetFromBaseline = 0xF0040000,
+}
+
+public enum NotificationDuration
+{
+    [Display(ResourceType = typeof(Resource), Name = "NotificationDuration_Short")]
+    Short,
+    [Display(ResourceType = typeof(Resource), Name = "NotificationDuration_Normal")]
+    Normal,
+    [Display(ResourceType = typeof(Resource), Name = "NotificationDuration_Long")]
+    Long
+}
+
+public enum NotificationPosition
+{
+    [Display(ResourceType = typeof(Resource), Name = "NotificationPosition_BottomRight")]
+    BottomRight,
+    [Display(ResourceType = typeof(Resource), Name = "NotificationPosition_BottomCenter")]
+    BottomCenter,
+    [Display(ResourceType = typeof(Resource), Name = "NotificationPosition_BottomLeft")]
+    BottomLeft,
+    [Display(ResourceType = typeof(Resource), Name = "NotificationPosition_CenterLeft")]
+    CenterLeft,
+    [Display(ResourceType = typeof(Resource), Name = "NotificationPosition_TopLeft")]
+    TopLeft,
+    [Display(ResourceType = typeof(Resource), Name = "NotificationPosition_TopCenter")]
+    TopCenter,
+    [Display(ResourceType = typeof(Resource), Name = "NotificationPosition_TopRight")]
+    TopRight,
+    [Display(ResourceType = typeof(Resource), Name = "NotificationPosition_CenterRight")]
+    CenterRight,
+    [Display(ResourceType = typeof(Resource), Name = "NotificationPosition_Center")]
+    Center
+}
+
+public enum NotificationType
+{
+    ACAdapterConnected,
+    ACAdapterConnectedLowWattage,
+    ACAdapterDisconnected,
+    AirplaneModeOn,
+    AirplaneModeOff,
+    AutomationNotification,
+    CameraOn,
+    CameraOff,
+    CapsLockOn,
+    CapsLockOff,
+    FnLockOn,
+    FnLockOff,
+    MicrophoneOff,
+    MicrophoneOn,
+    NumLockOn,
+    NumLockOff,
+    PanelLogoLightingOn,
+    PanelLogoLightingOff,
+    PortLightingOn,
+    PortLightingOff,
+    PowerModeQuiet,
+    PowerModeBalance,
+    PowerModePerformance,
+    PowerModeExtreme,
+    PowerModeGodMode,
+    RefreshRate,
+    RGBKeyboardBacklightChanged,
+    RGBKeyboardBacklightOff,
+    SmartKeyDoublePress,
+    SmartKeySinglePress,
+    SpectrumBacklightChanged,
+    SpectrumBacklightOff,
+    SpectrumBacklightPresetChanged,
+    TouchpadOn,
+    TouchpadOff,
+    UpdateAvailable,
+    WhiteKeyboardBacklightChanged,
+    WhiteKeyboardBacklightChangedSpecial,
+    WhiteKeyboardBacklightOff,
+    ITSModeAuto,
+    ITSModeCool,
+    ITSModePerformance,
+    ITSModeGeek
+}
+
+public enum OneLevelWhiteKeyboardBacklightState
+{
+    [Display(ResourceType = typeof(Resource), Name = "OneLevelWhiteKeyboardBacklightState_Off")]
+    Off,
+    [Display(ResourceType = typeof(Resource), Name = "OneLevelWhiteKeyboardBacklightState_On")]
+    On
+}
+
+public enum OS
+{
+    [Display(Name = "Windows 11")]
+    Windows11,
+    [Display(Name = "Windows 10")]
+    Windows10,
+    [Display(Name = "Windows 8")]
+    Windows8,
+    [Display(Name = "Windows 7")]
+    Windows7
+}
+
+public enum OsdItem
+{
+    // === Game ===
+    [Display(ResourceType = typeof(Resource), Name = "OsdItem_Fps")]
+    Fps,
+    [Display(ResourceType = typeof(Resource), Name = "OsdItem_LowFps")]
+    LowFps,
+    [Display(ResourceType = typeof(Resource), Name = "OsdItem_FrameTime")]
+    FrameTime,
+    // === CPU ===
+    [Display(ResourceType = typeof(Resource), Name = "OsdItem_Frequency")]
+    CpuFrequency,
+    [Display(ResourceType = typeof(Resource), Name = "OsdItem_P_Core_Frequency")]
+    CpuPCoreFrequency,
+    [Display(ResourceType = typeof(Resource), Name = "OsdItem_E_Core_Frequency")]
+    CpuECoreFrequency,
+    [Display(ResourceType = typeof(Resource), Name = "OsdItem_Utilization")]
+    CpuUtilization,
+    [Display(ResourceType = typeof(Resource), Name = "OsdItem_Temperature")]
+    CpuTemperature,
+    [Display(ResourceType = typeof(Resource), Name = "OsdItem_Power")]
+    CpuPower,
+    [Display(ResourceType = typeof(Resource), Name = "OsdItem_Voltage")]
+    CpuVoltage,
+    [Display(ResourceType = typeof(Resource), Name = "OsdItem_Fan")]
+    CpuFan,
+    // === GPU ===
+    [Display(ResourceType = typeof(Resource), Name = "OsdItem_Frequency")]
+    GpuFrequency,
+    [Display(ResourceType = typeof(Resource), Name = "OsdItem_Utilization")]
+    GpuUtilization,
+    [Display(ResourceType = typeof(Resource), Name = "OsdItem_Temperature")]
+    GpuTemperature,
+    [Display(ResourceType = typeof(Resource), Name = "OsdItem_VramUtilization")]
+    GpuVramUtilization,
+    [Display(ResourceType = typeof(Resource), Name = "OsdItem_VramTemperature")]
+    GpuVramTemperature,
+    [Display(ResourceType = typeof(Resource), Name = "OsdItem_Power")]
+    GpuPower,
+    [Display(ResourceType = typeof(Resource), Name = "OsdItem_Fan")]
+    GpuFan,
+    // === Memory ===
+    [Display(ResourceType = typeof(Resource), Name = "OsdItem_Utilization")]
+    MemoryUtilization,
+    [Display(ResourceType = typeof(Resource), Name = "OsdItem_MemoryTemperature")]
+    MemoryTemperature,
+    // === Storage ===
+    [Display(ResourceType = typeof(Resource), Name = "OsdItem_Disk1Temperature")]
+    Disk1Temperature,
+    [Display(ResourceType = typeof(Resource), Name = "OsdItem_Disk2Temperature")]
+    Disk2Temperature,
+    // === Motherboard ===
+    [Display(ResourceType = typeof(Resource), Name = "OsdItem_MotherboardTemperature")]
+    PchTemperature,
+    [Display(ResourceType = typeof(Resource), Name = "OsdItem_Fan")]
+    PchFan,
+}
+
+public enum OverDriveState
+{
+    [Display(ResourceType = typeof(Resource), Name = "OverdriveState_Off")]
+    Off,
+    [Display(ResourceType = typeof(Resource), Name = "OverdriveState_On")]
+    On
+}
+
+public enum PanelLogoBacklightState
+{
+    [Display(ResourceType = typeof(Resource), Name = "PanelLogoBacklightState_Off")]
+    Off,
+    [Display(ResourceType = typeof(Resource), Name = "PanelLogoBacklightState_On")]
+    On
+}
+
+public enum PawnIOState
+{
+    NotInstalled,
+    Installed,
+    UpdateRequired,
+    ServiceNotRunning,
+}
+
+public enum PortsBacklightState
+{
+    [Display(ResourceType = typeof(Resource), Name = "PortsBacklightState_Off")]
+    Off,
+    [Display(ResourceType = typeof(Resource), Name = "PortsBacklightState_On")]
+    On
+}
+
+public enum PowerAdapterStatus
+{
+    Connected,
+    ConnectedLowWattage,
+    Disconnected
+}
+
+public enum PowerModeMappingMode
+{
+    [Display(ResourceType = typeof(Resource), Name = "PowerModeMappingMode_Disabled")]
+    Disabled,
+    [Display(ResourceType = typeof(Resource), Name = "PowerModeMappingMode_WindowsPowerMode")]
+    WindowsPowerMode,
+    [Display(ResourceType = typeof(Resource), Name = "PowerModeMappingMode_WindowsPowerPlan")]
+    WindowsPowerPlan,
+}
+
+public enum PowerModeState
+{
+    [Display(ResourceType = typeof(Resource), Name = "PowerModeState_Quiet")]
+    Quiet,
+    [Display(ResourceType = typeof(Resource), Name = "PowerModeState_Balance")]
+    Balance,
+    [Display(ResourceType = typeof(Resource), Name = "PowerModeState_Performance")]
+    Performance,
+    [Display(ResourceType = typeof(Resource), Name = "PowerModeState_Extreme")]
+    Extreme = 223,
+    [Display(ResourceType = typeof(Resource), Name = "PowerModeState_GodMode")]
+    GodMode = 254
+}
+
+public enum PowerOverrideKey
+{
+    PowerPlan,
+    PowerModeOnAc,
+    PowerModeOnDc,
+    PowerPlanBalanceOnAc,
+    PowerPlanBalanceOnDc,
+}
+
+public enum PowerStateEvent
+{
+    Unknown = -1,
+    StatusChange,
+    Suspend,
+    Resume,
+}
+
+public enum ProcessEventInfoType
+{
+    Started,
+    Stopped
+}
+
+public enum RebootType
+{
+    NotRequired = 0,
+    Forced = 1,
+    Requested = 3,
+    ForcedPowerOff = 4,
+    Delayed = 5
+}
+
+public enum RGBKeyboardBacklightChanged
+{
+}
+
+public enum RGBKeyboardBacklightBrightness
+{
+    [Display(ResourceType = typeof(Resource), Name = "RGBKeyboardBacklightBrightness_Low")]
+    Low,
+    [Display(ResourceType = typeof(Resource), Name = "RGBKeyboardBacklightBrightness_High")]
+    High
+}
+
+public enum RGBKeyboardBacklightEffect
+{
+    [Display(ResourceType = typeof(Resource), Name = "RGBKeyboardBacklightEffect_Static")]
+    Static,
+    [Display(ResourceType = typeof(Resource), Name = "RGBKeyboardBacklightEffect_Breath")]
+    Breath,
+    [Display(ResourceType = typeof(Resource), Name = "RGBKeyboardBacklightEffect_Smooth")]
+    Smooth,
+    [Display(ResourceType = typeof(Resource), Name = "RGBKeyboardBacklightEffect_WaveRTL")]
+    WaveRTL,
+    [Display(ResourceType = typeof(Resource), Name = "RGBKeyboardBacklightEffect_WaveLTR")]
+    WaveLTR
+}
+
+public enum RGBKeyboardBacklightPreset
+{
+    [Display(ResourceType = typeof(Resource), Name = "RGBKeyboardBacklightPreset_Off")]
+    Off = -1,
+    [Display(ResourceType = typeof(Resource), Name = "RGBKeyboardBacklightPreset_One")]
+    One = 0,
+    [Display(ResourceType = typeof(Resource), Name = "RGBKeyboardBacklightPreset_Two")]
+    Two = 1,
+    [Display(ResourceType = typeof(Resource), Name = "RGBKeyboardBacklightPreset_Three")]
+    Three = 2,
+    [Display(ResourceType = typeof(Resource), Name = "RGBKeyboardBacklightPreset_Four")]
+    Four = 3
+}
+
+public enum RGBKeyboardBacklightSpeed
+{
+    [Display(ResourceType = typeof(Resource), Name = "RGBKeyboardBacklightSpeed_Slowest")]
+    Slowest,
+    [Display(ResourceType = typeof(Resource), Name = "RGBKeyboardBacklightSpeed_Slow")]
+    Slow,
+    [Display(ResourceType = typeof(Resource), Name = "RGBKeyboardBacklightSpeed_Fast")]
+    Fast,
+    [Display(ResourceType = typeof(Resource), Name = "RGBKeyboardBacklightSpeed_Fastest")]
+    Fastest
+}
+
+public enum SensorItem
+{
+    CpuUtilization,
+    CpuFrequency,
+    CpuMaxFrequency,
+    CpuAverageFrequency,
+    CpuPMaxFrequency,
+    CpuPAverageFrequency,
+    CpuEMaxFrequency,
+    CpuEAverageFrequency,
+    CpuFanSpeed,
+    CpuTemperature,
+    CpuPower,
+    CpuVoltage,
+    GpuUtilization,
+    GpuFrequency,
+    GpuFanSpeed,
+    GpuCoreTemperature,
+    GpuVramTemperature,
+    GpuTemperatures,
+    GpuPower,
+    GpuVramUsed,
+    GpuVramTotal,
+    PchFanSpeed,
+    PchTemperature,
+    BatteryState,
+    BatteryLevel,
+    MemoryUtilization,
+    MemoryUsed,
+    MemoryTotal,
+    MemoryTemperature,
+    Disk1Temperature,
+    Disk2Temperature,
+    GpuVramUtilization
+}
+
+public enum SoftwareStatus
+{
+    Enabled,
+    Disabled,
+    NotFound
+}
+
+public enum SpeakerState
+{
+    [Display(ResourceType = typeof(Resource), Name = "SpeakerState_Mute")]
+    Mute,
+    [Display(ResourceType = typeof(Resource), Name = "SpeakerState_Unmute")]
+    Unmute
+}
+
+public enum SpecialKey
+{
+    FnF9 = 1,
+    FnLockOn = 2,
+    FnLockOff = 3,
+    FnPrtSc = 4,
+    FnPrtSc2 = 45,
+    CameraOn = 12,
+    CameraOff = 13,
+    FnR = 16,
+    FnR2 = 0x0041002A,
+    SpectrumBacklightOff = 24,
+    SpectrumBacklight1 = 25,
+    SpectrumBacklight2 = 26,
+    SpectrumBacklight3 = 38,
+    SpectrumPreset1 = 32,
+    SpectrumPreset2 = 33,
+    SpectrumPreset3 = 34,
+    SpectrumPreset4 = 35,
+    SpectrumPreset5 = 36,
+    SpectrumPreset6 = 37,
+    FnF8_ThinkBook = 41,
+    FnN = 42,
+    FnF4 = 62,
+    FnF8 = 63,
+    WhiteBacklightOff = 64,
+    WhiteBacklight1 = 65,
+    WhiteBacklight2 = 66
+}
+
+public enum SpecialKeyLedState
+{
+    MicrophoneOn = 1,
+    MicrophoneOff = 2,
+    SpeakerOn = 4,
+    SpeakerOff = 5,
+}
+
+public enum SpectrumKeyboardBacklightBrightness
+{
+    [Display(ResourceType = typeof(Resource), Name = "SpectrumKeyboardBacklightBrightness_Off")]
+    Off,
+    [Display(ResourceType = typeof(Resource), Name = "SpectrumKeyboardBacklightBrightness_Low")]
+    Low,
+    [Display(ResourceType = typeof(Resource), Name = "SpectrumKeyboardBacklightBrightness_Medium")]
+    Medium,
+    [Display(ResourceType = typeof(Resource), Name = "SpectrumKeyboardBacklightBrightness_High")]
+    High
+}
+
+public enum SpectrumKeyboardBacklightClockwiseDirection
+{
+    None,
+    [Display(ResourceType = typeof(Resource), Name = "SpectrumKeyboardBacklightDirection_Clockwise")]
+    Clockwise,
+    [Display(ResourceType = typeof(Resource), Name = "SpectrumKeyboardBacklightDirection_CounterClockwise")]
+    CounterClockwise
+}
+
+public enum SpectrumKeyboardBacklightDirection
+{
+    None,
+    [Display(ResourceType = typeof(Resource), Name = "SpectrumKeyboardBacklightDirection_BottomToTop")]
+    BottomToTop,
+    [Display(ResourceType = typeof(Resource), Name = "SpectrumKeyboardBacklightDirection_TopToBottom")]
+    TopToBottom,
+    [Display(ResourceType = typeof(Resource), Name = "SpectrumKeyboardBacklightDirection_LeftToRight")]
+    LeftToRight,
+    [Display(ResourceType = typeof(Resource), Name = "SpectrumKeyboardBacklightDirection_RightToLeft")]
+    RightToLeft
+}
+
+public enum SpectrumKeyboardBacklightEffectType
+{
+    [Display(ResourceType = typeof(Resource), Name = "SpectrumKeyboardBacklightEffectType_Always")]
+    Always,
+    [Display(ResourceType = typeof(Resource), Name = "SpectrumKeyboardBacklightEffectType_RainbowScrew")]
+    RainbowScrew,
+    [Display(ResourceType = typeof(Resource), Name = "SpectrumKeyboardBacklightEffectType_RainbowWave")]
+    RainbowWave,
+    [Display(ResourceType = typeof(Resource), Name = "SpectrumKeyboardBacklightEffectType_ColorChange")]
+    ColorChange,
+    [Display(ResourceType = typeof(Resource), Name = "SpectrumKeyboardBacklightEffectType_ColorWave")]
+    ColorWave,
+    [Display(ResourceType = typeof(Resource), Name = "SpectrumKeyboardBacklightEffectType_ColorPulse")]
+    ColorPulse,
+    [Display(ResourceType = typeof(Resource), Name = "SpectrumKeyboardBacklightEffectType_Smooth")]
+    Smooth,
+    [Display(ResourceType = typeof(Resource), Name = "SpectrumKeyboardBacklightEffectType_Rain")]
+    Rain,
+    [Display(ResourceType = typeof(Resource), Name = "SpectrumKeyboardBacklightEffectType_Ripple")]
+    Ripple,
+    [Display(ResourceType = typeof(Resource), Name = "SpectrumKeyboardBacklightEffectType_Type")]
+    Type,
+    [Display(ResourceType = typeof(Resource), Name = "SpectrumKeyboardBacklightEffectType_AudioBounce")]
+    AudioBounce,
+    [Display(ResourceType = typeof(Resource), Name = "SpectrumKeyboardBacklightEffectType_AudioRipple")]
+    AudioRipple,
+    [Display(ResourceType = typeof(Resource), Name = "SpectrumKeyboardBacklightEffectType_AuroraSync")]
+    AuroraSync
+}
+
+public enum SpectrumKeyboardBacklightSpeed
+{
+    None,
+    [Display(ResourceType = typeof(Resource), Name = "SpectrumKeyboardBacklightSpeed_Speed1")]
+    Speed1,
+    [Display(ResourceType = typeof(Resource), Name = "SpectrumKeyboardBacklightSpeed_Speed2")]
+    Speed2,
+    [Display(ResourceType = typeof(Resource), Name = "SpectrumKeyboardBacklightSpeed_Speed3")]
+    Speed3
+}
+
+public enum SpectrumLayout
+{
+    KeyboardOnly,
+    KeyboardAndFront,
+    Full,
+    FullAlternative
+}
+
+public enum StatusCode
+{
+    Update = 0,
+    NoUpdate = 1,
+    ForceUpdate = 2,
+    Null = 255,
+}
+
+public enum TemperatureUnit
+{
+    C,
+    F
+}
+
+public enum Theme
+{
+    [Display(ResourceType = typeof(Resource), Name = "Theme_System")]
+    System,
+    [Display(ResourceType = typeof(Resource), Name = "Theme_Light")]
+    Light,
+    [Display(ResourceType = typeof(Resource), Name = "Theme_Dark")]
+    Dark
+}
+
+public enum ThermalModeState
+{
+    Unknown,
+    Quiet,
+    Balance,
+    Performance,
+    Extreme = 224,
+    GodMode = 255
+}
+
+public enum ThinkBookSpecialKey
+{
+    VoipAnswer = 5,
+    VoipEnd = 6,
+    ServiceKey = 7,
+    LSKClick = 8,
+    VoiceAssistant = 9,
+    VoipAnswer2 = 14,
+    VoipEnd2 = 15,
+    LSK2 = 17,
+    DolbyThreeMode = 18,
+    NightScreenMode = 19,
+    GameLogoOn = 20,
+    GameLogoOff = 21,
+    PluginLEDOn = 22,
+    PluginLEDOff = 23,
+    RGBWave = 27,
+    RGBBreath = 28,
+    RGBSmooth = 29,
+    RGBAlways = 30,
+    RGBOff = 31,
+    ServiceKeyC970 = 39,
+    CameraBackgroundBlur = 40,
+}
+
+public enum ToggleState
+{
+    [Display(ResourceType = typeof(Resource), Name = "ToggleState_Off")]
+    Off,
+    [Display(ResourceType = typeof(Resource), Name = "ToggleState_On")]
+    On,
+    [Display(ResourceType = typeof(Resource), Name = "ToggleState_Toggle")]
+    Toggle,
+}
+
+public enum TouchpadLockState
+{
+    [Display(ResourceType = typeof(Resource), Name = "TouchpadLockState_Off")]
+    Off,
+    [Display(ResourceType = typeof(Resource), Name = "TouchpadLockState_On")]
+    On
+}
+
+public enum UpdateChannel
+{
+    [Display(ResourceType = typeof(Resource), Name = "UpdateChannel_Stable")]
+    Stable,
+    [Display(ResourceType = typeof(Resource), Name = "UpdateChannel_Beta")]
+    Beta,
+    [Display(ResourceType = typeof(Resource), Name = "UpdateChannel_Dev")]
+    Dev,
+    [Display(ResourceType = typeof(Resource), Name = "UpdateChannel_Test")]
+    Test,
+}
+
+public enum UpdateCheckFrequency
+{
+    [Display(ResourceType = typeof(Resource), Name = "UpdateCheckFrequency_Never")]
+    Never,
+    [Display(ResourceType = typeof(Resource), Name = "UpdateCheckFrequency_PerHour")]
+    PerHour,
+    [Display(ResourceType = typeof(Resource), Name = "UpdateCheckFrequency_PerThreeHours")]
+    PerThreeHours,
+    [Display(ResourceType = typeof(Resource), Name = "UpdateCheckFrequency_PerTwelveHours")]
+    PerTwelveHours,
+    [Display(ResourceType = typeof(Resource), Name = "UpdateCheckFrequency_PerDay")]
+    PerDay,
+    [Display(ResourceType = typeof(Resource), Name = "UpdateCheckFrequency_PerWeek")]
+    PerWeek,
+    [Display(ResourceType = typeof(Resource), Name = "UpdateCheckFrequency_PerMonth")]
+    PerMonth
+}
+
+public enum UpdateCheckStatus
+{
+    Success,
+    RateLimitReached,
+    Error
+}
+
+public enum UpdateMethod
+{
+    [Display(ResourceType = typeof(Resource), Name = "UpdateMethod_GitHub")]
+    GitHub,
+    [Display(ResourceType = typeof(Resource), Name = "UpdateMethod_Server")]
+    Server,
+}
+
+public enum WhiteKeyboardBacklightState
+{
+    [Display(ResourceType = typeof(Resource), Name = "WhiteKeyboardBacklightState_Off")]
+    Off,
+    [Display(ResourceType = typeof(Resource), Name = "WhiteKeyboardBacklightState_Low")]
+    Low,
+    [Display(ResourceType = typeof(Resource), Name = "WhiteKeyboardBacklightState_High")]
+    High
+}
+
+public enum WindowBackdropType
+{
+    [Display(ResourceType = typeof(Resource), Name = "WindowBackdropType_None")]
+    None,
+    [Display(ResourceType = typeof(Resource), Name = "WindowBackdropType_Mica")]
+    Mica,
+    [Display(ResourceType = typeof(Resource), Name = "WindowBackdropType_Acrylic")]
+    Acrylic,
+    [Display(ResourceType = typeof(Resource), Name = "WindowBackdropType_Tabbed")]
+    Tabbed
+}
+
+public enum WindowsPowerMode
+{
+    [Display(ResourceType = typeof(Resource), Name = "BestPowerEfficiency")]
+    BestPowerEfficiency,
+    [Display(ResourceType = typeof(Resource), Name = "Balanced")]
+    Balanced,
+    [Display(ResourceType = typeof(Resource), Name = "BestPerformance")]
+    BestPerformance
+}
+
+public enum WinKeyChanged
+{
+}
+
+public enum WinKeyState
+{
+    [Display(ResourceType = typeof(Resource), Name = "WinKeyState_Off")]
+    Off,
+    [Display(ResourceType = typeof(Resource), Name = "WinKeyState_On")]
+    On
+}

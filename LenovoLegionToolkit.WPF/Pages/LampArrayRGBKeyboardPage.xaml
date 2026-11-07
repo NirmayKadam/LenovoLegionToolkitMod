@@ -1,0 +1,266 @@
+<wpfui:UiPage
+    x:Class="LenovoLegionToolkit.WPF.Pages.LampArrayRGBKeyboardPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="clr-namespace:LenovoLegionToolkit.WPF.Controls"
+    xmlns:converters="clr-namespace:LenovoLegionToolkit.WPF.Converters"
+    xmlns:custom="clr-namespace:LenovoLegionToolkit.WPF.Controls.Custom"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:lamp="clr-namespace:LenovoLegionToolkit.WPF.Controls.LampArray"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:resources="clr-namespace:LenovoLegionToolkit.WPF.Resources"
+    xmlns:wpfui="http://schemas.lepo.co/wpfui/2022/xaml"
+    Title="LampArray"
+    d:DesignHeight="1000"
+    d:DesignWidth="1000"
+    Scrollable="True"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <converters:EnumDisplayNameConverter x:Key="EnumDisplayNameConverter" />
+    </Page.Resources>
+
+    <Grid
+        Background="Transparent"
+        MouseLeftButtonDown="PreviewGrid_MouseDown"
+        MouseLeftButtonUp="PreviewGrid_MouseUp"
+        MouseMove="PreviewGrid_MouseMove">
+
+        <TextBlock
+            Margin="0,16,0,24"
+            Focusable="True"
+            FontSize="24"
+            FontWeight="Medium"
+            Text="{x:Static resources:Resource.KeyboardBacklightPage_Title}" />
+
+        <StackPanel Margin="0,60,8,0">
+            <custom:CardControl Margin="0,0,0,24" Icon="Settings24">
+                <custom:CardControl.Header>
+                    <controls:CardHeaderControl Title="{x:Static resources:Resource.Settings}" />
+                </custom:CardControl.Header>
+                <StackPanel>
+                    <Grid Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="200" />
+                            <ColumnDefinition Width="50" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock VerticalAlignment="Center" Text="{x:Static resources:Resource.LampArrayRGBKeyboardPage_Brightness}" />
+                        <Slider
+                            x:Name="_brightnessSlider"
+                            Grid.Column="1"
+                            Maximum="100"
+                            Minimum="0"
+                            ValueChanged="BrightnessSlider_ValueChanged"
+                            Value="50" />
+                        <TextBlock
+                            x:Name="_brightnessValue"
+                            Grid.Column="2"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center">
+                            <Run Text="50" /><Run Text="{x:Static resources:Resource.Percent}" />
+                        </TextBlock>
+                    </Grid>
+
+                    <Grid Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="200" />
+                            <ColumnDefinition Width="50" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock VerticalAlignment="Center" Text="{x:Static resources:Resource.LampArrayRGBKeyboardPage_Speed}" />
+                        <Slider
+                            x:Name="_speedSlider"
+                            Grid.Column="1"
+                            Maximum="200"
+                            Minimum="0"
+                            ValueChanged="SpeedSlider_ValueChanged"
+                            Value="100" />
+                        <TextBlock
+                            x:Name="_speedValue"
+                            Grid.Column="2"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center">
+                            <Run Text="100" /><Run Text="{x:Static resources:Resource.Percent}" />
+                        </TextBlock>
+                    </Grid>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock VerticalAlignment="Stretch" Text="{x:Static resources:Resource.LampArrayRGBKeyboardPage_Smooth_Transition}" />
+                        <CheckBox
+                            x:Name="_smoothTransitionCheckBox"
+                            Grid.Column="1"
+                            Checked="SmoothTransition_Changed"
+                            IsChecked="True"
+                            Unchecked="SmoothTransition_Changed" />
+                    </Grid>
+                </StackPanel>
+            </custom:CardControl>
+
+            <Border
+                Margin="0,0,0,24"
+                Padding="24"
+                Background="{DynamicResource ControlAltFillColorSecondaryBrush}"
+                BorderBrush="{DynamicResource ControlElevationBorderBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Focusable="False">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <Viewbox
+                        Grid.Column="0"
+                        MaxHeight="600"
+                        Stretch="Uniform">
+                        <Grid x:Name="_previewGrid">
+                            <lamp:LampArrayKeyboardControl
+                                x:Name="_visualKeyboard"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center" />
+
+                            <lamp:LampArrayRearAmbientControl
+                                x:Name="_rearAmbientLight"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center" />
+
+                            <lamp:LampArrayAftAmbientControl
+                                x:Name="_aftAmbientLight"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center" />
+                        </Grid>
+                    </Viewbox>
+
+                    <StackPanel
+                        Grid.Column="1"
+                        Margin="24,0,0,0"
+                        VerticalAlignment="Center">
+                        <TextBlock FontWeight="SemiBold" Text="{x:Static resources:Resource.LampArrayRGBKeyboardPage_Target_Zone}" />
+                        <ComboBox
+                            x:Name="_zoneSelect"
+                            Width="160"
+                            Margin="0,8,0,0"
+                            SelectionChanged="ZoneSelect_SelectionChanged">
+                            <ComboBoxItem x:Name="_cbiKeyboard" Content="{x:Static resources:Resource.LampArrayRGBKeyboardPage_Keyboard}" />
+                            <ComboBoxItem x:Name="_cbiRear" Content="{x:Static resources:Resource.LampArrayRGBKeyboardPage_Rear_Ambient}" />
+                            <ComboBoxItem x:Name="_cbiAft" Content="{x:Static resources:Resource.LampArrayRGBKeyboardPage_Aft_Ambient}" />
+                        </ComboBox>
+
+                        <TextBlock
+                            Margin="0,24,0,8"
+                            FontWeight="SemiBold"
+                            Text="{x:Static resources:Resource.LampArrayRGBKeyboardPage_Selection}" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Button
+                                Margin="0,0,4,0"
+                                Click="SelectAll_Click"
+                                Content="{x:Static resources:Resource.LampArrayRGBKeyboardPage_All}" />
+                            <Button
+                                Grid.Column="1"
+                                Margin="4,0,0,0"
+                                Click="DeselectAll_Click"
+                                Content="{x:Static resources:Resource.LampArrayRGBKeyboardPage_None}" />
+                        </Grid>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <custom:CardControl Margin="0,0,0,24" Icon="ColorFill24">
+                <custom:CardControl.Header>
+                    <controls:CardHeaderControl Title="{x:Static resources:Resource.LampArrayRGBKeyboardPage_Effect}" />
+                </custom:CardControl.Header>
+                <StackPanel>
+                    <TextBlock
+                        x:Name="_selectionSummary"
+                        Margin="0,0,0,8"
+                        Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                        Text="{x:Static resources:Resource.LampArrayRGBKeyboardPage_No_Selection}" />
+
+                    <Grid Margin="0,0,0,16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock VerticalAlignment="Center" Text="{x:Static resources:Resource.LampArrayRGBKeyboardPage_Effect}" />
+                        <ComboBox
+                            x:Name="_effectSelect"
+                            Grid.Column="1"
+                            Width="200"
+                            ItemsSource="{Binding EffectTypes, RelativeSource={RelativeSource AncestorType=Page}}"
+                            SelectionChanged="EffectSelect_SelectionChanged">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Converter={StaticResource EnumDisplayNameConverter}}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </Grid>
+
+                    <Grid
+                        x:Name="_directionPanel"
+                        Margin="0,0,0,16"
+                        Visibility="Collapsed">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock VerticalAlignment="Center" Text="{x:Static resources:Resource.LampArrayRGBKeyboardPage_Direction}" />
+                        <ComboBox
+                            x:Name="_directionSelect"
+                            Grid.Column="1"
+                            Width="200"
+                            ItemsSource="{Binding Directions, RelativeSource={RelativeSource AncestorType=Page}}"
+                            SelectionChanged="EffectSelect_SelectionChanged">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Converter={StaticResource EnumDisplayNameConverter}}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </Grid>
+
+                    <StackPanel x:Name="_customModePanel" Orientation="Horizontal">
+                        <controls:ColorPickerControl x:Name="_colorPicker" />
+                        <Button
+                            Margin="10,0,0,0"
+                            Click="ClearCustomColors_Click"
+                            Content="{x:Static resources:Resource.LampArrayRGBKeyboardPage_Clear_Colors}" />
+                        <Button
+                            x:Name="_probeBtn"
+                            Margin="10,0,0,0"
+                            Click="ProbeLamps_Click"
+                            Content="{x:Static resources:Resource.LampArrayRGBKeyboardPage_Probe_Indices}" />
+                        <Button
+                            Margin="10,0,0,0"
+                            Click="ExportProfile_Click"
+                            Content="{x:Static resources:Resource.LampArrayRGBKeyboardPage_Export_Profile}" />
+                        <Button
+                            Margin="10,0,0,0"
+                            Click="ImportProfile_Click"
+                            Content="{x:Static resources:Resource.LampArrayRGBKeyboardPage_Import_Profile}" />
+                    </StackPanel>
+                </StackPanel>
+            </custom:CardControl>
+        </StackPanel>
+
+        <Canvas x:Name="_selectionCanvas" IsHitTestVisible="False">
+            <Rectangle
+                x:Name="_selectionRect"
+                Fill="{DynamicResource SystemAccentColorBrush}"
+                Opacity="0.4"
+                Stroke="{DynamicResource SystemAccentColorBrush}"
+                StrokeThickness="2"
+                Visibility="Collapsed" />
+        </Canvas>
+    </Grid>
+</wpfui:UiPage>
