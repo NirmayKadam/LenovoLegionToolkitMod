@@ -21,10 +21,11 @@
 
 Lenovo Legion Toolkit (LLT) is a lightweight Windows utility for Lenovo Legion, LOQ and related laptops that replaces Lenovo Vantage / Legion Zone / Legion Space: power modes, God Mode (custom power limits and fan curves), battery modes, keyboard lighting, automation, a CLI and more. See the [original README](docs/upstream/README.md) for the full feature list and screenshots.
 
-This fork keeps all of that and focuses on two things:
+This fork keeps all of that and adds three things:
 
 1. **Fixing bugs** found during a code review of v2.36.0.0.
 2. **Closing security holes.** LLT runs as administrator (and starts at logon with top privileges), but it trusted several files and folders that any normal program can write to. A program with ordinary user rights could use that to get administrator rights silently.
+3. **New looks.** Three UI styles (Fluent glass, Neon, Retro CRT), an animation setting, and a live status strip with a sliding power-mode selector on the dashboard.
 
 Every change is listed with file names in [docs/CHANGES.md](docs/CHANGES.md).
 
@@ -61,6 +62,15 @@ Details: [docs/SECURITY.md](docs/SECURITY.md)
 
 Details: [docs/BUG-FIXES.md](docs/BUG-FIXES.md)
 
+### UI styles and animations
+
+- **Settings → Appearance → Style:** *Fluent glass* (the original look, default), *Neon* (dark graphite, cyan, color-coded power modes, soft glow) or *Retro CRT* (green, amber or white phosphor, scanlines, monospaced text). Applies instantly.
+- **Animations:** Full, Reduced (fades only) or Off. Full needs Windows animation effects and the app's hardware acceleration, which LLT has always left off by default.
+- **Dashboard status strip:** power mode, CPU, GPU, fans and battery at a glance, plus a power-mode selector with a sliding highlight. Every value is a real reading; anything the hardware doesn't report shows "—". Toggle it in *Dashboard → Customize*.
+- Every style keeps text contrast at or above 4.5:1 (unit-tested). Windows High Contrast always uses Fluent.
+
+Details: [docs/SKINS.md](docs/SKINS.md)
+
 ## Project status
 
 | Check | Status |
@@ -94,10 +104,16 @@ Building a runnable **installer** needs Inno Setup and your own code-signing cer
 
 ## Documentation
 
+Start at the [documentation index](docs/README.md).
+
 | Document | Contents |
 |---|---|
+| [docs/USER-GUIDE.md](docs/USER-GUIDE.md) | Using the app: every page, the CLI, startup options, where data lives, troubleshooting |
+| [docs/CODEBASE-GUIDE.md](docs/CODEBASE-GUIDE.md) | Understanding the code from scratch: tech stack, tools, reading order, exercises, worked example, glossary |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Projects, layers, core patterns, hardware access, startup, data flows, where to change what |
 | [docs/SECURITY.md](docs/SECURITY.md) | Threat model, each security fix, remaining limitations |
 | [docs/BUG-FIXES.md](docs/BUG-FIXES.md) | Each bug, its cause and its fix |
+| [docs/SKINS.md](docs/SKINS.md) | UI styles, animation levels, the dashboard status strip, and how styles work |
 | [docs/TESTING.md](docs/TESTING.md) | Test project, testing rules, manual hardware checklist |
 | [docs/BUILDING.md](docs/BUILDING.md) | Building, testing, installers, signing, CI |
 | [docs/CHANGES.md](docs/CHANGES.md) | Dated list of every modified, added and removed file (GPL notice) |
