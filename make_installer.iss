@@ -161,7 +161,15 @@ begin
   begin
     if SuppressibleMsgBox(ExpandConstant('{cm:UninstallKeepSettings}'), mbConfirmation, MB_YESNO, idNo) = idYes then
     begin
+        // Logs, and settings from versions before the protected settings folder
         DelTree(ExpandConstant('{localappdata}\{#MyAppNameCompact}'), True, True, True);
+        // Protected settings folder (<install folder>\UserData\<user SID>, one subfolder per user).
+        // The app creates it, so the normal uninstall doesn't know about it. Only administrators can
+        // change it, and the uninstaller runs as administrator.
+        DelTree(ExpandConstant('{app}\UserData'), True, True, True);
+        // The install folder is left behind once UserData was the only thing in it; RemoveDir only
+        // removes an empty folder, so user-added plug-ins are kept.
+        RemoveDir(ExpandConstant('{app}'));
     end;
   end;
 end;
