@@ -174,9 +174,58 @@
             <TabControl Grid.Row="0">
                 <TabItem Header="{x:Static resources:Resource.OsdSettings_Tabs_General}">
                     <StackPanel>
+                        <!--  Show/hide shortcut: registered with Windows (RegisterHotKey), no keyboard hook.  -->
+                        <custom:CardControl Margin="0,0,0,8" Icon="Keyboard24">
+                            <custom:CardControl.Header>
+                                <controls:CardHeaderControl
+                                    x:Name="_hotkeyCardHeader"
+                                    Title="{x:Static resources:Resource.OsdSettings_Hotkey_Title}"
+                                    Subtitle="{x:Static resources:Resource.OsdSettings_Hotkey_Message}"
+                                    HelpKey="Help_Osd_Hotkey" />
+                            </custom:CardControl.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBox
+                                    x:Name="_hotkeyTextBox"
+                                    Width="170"
+                                    Margin="0,0,8,0"
+                                    AutomationProperties.Name="{x:Static resources:Resource.OsdSettings_Hotkey_Title}"
+                                    IsReadOnly="True"
+                                    IsReadOnlyCaretVisible="False"
+                                    PreviewKeyDown="HotkeyTextBox_PreviewKeyDown" />
+                                <wpfui:Button
+                                    Appearance="Secondary"
+                                    AutomationProperties.Name="{x:Static resources:Resource.OsdSettings_Hotkey_Clear}"
+                                    Click="ClearHotkeyButton_Click"
+                                    Icon="Dismiss24"
+                                    ToolTip="{x:Static resources:Resource.OsdSettings_Hotkey_Clear}" />
+                            </StackPanel>
+                        </custom:CardControl>
+
+                        <!--  Fn / special key: a quick action the user assigns in Settings > Special keys.  -->
+                        <custom:CardControl Margin="0,0,0,8" Icon="KeyboardShift24">
+                            <custom:CardControl.Header>
+                                <controls:CardHeaderControl
+                                    x:Name="_fnKeyCardHeader"
+                                    Title="{x:Static resources:Resource.OsdSettings_FnKey_Title}"
+                                    Subtitle="{x:Static resources:Resource.OsdSettings_FnKey_Message}"
+                                    HelpKey="Help_Osd_FnKey" />
+                            </custom:CardControl.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <wpfui:Button
+                                    Margin="0,0,8,0"
+                                    Appearance="Secondary"
+                                    Click="CreateOsdQuickActionButton_Click"
+                                    Content="{x:Static resources:Resource.OsdSettings_FnKey_Create}" />
+                                <wpfui:Button
+                                    Appearance="Secondary"
+                                    Click="OpenSpecialKeysButton_Click"
+                                    Content="{x:Static resources:Resource.OsdSettings_FnKey_OpenSpecialKeys}" />
+                            </StackPanel>
+                        </custom:CardControl>
+
                         <custom:CardControl Margin="0,0,0,8" Icon="Window24">
                             <custom:CardControl.Header>
-                                <TextBlock Text="{x:Static resources:Resource.OsdSettings_General_OverlayStyle}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                <controls:CardHeaderControl Title="{x:Static resources:Resource.OsdSettings_General_OverlayStyle}" HelpKey="Help_Osd_OverlayStyle" />
                             </custom:CardControl.Header>
                             <ComboBox
                                 x:Name="_osdStyleComboBox"
@@ -189,7 +238,7 @@
 
                         <custom:CardControl Margin="0,0,0,8" Icon="Timer24">
                             <custom:CardControl.Header>
-                                <TextBlock Text="{x:Static resources:Resource.OsdSettings_General_RefreshInterval}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                <controls:CardHeaderControl Title="{x:Static resources:Resource.OsdSettings_General_RefreshInterval}" HelpKey="Help_Osd_RefreshInterval" />
                             </custom:CardControl.Header>
                             <wpfui:NumberBox
                                 x:Name="_osdRefreshInterval"
@@ -206,7 +255,7 @@
 
                         <custom:CardControl Margin="0,0,0,8" Icon="Target24">
                             <custom:CardControl.Header>
-                                <TextBlock Text="{x:Static resources:Resource.OsdSettings_General_SnapThreshold}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                <controls:CardHeaderControl Title="{x:Static resources:Resource.OsdSettings_General_SnapThreshold}" HelpKey="Help_Osd_SnapThreshold" />
                             </custom:CardControl.Header>
                             <wpfui:NumberBox
                                 x:Name="_osdSnapThreshold"
@@ -219,7 +268,7 @@
 
                         <custom:CardControl Margin="0,0,0,8" Icon="LockClosed24">
                             <custom:CardControl.Header>
-                                <TextBlock Text="{x:Static resources:Resource.OsdSettings_General_LockPosition}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                <controls:CardHeaderControl Title="{x:Static resources:Resource.OsdSettings_General_LockPosition}" HelpKey="Help_Osd_LockPosition" />
                             </custom:CardControl.Header>
                              <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <wpfui:Button
@@ -241,7 +290,7 @@
                             <custom:CardControl Margin="0,0,0,8" Icon="Layer24">
                                 <custom:CardControl.Header>
                                     <StackPanel>
-                                        <TextBlock Text="{x:Static resources:Resource.OsdSettings_Appearance_Opacity}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                        <controls:CardHeaderControl Title="{x:Static resources:Resource.OsdSettings_Appearance_Opacity}" HelpKey="Help_Osd_Opacity" />
                                         <TextBlock x:Name="_opacityValueText" FontSize="11" Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
                                     </StackPanel>
                                 </custom:CardControl.Header>
@@ -258,7 +307,7 @@
                             <custom:CardControl Margin="0,0,0,8" Icon="AppGeneric24">
                                 <custom:CardControl.Header>
                                     <StackPanel>
-                                        <TextBlock Text="{x:Static resources:Resource.OsdSettings_Appearance_CornerRadius}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                        <controls:CardHeaderControl Title="{x:Static resources:Resource.OsdSettings_Appearance_CornerRadius}" HelpKey="Help_Osd_CornerRadius" />
                                         <TextBlock x:Name="_cornerRadiusValueText" FontSize="11" Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
                                     </StackPanel>
                                 </custom:CardControl.Header>
@@ -292,7 +341,7 @@
 
                             <custom:CardControl Margin="0,0,0,8" Icon="TextFontSize24">
                                 <custom:CardControl.Header>
-                                    <TextBlock Text="{x:Static resources:Resource.OsdSettings_Appearance_FontSize}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                    <controls:CardHeaderControl Title="{x:Static resources:Resource.OsdSettings_Appearance_FontSize}" HelpKey="Help_Osd_FontSize" />
                                 </custom:CardControl.Header>
                                 <wpfui:NumberBox
                                     x:Name="_osdFontSize"
@@ -305,7 +354,7 @@
 
                             <custom:CardControl Margin="0,0,0,8" Icon="Color24">
                                 <custom:CardControl.Header>
-                                    <TextBlock Text="{x:Static resources:Resource.OsdSettings_Appearance_BackgroundColor}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                    <controls:CardHeaderControl Title="{x:Static resources:Resource.OsdSettings_Appearance_BackgroundColor}" HelpKey="Help_Osd_BackgroundColor" />
                                 </custom:CardControl.Header>
                                 <controls:ColorPickerControl
                                     x:Name="_osdBackgroundColorPicker"
@@ -315,7 +364,7 @@
 
                             <custom:CardControl Margin="0,0,0,8" Icon="Grid24">
                                 <custom:CardControl.Header>
-                                    <TextBlock Text="{x:Static resources:Resource.OsdSettings_Appearance_CategoryColor}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                    <controls:CardHeaderControl Title="{x:Static resources:Resource.OsdSettings_Appearance_CategoryColor}" HelpKey="Help_Osd_CategoryColor" />
                                 </custom:CardControl.Header>
                                 <controls:ColorPickerControl
                                     x:Name="_categoryColorPicker"
@@ -325,7 +374,7 @@
 
                             <custom:CardControl Margin="0,0,0,8" Icon="Tag24">
                                 <custom:CardControl.Header>
-                                    <TextBlock Text="{x:Static resources:Resource.OsdSettings_Appearance_LabelColor}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                    <controls:CardHeaderControl Title="{x:Static resources:Resource.OsdSettings_Appearance_LabelColor}" HelpKey="Help_Osd_LabelColor" />
                                 </custom:CardControl.Header>
                                 <controls:ColorPickerControl
                                     x:Name="_labelColorPicker"
@@ -335,7 +384,7 @@
 
                             <custom:CardControl Margin="0,0,0,8" Icon="TextNumberFormat24">
                                 <custom:CardControl.Header>
-                                    <TextBlock Text="{x:Static resources:Resource.OsdSettings_Appearance_ValueColor}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                    <controls:CardHeaderControl Title="{x:Static resources:Resource.OsdSettings_Appearance_ValueColor}" HelpKey="Help_Osd_ValueColor" />
                                 </custom:CardControl.Header>
                                 <controls:ColorPickerControl
                                     x:Name="_valueColorPicker"
@@ -345,7 +394,7 @@
 
                             <custom:CardControl Margin="0,0,0,8" Icon="Warning24">
                                 <custom:CardControl.Header>
-                                    <TextBlock Text="{x:Static resources:Resource.OsdSettings_Appearance_WarningColor}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                    <controls:CardHeaderControl Title="{x:Static resources:Resource.OsdSettings_Appearance_WarningColor}" HelpKey="Help_Osd_WarningColor" />
                                 </custom:CardControl.Header>
                                 <controls:ColorPickerControl
                                     x:Name="_warningColorPicker"
@@ -355,7 +404,7 @@
 
                             <custom:CardControl Margin="0,0,0,8" Icon="ErrorCircle24">
                                 <custom:CardControl.Header>
-                                    <TextBlock Text="{x:Static resources:Resource.OsdSettings_Appearance_CriticalColor}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                    <controls:CardHeaderControl Title="{x:Static resources:Resource.OsdSettings_Appearance_CriticalColor}" HelpKey="Help_Osd_CriticalColor" />
                                 </custom:CardControl.Header>
                                 <controls:ColorPickerControl
                                     x:Name="_criticalColorPicker"
@@ -373,10 +422,9 @@
                                 <StackPanel>
                                     <custom:CardControl
                                         Margin="0,0,0,8"
-                                        ToolTip="{x:Static resources:Resource.OsdSettings_Thresholds_FpsRedline_Description}"
                                         Icon="FastForward24">
                                         <custom:CardControl.Header>
-                                            <TextBlock Text="{x:Static resources:Resource.OsdSettings_Thresholds_FpsRedline}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                            <controls:CardHeaderControl Title="{x:Static resources:Resource.OsdSettings_Thresholds_FpsRedline}" HelpKey="Help_Osd_FpsRedline" />
                                         </custom:CardControl.Header>
                                         <wpfui:NumberBox
                                             x:Name="_fpsCritical"
@@ -388,10 +436,9 @@
                                     </custom:CardControl>
                                     <custom:CardControl
                                         Margin="0"
-                                        ToolTip="{x:Static resources:Resource.OsdSettings_Thresholds_LowFpsDelta_Description}"
                                         Icon="LineStyle24">
                                         <custom:CardControl.Header>
-                                            <TextBlock Text="{x:Static resources:Resource.OsdSettings_Thresholds_LowFpsDelta}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                            <controls:CardHeaderControl Title="{x:Static resources:Resource.OsdSettings_Thresholds_LowFpsDelta}" HelpKey="Help_Osd_LowFpsDelta" />
                                         </custom:CardControl.Header>
                                         <wpfui:NumberBox
                                             x:Name="_lowFpsDelta"
@@ -408,7 +455,7 @@
                                 <StackPanel>
                                     <custom:CardControl Margin="0,0,0,8" Icon="Temperature24">
                                         <custom:CardControl.Header>
-                                            <TextBlock Text="{x:Static resources:Resource.OsdSettings_Thresholds_Warning}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                            <controls:CardHeaderControl Title="{x:Static resources:Resource.OsdSettings_Thresholds_Warning}" HelpKey="Help_Osd_TempWarning" />
                                         </custom:CardControl.Header>
                                         <wpfui:NumberBox
                                             x:Name="_tempWarning"
@@ -420,7 +467,7 @@
                                     </custom:CardControl>
                                     <custom:CardControl Margin="0" Icon="Temperature24">
                                         <custom:CardControl.Header>
-                                            <TextBlock Text="{x:Static resources:Resource.OsdSettings_Thresholds_Critical}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                            <controls:CardHeaderControl Title="{x:Static resources:Resource.OsdSettings_Thresholds_Critical}" HelpKey="Help_Osd_TempCritical" />
                                         </custom:CardControl.Header>
                                         <wpfui:NumberBox
                                             x:Name="_tempCritical"
@@ -437,7 +484,7 @@
                                 <StackPanel>
                                     <custom:CardControl Margin="0,0,0,8" Icon="DataUsage24">
                                         <custom:CardControl.Header>
-                                            <TextBlock Text="{x:Static resources:Resource.OsdSettings_Thresholds_Warning}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                            <controls:CardHeaderControl Title="{x:Static resources:Resource.OsdSettings_Thresholds_Warning}" HelpKey="Help_Osd_UsageWarning" />
                                         </custom:CardControl.Header>
                                         <wpfui:NumberBox
                                             x:Name="_usageWarning"
@@ -449,7 +496,7 @@
                                     </custom:CardControl>
                                     <custom:CardControl Margin="0" Icon="DataUsage24">
                                         <custom:CardControl.Header>
-                                            <TextBlock Text="{x:Static resources:Resource.OsdSettings_Thresholds_Critical}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                            <controls:CardHeaderControl Title="{x:Static resources:Resource.OsdSettings_Thresholds_Critical}" HelpKey="Help_Osd_UsageCritical" />
                                         </custom:CardControl.Header>
                                         <wpfui:NumberBox
                                             x:Name="_usageCritical"

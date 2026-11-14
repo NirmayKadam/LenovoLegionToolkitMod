@@ -65,7 +65,7 @@
                         Icon="Warning24"
                         Visibility="Collapsed">
                         <custom:CardControl.Header>
-                            <controls:CardHeaderControl Title="{x:Static resources:Resource.PowerPlansWindow_AoAcWarning_Title}" Subtitle="{x:Static resources:Resource.PowerPlansWindow_AoAcWarning_Message}" />
+                            <controls:CardHeaderControl Title="{x:Static resources:Resource.PowerPlansWindow_AoAcWarning_Title}" HelpKey="Help_PowerPlans_ModernStandby" Subtitle="{x:Static resources:Resource.PowerPlansWindow_AoAcWarning_Message}" />
                         </custom:CardControl.Header>
                     </custom:CardControl>
 

@@ -62,15 +62,10 @@ public partial class AutomationPipelineTriggerConfigurationWindow
 
         var expander = new CardExpander
         {
-            Header = new CardHeaderControl 
-            { 
-                 Title = trigger.DisplayName, 
-            },
+            Header = headerPanel,
             IsExpanded = true,
             Content = content
         };
-
-        expander.Header = headerPanel;
         expander.Tag = trigger; // Store trigger for Save
         expander.Margin = new Thickness(0, 0, 0, 8);
 

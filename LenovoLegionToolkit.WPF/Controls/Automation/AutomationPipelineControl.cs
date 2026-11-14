@@ -43,7 +43,7 @@ public class AutomationPipelineControl : UserControl
         Margin = new(0, 0, 0, 8),
     };
 
-    private readonly CardHeaderControl _cardHeaderControl = new();
+    private readonly CardHeaderControl _cardHeaderControl = new() { HelpKey = "Help_Automation_Pipeline" };
 
     private readonly StackPanel _stackPanel = new();
 

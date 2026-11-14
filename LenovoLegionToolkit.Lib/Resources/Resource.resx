@@ -723,4 +723,31 @@
     <value>On</value>
     <comment>Informs the user that WinLock is or will be turned on.</comment>
   </data>
+  <data name="AnimationLevel_Full" xml:space="preserve">
+    <value>Full</value>
+  </data>
+  <data name="AnimationLevel_Off" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="AnimationLevel_Reduced" xml:space="preserve">
+    <value>Reduced</value>
+  </data>
+  <data name="RetroPhosphor_Amber" xml:space="preserve">
+    <value>Amber</value>
+  </data>
+  <data name="RetroPhosphor_Green" xml:space="preserve">
+    <value>Green</value>
+  </data>
+  <data name="RetroPhosphor_White" xml:space="preserve">
+    <value>White</value>
+  </data>
+  <data name="UiSkin_Fluent" xml:space="preserve">
+    <value>Fluent glass</value>
+  </data>
+  <data name="UiSkin_Neon" xml:space="preserve">
+    <value>Neon</value>
+  </data>
+  <data name="UiSkin_Retro" xml:space="preserve">
+    <value>Retro CRT</value>
+  </data>
 </root>

@@ -103,6 +103,8 @@ public partial class DashboardPage
         {
             ScrollHost?.ScrollToTop();
 
+            _statusArea.Visibility = _settings.Store.ShowStatusStrip ? Visibility.Visible : Visibility.Collapsed;
+
             if (sensorControl != null)
             {
                 sensorControl.Visibility = _dashboardSettings.Store.ShowSensors
@@ -171,11 +173,29 @@ public partial class DashboardPage
             await Task.WhenAll(initializationTasks);
 
             App.MainWindowInstance!.SetVisual();
+
+            PlayEntrance();
         }
         finally
         {
             _loader.IsLoading = false;
         }
+    }
+
+    /// <summary>
+    /// Status strip, then sensors, then each group, 40 ms apart, as the loaded dashboard appears.
+    /// </summary>
+    private void PlayEntrance()
+    {
+        var elements = new List<UIElement>();
+        if (_statusArea.Visibility == Visibility.Visible)
+            elements.Add(_statusArea);
+        if (sensorControl is { Visibility: Visibility.Visible })
+            elements.Add(sensorControl);
+        elements.AddRange(_dashboardGroupControls);
+
+        for (var i = 0; i < elements.Count; i++)
+            Motion.FadeSlideIn(elements[i], TimeSpan.FromMilliseconds(40 * i));
     }
 
     private void DashboardPage_SizeChanged(object sender, SizeChangedEventArgs e)

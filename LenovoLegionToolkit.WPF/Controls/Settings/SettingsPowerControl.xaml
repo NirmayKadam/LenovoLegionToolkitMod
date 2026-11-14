@@ -8,13 +8,62 @@
     xmlns:wpfui="http://schemas.lepo.co/wpfui/2022/xaml">
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
         <StackPanel Margin="0,0,16,12">
+            <!--  Explains the three things called "power ... mode/plan" before the settings that link them.  -->
+            <Border
+                Margin="0,0,0,8"
+                Padding="16,14"
+                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="{DynamicResource ControlCornerRadius}">
+                <StackPanel>
+                    <TextBlock
+                        FontSize="14"
+                        FontWeight="Medium"
+                        Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                        Text="{x:Static resources:Resource.PowerExplainer_Title}"
+                        TextWrapping="Wrap" />
+                    <TextBlock
+                        Margin="0,2,0,10"
+                        FontSize="12"
+                        Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                        Text="{x:Static resources:Resource.PowerExplainer_Message}"
+                        TextWrapping="Wrap" />
+                    <UniformGrid Columns="3">
+                        <StackPanel Margin="0,0,12,0">
+                            <TextBlock FontWeight="SemiBold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Text="{x:Static resources:Resource.PowerExplainer_ModeTitle}" TextWrapping="Wrap" />
+                            <TextBlock Margin="0,4,0,0" FontSize="12" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="{x:Static resources:Resource.PowerExplainer_ModeText}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <StackPanel Margin="0,0,12,0">
+                            <TextBlock FontWeight="SemiBold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Text="{x:Static resources:Resource.PowerExplainer_PlanTitle}" TextWrapping="Wrap" />
+                            <TextBlock Margin="0,4,0,0" FontSize="12" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="{x:Static resources:Resource.PowerExplainer_PlanText}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock FontWeight="SemiBold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Text="{x:Static resources:Resource.PowerExplainer_WinModeTitle}" TextWrapping="Wrap" />
+                            <TextBlock Margin="0,4,0,0" FontSize="12" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="{x:Static resources:Resource.PowerExplainer_WinModeText}" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </UniformGrid>
+                </StackPanel>
+            </Border>
+            <custom:CardControl Margin="0,0,0,8" Icon="WeatherDuststorm24">
+                <custom:CardControl.Header>
+                    <controls:CardHeaderControl
+                        Title="{x:Static resources:Resource.FanCurvesWindow_Title}"
+                        Subtitle="{x:Static resources:Resource.SettingsPage_FanCurves_Message}"
+                        HelpKey="Help_FanCurves" />
+                </custom:CardControl.Header>
+                <wpfui:Button
+                    Appearance="Secondary"
+                    Click="FanCurvesButton_Click"
+                    Content="{x:Static resources:Resource.SettingsPage_FanCurves_Open}" />
+            </custom:CardControl>
             <custom:CardControl
                 x:Name="_godModeFnQSwitchableCard"
                 Margin="0,0,0,8"
                 Icon="TopSpeed24"
                 Visibility="Collapsed">
                 <custom:CardControl.Header>
-                    <controls:CardHeaderControl Title="{x:Static resources:Resource.Settings_GodModeFnQSwitchable_Title}" Subtitle="{x:Static resources:Resource.Settings_GodModeFnQSwitchable_Message}" />
+                    <controls:CardHeaderControl Title="{x:Static resources:Resource.Settings_GodModeFnQSwitchable_Title}" HelpKey="Help_Settings_FnQCustom" Subtitle="{x:Static resources:Resource.Settings_GodModeFnQSwitchable_Message}" />
                 </custom:CardControl.Header>
                 <wpfui:ToggleSwitch
                     x:Name="_godModeFnQSwitchableToggle"
@@ -29,7 +78,7 @@
                 Icon="Flash24"
                 Visibility="Collapsed">
                 <custom:CardControl.Header>
-                    <controls:CardHeaderControl x:Name="_powerModeMappingCardHeader" Title="{x:Static resources:Resource.SettingsPage_PowerModeMapping_Title}" Subtitle="{x:Static resources:Resource.SettingsPage_PowerModeMapping_Message}" />
+                    <controls:CardHeaderControl x:Name="_powerModeMappingCardHeader" Title="{x:Static resources:Resource.SettingsPage_PowerModeMapping_Title}" Subtitle="{x:Static resources:Resource.SettingsPage_PowerModeMapping_Message}" HelpKey="Help_Settings_PowerModeMapping" />
                 </custom:CardControl.Header>
                 <ComboBox
                     x:Name="_powerModeMappingComboBox"
@@ -46,7 +95,7 @@
                 Click="PowerModes_Click"
                 Icon="Flash24"
                 Visibility="Collapsed">
-                <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_WindowsPowerModes_Title}" Subtitle="{x:Static resources:Resource.SettingsPage_WindowsPowerModes_Message}" />
+                <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_WindowsPowerModes_Title}" Subtitle="{x:Static resources:Resource.SettingsPage_WindowsPowerModes_Message}" HelpKey="Help_Settings_WindowsPowerModes" />
             </custom:CardAction>
             <custom:CardAction
                 x:Name="_windowsPowerPlansCard"
@@ -54,7 +103,7 @@
                 Click="WindowsPowerPlans_Click"
                 Icon="Flash24"
                 Visibility="Collapsed">
-                <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_WindowsPowerPlans_Title}" Subtitle="{x:Static resources:Resource.SettingsPage_WindowsPowerPlans_Message}" />
+                <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_WindowsPowerPlans_Title}" Subtitle="{x:Static resources:Resource.SettingsPage_WindowsPowerPlans_Message}" HelpKey="Help_Settings_WindowsPowerPlans" />
             </custom:CardAction>
             <custom:CardAction
                 x:Name="_windowsPowerPlansControlPanelCard"
@@ -62,11 +111,11 @@
                 Click="WindowsPowerPlansControlPanel_Click"
                 Icon="Open24"
                 Visibility="Collapsed">
-                <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_WindowsPowerPlansControlPanel_Title}" />
+                <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_WindowsPowerPlansControlPanel_Title}" HelpKey="Help_Settings_PowerPlansControlPanel" />
             </custom:CardAction>
             <custom:CardControl Margin="0,0,0,8" Icon="Battery024">
                 <custom:CardControl.Header>
-                    <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_OnBatterySinceReset_Title}" Subtitle="{x:Static resources:Resource.SettingsPage_OnBatterySinceReset_Message}" />
+                    <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_OnBatterySinceReset_Title}" HelpKey="Help_Settings_OnBatterySinceReset" Subtitle="{x:Static resources:Resource.SettingsPage_OnBatterySinceReset_Message}" />
                 </custom:CardControl.Header>
                 <wpfui:ToggleSwitch
                     x:Name="_onBatterySinceResetToggle"

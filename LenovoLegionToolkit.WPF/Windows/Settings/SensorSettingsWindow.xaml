@@ -63,7 +63,7 @@
                     Text="{x:Static resources:Resource.SettingsPage_SensorSettings_Title}" />
                 <custom:CardControl Margin="0,0,0,8">
                     <custom:CardControl.Header>
-                        <controls:CardHeaderControl Title="{x:Static resources:Resource.SensorSettingsPage_CPU_Frequency_Title}" Subtitle="{x:Static resources:Resource.SensorSettingsPage_CPU_Frequency_Message}" />
+                        <controls:CardHeaderControl Title="{x:Static resources:Resource.SensorSettingsPage_CPU_Frequency_Title}" HelpKey="Help_Sensors_CpuFrequency" Subtitle="{x:Static resources:Resource.SensorSettingsPage_CPU_Frequency_Message}" />
                     </custom:CardControl.Header>
                     <ComboBox x:Name="_cpuFrequencySelector" MinWidth="140">
                         <ComboBoxItem Content="{x:Static resources:Resource.SensorSettingsPage_Max_Frequency_Title}" />
@@ -73,7 +73,7 @@
 
                 <custom:CardControl Margin="0,0,0,8">
                     <custom:CardControl.Header>
-                        <controls:CardHeaderControl Title="{x:Static resources:Resource.SensorSettingsPage_Voltage_Title}" Subtitle="{x:Static resources:Resource.SensorSettingsPage_Voltage_Message}" />
+                        <controls:CardHeaderControl Title="{x:Static resources:Resource.SensorSettingsPage_Voltage_Title}" HelpKey="Help_Sensors_Voltage" Subtitle="{x:Static resources:Resource.SensorSettingsPage_Voltage_Message}" />
                     </custom:CardControl.Header>
                     <StackPanel Orientation="Horizontal">
                         <ComboBox
@@ -94,7 +94,7 @@
 
                 <custom:CardControl x:Name="_gpuSelectionCard" Margin="0,0,0,8">
                     <custom:CardControl.Header>
-                        <controls:CardHeaderControl Title="{x:Static resources:Resource.SensorSettingsPage_Preferred_GPU_Title}" Subtitle="{x:Static resources:Resource.SensorSettingsPage_Preferred_GPU_Message}" />
+                        <controls:CardHeaderControl Title="{x:Static resources:Resource.SensorSettingsPage_Preferred_GPU_Title}" HelpKey="Help_Sensors_PreferredGpu" Subtitle="{x:Static resources:Resource.SensorSettingsPage_Preferred_GPU_Message}" />
                     </custom:CardControl.Header>
                     <ComboBox x:Name="_gpuSelector" MinWidth="140">
                         <ComboBoxItem Content="{x:Static resources:Resource.SensorSettingsPage_Discrete_GPU_Title}" />
@@ -104,7 +104,7 @@
 
                 <custom:CardControl Margin="0,0,0,8">
                     <custom:CardControl.Header>
-                        <controls:CardHeaderControl Title="{x:Static resources:Resource.SensorSettingsPage_Memory_Display_Mode_Title}" Subtitle="{x:Static resources:Resource.SensorSettingsPage_Memory_Display_Mode_Message}" />
+                        <controls:CardHeaderControl Title="{x:Static resources:Resource.SensorSettingsPage_Memory_Display_Mode_Title}" HelpKey="Help_Sensors_MemoryMode" Subtitle="{x:Static resources:Resource.SensorSettingsPage_Memory_Display_Mode_Message}" />
                     </custom:CardControl.Header>
                     <ComboBox x:Name="_memoryDisplayModeSelector" MinWidth="140">
                         <ComboBoxItem Content="{x:Static resources:Resource.SensorSettingsPage_Percentage_Title}" />
@@ -114,7 +114,7 @@
 
                 <custom:CardControl Margin="0,0,0,8">
                     <custom:CardControl.Header>
-                        <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_Temperature_Title}" Subtitle="{x:Static resources:Resource.SettingsPage_Temperature_Message}" />
+                        <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_Temperature_Title}" HelpKey="Help_Sensors_Temperature" Subtitle="{x:Static resources:Resource.SettingsPage_Temperature_Message}" />
                     </custom:CardControl.Header>
                     <ComboBox x:Name="_temperatureUnitSelector" MinWidth="140">
                         <ComboBoxItem Content="{x:Static resources:Resource.Celsius}" />

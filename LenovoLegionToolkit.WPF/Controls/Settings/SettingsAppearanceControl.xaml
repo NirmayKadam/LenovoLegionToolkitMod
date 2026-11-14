@@ -13,7 +13,7 @@
                 Margin="0,0,0,8"
                 Icon="LocalLanguage24">
                 <custom:CardControl.Header>
-                    <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_Language_Title}" Subtitle="{x:Static resources:Resource.SettingsPage_Language_Message}" />
+                    <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_Language_Title}" HelpKey="Help_Settings_Language" Subtitle="{x:Static resources:Resource.SettingsPage_Language_Message}" />
                 </custom:CardControl.Header>
                 <ComboBox
                     x:Name="_langComboBox"
@@ -23,9 +23,133 @@
                     SelectionChanged="LangComboBox_SelectionChanged"
                     Visibility="Hidden" />
             </custom:CardControl>
+            <custom:CardControl Margin="0,0,0,8" Icon="PaintBrush24">
+                <custom:CardControl.Header>
+                    <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_Skin_Title}" HelpKey="Help_Settings_Skin" Subtitle="{x:Static resources:Resource.SettingsPage_Skin_Message}" />
+                </custom:CardControl.Header>
+                <ComboBox
+                    x:Name="_skinComboBox"
+                    MinWidth="160"
+                    Margin="0,0,0,8"
+                    AutomationProperties.Name="{x:Static resources:Resource.SettingsPage_Skin_Title}"
+                    MaxDropDownHeight="Auto"
+                    SelectionChanged="SkinComboBox_SelectionChanged"
+                    Visibility="Hidden" />
+            </custom:CardControl>
+            <custom:CardControl
+                x:Name="_neonGlowCard"
+                Margin="0,0,0,8"
+                Icon="Sparkle24"
+                Visibility="Collapsed">
+                <custom:CardControl.Header>
+                    <controls:CardHeaderControl
+                        x:Name="_neonGlowCardHeader"
+                        Title="{x:Static resources:Resource.SettingsPage_NeonGlow_Title}" HelpKey="Help_Settings_NeonGlow"
+                        Subtitle="{x:Static resources:Resource.SettingsPage_NeonGlow_Message}" />
+                </custom:CardControl.Header>
+                <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                    <Slider
+                        x:Name="_neonGlowSlider"
+                        Width="160"
+                        AutomationProperties.Name="{x:Static resources:Resource.SettingsPage_NeonGlow_Title}"
+                        IsSnapToTickEnabled="True"
+                        LargeChange="10"
+                        Maximum="100"
+                        Minimum="0"
+                        SmallChange="5"
+                        TickFrequency="5"
+                        ValueChanged="NeonGlowSlider_ValueChanged" />
+                    <TextBlock
+                        x:Name="_neonGlowValueText"
+                        MinWidth="36"
+                        Margin="8,0,0,0"
+                        VerticalAlignment="Center"
+                        Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                </StackPanel>
+            </custom:CardControl>
+            <custom:CardControl
+                x:Name="_retroPhosphorCard"
+                Margin="0,0,0,8"
+                Icon="Color24"
+                Visibility="Collapsed">
+                <custom:CardControl.Header>
+                    <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_RetroPhosphor_Title}" HelpKey="Help_Settings_RetroPhosphor" Subtitle="{x:Static resources:Resource.SettingsPage_RetroPhosphor_Message}" />
+                </custom:CardControl.Header>
+                <ComboBox
+                    x:Name="_retroPhosphorComboBox"
+                    MinWidth="160"
+                    Margin="0,0,0,8"
+                    AutomationProperties.Name="{x:Static resources:Resource.SettingsPage_RetroPhosphor_Title}"
+                    MaxDropDownHeight="Auto"
+                    SelectionChanged="RetroPhosphorComboBox_SelectionChanged" />
+            </custom:CardControl>
+            <custom:CardControl
+                x:Name="_retroEffectsCard"
+                Margin="0,0,0,8"
+                Icon="Desktop24"
+                Visibility="Collapsed">
+                <custom:CardControl.Header>
+                    <controls:CardHeaderControl
+                        x:Name="_retroEffectsCardHeader"
+                        Title="{x:Static resources:Resource.SettingsPage_RetroEffects_Title}" HelpKey="Help_Settings_RetroEffects"
+                        Subtitle="{x:Static resources:Resource.SettingsPage_RetroEffects_Message}" />
+                </custom:CardControl.Header>
+                <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                    <TextBlock
+                        Margin="0,0,6,0"
+                        VerticalAlignment="Center"
+                        Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                        Text="{x:Static resources:Resource.SettingsPage_RetroScanlines}" />
+                    <Slider
+                        x:Name="_retroScanlinesSlider"
+                        Width="120"
+                        AutomationProperties.Name="{x:Static resources:Resource.SettingsPage_RetroScanlines}"
+                        IsSnapToTickEnabled="True"
+                        LargeChange="10"
+                        Maximum="100"
+                        Minimum="0"
+                        SmallChange="5"
+                        TickFrequency="5"
+                        ValueChanged="RetroScanlinesSlider_ValueChanged" />
+                    <TextBlock
+                        x:Name="_retroScanlinesValueText"
+                        MinWidth="36"
+                        Margin="6,0,16,0"
+                        VerticalAlignment="Center"
+                        Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                    <TextBlock
+                        Margin="0,0,8,0"
+                        VerticalAlignment="Center"
+                        Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                        Text="{x:Static resources:Resource.SettingsPage_RetroGlow}" />
+                    <wpfui:ToggleSwitch
+                        x:Name="_retroGlowToggle"
+                        AutomationProperties.Name="{x:Static resources:Resource.SettingsPage_RetroGlow}"
+                        Checked="RetroGlowToggle_Changed"
+                        Unchecked="RetroGlowToggle_Changed" />
+                </StackPanel>
+            </custom:CardControl>            <custom:CardControl Margin="0,0,0,8" Icon="SlideTransition24">
+                <custom:CardControl.Header>
+                    <controls:CardHeaderControl
+                        x:Name="_animationsCardHeader"
+                        Title="{x:Static resources:Resource.SettingsPage_Animations_Title}" HelpKey="Help_Settings_Animations"
+                        Subtitle="{x:Static resources:Resource.SettingsPage_Animations_Message}" />
+                </custom:CardControl.Header>
+                <ComboBox
+                    x:Name="_animationsComboBox"
+                    MinWidth="160"
+                    Margin="0,0,0,8"
+                    AutomationProperties.Name="{x:Static resources:Resource.SettingsPage_Animations_Title}"
+                    MaxDropDownHeight="Auto"
+                    SelectionChanged="AnimationsComboBox_SelectionChanged"
+                    Visibility="Hidden" />
+            </custom:CardControl>
             <custom:CardControl Margin="0,0,0,8" Icon="DarkTheme24">
                 <custom:CardControl.Header>
-                    <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_Theme_Title}" Subtitle="{x:Static resources:Resource.SettingsPage_Theme_Description}" />
+                    <controls:CardHeaderControl
+                        x:Name="_themeCardHeader"
+                        Title="{x:Static resources:Resource.SettingsPage_Theme_Title}" HelpKey="Help_Settings_Theme"
+                        Subtitle="{x:Static resources:Resource.SettingsPage_Theme_Description}" />
                 </custom:CardControl.Header>
                 <ComboBox
                     x:Name="_themeComboBox"
@@ -38,7 +162,10 @@
             </custom:CardControl>
             <custom:CardControl Margin="0,0,0,8" Icon="Wallpaper24">
                 <custom:CardControl.Header>
-                    <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_Custom_BackgroundImage_Title}" Subtitle="{x:Static resources:Resource.SettingsPage_Custom_BackgroundImage_Message}" />
+                    <controls:CardHeaderControl
+                        x:Name="_backgroundImageCardHeader"
+                        Title="{x:Static resources:Resource.SettingsPage_Custom_BackgroundImage_Title}" HelpKey="Help_Settings_BackgroundImage"
+                        Subtitle="{x:Static resources:Resource.SettingsPage_Custom_BackgroundImage_Message}" />
                 </custom:CardControl.Header>
                 <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
                     <StackPanel x:Name="_backgroundImageSliderControls" Margin="0,0,8,0" Visibility="Collapsed">
@@ -117,7 +244,7 @@
             </custom:CardControl>
             <custom:CardControl Margin="0,0,0,8" Icon="Color24">
                 <custom:CardControl.Header>
-                    <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_AccentColor_Title}" Subtitle="{x:Static resources:Resource.SettingsPage_AccentColor_Description}" />
+                    <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_AccentColor_Title}" HelpKey="Help_Settings_AccentColor" Subtitle="{x:Static resources:Resource.SettingsPage_AccentColor_Description}" />
                 </custom:CardControl.Header>
                 <StackPanel Orientation="Horizontal">
                     <controls:ColorPickerControl x:Name="_accentColorPicker" ColorChangedDelayed="AccentColorPicker_Changed" />
@@ -133,7 +260,8 @@
             <custom:CardControl Margin="0,0,0,8" Icon="WindowApps24">
                 <custom:CardControl.Header>
                     <controls:CardHeaderControl
-                        Title="{x:Static resources:Resource.SettingsPage_WindowBackdropType_Title}"
+                        x:Name="_backdropCardHeader"
+                        Title="{x:Static resources:Resource.SettingsPage_WindowBackdropType_Title}" HelpKey="Help_Settings_Backdrop"
                         Subtitle="{x:Static resources:Resource.SettingsPage_WindowBackdropType_Message}"
                         Info="{x:Static resources:Resource.SettingsPage_WindowBackdropType_Info}" />
                 </custom:CardControl.Header>
@@ -148,7 +276,7 @@
             <custom:CardControl Margin="0,0,0,8" Icon="Flash24">
                 <custom:CardControl.Header>
                     <controls:CardHeaderControl
-                        Title="{x:Static resources:Resource.SettingsPage_HardwareAcceleration_Title}"
+                        Title="{x:Static resources:Resource.SettingsPage_HardwareAcceleration_Title}" HelpKey="Help_Settings_HardwareAcceleration"
                         Subtitle="{x:Static resources:Resource.SettingsPage_HardwareAcceleration_Message}"
                         Warning="{x:Static resources:Resource.SettingsPage_HardwareAcceleration_Warning}" />
                 </custom:CardControl.Header>

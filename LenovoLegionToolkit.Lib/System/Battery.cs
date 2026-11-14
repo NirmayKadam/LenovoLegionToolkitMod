@@ -41,7 +41,14 @@ public static class Battery
         }
     }
 
-    public static BatteryInformation GetBatteryInformation()
+    // The battery page, dashboard sensors, status strip and HWiNFO integration all read these, some every second.
+    // Callers within 750 ms share one real read of the driver.
+    private static readonly SharedReading<BatteryInformation> SharedInformation = new(TimeSpan.FromMilliseconds(750));
+    private static readonly SharedReading<LENOVO_BATTERY_INFORMATION?> SharedLenovoInformation = new(TimeSpan.FromMilliseconds(750));
+
+    public static BatteryInformation GetBatteryInformation() => SharedInformation.Get(ReadBatteryInformation);
+
+    private static BatteryInformation ReadBatteryInformation()
     {
         var powerStatus = GetSystemPowerStatus();
 
@@ -206,27 +213,43 @@ public static class Battery
         return s;
     }
 
-    private static LENOVO_BATTERY_INFORMATION? FindLenovoBatteryInformation()
-    {
-        for (uint index = 0; index < 3; index++)
-        {
-            // if (Log.Instance.IsTraceEnabled)
-                // Log.Instance.Trace($"Checking battery data at index {index}...");
+    private static LENOVO_BATTERY_INFORMATION? FindLenovoBatteryInformation() => SharedLenovoInformation.Get(ReadLenovoBatteryInformation);
 
+    /// <summary>The driver slot that last answered, tried first next time instead of searching every slot again.</summary>
+    private static uint? _lenovoBatterySlot;
+
+    private static LENOVO_BATTERY_INFORMATION? ReadLenovoBatteryInformation()
+    {
+        foreach (var index in BatterySlotsToTry(_lenovoBatterySlot))
+        {
             var info = GetLenovoBatteryInformation(index);
             if (info.Temperature is ushort.MinValue or ushort.MaxValue)
+            {
+                if (index == _lenovoBatterySlot)
+                    _lenovoBatterySlot = null;   // stopped answering (battery swapped, driver restarted): search again
                 continue;
+            }
 
-            // Noisy when debug.
-            // if (Log.Instance.IsTraceEnabled)
-                // Log.Instance.Trace($"Battery data found at index {index}.");
-
+            _lenovoBatterySlot = index;
             return info;
         }
 
         Log.Instance.Trace($"Battery data not found.");
 
         return null;
+    }
+
+    /// <summary>The driver slots to try, in order: the one that answered last time first, then the rest (0–2).</summary>
+    internal static IEnumerable<uint> BatterySlotsToTry(uint? remembered)
+    {
+        if (remembered is { } first and < 3)
+            yield return first;
+
+        for (uint index = 0; index < 3; index++)
+        {
+            if (index != remembered)
+                yield return index;
+        }
     }
 
     private static LENOVO_BATTERY_INFORMATION GetLenovoBatteryInformation(uint index)

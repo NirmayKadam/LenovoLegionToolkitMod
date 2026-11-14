@@ -106,7 +106,7 @@
             <StackPanel Margin="12,0,16,0">
                 <custom:CardControl Margin="0,0,0,12">
                     <custom:CardControl.Header>
-                        <controls:CardHeaderControl Title="{x:Static resources:Resource.SpecialKeyDetail_Description}" />
+                        <controls:CardHeaderControl Title="{x:Static resources:Resource.SpecialKeyDetail_Description}" HelpKey="Help_SpecialKeys_Label" />
                     </custom:CardControl.Header>
                     <TextBox
                         x:Name="_descriptionTextBox"
@@ -116,7 +116,7 @@
 
                 <custom:CardControl Margin="0,0,0,12">
                     <custom:CardControl.Header>
-                        <controls:CardHeaderControl x:Name="_modeHeader" Title="{x:Static resources:Resource.SpecialKeyDetail_Mode}" />
+                        <controls:CardHeaderControl x:Name="_modeHeader" Title="{x:Static resources:Resource.SpecialKeyDetail_Mode}" HelpKey="Help_SpecialKeys_Mode" />
                     </custom:CardControl.Header>
                     <ComboBox
                         x:Name="_modeComboBox"

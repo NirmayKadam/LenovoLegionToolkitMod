@@ -164,7 +164,7 @@ public partial class WindowsPowerPlansWindow
         {
             Margin = new Thickness(0, 0, 0, 8),
             Icon = SymbolRegular.FlashSettings24,
-            Header = new CardHeaderControl { Title = Resource.WindowsPowerPlan_Title },
+            Header = new CardHeaderControl { Title = Resource.WindowsPowerPlan_Title, HelpKey = "Help_PowerMapping_Plan" },
             Content = comboBox
         };
         container.Children.Add(planCard);
@@ -182,7 +182,7 @@ public partial class WindowsPowerPlansWindow
         {
             Margin = new Thickness(0, 0, 0, 8),
             Icon = SymbolRegular.PlugConnected24,
-            Header = new CardHeaderControl { Title = $"{Resource.WindowsPowerPlansWindow_PowerMode_Title} - {Resource.WindowsPowerPlansWindow_PowerMode_AC}" },
+            Header = new CardHeaderControl { Title = $"{Resource.WindowsPowerPlansWindow_PowerMode_Title} - {Resource.WindowsPowerPlansWindow_PowerMode_AC}", HelpKey = "Help_PowerMapping_WindowsModeAc" },
             Content = acCombo,
             Visibility = IsBalancedPlan(effectivePlan.Guid) ? Visibility.Visible : Visibility.Collapsed
         };
@@ -191,7 +191,7 @@ public partial class WindowsPowerPlansWindow
         {
             Margin = new Thickness(0, 0, 0, 8),
             Icon = SymbolRegular.BatterySaver24,
-            Header = new CardHeaderControl { Title = $"{Resource.WindowsPowerPlansWindow_PowerMode_Title} - {Resource.WindowsPowerPlansWindow_PowerMode_DC}" },
+            Header = new CardHeaderControl { Title = $"{Resource.WindowsPowerPlansWindow_PowerMode_Title} - {Resource.WindowsPowerPlansWindow_PowerMode_DC}", HelpKey = "Help_PowerMapping_WindowsModeDc" },
             Content = dcCombo,
             Visibility = IsBalancedPlan(effectivePlan.Guid) ? Visibility.Visible : Visibility.Collapsed
         };
@@ -278,7 +278,7 @@ public partial class WindowsPowerPlansWindow
         {
             Margin = new Thickness(0, 0, 0, 8),
             Icon = SymbolRegular.FlashSettings24,
-            Header = new CardHeaderControl { Title = Resource.WindowsPowerPlan_Title },
+            Header = new CardHeaderControl { Title = Resource.WindowsPowerPlan_Title, HelpKey = "Help_PowerMapping_Plan" },
             Content = comboBox
         };
         container.Children.Add(planCard);
@@ -296,7 +296,7 @@ public partial class WindowsPowerPlansWindow
         {
             Margin = new Thickness(0, 0, 0, 8),
             Icon = SymbolRegular.PlugConnected24,
-            Header = new CardHeaderControl { Title = $"{Resource.WindowsPowerPlansWindow_PowerMode_Title} - {Resource.WindowsPowerPlansWindow_PowerMode_AC}" },
+            Header = new CardHeaderControl { Title = $"{Resource.WindowsPowerPlansWindow_PowerMode_Title} - {Resource.WindowsPowerPlansWindow_PowerMode_AC}", HelpKey = "Help_PowerMapping_WindowsModeAc" },
             Content = acCombo,
             Visibility = IsBalancedPlan(effectivePlan.Guid) ? Visibility.Visible : Visibility.Collapsed
         };
@@ -305,7 +305,7 @@ public partial class WindowsPowerPlansWindow
         {
             Margin = new Thickness(0, 0, 0, 8),
             Icon = SymbolRegular.BatterySaver24,
-            Header = new CardHeaderControl { Title = $"{Resource.WindowsPowerPlansWindow_PowerMode_Title} - {Resource.WindowsPowerPlansWindow_PowerMode_DC}" },
+            Header = new CardHeaderControl { Title = $"{Resource.WindowsPowerPlansWindow_PowerMode_Title} - {Resource.WindowsPowerPlansWindow_PowerMode_DC}", HelpKey = "Help_PowerMapping_WindowsModeDc" },
             Content = dcCombo,
             Visibility = IsBalancedPlan(effectivePlan.Guid) ? Visibility.Visible : Visibility.Collapsed
         };
@@ -367,7 +367,7 @@ public partial class WindowsPowerPlansWindow
             {
                 Margin = new Thickness(0, 0, 0, 8),
                 Icon = SymbolRegular.WrenchScrewdriver24,
-                Header = new CardHeaderControl { Title = Resource.GodModeSettingsWindow_ActivePreset_Title },
+                Header = new CardHeaderControl { Title = Resource.GodModeSettingsWindow_ActivePreset_Title, HelpKey = "Help_PowerMapping_CustomPreset" },
                 Content = presetCombo
             };
             container.Children.Add(presetCard);
@@ -378,7 +378,7 @@ public partial class WindowsPowerPlansWindow
             {
                 Margin = new Thickness(0, 0, 0, 8),
                 Icon = SymbolRegular.FlashSettings24,
-                Header = new CardHeaderControl { Title = Resource.WindowsPowerPlan_Title },
+                Header = new CardHeaderControl { Title = Resource.WindowsPowerPlan_Title, HelpKey = "Help_PowerMapping_Plan" },
                 Content = planCombo
             };
             container.Children.Add(planCard);
@@ -392,7 +392,7 @@ public partial class WindowsPowerPlansWindow
             {
                 Margin = new Thickness(0, 0, 0, 8),
                 Icon = SymbolRegular.PlugConnected24,
-                Header = new CardHeaderControl { Title = $"{Resource.WindowsPowerPlansWindow_PowerMode_Title} - {Resource.WindowsPowerPlansWindow_PowerMode_AC}" },
+                Header = new CardHeaderControl { Title = $"{Resource.WindowsPowerPlansWindow_PowerMode_Title} - {Resource.WindowsPowerPlansWindow_PowerMode_AC}", HelpKey = "Help_PowerMapping_WindowsModeAc" },
                 Content = acCombo
             };
 
@@ -400,7 +400,7 @@ public partial class WindowsPowerPlansWindow
             {
                 Margin = new Thickness(0, 0, 0, 8),
                 Icon = SymbolRegular.BatterySaver24,
-                Header = new CardHeaderControl { Title = $"{Resource.WindowsPowerPlansWindow_PowerMode_Title} - {Resource.WindowsPowerPlansWindow_PowerMode_DC}" },
+                Header = new CardHeaderControl { Title = $"{Resource.WindowsPowerPlansWindow_PowerMode_Title} - {Resource.WindowsPowerPlansWindow_PowerMode_DC}", HelpKey = "Help_PowerMapping_WindowsModeDc" },
                 Content = dcCombo
             };
 

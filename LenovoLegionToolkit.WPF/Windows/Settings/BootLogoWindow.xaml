@@ -103,7 +103,7 @@
 
             <custom:CardControl Margin="0,0,0,8" Icon="Image24">
                 <custom:CardControl.Header>
-                    <controls:CardHeaderControl Title="{x:Static resources:Resource.BootLogoWindow_Status_Title}" Subtitle="{x:Static resources:Resource.BootLogoWindow_Status_Subtitle}" />
+                    <controls:CardHeaderControl Title="{x:Static resources:Resource.BootLogoWindow_Status_Title}" HelpKey="Help_BootLogo_Status" Subtitle="{x:Static resources:Resource.BootLogoWindow_Status_Subtitle}" />
                 </custom:CardControl.Header>
                 <custom:Badge
                     x:Name="_statusBadge"
@@ -116,7 +116,7 @@
 
             <custom:CardControl Margin="0,0,0,8" Icon="Info24">
                 <custom:CardControl.Header>
-                    <controls:CardHeaderControl Title="{x:Static resources:Resource.BootLogoWindow_Requirements_Title}" Subtitle="{x:Static resources:Resource.BootLogoWindow_Requirements_Subtitle}" />
+                    <controls:CardHeaderControl Title="{x:Static resources:Resource.BootLogoWindow_Requirements_Title}" HelpKey="Help_BootLogo_Requirements" Subtitle="{x:Static resources:Resource.BootLogoWindow_Requirements_Subtitle}" />
                 </custom:CardControl.Header>
                 <StackPanel
                     HorizontalAlignment="Right"
@@ -138,7 +138,7 @@
 
             <custom:CardControl Margin="0,0,0,8" Icon="ArrowClockwise24">
                 <custom:CardControl.Header>
-                    <controls:CardHeaderControl Title="{x:Static resources:Resource.BootLogoWindow_Options_Title}" Subtitle="{x:Static resources:Resource.BootLogoWindow_Disable_Windows_Animation}" />
+                    <controls:CardHeaderControl Title="{x:Static resources:Resource.BootLogoWindow_Options_Title}" HelpKey="Help_BootLogo_Animation" Subtitle="{x:Static resources:Resource.BootLogoWindow_Disable_Windows_Animation}" />
                 </custom:CardControl.Header>
                 <wpfui:ToggleSwitch
                     x:Name="_animationToggle"

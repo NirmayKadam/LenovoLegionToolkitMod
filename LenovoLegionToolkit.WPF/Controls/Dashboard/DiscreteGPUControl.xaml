@@ -8,7 +8,7 @@
     xmlns:wpfui="http://schemas.lepo.co/wpfui/2022/xaml">
     <custom:CardControl Margin="0,0,0,8" Icon="DeveloperBoard24">
         <custom:CardControl.Header>
-            <controls:CardHeaderControl Title="{x:Static resources:Resource.DiscreteGPUControl_Title}" Subtitle="{x:Static resources:Resource.DiscreteGPUControl_Message}" />
+            <controls:CardHeaderControl Title="{x:Static resources:Resource.DiscreteGPUControl_Title}" HelpKey="Help_Dashboard_DiscreteGpu" Subtitle="{x:Static resources:Resource.DiscreteGPUControl_Message}" />
         </custom:CardControl.Header>
         <StackPanel
             x:Name="_content"

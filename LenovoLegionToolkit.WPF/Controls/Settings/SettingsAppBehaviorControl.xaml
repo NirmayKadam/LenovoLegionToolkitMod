@@ -10,7 +10,7 @@
         <StackPanel Margin="0,0,16,12">
             <custom:CardControl Margin="0,0,0,8" Icon="Games24">
                 <custom:CardControl.Header>
-                    <controls:CardHeaderControl Title="{x:Static resources:Resource.AutomationPage_Game_Detection_Title}" Subtitle="{x:Static resources:Resource.AutomationPage_Game_Detection_Sub_Title}" />
+                    <controls:CardHeaderControl Title="{x:Static resources:Resource.AutomationPage_Game_Detection_Title}" HelpKey="Help_Settings_GameDetection" Subtitle="{x:Static resources:Resource.AutomationPage_Game_Detection_Sub_Title}" />
                 </custom:CardControl.Header>
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -41,7 +41,7 @@
             </custom:CardControl>
             <custom:CardControl Margin="0,0,0,8" Icon="Play24">
                 <custom:CardControl.Header>
-                    <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_Autorun_Title}" Subtitle="{x:Static resources:Resource.SettingsPage_Autorun_Message}" />
+                    <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_Autorun_Title}" HelpKey="Help_Settings_Autorun" Subtitle="{x:Static resources:Resource.SettingsPage_Autorun_Message}" />
                 </custom:CardControl.Header>
                 <ComboBox
                     x:Name="_autorunComboBox"
@@ -52,9 +52,47 @@
                     SelectionChanged="AutorunComboBox_SelectionChanged"
                     Visibility="Hidden" />
             </custom:CardControl>
+            <custom:CardControl Margin="0,0,0,8" Icon="ShieldCheckmark24">
+                <custom:CardControl.Header>
+                    <controls:CardHeaderControl
+                        x:Name="_gameSafeModeCardHeader"
+                        Title="{x:Static resources:Resource.SettingsPage_GameSafeMode_Title}"
+                        Subtitle="{x:Static resources:Resource.SettingsPage_GameSafeMode_Message}"
+                        HelpKey="Help_Settings_GameSafeMode" />
+                </custom:CardControl.Header>
+                <wpfui:ToggleSwitch
+                    x:Name="_gameSafeModeToggle"
+                    AutomationProperties.Name="{x:Static resources:Resource.SettingsPage_GameSafeMode_Title}"
+                    Click="GameSafeModeToggle_Click" />
+            </custom:CardControl>
+            <custom:CardControl Margin="0,0,0,8" Icon="QuestionCircle24">
+                <custom:CardControl.Header>
+                    <controls:CardHeaderControl
+                        Title="{x:Static resources:Resource.SettingsPage_HelpTooltips_Title}"
+                        Subtitle="{x:Static resources:Resource.SettingsPage_HelpTooltips_Message}"
+                        HelpKey="Help_Settings_HelpTooltips" />
+                </custom:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ComboBox
+                        x:Name="_helpTooltipDelayComboBox"
+                        MinWidth="140"
+                        Margin="0,0,12,0"
+                        AutomationProperties.Name="{x:Static resources:Resource.SettingsPage_HelpTooltips_Delay}"
+                        IsEnabled="{Binding IsChecked, ElementName=_helpTooltipsToggle}"
+                        SelectionChanged="HelpTooltipDelayComboBox_SelectionChanged">
+                        <ComboBoxItem Content="{x:Static resources:Resource.SettingsPage_HelpTooltips_DelayShort}" Tag="150" />
+                        <ComboBoxItem Content="{x:Static resources:Resource.SettingsPage_HelpTooltips_DelayNormal}" Tag="400" />
+                        <ComboBoxItem Content="{x:Static resources:Resource.SettingsPage_HelpTooltips_DelayLong}" Tag="1000" />
+                    </ComboBox>
+                    <wpfui:ToggleSwitch
+                        x:Name="_helpTooltipsToggle"
+                        AutomationProperties.Name="{x:Static resources:Resource.SettingsPage_HelpTooltips_Title}"
+                        Click="HelpTooltipsToggle_Click" />
+                </StackPanel>
+            </custom:CardControl>
             <custom:CardControl Margin="0,0,0,8" Icon="ArrowMinimize24">
                 <custom:CardControl.Header>
-                    <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_MinimizeToTray_Title}" Subtitle="{x:Static resources:Resource.SettingsPage_MinimizeToTray_Message}" />
+                    <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_MinimizeToTray_Title}" HelpKey="Help_Settings_MinimizeToTray" Subtitle="{x:Static resources:Resource.SettingsPage_MinimizeToTray_Message}" />
                 </custom:CardControl.Header>
                 <wpfui:ToggleSwitch
                     x:Name="_minimizeToTrayToggle"
@@ -65,7 +103,7 @@
             </custom:CardControl>
             <custom:CardControl Margin="0,0,0,8" Icon="DismissSquare24">
                 <custom:CardControl.Header>
-                    <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_MinimizeOnClose_Title}" Subtitle="{x:Static resources:Resource.SettingsPage_MinimizeOnClose_Message}" />
+                    <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_MinimizeOnClose_Title}" HelpKey="Help_Settings_MinimizeOnClose" Subtitle="{x:Static resources:Resource.SettingsPage_MinimizeOnClose_Message}" />
                 </custom:CardControl.Header>
                 <wpfui:ToggleSwitch
                     x:Name="_minimizeOnCloseToggle"
@@ -76,7 +114,7 @@
             </custom:CardControl>
             <custom:CardControl Margin="0,0,0,8" Icon="LockClosed24">
                 <custom:CardControl.Header>
-                    <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_LockWindowSize_Title}" Subtitle="{x:Static resources:Resource.SettingsPage_LockWindowSize_Message}" />
+                    <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_LockWindowSize_Title}" HelpKey="Help_Settings_LockWindowSize" Subtitle="{x:Static resources:Resource.SettingsPage_LockWindowSize_Message}" />
                 </custom:CardControl.Header>
                 <wpfui:ToggleSwitch
                     x:Name="_lockWindowSizeToggle"
@@ -87,7 +125,7 @@
             </custom:CardControl>
             <custom:CardControl Margin="0,0,0,8" Icon="WindowApps24">
                 <custom:CardControl.Header>
-                    <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_RememberWindowPosition_Title}" Subtitle="{x:Static resources:Resource.SettingsPage_RememberWindowPosition_Message}" />
+                    <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_RememberWindowPosition_Title}" HelpKey="Help_Settings_RememberWindowPosition" Subtitle="{x:Static resources:Resource.SettingsPage_RememberWindowPosition_Message}" />
                 </custom:CardControl.Header>
                 <wpfui:ToggleSwitch
                     x:Name="_rememberWindowPositionToggle"
@@ -98,7 +136,7 @@
             </custom:CardControl>
             <custom:CardControl Margin="0,0,0,8" Icon="Pin24">
                 <custom:CardControl.Header>
-                    <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_AlwaysOnTop_Title}" Subtitle="{x:Static resources:Resource.SettingsPage_AlwaysOnTop_Message}" />
+                    <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_AlwaysOnTop_Title}" HelpKey="Help_Settings_AlwaysOnTop" Subtitle="{x:Static resources:Resource.SettingsPage_AlwaysOnTop_Message}" />
                 </custom:CardControl.Header>
                 <wpfui:ToggleSwitch
                     x:Name="_alwaysOnTopToggle"
@@ -109,7 +147,7 @@
             </custom:CardControl>
             <custom:CardControl Margin="0,0,0,8" Icon="Resize24">
                 <custom:CardControl.Header>
-                    <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_CompactMode_Title}" Subtitle="{x:Static resources:Resource.SettingsPage_CompactMode_Message}" />
+                    <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_CompactMode_Title}" HelpKey="Help_Settings_CompactMode" Subtitle="{x:Static resources:Resource.SettingsPage_CompactMode_Message}" />
                 </custom:CardControl.Header>
                 <wpfui:ToggleSwitch
                     x:Name="_compactModeToggle"
@@ -123,25 +161,25 @@
                 Margin="0,0,0,8"
                 Click="NotificationsCard_Click"
                 Icon="Alert24">
-                <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_Notifications_Title}" Subtitle="{x:Static resources:Resource.SettingsPage_Notifications_Message}" />
+                <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_Notifications_Title}" HelpKey="Help_Settings_Notifications" Subtitle="{x:Static resources:Resource.SettingsPage_Notifications_Message}" />
             </custom:CardAction>
             <custom:CardAction
                 x:Name="_backupSettingsCard"
                 Margin="0,0,0,8"
                 Click="BackupSettings_Click"
                 Icon="Save24">
-                <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_BackupSettings_Title}" Subtitle="{x:Static resources:Resource.SettingsPage_BackupSettings_Message}" />
+                <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_BackupSettings_Title}" HelpKey="Help_Settings_Backup" Subtitle="{x:Static resources:Resource.SettingsPage_BackupSettings_Message}" />
             </custom:CardAction>
             <custom:CardAction
                 x:Name="_resetSettingsCard"
                 Margin="0,0,0,8"
                 Click="ResetSettings_Click"
                 Icon="ArrowCounterclockwise24">
-                <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_ResetSettings_Title}" Subtitle="{x:Static resources:Resource.SettingsPage_ResetSettings_Message}" />
+                <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_ResetSettings_Title}" HelpKey="Help_Settings_Reset" Subtitle="{x:Static resources:Resource.SettingsPage_ResetSettings_Message}" />
             </custom:CardAction>
             <custom:CardControl Margin="0,0,0,8" Icon="Bug24">
                 <custom:CardControl.Header>
-                    <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_EnableLogging_Title}" Subtitle="{x:Static resources:Resource.SettingsPage_EnableLogging_Message}" />
+                    <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_EnableLogging_Title}" HelpKey="Help_Settings_Logging" Subtitle="{x:Static resources:Resource.SettingsPage_EnableLogging_Message}" />
                 </custom:CardControl.Header>
                 <wpfui:ToggleSwitch
                     x:Name="_enableLoggingToggle"
@@ -163,7 +201,7 @@
 
                     <controls:CardHeaderControl
                         x:Name="_hardwareSensorsCardHeader"
-                        Title="{x:Static resources:Resource.SettingsPage_HardwareSensors_Title}"
+                        Title="{x:Static resources:Resource.SettingsPage_HardwareSensors_Title}" HelpKey="Help_Settings_HardwareSensors"
                         Grid.Column="0"
                         Subtitle="{x:Static resources:Resource.SettingsPage_HardwareSensors_Message}" />
 
@@ -190,7 +228,7 @@
                     </Grid.ColumnDefinitions>
 
                     <controls:CardHeaderControl
-                        Title="{x:Static resources:Resource.SettingsPage_UseNewSensorDashboard_Title}"
+                        Title="{x:Static resources:Resource.SettingsPage_UseNewSensorDashboard_Title}" HelpKey="Help_Settings_NewSensorDashboard"
                         Grid.Column="0"
                         Subtitle="{x:Static resources:Resource.SettingsPage_UseNewSensorDashboard_Message}" />
 
@@ -217,7 +255,7 @@
                     </Grid.ColumnDefinitions>
 
                     <controls:CardHeaderControl
-                        Title="{x:Static resources:Resource.SettingsPage_Osd_Title}"
+                        Title="{x:Static resources:Resource.SettingsPage_Osd_Title}" HelpKey="Help_Settings_Osd"
                         Grid.Column="0"
                         Subtitle="{x:Static resources:Resource.SettingsPage_Osd_Message}" />
 
@@ -236,7 +274,7 @@
                 Margin="0,0,0,8"
                 Click="ArgumentWindowButton_Click"
                 Icon="Window24">
-                <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_ArgumentWindow_Title}" Subtitle="{x:Static resources:Resource.SettingsPage_ArgumentWindow_Message}" />
+                <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_ArgumentWindow_Title}" HelpKey="Help_Settings_Arguments" Subtitle="{x:Static resources:Resource.SettingsPage_ArgumentWindow_Message}" />
             </custom:CardAction>
         </StackPanel>
     </ScrollViewer>

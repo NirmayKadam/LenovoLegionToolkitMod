@@ -21,6 +21,9 @@ public class LoadableControl : UserControl
 
     private bool _isLoading = true;
 
+    /// <summary>The caller's choice: spinning (true) or showing <see cref="Progress"/> (false) while loading.</summary>
+    private bool _indeterminate = true;
+
     public bool IsLoading
     {
         get => _isLoading;
@@ -33,8 +36,12 @@ public class LoadableControl : UserControl
 
     public bool IsIndeterminate
     {
-        get => _progressRing.IsIndeterminate;
-        set => _progressRing.IsIndeterminate = value;
+        get => _indeterminate;
+        set
+        {
+            _indeterminate = value;
+            UpdateLoadingState();
+        }
     }
 
     public double Progress
@@ -100,9 +107,14 @@ public class LoadableControl : UserControl
         Content = grid;
     }
 
+    /// <summary>
+    /// WPF keeps an endless animation running even when its element is hidden (and even when the window is in the
+    /// tray), so the ring only spins while loading; otherwise it is stopped and taken out of the layout.
+    /// </summary>
     private void UpdateLoadingState()
     {
         _contentPresenter.Visibility = IsLoading ? ContentVisibilityWhileLoading : Visibility.Visible;
-        _progressRing.Visibility = IsLoading ? Visibility.Visible : Visibility.Hidden;
+        _progressRing.IsIndeterminate = IsLoading && _indeterminate;
+        _progressRing.Visibility = IsLoading ? Visibility.Visible : Visibility.Collapsed;
     }
 }

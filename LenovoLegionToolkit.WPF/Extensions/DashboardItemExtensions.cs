@@ -68,6 +68,36 @@ public static class DashboardItemExtensions
         _ => throw new InvalidOperationException($"Invalid DashboardItem {dashboardItem}"),
     };
 
+    /// <summary>The hover-help key of the item's dashboard card, so the "Add" list explains it the same way.</summary>
+    public static string GetHelpKey(this DashboardItem dashboardItem) => dashboardItem switch
+    {
+        DashboardItem.PowerMode => "Help_Dashboard_PowerMode",
+        DashboardItem.BatteryMode => "Help_Feature_BatteryState",
+        DashboardItem.BatteryNightChargeMode => "Help_Feature_BatteryNightChargeState",
+        DashboardItem.AlwaysOnUsb => "Help_Feature_AlwaysOnUSBState",
+        DashboardItem.InstantBoot => "Help_Feature_InstantBootState",
+        DashboardItem.HybridMode => "Help_Feature_HybridModeState",
+        DashboardItem.DiscreteGpu => "Help_Dashboard_DiscreteGpu",
+        DashboardItem.OverclockDiscreteGpu => "Help_Dashboard_OverclockDiscreteGpu",
+        DashboardItem.Resolution => "Help_Feature_Resolution",
+        DashboardItem.RefreshRate => "Help_Feature_RefreshRate",
+        DashboardItem.DpiScale => "Help_Feature_DpiScale",
+        DashboardItem.Hdr => "Help_Feature_HDRState",
+        DashboardItem.AutoColorManagement => "Help_Feature_AutoColorManagementState",
+        DashboardItem.OverDrive => "Help_Feature_OverDriveState",
+        DashboardItem.PanelLogoBacklight => "Help_Feature_PanelLogoBacklightState",
+        DashboardItem.PortsBacklight => "Help_Feature_PortsBacklightState",
+        DashboardItem.TurnOffMonitors => "Help_Dashboard_TurnOffMonitors",
+        DashboardItem.Microphone => "Help_Feature_MicrophoneState",
+        DashboardItem.FlipToStart => "Help_Feature_FlipToStartState",
+        DashboardItem.TouchpadLock => "Help_Feature_TouchpadLockState",
+        DashboardItem.FnLock => "Help_Feature_FnLockState",
+        DashboardItem.WinKeyLock => "Help_Feature_WinKeyState",
+        DashboardItem.WhiteKeyboardBacklight => "Help_Feature_WhiteKeyboardBacklightState",
+        DashboardItem.ItsMode => "Help_Feature_ITSMode",
+        _ => throw new InvalidOperationException($"Invalid DashboardItem {dashboardItem}"),
+    };
+
     public static async Task<IEnumerable<AbstractRefreshingControl>> GetControlAsync(this DashboardItem dashboardItem) => dashboardItem switch
     {
         DashboardItem.PowerMode => [new PowerModeControl()],

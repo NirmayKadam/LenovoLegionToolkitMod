@@ -12,7 +12,7 @@
         Click="ButtonBase_OnClick"
         Icon="Star24">
         <custom:CardControl.Header>
-            <controls:CardHeaderControl x:Name="_cardHeaderControl" />
+            <controls:CardHeaderControl x:Name="_cardHeaderControl" HelpKey="Help_Spectrum_EffectItem" />
         </custom:CardControl.Header>
         <StackPanel Orientation="Horizontal">
             <wpfui:Button

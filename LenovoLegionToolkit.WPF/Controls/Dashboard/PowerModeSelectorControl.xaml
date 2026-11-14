@@ -1,0 +1,123 @@
+<UserControl
+    x:Class="LenovoLegionToolkit.WPF.Controls.Dashboard.PowerModeSelectorControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:resources="clr-namespace:LenovoLegionToolkit.WPF.Resources"
+    xmlns:wpfui="http://schemas.lepo.co/wpfui/2022/xaml"
+    Visibility="Collapsed">
+    <UserControl.Resources>
+        <!--  One segment: text only; the sliding pill behind the row shows which one is active.  -->
+        <Style x:Key="SegmentStyle" TargetType="RadioButton">
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+            <Setter Property="FontFamily" Value="{DynamicResource LltFontFamily}" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border
+                            x:Name="Root"
+                            Margin="2"
+                            Padding="12,9"
+                            Background="Transparent"
+                            CornerRadius="{DynamicResource ControlCornerRadius}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True" />
+                                    <Condition Property="IsChecked" Value="False" />
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="Root" Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}" />
+                            </MultiTrigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter Property="Foreground" Value="{DynamicResource LltSelectionTextBrush}" />
+                                <Setter Property="FontWeight" Value="SemiBold" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Foreground" Value="{DynamicResource TextFillColorDisabledBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="0,0,8,8">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Border
+            Padding="2"
+            Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+            BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+            BorderThickness="1"
+            CornerRadius="{DynamicResource ControlCornerRadius}">
+            <Grid x:Name="_track">
+                <!--  The pill: a tint of the mode color with an outline in it. Text stays in the theme's text color for contrast.  -->
+                <Grid
+                    x:Name="_pill"
+                    Margin="2"
+                    HorizontalAlignment="Left"
+                    IsHitTestVisible="False"
+                    Visibility="Hidden">
+                    <Grid.RenderTransform>
+                        <TranslateTransform x:Name="_pillTranslate" />
+                    </Grid.RenderTransform>
+                    <Border
+                        x:Name="_pillFill"
+                        CornerRadius="{DynamicResource ControlCornerRadius}"
+                        Opacity="{DynamicResource LltSelectionFillOpacity}" />
+                    <Border
+                        x:Name="_pillOutline"
+                        BorderThickness="1.5"
+                        CornerRadius="{DynamicResource ControlCornerRadius}" />
+                </Grid>
+                <UniformGrid
+                    x:Name="_segments"
+                    AutomationProperties.Name="{x:Static resources:Resource.PowerModeControl_Title}"
+                    Rows="1" />
+            </Grid>
+        </Border>
+
+        <wpfui:Button
+            x:Name="_settingsButton"
+            Grid.Column="1"
+            Margin="8,0,0,0"
+            VerticalAlignment="Stretch"
+            AutomationProperties.Name="{x:Static resources:Resource.PowerModeControl_Settings}"
+            Click="SettingsButton_Click"
+            FontSize="20"
+            Icon="Settings24"
+            ToolTip="{x:Static resources:Resource.PowerModeControl_Settings}"
+            Visibility="Collapsed" />
+
+        <!--  Retro: a terminal line that types out the last power-mode change.  -->
+        <StackPanel
+            x:Name="_console"
+            Grid.Row="1"
+            Grid.ColumnSpan="2"
+            Margin="2,8,0,0"
+            Orientation="Horizontal"
+            Visibility="Collapsed">
+            <TextBlock
+                x:Name="_consoleText"
+                FontFamily="{DynamicResource LltNumberFontFamily}"
+                Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+            <TextBlock
+                x:Name="_consoleCursor"
+                Margin="2,0,0,0"
+                FontFamily="{DynamicResource LltNumberFontFamily}"
+                Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                Text="█" />
+        </StackPanel>
+    </Grid>
+</UserControl>

@@ -14,6 +14,7 @@ using LenovoLegionToolkit.Lib.Settings;
 using LenovoLegionToolkit.Lib.Utils;
 using LenovoLegionToolkit.WPF.Extensions;
 using LenovoLegionToolkit.WPF.Resources;
+using LenovoLegionToolkit.WPF.Utils;
 
 namespace LenovoLegionToolkit.WPF.Windows.Osd;
 
@@ -27,7 +28,87 @@ public partial class OsdSettingsWindow
 {
     private readonly OsdSettings _OsdSettings = IoCContainer.Resolve<OsdSettings>();
     private readonly SensorsGroupController _controller = IoCContainer.Resolve<SensorsGroupController>();
+    private readonly GlobalHotkeyService _hotkeys = IoCContainer.Resolve<GlobalHotkeyService>();
     private bool _isInitializing = true;
+
+    // ---- Show/hide shortcut ----
+
+    private void ShowHotkey()
+    {
+        var binding = _OsdSettings.Store.ToggleHotkey;
+        _hotkeyTextBox.Text = binding is null ? Resource.OsdSettings_Hotkey_None : HotkeyGesture.Format(binding);
+        _hotkeyCardHeader.Warning = binding is not null && !_hotkeys.IsOsdToggleRegistered
+            ? string.Format(Resource.OsdSettings_Hotkey_InUse, HotkeyGesture.Format(binding))
+            : string.Empty;
+    }
+
+    /// <summary>
+    /// Captures the combination typed into this box (the box has focus; nothing system-wide is hooked) and
+    /// registers it with Windows. A combination another app owns is refused and the previous one is kept.
+    /// </summary>
+    private void HotkeyTextBox_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        e.Handled = true;
+
+        var key = e.Key == System.Windows.Input.Key.System ? e.SystemKey : e.Key;
+        var binding = HotkeyGesture.FromKey(key, System.Windows.Input.Keyboard.Modifiers);
+
+        if (binding is null)
+        {
+            // Still holding modifiers, or a key without Ctrl/Alt/Win: explain instead of saving.
+            _hotkeyCardHeader.Info = Resource.OsdSettings_Hotkey_NeedsModifier;
+            return;
+        }
+
+        _hotkeyCardHeader.Info = string.Empty;
+
+        var previous = _OsdSettings.Store.ToggleHotkey;
+        if (_hotkeys.TrySetOsdToggle(binding, out _))
+        {
+            _OsdSettings.Store.ToggleHotkey = binding;
+            _OsdSettings.SynchronizeStore();
+            ShowHotkey();
+            return;
+        }
+
+        _hotkeys.TrySetOsdToggle(previous, out _);
+        ShowHotkey();
+        _hotkeyCardHeader.Warning = string.Format(Resource.OsdSettings_Hotkey_InUse, HotkeyGesture.Format(binding));
+    }
+
+    private void ClearHotkeyButton_Click(object sender, RoutedEventArgs e)
+    {
+        _hotkeys.TrySetOsdToggle(null, out _);
+        _OsdSettings.Store.ToggleHotkey = null;
+        _OsdSettings.SynchronizeStore();
+        _hotkeyCardHeader.Info = string.Empty;
+        ShowHotkey();
+    }
+
+    // ---- Fn / special key ----
+
+    private async void CreateOsdQuickActionButton_Click(object sender, RoutedEventArgs e)
+    {
+        var processor = IoCContainer.Resolve<LenovoLegionToolkit.Lib.Automation.AutomationProcessor>();
+        var pipelines = await processor.GetPipelinesAsync();
+
+        var existing = LenovoLegionToolkit.Lib.Automation.QuickActionTemplates.FindOsdToggle(pipelines);
+        if (existing is not null)
+        {
+            _fnKeyCardHeader.Success = string.Format(Resource.OsdSettings_FnKey_Exists, existing.Name);
+            return;
+        }
+
+        pipelines.Add(LenovoLegionToolkit.Lib.Automation.QuickActionTemplates.CreateOsdToggle(Resource.OsdSettings_FnKey_QuickActionName));
+        await processor.ReloadPipelinesAsync(pipelines);
+        _fnKeyCardHeader.Success = string.Format(Resource.OsdSettings_FnKey_Created, Resource.OsdSettings_FnKey_QuickActionName);
+    }
+
+    private void OpenSpecialKeysButton_Click(object sender, RoutedEventArgs e)
+    {
+        var window = new LenovoLegionToolkit.WPF.Windows.Settings.SpecialKeysWindow { Owner = this };
+        window.ShowDialog();
+    }
 
     public OsdSettingsWindow()
     {
@@ -38,6 +119,8 @@ public partial class OsdSettingsWindow
     private void OsdSettingsWindow_Loaded(object sender, RoutedEventArgs e)
     {
         InitializeCheckboxes();
+
+        ShowHotkey();
 
         _osdRefreshInterval.Value = _OsdSettings.Store.OsdRefreshInterval;
         _osdStyleComboBox.SelectedIndex = _OsdSettings.Store.SelectedStyleIndex;

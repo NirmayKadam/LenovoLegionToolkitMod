@@ -10,14 +10,70 @@ namespace LenovoLegionToolkit.Lib.System.Management;
 
 public static partial class WMI
 {
+    /// <summary>
+    /// Runs a WMI query and turns each result into a <typeparamref name="T"/>, releasing every WMI object as soon as
+    /// it has been read: the searcher, the result collection and each result. Left to the garbage collector, these
+    /// COM objects piled up and the finalizer thread spent as much time releasing them as a busy thread (seen in a
+    /// trace with the dashboard open). <paramref name="convert"/> must copy what it needs; the object is released
+    /// right after it returns. The results come back as a list, never as a lazy sequence over released objects.
+    /// </summary>
+    internal static Task<List<T>> QueryAsync<T>(string scope, string query, Func<ManagementBaseObject, T> convert) => Task.Run(() =>
+    {
+        using var searcher = new ManagementObjectSearcher(scope, query);
+        using var collection = searcher.Get();
+
+        var results = new List<T>();
+        foreach (var item in collection)
+        {
+            using (item)
+                results.Add(convert(item));
+        }
+        return results;
+    });
+
+    /// <summary>
+    /// Calls a WMI method on the first object the query finds, releasing the query objects, the method's input
+    /// parameters and its result once <paramref name="readResult"/> has copied what it needs.
+    /// </summary>
+    private static Task<T> InvokeAsync<T>(string scope, string query, string methodName, Dictionary<string, object> methodParams, Func<ManagementBaseObject?, T> readResult) => Task.Run(() =>
+    {
+        using var searcher = new ManagementObjectSearcher(scope, query);
+        using var collection = searcher.Get();
+
+        ManagementObject? target = null;
+        try
+        {
+            foreach (var item in collection)
+            {
+                if (target is null && item is ManagementObject mo)
+                    target = mo;
+                else
+                    item.Dispose();
+            }
+
+            if (target is null)
+                throw new InvalidOperationException("No results in query");
+
+            using var inParams = target.GetMethodParameters(methodName);
+            foreach (var pair in methodParams)
+                inParams[pair.Key] = pair.Value;
+
+            using var outParams = target.InvokeMethod(methodName, inParams, new InvokeMethodOptions());
+            return readResult(outParams);
+        }
+        finally
+        {
+            target?.Dispose();
+        }
+    });
+
     private static async Task<bool> ExistsAsync(string scope, FormattableString query)
     {
         try
         {
             var queryFormatted = query.ToString(WMIPropertyValueFormatter.Instance);
-            var mos = new ManagementObjectSearcher(scope, queryFormatted);
-            var managementObjects = await mos.GetAsync().ConfigureAwait(false);
-            return managementObjects.Any();
+            var found = await QueryAsync(scope, queryFormatted, _ => true).ConfigureAwait(false);
+            return found.Count > 0;
         }
         catch
         {
@@ -44,10 +100,7 @@ public static partial class WMI
         try
         {
             var queryFormatted = query.ToString(WMIPropertyValueFormatter.Instance);
-            var mos = new ManagementObjectSearcher(scope, queryFormatted);
-            var managementObjects = await mos.GetAsync().ConfigureAwait(false);
-            var result = managementObjects.Select(mo => mo.Properties).Select(converter);
-            return result;
+            return await QueryAsync(scope, queryFormatted, mo => converter(mo.Properties)).ConfigureAwait(false);
         }
         catch (ManagementException ex)
         {
@@ -60,16 +113,7 @@ public static partial class WMI
         try
         {
             var queryFormatted = query.ToString(WMIPropertyValueFormatter.Instance);
-            var mos = new ManagementObjectSearcher(scope, queryFormatted);
-            var managementObjects = await mos.GetAsync().ConfigureAwait(false);
-            var managementObject = managementObjects.FirstOrDefault() ?? throw new InvalidOperationException("No results in query");
-
-            var mo = (ManagementObject)managementObject;
-            var methodParamsObject = mo.GetMethodParameters(methodName);
-            foreach (var pair in methodParams)
-                methodParamsObject[pair.Key] = pair.Value;
-
-            mo.InvokeMethod(methodName, methodParamsObject, new InvokeMethodOptions());
+            await InvokeAsync(scope, queryFormatted, methodName, methodParams, _ => true).ConfigureAwait(false);
         }
         catch (ManagementException ex)
         {
@@ -83,19 +127,8 @@ public static partial class WMI
         try
         {
             var queryFormatted = query.ToString(WMIPropertyValueFormatter.Instance);
-
-            var mos = new ManagementObjectSearcher(scope, queryFormatted);
-            var managementObjects = await mos.GetAsync().ConfigureAwait(false);
-            var managementObject = managementObjects.FirstOrDefault() ?? throw new InvalidOperationException("No results in query");
-
-            var mo = (ManagementObject)managementObject;
-            var methodParamsObject = mo.GetMethodParameters(methodName);
-            foreach (var pair in methodParams)
-                methodParamsObject[pair.Key] = pair.Value;
-
-            var resultProperties = mo.InvokeMethod(methodName, methodParamsObject, new InvokeMethodOptions());
-            var result = converter(resultProperties.Properties);
-            return result;
+            return await InvokeAsync(scope, queryFormatted, methodName, methodParams,
+                result => converter((result ?? throw new InvalidOperationException($"{methodName} returned nothing")).Properties)).ConfigureAwait(false);
         }
         catch (ManagementException ex)
         {

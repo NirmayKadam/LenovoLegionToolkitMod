@@ -255,3 +255,4 @@ ID3D11Device
 ID3D11DeviceContext
 
 ITaskbarList
+GetLastInputInfo

@@ -78,6 +78,13 @@ public abstract class AbstractAutomationStepControl : UserControl
         set => _cardHeaderControl.Subtitle = value;
     }
 
+    /// <summary>Resource key prefix of the step's hover explanation (see <c>HelpContent</c>).</summary>
+    public string? HelpKey
+    {
+        get => _cardHeaderControl.HelpKey;
+        set => _cardHeaderControl.HelpKey = value;
+    }
+
     public VerticalAlignment TitleVerticalAlignment
     {
         get => _cardHeaderControl.TitleVerticalAlignment;
@@ -99,6 +106,7 @@ public abstract class AbstractAutomationStepControl : UserControl
         AutomationStep = automationStep;
 
         InitializeComponent();
+        HelpKey = $"Help_Step_{automationStep.GetType().Name}";
 
         Loaded += RefreshingControl_Loaded;
     }

@@ -1273,7 +1273,7 @@ Thank you for your support!</value>
     <value>Active preset</value>
   </data>
   <data name="GodModeSettingsWindow_Advanced_MaxOffset_Message" xml:space="preserve">
-    <value>Increase the upper limits of the power and temperature adjustment ranges.</value>
+    <value>Lower the upper limits of the power and temperature adjustment ranges (0 or a negative number). The firmware&apos;s own maximum can&apos;t be exceeded.</value>
   </data>
   <data name="GodModeSettingsWindow_Advanced_MaxOffset_Title" xml:space="preserve">
     <value>Maximum offset</value>
@@ -1285,7 +1285,7 @@ Thank you for your support!</value>
     <value>Adjust boundaries to expand or restrict the selectable ranges of the CPU and GPU power and temperature sliders.</value>
   </data>
   <data name="GodModeSettingsWindow_Advanced_MinOffset_Message" xml:space="preserve">
-    <value>Decrease the lower bounds of the power and temperature adjustment ranges.</value>
+    <value>Raise the lower bounds of the power and temperature adjustment ranges (0 or a positive number). The firmware&apos;s own minimum can&apos;t be undercut.</value>
   </data>
   <data name="GodModeSettingsWindow_Advanced_MinOffset_Title" xml:space="preserve">
     <value>Minimum offset</value>
@@ -3270,10 +3270,10 @@ If disabled, this app will handle Fn shortcuts.</value>
     <value>ITS Mode natively synchronizes power settings, so overriding it here may cause conflicts.</value>
   </data>
   <data name="SettingsPage_PowerModeMapping_Message" xml:space="preserve">
-    <value>Automatically change Windows Power Plan or Windows Power Mode when changing Power Modes.</value>
+    <value>Pick which Windows setting LLT switches together with the laptop&apos;s power mode (Fn+Q, the dashboard or an automation): a Windows power plan, a Windows power mode, or nothing.</value>
   </data>
   <data name="SettingsPage_PowerModeMapping_Title" xml:space="preserve">
-    <value>Power Mode Synchronization</value>
+    <value>When the laptop&apos;s power mode changes, also change...</value>
   </data>
   <data name="SettingsPage_RememberWindowPosition_Message" xml:space="preserve">
     <value>Restore previous window position on application launch.</value>
@@ -3378,7 +3378,7 @@ If disabled, this app will handle Fn shortcuts.</value>
     <value>Window Backdrop</value>
   </data>
   <data name="SettingsPage_WindowsPowerModes_Message" xml:space="preserve">
-    <value>Select Windows Power Mode to apply when Power Mode changes.</value>
+    <value>Choose the Windows power mode (Best power efficiency, Balanced, Best performance) to use with each laptop power mode, separately on the charger and on battery.</value>
   </data>
   <data name="SettingsPage_WindowsPowerModes_Title" xml:space="preserve">
     <value>Windows Power Modes</value>
@@ -3387,7 +3387,7 @@ If disabled, this app will handle Fn shortcuts.</value>
     <value>Power Plan options in Windows Control Panel</value>
   </data>
   <data name="SettingsPage_WindowsPowerPlans_Message" xml:space="preserve">
-    <value>Select Windows Power Plans to apply when Power Mode changes.</value>
+    <value>Choose the Windows power plan to use with each laptop power mode.</value>
   </data>
   <data name="SettingsPage_WindowsPowerPlans_Title" xml:space="preserve">
     <value>Windows Power Plans</value>
@@ -3839,5 +3839,1718 @@ Logging will be enabled automatically, if you choose to continue.</value>
   </data>
   <data name="Yes" xml:space="preserve">
     <value>Yes</value>
+  </data>
+  <data name="SettingsPage_Skin_Message" xml:space="preserve">
+    <value>Change the look of the whole app. Changes apply right away.</value>
+  </data>
+  <data name="SettingsPage_Skin_Title" xml:space="preserve">
+    <value>Style</value>
+  </data>
+  <data name="SettingsPage_Theme_DarkOnlySkin" xml:space="preserve">
+    <value>The selected style is dark only, so this setting doesn&apos;t apply to it.</value>
+  </data>
+  <data name="SettingsPage_Animations_LimitedByRendering" xml:space="preserve">
+    <value>This PC's graphics can't render the app on the GPU, so it uses Reduced.</value>
+  </data>
+  <data name="SettingsPage_Animations_LimitedByWindows" xml:space="preserve">
+    <value>Windows animation effects are turned off, so the app uses Reduced.</value>
+  </data>
+  <data name="SettingsPage_Animations_Message" xml:space="preserve">
+    <value>Full adds movement and live effects. Reduced keeps only fades. Off turns animations off.</value>
+  </data>
+  <data name="SettingsPage_Animations_Title" xml:space="preserve">
+    <value>Animations</value>
+  </data>
+  <data name="SettingsPage_Animations_LimitedByHardwareAcceleration" xml:space="preserve">
+    <value>Hardware acceleration is off, so the app uses Reduced. Turn it on below and restart the app to use Full.</value>
+  </data>
+  <data name="EditDashboardWindow_StatusStrip" xml:space="preserve">
+    <value>Status strip and power mode selector</value>
+  </data>
+  <data name="StatusStrip_Battery" xml:space="preserve">
+    <value>Battery</value>
+  </data>
+  <data name="StatusStrip_Cpu" xml:space="preserve">
+    <value>CPU</value>
+  </data>
+  <data name="StatusStrip_Fans" xml:space="preserve">
+    <value>Fans</value>
+  </data>
+  <data name="StatusStrip_Gpu" xml:space="preserve">
+    <value>GPU</value>
+  </data>
+  <data name="StatusStrip_GpuFan" xml:space="preserve">
+    <value>GPU {0}</value>
+  </data>
+  <data name="StatusStrip_LowWattageAdapter" xml:space="preserve">
+    <value>Low-wattage adapter</value>
+  </data>
+  <data name="StatusStrip_OnBattery" xml:space="preserve">
+    <value>On battery</value>
+  </data>
+  <data name="StatusStrip_PluggedIn" xml:space="preserve">
+    <value>Plugged in</value>
+  </data>
+  <data name="StatusStrip_Power" xml:space="preserve">
+    <value>Power mode</value>
+  </data>
+  <data name="SettingsPage_NeonGlow_Message" xml:space="preserve">
+    <value>How strongly the active items glow in the Neon style.</value>
+  </data>
+  <data name="SettingsPage_NeonGlow_NeedsGpu" xml:space="preserve">
+    <value>Glow needs hardware acceleration and isn&apos;t shown on this PC right now.</value>
+  </data>
+  <data name="SettingsPage_NeonGlow_Title" xml:space="preserve">
+    <value>Glow</value>
+  </data>
+  <data name="SettingsPage_SolidSkin_Note" xml:space="preserve">
+    <value>The selected style draws its own solid background, so this only applies to Fluent glass.</value>
+  </data>
+  <data name="SettingsPage_RetroEffects_Message" xml:space="preserve">
+    <value>Scanline strength and the soft glow around text.</value>
+  </data>
+  <data name="SettingsPage_RetroEffects_Title" xml:space="preserve">
+    <value>CRT effects</value>
+  </data>
+  <data name="SettingsPage_RetroGlow" xml:space="preserve">
+    <value>Phosphor glow</value>
+  </data>
+  <data name="SettingsPage_RetroGlow_NeedsGpu" xml:space="preserve">
+    <value>Phosphor glow needs hardware acceleration and isn&apos;t shown on this PC right now.</value>
+  </data>
+  <data name="SettingsPage_RetroPhosphor_Message" xml:space="preserve">
+    <value>The color of the Retro CRT screen.</value>
+  </data>
+  <data name="SettingsPage_RetroPhosphor_Title" xml:space="preserve">
+    <value>Phosphor</value>
+  </data>
+  <data name="SettingsPage_RetroScanlines" xml:space="preserve">
+    <value>Scanlines</value>
+  </data>
+  <data name="Help_IconName" xml:space="preserve">
+    <value>About {0}</value>
+  </data>
+  <data name="Help_RiskLabel" xml:space="preserve">
+    <value>Risks</value>
+  </data>
+  <data name="Help_WhatLabel" xml:space="preserve">
+    <value>What it does</value>
+  </data>
+  <data name="Help_WhenLabel" xml:space="preserve">
+    <value>When to use it</value>
+  </data>
+  <data name="PowerExplainer_Message" xml:space="preserve">
+    <value>Three different things with similar names. Only the first one changes fans and power limits.</value>
+  </data>
+  <data name="PowerExplainer_ModeText" xml:space="preserve">
+    <value>Set by the laptop&apos;s firmware: Quiet, Balance, Performance, and Extreme or Custom on some models. It changes how the fans behave and the CPU and GPU power and temperature limits. Switched with Fn+Q or on the dashboard.</value>
+  </data>
+  <data name="PowerExplainer_ModeTitle" xml:space="preserve">
+    <value>Power mode (the laptop)</value>
+  </data>
+  <data name="PowerExplainer_PlanText" xml:space="preserve">
+    <value>Windows&apos; classic plan (Control Panel, Power Options): when the screen turns off, when the PC sleeps, and the processor&apos;s minimum and maximum state. It doesn&apos;t change the fans or the power limits.</value>
+  </data>
+  <data name="PowerExplainer_PlanTitle" xml:space="preserve">
+    <value>Windows power plan</value>
+  </data>
+  <data name="PowerExplainer_Title" xml:space="preserve">
+    <value>Power mode, Windows power plan and Windows power mode</value>
+  </data>
+  <data name="PowerExplainer_WinModeText" xml:space="preserve">
+    <value>The Windows 11 slider (Settings, System, Power): Best power efficiency, Balanced or Best performance. It tunes how eagerly Windows boosts and schedules work. It doesn&apos;t change the fans or the power limits.</value>
+  </data>
+  <data name="PowerExplainer_WinModeTitle" xml:space="preserve">
+    <value>Windows power mode</value>
+  </data>
+  <data name="SettingsPage_HelpTooltips_Delay" xml:space="preserve">
+    <value>Help delay</value>
+  </data>
+  <data name="SettingsPage_HelpTooltips_DelayLong" xml:space="preserve">
+    <value>Slow</value>
+  </data>
+  <data name="SettingsPage_HelpTooltips_DelayNormal" xml:space="preserve">
+    <value>Normal</value>
+  </data>
+  <data name="SettingsPage_HelpTooltips_DelayShort" xml:space="preserve">
+    <value>Quick</value>
+  </data>
+  <data name="SettingsPage_HelpTooltips_Message" xml:space="preserve">
+    <value>Explain a setting when you point at its name or its question-mark icon.</value>
+  </data>
+  <data name="SettingsPage_HelpTooltips_Title" xml:space="preserve">
+    <value>Help on hover</value>
+  </data>
+  <data name="Help_Dashboard_PowerMode_Risk" xml:space="preserve">
+    <value>Performance, Extreme and Custom need the charger: on battery LLT refuses them unless it was started with --allow-all-power-modes-on-battery. Higher modes run hotter and louder.</value>
+  </data>
+  <data name="Help_Dashboard_PowerMode_What" xml:space="preserve">
+    <value>Switches the laptop&apos;s firmware power mode: Quiet, Balance, Performance, and Extreme or Custom on supported models. Each mode sets the fan behaviour and the CPU and GPU power and temperature limits. Same as Fn+Q.</value>
+  </data>
+  <data name="Help_Dashboard_PowerMode_When" xml:space="preserve">
+    <value>Quiet for battery life and silence, Balance for everyday use, Performance for games and heavy work with the charger connected. Custom lets you set your own limits and fan curve (gear button).</value>
+  </data>
+  <data name="Help_Settings_HelpTooltips_What" xml:space="preserve">
+    <value>Turns these explanations on or off, and sets how long you point at a setting before its explanation appears.</value>
+  </data>
+  <data name="Help_Settings_HelpTooltips_When" xml:space="preserve">
+    <value>Turn it off once you know the app well and the pop-ups get in the way. Pick Quick if you rely on them a lot.</value>
+  </data>
+  <data name="Help_Settings_PowerModeMapping_Risk" xml:space="preserve">
+    <value>On models with ITS mode, the firmware already syncs power settings, so linking here can conflict with it. Choosing a power-saving Windows plan for Performance would hold back performance.</value>
+  </data>
+  <data name="Help_Settings_PowerModeMapping_What" xml:space="preserve">
+    <value>Links a Windows setting to the laptop&apos;s power mode. Each time the power mode changes (Fn+Q, the dashboard or an automation), LLT also switches the Windows power plan or the Windows power mode you chose for that mode.</value>
+  </data>
+  <data name="Help_Settings_PowerModeMapping_When" xml:space="preserve">
+    <value>Use it if you want Windows to save power in Quiet and boost harder in Performance without changing it by hand. Leave it off if you manage Windows power settings yourself.</value>
+  </data>
+  <data name="Help_Settings_WindowsPowerModes_What" xml:space="preserve">
+    <value>Chooses which Windows power mode (Best power efficiency, Balanced, Best performance) is used for each laptop power mode, separately on the charger and on battery, when the link above is set to Windows power mode.</value>
+  </data>
+  <data name="Help_Settings_WindowsPowerModes_When" xml:space="preserve">
+    <value>Use it on Windows 11, where the power mode slider replaced most plan settings.</value>
+  </data>
+  <data name="Help_Settings_WindowsPowerPlans_What" xml:space="preserve">
+    <value>Chooses which Windows power plan becomes active for each laptop power mode, when the link above is set to Windows power plan.</value>
+  </data>
+  <data name="Help_Settings_WindowsPowerPlans_When" xml:space="preserve">
+    <value>Use it with your own custom plans, for example a plan with a shorter sleep time for Quiet.</value>
+  </data>
+  <data name="Notification_OsdHidden" xml:space="preserve">
+    <value>On-screen display hidden</value>
+  </data>
+  <data name="Notification_OsdShown" xml:space="preserve">
+    <value>On-screen display shown</value>
+  </data>
+  <data name="NotificationsSettingsWindow_Osd" xml:space="preserve">
+    <value>On-screen display</value>
+  </data>
+  <data name="OsdSettings_FnKey_Create" xml:space="preserve">
+    <value>Create quick action</value>
+  </data>
+  <data name="OsdSettings_FnKey_Created" xml:space="preserve">
+    <value>Created &quot;{0}&quot;. Now assign it to a key in Special keys.</value>
+  </data>
+  <data name="OsdSettings_FnKey_Exists" xml:space="preserve">
+    <value>A quick action that toggles the OSD already exists: &quot;{0}&quot;. Assign it in Special keys.</value>
+  </data>
+  <data name="OsdSettings_FnKey_Message" xml:space="preserve">
+    <value>Create a &apos;Toggle OSD&apos; quick action, then assign it to one of your laptop&apos;s special keys.</value>
+  </data>
+  <data name="OsdSettings_FnKey_OpenSpecialKeys" xml:space="preserve">
+    <value>Special keys...</value>
+  </data>
+  <data name="OsdSettings_FnKey_QuickActionName" xml:space="preserve">
+    <value>Toggle OSD</value>
+  </data>
+  <data name="OsdSettings_FnKey_Title" xml:space="preserve">
+    <value>Fn or special key</value>
+  </data>
+  <data name="OsdSettings_Hotkey_Clear" xml:space="preserve">
+    <value>Remove shortcut</value>
+  </data>
+  <data name="OsdSettings_Hotkey_InUse" xml:space="preserve">
+    <value>{0} is already used by another app. Pick a different combination.</value>
+  </data>
+  <data name="OsdSettings_Hotkey_Message" xml:space="preserve">
+    <value>A key combination that shows or hides the OSD from anywhere. Click the box, then press the combination.</value>
+  </data>
+  <data name="OsdSettings_Hotkey_NeedsModifier" xml:space="preserve">
+    <value>Hold Ctrl, Alt or Win and press a key, for example Ctrl+Shift+O.</value>
+  </data>
+  <data name="OsdSettings_Hotkey_None" xml:space="preserve">
+    <value>Not set</value>
+  </data>
+  <data name="OsdSettings_Hotkey_Title" xml:space="preserve">
+    <value>Show/hide shortcut</value>
+  </data>
+  <data name="Help_Osd_FnKey_What" xml:space="preserve">
+    <value>Creates a quick action named &apos;Toggle OSD&apos; that shows or hides the on-screen display. Quick actions can be assigned to your laptop&apos;s programmable special keys in Settings, Special keys (the list depends on the model).</value>
+  </data>
+  <data name="Help_Osd_FnKey_When" xml:space="preserve">
+    <value>Use it if you prefer a laptop key to a key combination, or want the OSD toggle in the tray menu too.</value>
+  </data>
+  <data name="Help_Osd_Hotkey_Risk" xml:space="preserve">
+    <value>While set, the combination no longer reaches other apps: a game that uses the same keys will not see them. Windows lets only one app own a combination, so it is refused if another app already has it.</value>
+  </data>
+  <data name="Help_Osd_Hotkey_What" xml:space="preserve">
+    <value>Sets a keyboard combination that shows or hides the on-screen display from anywhere, including in games. LLT registers it with Windows (RegisterHotKey), so Windows tells LLT when the combination is pressed: there is no keyboard hook, no reading of other keys and nothing is sent to the game.</value>
+  </data>
+  <data name="Help_Osd_Hotkey_When" xml:space="preserve">
+    <value>Use it to glance at temperatures and FPS during a game without leaving it. Pick a combination your games and other apps do not use.</value>
+  </data>
+  <data name="Notification_GameSafeModeOff" xml:space="preserve">
+    <value>Game-safe mode off: everything resumed</value>
+  </data>
+  <data name="Notification_GameSafeModeOn" xml:space="preserve">
+    <value>Game-safe mode on: detailed sensors and macros paused</value>
+  </data>
+  <data name="NotificationsSettingsWindow_GameSafeMode" xml:space="preserve">
+    <value>Game-safe mode</value>
+  </data>
+  <data name="SettingsPage_GameSafeMode_Active" xml:space="preserve">
+    <value>On now ({0} running).</value>
+  </data>
+  <data name="SettingsPage_GameSafeMode_Message" xml:space="preserve">
+    <value>While a game with Vanguard, Easy Anti-Cheat or BattlEye is running, pause the parts of LLT that anti-cheats watch.</value>
+  </data>
+  <data name="SettingsPage_GameSafeMode_Title" xml:space="preserve">
+    <value>Game-safe mode</value>
+  </data>
+  <data name="Help_Settings_GameSafeMode_Risk" xml:space="preserve">
+    <value>LLT can&apos;t promise that a game won&apos;t flag it: only the anti-cheat makers decide that. This mode avoids what anti-cheats are known to look at. While it&apos;s on, the OSD shows fewer readings (no power, voltage, VRAM or disk temperatures), and macros and the Caps Lock / Num Lock pop-ups don&apos;t work. The PawnIO driver stays loaded; LLT just stops using it. Vanguard decides by itself at boot whether that driver may load.</value>
+  </data>
+  <data name="Help_Settings_GameSafeMode_What" xml:space="preserve">
+    <value>LLT checks every few seconds whether the service of Riot Vanguard (vgc), Easy Anti-Cheat or BattlEye is running; these normally run only while a protected game or its launcher is open. LLT only asks Windows for the service status and never looks at the game itself. While one runs, LLT pauses detailed sensors (no readings go through the PawnIO driver), pauses macros (they send simulated key presses) and removes its keyboard hook for Caps Lock and Num Lock pop-ups. The OSD keeps running on readings that need no driver: CPU and GPU temperature, usage, clock and fans from Lenovo&apos;s own sensors, memory from Windows, and FPS from Windows&apos; frame-timing events. Everything comes back when the game closes.</value>
+  </data>
+  <data name="Help_Settings_GameSafeMode_When" xml:space="preserve">
+    <value>Keep it on if you play Valorant, League of Legends, Fortnite, Apex Legends or other games with kernel anti-cheat.</value>
+  </data>
+  <data name="PowerModeDetails_FanCustom" xml:space="preserve">
+    <value>Fan curve: your Custom preset (fan level at each temperature step)</value>
+  </data>
+  <data name="PowerModeDetails_FanFirmware" xml:space="preserve">
+    <value>Fan curve: the laptop&apos;s built-in curve for this mode. Lenovo doesn&apos;t expose it, so it isn&apos;t shown.</value>
+  </data>
+  <data name="PowerModeDetails_FanUser" xml:space="preserve">
+    <value>Fan curve: yours for this mode (fan level at each temperature step)</value>
+  </data>
+  <data name="PowerModeDetails_FanUserPending" xml:space="preserve">
+    <value>Fan curve: yours for this mode, not applied yet (fan level at each temperature step)</value>
+  </data>
+  <data name="PowerModeDetails_FanUserNotKept" xml:space="preserve">
+    <value>Fan curve: the laptop&apos;s built-in curve. Yours for this mode wasn&apos;t kept by the firmware (or couldn&apos;t be written), so it isn&apos;t in use.</value>
+  </data>
+  <data name="PowerModeDetails_GpuOffsets" xml:space="preserve">
+    <value>GPU clock offsets: core {0} MHz, memory {1} MHz</value>
+  </data>
+  <data name="PowerModeDetails_GpuOffsetsNone" xml:space="preserve">
+    <value>GPU clock offsets: none</value>
+  </data>
+  <data name="PowerModeDetails_NotProvided" xml:space="preserve">
+    <value>This laptop doesn&apos;t report power or temperature limits for {0}.</value>
+  </data>
+  <data name="PowerModeDetails_Now" xml:space="preserve">
+    <value>(now {0})</value>
+  </data>
+  <data name="PowerModeDetails_SourceCustom" xml:space="preserve">
+    <value>Your active Custom mode preset. Changes since the last mode are highlighted.</value>
+  </data>
+  <data name="PowerModeDetails_SourceFirmware" xml:space="preserve">
+    <value>The laptop&apos;s own values for {0}. Changes since the last mode are highlighted.</value>
+  </data>
+  <data name="PowerModeDetails_Title" xml:space="preserve">
+    <value>What this power mode sets</value>
+  </data>
+  <data name="PowerModeDetails_VfCurve" xml:space="preserve">
+    <value>Frequency/voltage curve: not exposed by this laptop&apos;s firmware, so it can&apos;t be shown.</value>
+  </data>
+  <data name="Help_Dashboard_PowerModeDetails_Risk" xml:space="preserve">
+    <value>It only shows what the firmware reports. Values in brackets marked &apos;now&apos; are what the laptop reports at this moment; if they differ from the expected value, the firmware or another tool changed them. Values the laptop doesn&apos;t report are left out rather than guessed.</value>
+  </data>
+  <data name="Help_Dashboard_PowerModeDetails_What" xml:space="preserve">
+    <value>Shows the limits the active power mode puts on the CPU and GPU: power limits, boost duration, temperature limits, and the fan curve and GPU clock offsets where known. For Quiet, Balance, Performance and Extreme the values are the laptop&apos;s own table for that mode; for Custom they come from your preset. When the mode changes (Fn+Q, the dashboard or an automation), values that changed are shown as old → new.</value>
+  </data>
+  <data name="Help_Dashboard_PowerModeDetails_When" xml:space="preserve">
+    <value>Use it to see what Fn+Q actually changed, or to compare a mode with your Custom preset before copying its values.</value>
+  </data>
+  <data name="FanCurvesWindow_Enabled_Message" xml:space="preserve">
+    <value>Apply your own fan curve whenever the laptop switches to a power mode you&apos;ve set one for. Custom mode keeps its preset&apos;s curve.</value>
+  </data>
+  <data name="FanCurvesWindow_Enabled_Title" xml:space="preserve">
+    <value>Use my fan curves</value>
+  </data>
+  <data name="FanCurvesWindow_Fallback_Create" xml:space="preserve">
+    <value>Create Custom preset</value>
+  </data>
+  <data name="FanCurvesWindow_Fallback_Created" xml:space="preserve">
+    <value>Created the Custom preset &quot;{0}&quot;. Choose it in Custom mode settings.</value>
+  </data>
+  <data name="FanCurvesWindow_Fallback_Message" xml:space="preserve">
+    <value>This laptop only honours custom fan curves in Custom mode. LLT can create a Custom preset with the selected mode&apos;s own power and temperature limits plus the curve above; then choose that preset in Custom mode. Fn+Q keeps cycling the built-in modes with their own curves.</value>
+  </data>
+  <data name="FanCurvesWindow_Fallback_NoDefaults" xml:space="preserve">
+    <value>The laptop doesn&apos;t report its limits for {0}, so a matching preset can&apos;t be made.</value>
+  </data>
+  <data name="FanCurvesWindow_Fallback_PresetName" xml:space="preserve">
+    <value>{0} + my fan curve</value>
+  </data>
+  <data name="FanCurvesWindow_Invalid" xml:space="preserve">
+    <value>This curve goes below the laptop&apos;s minimum fan levels, so it wasn&apos;t saved.</value>
+  </data>
+  <data name="FanCurvesWindow_Mode" xml:space="preserve">
+    <value>Power mode</value>
+  </data>
+  <data name="FanCurvesWindow_NoData" xml:space="preserve">
+    <value>This laptop doesn&apos;t provide the fan data needed to edit curves, so custom fan curves aren&apos;t available.</value>
+  </data>
+  <data name="FanCurvesWindow_Result_Applied" xml:space="preserve">
+    <value>The curve was applied and stayed in place.</value>
+  </data>
+  <data name="FanCurvesWindow_Result_Rejected" xml:space="preserve">
+    <value>The firmware didn&apos;t keep the curve and put its own back.</value>
+  </data>
+  <data name="FanCurvesWindow_Result_Superseded" xml:space="preserve">
+    <value>The power mode changed while the curve was being applied, so nothing more was written. Try again.</value>
+  </data>
+  <data name="FanCurvesWindow_Result_Failed" xml:space="preserve">
+    <value>The firmware didn&apos;t answer, so the curve couldn&apos;t be applied or tested. Nothing was recorded. Try again.</value>
+  </data>
+  <data name="OverclockDiscreteGPUControl_DisabledAfterCrash" xml:space="preserve">
+    <value>Turned off for safety: the last time these values were applied, LLT could not confirm they were stable (the laptop froze or restarted, or LLT was closed by force). Lower the values, then turn it on again.</value>
+  </data>
+  <data name="OverclockDiscreteGPUSettingsWindow_ApplyFailed" xml:space="preserve">
+    <value>The values were saved, but the graphics driver did not accept them, so they are not active.</value>
+  </data>
+  <data name="OverclockDiscreteGPUSettingsWindow_VoltageLockSkipped" xml:space="preserve">
+    <value>Applied without the voltage lock: the GPU&apos;s own voltage range could not be read, so LLT did not set a voltage.</value>
+  </data>
+  <data name="OverclockDiscreteGPUSettingsWindow_NotApplied" xml:space="preserve">
+    <value>The values were saved but not applied now (GPU overclock is off, the GPU is asleep, or Lenovo&apos;s own software is running).</value>
+  </data>
+  <data name="FanCurvesWindow_Support_Accepts" xml:space="preserve">
+    <value>Yes: the firmware kept a custom curve outside Custom mode.</value>
+  </data>
+  <data name="FanCurvesWindow_Support_Rejects" xml:space="preserve">
+    <value>No: the firmware puts its own curve back outside Custom mode. Use a Custom preset instead (below).</value>
+  </data>
+  <data name="FanCurvesWindow_Support_Title" xml:space="preserve">
+    <value>Does this laptop keep custom curves?</value>
+  </data>
+  <data name="FanCurvesWindow_Support_Unknown" xml:space="preserve">
+    <value>Not tested yet. Test once to find out whether the firmware keeps a custom curve outside Custom mode.</value>
+  </data>
+  <data name="FanCurvesWindow_Test" xml:space="preserve">
+    <value>Test now</value>
+  </data>
+  <data name="FanCurvesWindow_Test_Confirm" xml:space="preserve">
+    <value>LLT will write the {0} curve (the active mode) to the fans and check about 3 seconds later whether the firmware keeps it. The fans may speed up or slow down for a moment. Afterwards the fans go back to the curve they had before, unless this is your saved {0} curve and the firmware kept it. Continue?</value>
+  </data>
+  <data name="FanCurvesWindow_Test_DiscardEdits" xml:space="preserve">
+    <value>The editor will switch to the {0} curve, so your unsaved changes to the curve shown now will be discarded.</value>
+  </data>
+  <data name="FanCurvesWindow_ApplyNow" xml:space="preserve">
+    <value>Apply now</value>
+  </data>
+  <data name="FanCurvesWindow_ApplyNow_Tooltip" xml:space="preserve">
+    <value>Write the curve above to the fans now, without saving it. Closing the window without saving puts the saved curve back.</value>
+  </data>
+  <data name="FanCurvesWindow_ApplyNow_OnlyActive" xml:space="preserve">
+    <value>Only for the active power mode ({0}). Choose it in the list to try a curve.</value>
+  </data>
+  <data name="FanCurvesWindow_Status_Applying" xml:space="preserve">
+    <value>Applying…</value>
+  </data>
+  <data name="FanCurvesWindow_Status_Testing" xml:space="preserve">
+    <value>Testing… (about 4 seconds)</value>
+  </data>
+  <data name="FanCurvesWindow_Status_Restoring" xml:space="preserve">
+    <value>Putting the firmware&apos;s curve back…</value>
+  </data>
+  <data name="FanCurvesWindow_Result_AppliedNow" xml:space="preserve">
+    <value>Saved and applied. LLT checks again in a few seconds and will say so here if the firmware puts its own curve back.</value>
+  </data>
+  <data name="FanCurvesWindow_Result_Previewed" xml:space="preserve">
+    <value>Applied to the fans, not saved. Save to keep it; closing the window puts the saved curve back.</value>
+  </data>
+  <data name="FanCurvesWindow_Result_Saved" xml:space="preserve">
+    <value>Saved.</value>
+  </data>
+  <data name="FanCurvesWindow_Result_SavedNotActive" xml:space="preserve">
+    <value>Saved. It is used whenever the laptop is in {0}.</value>
+  </data>
+  <data name="FanCurvesWindow_Result_RevertedLater" xml:space="preserve">
+    <value>{0}: the firmware put its own curve back a few seconds after it was applied, even after LLT wrote it again.</value>
+  </data>
+  <data name="FanCurvesWindow_Test_NotInCustom" xml:space="preserve">
+    <value>Switch to Quiet, Balance or Performance first: the test is about the built-in modes.</value>
+  </data>
+  <data name="FanCurvesWindow_Title" xml:space="preserve">
+    <value>Fan curves per power mode</value>
+  </data>
+  <data name="FanCurvesWindow_UseCurve" xml:space="preserve">
+    <value>Use my curve in {0}</value>
+  </data>
+  <data name="PowerModeDetails_FanCurvesButton" xml:space="preserve">
+    <value>Fan curves...</value>
+  </data>
+  <data name="SettingsPage_FanCurves_Message" xml:space="preserve">
+    <value>Set your own fan curve for Quiet, Balance and Performance.</value>
+  </data>
+  <data name="SettingsPage_FanCurves_Open" xml:space="preserve">
+    <value>Open...</value>
+  </data>
+  <data name="Help_FanCurves_Risk" xml:space="preserve">
+    <value>A curve that is too low lets the laptop run hotter; LLT refuses curves below this laptop&apos;s minimum fan levels, and the firmware still throttles at its temperature limits. Many Lenovo firmwares only honour custom curves in Custom mode; test first. Then LLT stops trying and offers a Custom preset instead.</value>
+  </data>
+  <data name="Help_FanCurves_Test_What" xml:space="preserve">
+    <value>Writes the curve shown in the editor while a built-in mode is active, reads it back right away and again a few seconds later, and remembers whether the firmware kept it. Your answer to the confirmation is asked first. Afterwards the firmware&apos;s own curve is restored unless that curve is turned on for the active mode.</value>
+  </data>
+  <data name="Help_FanCurves_What" xml:space="preserve">
+    <value>Lets you set your own fan curve (fan level at each of the firmware&apos;s ten temperature steps) for Quiet, Balance, Performance and, where available, Extreme. After every power-mode change, from Fn+Q, the dashboard or an automation, LLT writes the curve for that mode and checks that it stays.</value>
+  </data>
+  <data name="Help_FanCurves_When" xml:space="preserve">
+    <value>Use it for a quieter Balance or a more aggressive Performance without switching to Custom mode and its limits.</value>
+  </data>
+  <data name="Help_Automation_MultipleSteps_What" xml:space="preserve">
+    <value>Pick several actions at once; they&apos;re added in the order you tick them.</value>
+  </data>
+  <data name="Help_Automation_MultipleTriggers_What" xml:space="preserve">
+    <value>Pick several triggers at once. Choose whether each gets its own automation, or one automation runs when all of them are true (AND) or when any of them happens (OR).</value>
+  </data>
+  <data name="Help_BootLogo_Animation_What" xml:space="preserve">
+    <value>Shows or hides Windows&apos; spinning dots under the logo while the laptop starts.</value>
+  </data>
+  <data name="Help_BootLogo_Requirements_What" xml:space="preserve">
+    <value>The image formats and the largest size this laptop&apos;s firmware accepts. Other images are refused before anything is written.</value>
+  </data>
+  <data name="Help_BootLogo_Status_What" xml:space="preserve">
+    <value>Whether the laptop currently starts with the default logo or a custom one.</value>
+  </data>
+  <data name="Help_ITSModeLoop_Mode_Risk" xml:space="preserve">
+    <value>At least one mode must stay on.</value>
+  </data>
+  <data name="Help_ITSModeLoop_Mode_What" xml:space="preserve">
+    <value>Whether this mode is part of the Fn+Q cycle. Drag to change the order.</value>
+  </data>
+  <data name="Help_Notifications_ACAdapter_What" xml:space="preserve">
+    <value>Tells you when the charger is connected or disconnected, and warns when a low-wattage charger is connected that can&apos;t power the laptop at full load.</value>
+  </data>
+  <data name="Help_Notifications_AllScreens_What" xml:space="preserve">
+    <value>Shows each notification on every connected display instead of only the main one.</value>
+  </data>
+  <data name="Help_Notifications_AlwaysOnTop_Risk" xml:space="preserve">
+    <value>A pop-up over a full-screen game may briefly take focus on some systems. Turn it off if games minimize.</value>
+  </data>
+  <data name="Help_Notifications_AlwaysOnTop_What" xml:space="preserve">
+    <value>Shows notifications above all windows, including full-screen games.</value>
+  </data>
+  <data name="Help_Notifications_Automation_What" xml:space="preserve">
+    <value>Shows a notification when an automation runs its actions, so you know why a setting changed.</value>
+  </data>
+  <data name="Help_Notifications_DisableAll_What" xml:space="preserve">
+    <value>Hides every LLT on-screen notification. The individual switches below are kept for when you turn notifications back on.</value>
+  </data>
+  <data name="Help_Notifications_Duration_What" xml:space="preserve">
+    <value>How long each notification stays on screen.</value>
+  </data>
+  <data name="Help_Notifications_GameSafeMode_What" xml:space="preserve">
+    <value>Tells you when game-safe mode turns on because an anti-cheat service started, and when it turns off again.</value>
+  </data>
+  <data name="Help_Notifications_ITSMode_What" xml:space="preserve">
+    <value>Shows the new ITS mode (Lenovo&apos;s Intelligent Thermal Solution, used instead of power modes on some models) when it changes.</value>
+  </data>
+  <data name="Help_Notifications_KeyState_What" xml:space="preserve">
+    <value>Shows a short on-screen notification when this changes, for example after pressing its Fn key or when Windows reports the change.</value>
+  </data>
+  <data name="Help_Notifications_KeyState_When" xml:space="preserve">
+    <value>Turn it off if you already see the change on the keyboard or screen and the pop-up is distracting.</value>
+  </data>
+  <data name="Help_Notifications_Osd_What" xml:space="preserve">
+    <value>Confirms that the on-screen display was shown or hidden, for example after your hotkey.</value>
+  </data>
+  <data name="Help_Notifications_Position_What" xml:space="preserve">
+    <value>Where on the screen notifications appear.</value>
+  </data>
+  <data name="Help_Notifications_PowerMode_What" xml:space="preserve">
+    <value>Shows the new power mode after Fn+Q, the dashboard or an automation changes it.</value>
+  </data>
+  <data name="Help_Notifications_Updates_What" xml:space="preserve">
+    <value>Tells you when a new LLT version is available.</value>
+  </data>
+  <data name="Help_PowerMapping_CustomPreset_What" xml:space="preserve">
+    <value>Which Custom mode preset this mapping applies to; each preset can have its own Windows power plan or mode.</value>
+  </data>
+  <data name="Help_PowerMapping_Plan_Risk" xml:space="preserve">
+    <value>On Modern Standby laptops, plans other than Balanced may cause unexpected sleep or battery behavior.</value>
+  </data>
+  <data name="Help_PowerMapping_Plan_What" xml:space="preserve">
+    <value>The Windows power plan LLT switches to when the laptop enters this power mode.</value>
+  </data>
+  <data name="Help_PowerMapping_Plan_When" xml:space="preserve">
+    <value>For example a plan with shorter screen-off times for Quiet.</value>
+  </data>
+  <data name="Help_PowerMapping_WindowsModeAc_What" xml:space="preserve">
+    <value>The Windows power mode (Best power efficiency, Balanced, Best performance) set while on the charger when the laptop enters this power mode. It only applies with the Balanced plan.</value>
+  </data>
+  <data name="Help_PowerMapping_WindowsModeDc_What" xml:space="preserve">
+    <value>The Windows power mode set while on battery when the laptop enters this power mode. It only applies with the Balanced plan.</value>
+  </data>
+  <data name="Help_PowerPlans_ModernStandby_Risk" xml:space="preserve">
+    <value>Other power plans may make sleep, battery drain or performance behave unexpectedly. Prefer mapping to Windows power modes.</value>
+  </data>
+  <data name="Help_PowerPlans_ModernStandby_What" xml:space="preserve">
+    <value>This laptop uses Modern Standby (S0 low power idle). Windows expects the Balanced plan on these laptops and adjusts behavior with the Windows power mode instead.</value>
+  </data>
+  <data name="Help_Sensors_CpuFrequency_What" xml:space="preserve">
+    <value>Which kind of CPU clock reading the dashboard and OSD show.</value>
+  </data>
+  <data name="Help_Sensors_MemoryMode_What" xml:space="preserve">
+    <value>Shows memory as a percentage or as used and total gigabytes.</value>
+  </data>
+  <data name="Help_Sensors_PreferredGpu_What" xml:space="preserve">
+    <value>Which graphics card&apos;s readings are shown when the laptop has more than one (integrated and discrete).</value>
+  </data>
+  <data name="Help_Sensors_Temperature_What" xml:space="preserve">
+    <value>Shows temperatures in Celsius or Fahrenheit.</value>
+  </data>
+  <data name="Help_Sensors_Voltage_What" xml:space="preserve">
+    <value>Which kind of CPU voltage reading the dashboard and OSD show. Needs hardware sensors.</value>
+  </data>
+  <data name="Help_Settings_AccentColor_What" xml:space="preserve">
+    <value>The highlight color used for buttons, toggles and selections. It can follow Windows&apos; accent color or be set by you.</value>
+  </data>
+  <data name="Help_Settings_AlwaysOnTop_What" xml:space="preserve">
+    <value>Keeps the LLT window above other windows, including while you work in another app.</value>
+  </data>
+  <data name="Help_Settings_Animations_What" xml:space="preserve">
+    <value>Full adds movement and live effects, Reduced keeps only fades, Off turns animations off. Windows&apos; &quot;Animation effects&quot; setting is respected too.</value>
+  </data>
+  <data name="Help_Settings_Animations_When" xml:space="preserve">
+    <value>Choose Reduced or Off if motion is distracting or on a slow or battery-saving system.</value>
+  </data>
+  <data name="Help_Settings_Arguments_Risk" xml:space="preserve">
+    <value>Some options are risky: skipping the compatibility check or allowing all power modes on battery can run features the laptop doesn&apos;t support; &quot;allow all certificates&quot; turns off HTTPS checks for update downloads. Changes apply on the next start.</value>
+  </data>
+  <data name="Help_Settings_Arguments_What" xml:space="preserve">
+    <value>Sets startup options normally passed on the command line, such as starting minimized, trace logging, a proxy, or skipping the compatibility check.</value>
+  </data>
+  <data name="Help_Settings_Arguments_When" xml:space="preserve">
+    <value>Mostly for troubleshooting or when support asks for a specific option.</value>
+  </data>
+  <data name="Help_Settings_Autorun_What" xml:space="preserve">
+    <value>Starts LLT minimized to the tray when you sign in to Windows, using a Windows scheduled task.</value>
+  </data>
+  <data name="Help_Settings_Autorun_When" xml:space="preserve">
+    <value>Keep it on if you rely on automations, hotkeys, the OSD or custom fan curves: they only work while LLT is running.</value>
+  </data>
+  <data name="Help_Settings_Backdrop_Risk" xml:space="preserve">
+    <value>Acrylic and Mica use slightly more GPU time and aren&apos;t available on every Windows version. Takes effect after LLT restarts.</value>
+  </data>
+  <data name="Help_Settings_Backdrop_What" xml:space="preserve">
+    <value>The Windows 11 effect behind the window: Mica, Acrylic, Tabbed or none.</value>
+  </data>
+  <data name="Help_Settings_BackgroundImage_What" xml:space="preserve">
+    <value>Shows a picture of your choice behind the app&apos;s content, with adjustable opacity and blur.</value>
+  </data>
+  <data name="Help_Settings_Backup_Risk" xml:space="preserve">
+    <value>A backup can contain automations that run programs. When restoring, LLT checks the file and lists such actions before applying it; only restore backups you made or trust.</value>
+  </data>
+  <data name="Help_Settings_Backup_What" xml:space="preserve">
+    <value>Saves all LLT settings, automations and presets to one file, or restores them from such a file.</value>
+  </data>
+  <data name="Help_Settings_Backup_When" xml:space="preserve">
+    <value>Before resetting Windows, moving to a new laptop, or trying risky changes.</value>
+  </data>
+  <data name="Help_Settings_BootLogo_Risk" xml:space="preserve">
+    <value>LLT writes the image to the EFI system partition and sets a firmware variable. A wrong size or format is refused; if a BIOS update or reset brings the default back, set it again.</value>
+  </data>
+  <data name="Help_Settings_BootLogo_What" xml:space="preserve">
+    <value>Replaces the Lenovo/Legion logo shown while the laptop starts with your own image, or puts the original back.</value>
+  </data>
+  <data name="Help_Settings_CheckUpdates_What" xml:space="preserve">
+    <value>Checks now whether a newer LLT version is available on the selected channel.</value>
+  </data>
+  <data name="Help_Settings_CLI_Risk" xml:space="preserve">
+    <value>Any program running as you can then change LLT settings through it. Leave it off if you don&apos;t use it.</value>
+  </data>
+  <data name="Help_Settings_CLI_What" xml:space="preserve">
+    <value>Lets the llt command-line tool control the running app (power mode, features, quick actions).</value>
+  </data>
+  <data name="Help_Settings_CLI_When" xml:space="preserve">
+    <value>For scripts, Stream Deck buttons or other tools that run commands.</value>
+  </data>
+  <data name="Help_Settings_CLIPath_What" xml:space="preserve">
+    <value>Adds LLT&apos;s folder to your user PATH so you can type llt in any terminal. New terminals pick it up.</value>
+  </data>
+  <data name="Help_Settings_CompactMode_What" xml:space="preserve">
+    <value>Uses tighter spacing so more cards fit on the screen at once.</value>
+  </data>
+  <data name="Help_Settings_DisableLegionSpace_Risk" xml:space="preserve">
+    <value>Legion Space&apos;s own features stop working while disabled.</value>
+  </data>
+  <data name="Help_Settings_DisableLegionSpace_What" xml:space="preserve">
+    <value>Stops Legion Space and its service without uninstalling it.</value>
+  </data>
+  <data name="Help_Settings_DisableLegionSpace_When" xml:space="preserve">
+    <value>When Legion Space overrides LLT&apos;s settings.</value>
+  </data>
+  <data name="Help_Settings_DisableLegionZone_Risk" xml:space="preserve">
+    <value>Legion Zone&apos;s own features stop working while disabled.</value>
+  </data>
+  <data name="Help_Settings_DisableLegionZone_What" xml:space="preserve">
+    <value>Stops Legion Zone and its service without uninstalling it.</value>
+  </data>
+  <data name="Help_Settings_DisableLegionZone_When" xml:space="preserve">
+    <value>When Legion Zone overrides LLT&apos;s power mode or lighting.</value>
+  </data>
+  <data name="Help_Settings_DisableLenovoHotkeys_Risk" xml:space="preserve">
+    <value>Fn keys LLT doesn&apos;t know may stop doing anything until the service is enabled again.</value>
+  </data>
+  <data name="Help_Settings_DisableLenovoHotkeys_What" xml:space="preserve">
+    <value>Stops the Lenovo Hotkeys service; LLT then handles the Fn shortcuts itself.</value>
+  </data>
+  <data name="Help_Settings_DisableVantage_Risk" xml:space="preserve">
+    <value>Vantage features stop working while disabled, including Lenovo&apos;s driver and BIOS update checks. Get updates from Lenovo&apos;s support site instead.</value>
+  </data>
+  <data name="Help_Settings_DisableVantage_What" xml:space="preserve">
+    <value>Stops Lenovo Vantage and its ImController service and their scheduled tasks, without uninstalling them. Turning it off starts them again.</value>
+  </data>
+  <data name="Help_Settings_DisableVantage_When" xml:space="preserve">
+    <value>When Vantage and LLT fight over the same settings (power mode, battery mode, keyboard light).</value>
+  </data>
+  <data name="Help_Settings_ExcludeRefreshRates_What" xml:space="preserve">
+    <value>Refresh rates ticked here are skipped when Fn+R cycles through them.</value>
+  </data>
+  <data name="Help_Settings_FnQCustom_Risk" xml:space="preserve">
+    <value>Custom mode applies your own limits, which may run hotter or louder than the built-in modes.</value>
+  </data>
+  <data name="Help_Settings_FnQCustom_What" xml:space="preserve">
+    <value>Adds Custom mode to the Fn+Q cycle, after the built-in modes.</value>
+  </data>
+  <data name="Help_Settings_FnQCustom_When" xml:space="preserve">
+    <value>When you use a Custom preset often and want to reach it from the keyboard.</value>
+  </data>
+  <data name="Help_Settings_GameDetection_Risk" xml:space="preserve">
+    <value>Detection only reads the list of running processes and GPU usage; it never opens or reads a game&apos;s memory.</value>
+  </data>
+  <data name="Help_Settings_GameDetection_What" xml:space="preserve">
+    <value>Chooses how LLT decides that a game is running: Automatic, a known-games list, Windows Game Mode, the discrete GPU being in use, or only processes you add. The result drives the &quot;Games are running&quot; and &quot;Games stopped&quot; automation triggers.</value>
+  </data>
+  <data name="Help_Settings_GameDetection_When" xml:space="preserve">
+    <value>Change it if those automations start for non-games (for example a video editor on the discrete GPU) or miss your games.</value>
+  </data>
+  <data name="Help_Settings_HardwareAcceleration_Risk" xml:space="preserve">
+    <value>On hybrid-graphics laptops it can cause flicker or black flashes and may keep the discrete GPU awake, using more battery. Restart LLT after changing it.</value>
+  </data>
+  <data name="Help_Settings_HardwareAcceleration_What" xml:space="preserve">
+    <value>Draws the LLT window with the GPU instead of the CPU.</value>
+  </data>
+  <data name="Help_Settings_HardwareAcceleration_When" xml:space="preserve">
+    <value>Leave it off unless the window feels slow to draw.</value>
+  </data>
+  <data name="Help_Settings_HardwareSensors_Risk" xml:space="preserve">
+    <value>Uses a kernel-mode driver and a little more CPU. Some anti-cheat software dislikes drivers like this; game-safe mode pauses these reads while a protected game runs, but the driver itself stays installed.</value>
+  </data>
+  <data name="Help_Settings_HardwareSensors_What" xml:space="preserve">
+    <value>Reads detailed sensors (CPU package power, per-core clocks and voltages, RAM and disk temperatures) through LibreHardwareMonitor and the PawnIO driver. Without it, LLT still shows the basic temperatures, usage and fan speeds Lenovo&apos;s firmware reports.</value>
+  </data>
+  <data name="Help_Settings_HardwareSensors_When" xml:space="preserve">
+    <value>When you want the full sensor dashboard or detailed OSD values.</value>
+  </data>
+  <data name="Help_Settings_HWiNFO_Risk" xml:space="preserve">
+    <value>Writes the values to your user registry while it runs. Restart HWiNFO64 after changing this.</value>
+  </data>
+  <data name="Help_Settings_HWiNFO_What" xml:space="preserve">
+    <value>Publishes values only LLT can read (fan speeds, battery temperature and more) as custom sensors in HWiNFO64, refreshed every second.</value>
+  </data>
+  <data name="Help_Settings_HWiNFO_When" xml:space="preserve">
+    <value>When you log or graph sensors in HWiNFO64.</value>
+  </data>
+  <data name="Help_Settings_KeyDiscovery_What" xml:space="preserve">
+    <value>Listens while you press keys and shows special keys LLT doesn&apos;t know yet, so you can give them an action.</value>
+  </data>
+  <data name="Help_Settings_Language_What" xml:space="preserve">
+    <value>The language of LLT&apos;s text. Text not yet translated appears in English. LLT reloads its window to apply it.</value>
+  </data>
+  <data name="Help_Settings_LockWindowSize_What" xml:space="preserve">
+    <value>Stops the main window from being resized by dragging its edges.</value>
+  </data>
+  <data name="Help_Settings_Logging_Risk" xml:space="preserve">
+    <value>Logs grow over time and may include your laptop model, settings and process names. Turn it off afterwards.</value>
+  </data>
+  <data name="Help_Settings_Logging_What" xml:space="preserve">
+    <value>Writes a detailed log of what LLT does to its log folder, for reporting problems.</value>
+  </data>
+  <data name="Help_Settings_Logging_When" xml:space="preserve">
+    <value>Turn it on, reproduce the problem, then attach the log to a bug report.</value>
+  </data>
+  <data name="Help_Settings_MinimizeOnClose_What" xml:space="preserve">
+    <value>The window&apos;s close button hides LLT to the tray instead of quitting it. Quit from the tray icon&apos;s menu.</value>
+  </data>
+  <data name="Help_Settings_MinimizeOnClose_When" xml:space="preserve">
+    <value>Useful when you close windows out of habit but want automations and hotkeys to keep working.</value>
+  </data>
+  <data name="Help_Settings_MinimizeToTray_What" xml:space="preserve">
+    <value>Minimizing the window hides it in the notification area (tray) instead of the taskbar. LLT keeps running.</value>
+  </data>
+  <data name="Help_Settings_NeonGlow_Risk" xml:space="preserve">
+    <value>Strong glow uses a little more GPU time to draw the window.</value>
+  </data>
+  <data name="Help_Settings_NeonGlow_What" xml:space="preserve">
+    <value>How strongly selected and active items glow in the Neon style.</value>
+  </data>
+  <data name="Help_Settings_NewSensorDashboard_What" xml:space="preserve">
+    <value>Switches the dashboard&apos;s sensor area between the newer, configurable layout and the original one. Both show the same readings.</value>
+  </data>
+  <data name="Help_Settings_Notifications_What" xml:space="preserve">
+    <value>Opens the list of on-screen notifications (Fn keys, power mode, updates, automations and more), where each can be turned on or off and positioned.</value>
+  </data>
+  <data name="Help_Settings_OnBatterySinceReset_What" xml:space="preserve">
+    <value>Starts the Battery page&apos;s &quot;On battery since&quot; counter over each time Windows starts, instead of only when the charger is connected.</value>
+  </data>
+  <data name="Help_Settings_Osd_Risk" xml:space="preserve">
+    <value>FPS uses Windows&apos; own event tracing (ETW). While an anti-cheat game runs, game-safe mode limits the OSD to driver-free sources.</value>
+  </data>
+  <data name="Help_Settings_Osd_What" xml:space="preserve">
+    <value>A small always-on-top window showing live values such as FPS, temperatures and usage. It is a separate window drawn over the game; LLT never injects into or hooks the game.</value>
+  </data>
+  <data name="Help_Settings_Osd_When" xml:space="preserve">
+    <value>While gaming or benchmarking. Toggle it with your hotkey or an Fn quick action.</value>
+  </data>
+  <data name="Help_Settings_PowerPlansControlPanel_What" xml:space="preserve">
+    <value>Opens Windows&apos; classic Power Options, where each power plan&apos;s sleep, screen-off and processor settings are edited.</value>
+  </data>
+  <data name="Help_Settings_RememberWindowPosition_What" xml:space="preserve">
+    <value>Opens the window where it was last time instead of centered on the screen.</value>
+  </data>
+  <data name="Help_Settings_Reset_Risk" xml:space="preserve">
+    <value>Cannot be undone. Make a backup first if you might want anything back.</value>
+  </data>
+  <data name="Help_Settings_Reset_What" xml:space="preserve">
+    <value>Deletes every LLT setting, automation and Custom mode preset and restarts the app with defaults.</value>
+  </data>
+  <data name="Help_Settings_Reset_When" xml:space="preserve">
+    <value>When settings are broken and you want a clean start.</value>
+  </data>
+  <data name="Help_Settings_RetroEffects_What" xml:space="preserve">
+    <value>Strength of the scanlines and the soft glow around text in the Retro style.</value>
+  </data>
+  <data name="Help_Settings_RetroEffects_When" xml:space="preserve">
+    <value>Lower them if text is hard to read.</value>
+  </data>
+  <data name="Help_Settings_RetroPhosphor_What" xml:space="preserve">
+    <value>The screen color of the Retro style, like the phosphor of an old CRT monitor (green, amber or white).</value>
+  </data>
+  <data name="Help_Settings_Skin_What" xml:space="preserve">
+    <value>The overall look of the app: Fluent (the standard Windows look), Neon or Retro. Only the appearance changes; every feature works the same.</value>
+  </data>
+  <data name="Help_Settings_SmartFnLock_What" xml:space="preserve">
+    <value>While Fn Lock is on, holding Alt, Ctrl or Shift temporarily turns it off, so shortcuts like Alt+F4 work without pressing Fn.</value>
+  </data>
+  <data name="Help_Settings_SmartKeys_What" xml:space="preserve">
+    <value>Lists the laptop&apos;s special keys and lets you choose what each one does: its default action, a quick action, or nothing.</value>
+  </data>
+  <data name="Help_Settings_SyncBrightness_What" xml:space="preserve">
+    <value>When you change brightness, LLT copies the level to every Windows power plan, so switching power mode (which can switch plans) doesn&apos;t change brightness.</value>
+  </data>
+  <data name="Help_Settings_SyncBrightness_When" xml:space="preserve">
+    <value>When brightness jumps after Fn+Q or plugging in the charger.</value>
+  </data>
+  <data name="Help_Settings_Theme_What" xml:space="preserve">
+    <value>Light, dark, or follow the Windows app theme.</value>
+  </data>
+  <data name="Help_Settings_UpdateChannel_Risk" xml:space="preserve">
+    <value>Beta and Dev builds are less tested and may have bugs.</value>
+  </data>
+  <data name="Help_Settings_UpdateChannel_What" xml:space="preserve">
+    <value>Stable gets tested releases; Beta and Dev get newer builds earlier.</value>
+  </data>
+  <data name="Help_Settings_UpdateFrequency_What" xml:space="preserve">
+    <value>How often LLT looks for a new version in the background.</value>
+  </data>
+  <data name="Help_Settings_UpdateMethod_What" xml:space="preserve">
+    <value>How a new version is downloaded and installed once one is found.</value>
+  </data>
+  <data name="Help_SpecialKeys_HiddenKey_What" xml:space="preserve">
+    <value>A key you hid from the list. It keeps its action. Right-click to show it again.</value>
+  </data>
+  <data name="Help_SpecialKeys_Key_What" xml:space="preserve">
+    <value>A special key on this laptop and what it currently does. Click to change its action; right-click to hide it from the list.</value>
+  </data>
+  <data name="Help_SpecialKeys_Label_What" xml:space="preserve">
+    <value>A name for this key, shown in the special keys list.</value>
+  </data>
+  <data name="Help_SpecialKeys_Mode_What" xml:space="preserve">
+    <value>What happens when this key is pressed: its normal action, a quick action you choose, or nothing.</value>
+  </data>
+  <data name="Help_Battery_Current_What" xml:space="preserve">
+    <value>Energy stored in the battery right now, in watt-hours.</value>
+  </data>
+  <data name="Help_Battery_Cycles_What" xml:space="preserve">
+    <value>Full charge-discharge cycles counted by the battery. Two half discharges count as one cycle.</value>
+  </data>
+  <data name="Help_Battery_Design_What" xml:space="preserve">
+    <value>Energy the battery held when new, in watt-hours.</value>
+  </data>
+  <data name="Help_Battery_FirstUse_What" xml:space="preserve">
+    <value>When the battery was first used, as reported by the battery.</value>
+  </data>
+  <data name="Help_Battery_Full_What" xml:space="preserve">
+    <value>Energy the battery holds when full today, in watt-hours. Drops slowly as the battery ages.</value>
+  </data>
+  <data name="Help_Battery_Health_What" xml:space="preserve">
+    <value>Full-charge capacity as a percentage of design capacity.</value>
+  </data>
+  <data name="Help_Battery_Health_When" xml:space="preserve">
+    <value>Some loss per year is normal. A sudden large drop may mean the battery needs calibrating or replacing.</value>
+  </data>
+  <data name="Help_Battery_ManufactureDate_What" xml:space="preserve">
+    <value>When the battery was made, as reported by the battery.</value>
+  </data>
+  <data name="Help_Battery_MaxRate_What" xml:space="preserve">
+    <value>The highest charge or drain rate seen since the battery last switched between charging and draining (or since LLT started).</value>
+  </data>
+  <data name="Help_Battery_MinRate_What" xml:space="preserve">
+    <value>The lowest charge or drain rate seen since the battery last switched between charging and draining (or since LLT started).</value>
+  </data>
+  <data name="Help_Battery_OnBatterySince_Risk" xml:space="preserve">
+    <value>Can be inaccurate if the laptop was charged while off.</value>
+  </data>
+  <data name="Help_Battery_OnBatterySince_What" xml:space="preserve">
+    <value>Time since the charger was last disconnected.</value>
+  </data>
+  <data name="Help_Battery_Rate_What" xml:space="preserve">
+    <value>How fast the battery is charging (+) or draining (−) right now, in watts.</value>
+  </data>
+  <data name="Help_Battery_Rate_When" xml:space="preserve">
+    <value>Watch it while closing apps to find what drains the battery.</value>
+  </data>
+  <data name="Help_Battery_Temperature_What" xml:space="preserve">
+    <value>Battery temperature reported by the firmware.</value>
+  </data>
+  <data name="Help_Battery_Temperature_When" xml:space="preserve">
+    <value>Batteries age faster when they&apos;re often above about 40 °C; Conservation mode and good airflow help.</value>
+  </data>
+  <data name="Help_Dashboard_DiscreteGpu_Risk" xml:space="preserve">
+    <value>Apps using the discrete GPU may crash or close and lose unsaved work. Only works in hybrid mode.</value>
+  </data>
+  <data name="Help_Dashboard_DiscreteGpu_What" xml:space="preserve">
+    <value>Shows whether the discrete GPU is active and which apps keep it awake. Deactivate briefly restarts the discrete GPU so it can go back to sleep; Kill apps closes the apps using it.</value>
+  </data>
+  <data name="Help_Dashboard_DiscreteGpu_When" xml:space="preserve">
+    <value>When battery drains fast because an app keeps the discrete GPU awake for no reason.</value>
+  </data>
+  <data name="Help_Dashboard_OverclockDiscreteGpu_Risk" xml:space="preserve">
+    <value>Too high an offset causes crashes, graphical artifacts or driver resets. Raise in small steps and test each step.</value>
+  </data>
+  <data name="Help_Dashboard_OverclockDiscreteGpu_What" xml:space="preserve">
+    <value>Applies the discrete GPU clock offsets set in its settings (gear button). The toggle turns the overclock on or off.</value>
+  </data>
+  <data name="Help_Dashboard_TurnOffMonitors_What" xml:space="preserve">
+    <value>Turns off all displays right away, without sleeping or locking. Moving the mouse or pressing a key wakes them.</value>
+  </data>
+  <data name="Help_Dashboard_TurnOffMonitors_When" xml:space="preserve">
+    <value>During long downloads or renders, or to save power when stepping away. Lock the PC separately if needed.</value>
+  </data>
+  <data name="Help_DiscreteGpu_KeepAwake_Risk" xml:space="preserve">
+    <value>Uses more power and reduces battery life noticeably.</value>
+  </data>
+  <data name="Help_DiscreteGpu_KeepAwake_What" xml:space="preserve">
+    <value>Keeps a small Direct3D connection open on the discrete GPU so it never powers down.</value>
+  </data>
+  <data name="Help_DiscreteGpu_KeepAwake_When" xml:space="preserve">
+    <value>If games or external displays stutter when the discrete GPU wakes up.</value>
+  </data>
+  <data name="Help_DiscreteGpu_PState_Risk" xml:space="preserve">
+    <value>A high P-state keeps clocks and power up even when idle, so more heat, fan noise and battery drain.</value>
+  </data>
+  <data name="Help_DiscreteGpu_PState_What" xml:space="preserve">
+    <value>Locks the discrete GPU to one performance state (P-state) through the NVIDIA driver, instead of letting it clock up and down. Auto returns control to the driver.</value>
+  </data>
+  <data name="Help_DiscreteGpu_PState_When" xml:space="preserve">
+    <value>To remove clock-change hiccups in latency-sensitive games or benchmarks.</value>
+  </data>
+  <data name="Help_EditDashboard_Sensors_What" xml:space="preserve">
+    <value>Shows or hides the sensor area on the dashboard.</value>
+  </data>
+  <data name="Help_EditDashboard_StatusStrip_What" xml:space="preserve">
+    <value>Shows or hides the live status strip and the large power-mode selector at the top of the dashboard.</value>
+  </data>
+  <data name="Help_Feature_AlwaysOnUSBState_Risk" xml:space="preserve">
+    <value>Drains the battery while the laptop is off if it isn&apos;t plugged in.</value>
+  </data>
+  <data name="Help_Feature_AlwaysOnUSBState_What" xml:space="preserve">
+    <value>Keeps power on a USB port while the laptop is off, sleeping or hibernated, so phones and other devices can charge.</value>
+  </data>
+  <data name="Help_Feature_AutoColorManagementState_Risk" xml:space="preserve">
+    <value>Some older apps and games can look slightly different with it on.</value>
+  </data>
+  <data name="Help_Feature_AutoColorManagementState_What" xml:space="preserve">
+    <value>Windows&apos; Auto Color Management: Windows manages colors system-wide using the display&apos;s color profile, for more accurate colors.</value>
+  </data>
+  <data name="Help_Feature_BatteryNightChargeState_What" xml:space="preserve">
+    <value>When plugged in overnight, the battery charges to 80% and finishes to 100% around the time you usually start using the laptop. Windows and the firmware decide the timing.</value>
+  </data>
+  <data name="Help_Feature_BatteryNightChargeState_When" xml:space="preserve">
+    <value>If the laptop charges overnight every night.</value>
+  </data>
+  <data name="Help_Feature_BatteryState_Risk" xml:space="preserve">
+    <value>Rapid Charge warms the battery and wears it slightly faster when used all the time. Conservation means less runtime when you unplug.</value>
+  </data>
+  <data name="Help_Feature_BatteryState_What" xml:space="preserve">
+    <value>How the battery charges. Conservation stops charging well below full (the exact level depends on the model) to slow battery wear. Normal charges to 100%. Rapid Charge charges faster on the charger.</value>
+  </data>
+  <data name="Help_Feature_BatteryState_When" xml:space="preserve">
+    <value>Conservation if the laptop stays plugged in most of the time; Normal before travelling; Rapid Charge when you need charge quickly.</value>
+  </data>
+  <data name="Help_Feature_DpiScale_Risk" xml:space="preserve">
+    <value>Some apps look blurry until they&apos;re restarted after a scale change.</value>
+  </data>
+  <data name="Help_Feature_DpiScale_What" xml:space="preserve">
+    <value>Windows&apos; display scaling (text and icon size) for the built-in display.</value>
+  </data>
+  <data name="Help_Feature_FlipToStartState_What" xml:space="preserve">
+    <value>Turns the laptop on when you open the lid.</value>
+  </data>
+  <data name="Help_Feature_FnLockState_What" xml:space="preserve">
+    <value>When on, F1–F12 do their special functions (volume, brightness…) without holding Fn; hold Fn for the plain F keys.</value>
+  </data>
+  <data name="Help_Feature_HDRState_What" xml:space="preserve">
+    <value>Turns Windows HDR on or off for the built-in display, where supported.</value>
+  </data>
+  <data name="Help_Feature_HDRState_When" xml:space="preserve">
+    <value>On for HDR games and videos; off for accurate colors in normal apps and slightly better battery life.</value>
+  </data>
+  <data name="Help_Feature_HybridModeState_Risk" xml:space="preserve">
+    <value>Switching needs a restart, and LLT asks first. Discrete-only uses much more battery. Integrated-only turns the discrete GPU off, so games run slowly and ports wired to it may not work.</value>
+  </data>
+  <data name="Help_Feature_HybridModeState_What" xml:space="preserve">
+    <value>How the integrated and discrete GPUs work together. Hybrid lets Windows use the efficient integrated GPU and wake the discrete one when needed; discrete-only routes everything through the discrete GPU; some models add an automatic mode or integrated-only.</value>
+  </data>
+  <data name="Help_Feature_HybridModeState_When" xml:space="preserve">
+    <value>Hybrid for battery life; discrete-only for the lowest latency and highest frame rate on the laptop screen.</value>
+  </data>
+  <data name="Help_Feature_InstantBootState_What" xml:space="preserve">
+    <value>Turns the laptop on automatically when the charger is connected.</value>
+  </data>
+  <data name="Help_Feature_ITSMode_Risk" xml:space="preserve">
+    <value>Performance modes run hotter and louder.</value>
+  </data>
+  <data name="Help_Feature_ITSMode_What" xml:space="preserve">
+    <value>Lenovo&apos;s Intelligent Thermal Solution mode, used instead of power modes on some models: it sets fan behavior and power limits for quiet, balanced or performance use.</value>
+  </data>
+  <data name="Help_Feature_ITSMode_When" xml:space="preserve">
+    <value>Quieter modes for office work and battery; performance modes for games and heavy work.</value>
+  </data>
+  <data name="Help_Feature_MicrophoneState_What" xml:space="preserve">
+    <value>Mutes or unmutes every microphone through Windows. Apps see the microphone as muted.</value>
+  </data>
+  <data name="Help_Feature_OneLevelWhiteKeyboardBacklightState_What" xml:space="preserve">
+    <value>Turns the white keyboard backlight on or off (this keyboard has a single brightness level).</value>
+  </data>
+  <data name="Help_Feature_OverDriveState_Risk" xml:space="preserve">
+    <value>On some panels it causes faint bright or dark trails (overshoot). Turn it off if you see them.</value>
+  </data>
+  <data name="Help_Feature_OverDriveState_What" xml:space="preserve">
+    <value>Panel overdrive drives the display&apos;s pixels harder so they change faster, reducing blur and ghosting in motion.</value>
+  </data>
+  <data name="Help_Feature_PanelLogoBacklightState_What" xml:space="preserve">
+    <value>Turns the light of the logo on the lid on or off.</value>
+  </data>
+  <data name="Help_Feature_PortsBacklightState_What" xml:space="preserve">
+    <value>Turns the lights of the rear ports on or off.</value>
+  </data>
+  <data name="Help_Feature_RefreshRate_What" xml:space="preserve">
+    <value>How many times per second the built-in display refreshes. Fn+R also cycles it.</value>
+  </data>
+  <data name="Help_Feature_RefreshRate_When" xml:space="preserve">
+    <value>Highest for games and smooth scrolling; 60 Hz to save battery.</value>
+  </data>
+  <data name="Help_Feature_Resolution_What" xml:space="preserve">
+    <value>The built-in display&apos;s resolution, same as Windows display settings.</value>
+  </data>
+  <data name="Help_Feature_Resolution_When" xml:space="preserve">
+    <value>Lower it for more frame rate in demanding games.</value>
+  </data>
+  <data name="Help_Feature_TouchpadLockState_What" xml:space="preserve">
+    <value>Turns the touchpad off so it can&apos;t be touched by accident, for example while gaming with a mouse.</value>
+  </data>
+  <data name="Help_Feature_WhiteKeyboardBacklightState_What" xml:space="preserve">
+    <value>Brightness of the white keyboard backlight (off, low or high).</value>
+  </data>
+  <data name="Help_Feature_WinKeyState_What" xml:space="preserve">
+    <value>Disables the Windows key on the built-in keyboard so it can&apos;t open Start mid-game. External keyboards are not affected.</value>
+  </data>
+  <data name="Help_GodMode_ApuSppt_Risk" xml:space="preserve">
+    <value>Higher values mean more heat and fan noise.</value>
+  </data>
+  <data name="Help_GodMode_ApuSppt_What" xml:space="preserve">
+    <value>AMD&apos;s slow package power tracking limit: the sustained power the AMD processor may use, similar to Intel&apos;s PL1.</value>
+  </data>
+  <data name="Help_GodMode_CoreCurve_Risk" xml:space="preserve">
+    <value>An undervolt that is too strong causes random crashes, often only at idle or light load.</value>
+  </data>
+  <data name="Help_GodMode_CoreCurve_What" xml:space="preserve">
+    <value>Turns the All Core Curve Optimizer value on or off for this preset.</value>
+  </data>
+  <data name="Help_GodMode_CpuCrossLoading_What" xml:space="preserve">
+    <value>The sustained CPU power limit used when the GPU is also under heavy load, as in most games.</value>
+  </data>
+  <data name="Help_GodMode_CpuCrossLoading_When" xml:space="preserve">
+    <value>Lower it to leave more of the shared cooling and power budget to the GPU in games.</value>
+  </data>
+  <data name="Help_GodMode_CpuPeak_Risk" xml:space="preserve">
+    <value>Setting it beyond what the laptop&apos;s power delivery handles can cause sudden shutdowns under heavy load.</value>
+  </data>
+  <data name="Help_GodMode_CpuPeak_What" xml:space="preserve">
+    <value>The absolute cap for instant power spikes, protecting the CPU&apos;s power delivery.</value>
+  </data>
+  <data name="Help_GodMode_CpuPL1_Risk" xml:space="preserve">
+    <value>Higher values mean more heat and fan noise; the CPU still throttles at its temperature limit.</value>
+  </data>
+  <data name="Help_GodMode_CpuPL1_What" xml:space="preserve">
+    <value>PL1: the CPU power the laptop can sustain indefinitely, in watts. Sets most of the performance and heat in long loads.</value>
+  </data>
+  <data name="Help_GodMode_CpuPL1_When" xml:space="preserve">
+    <value>Raise it for long renders or compiles if temperatures allow; lower it for a quieter, cooler laptop.</value>
+  </data>
+  <data name="Help_GodMode_CpuPL2_Risk" xml:space="preserve">
+    <value>Higher bursts heat up the CPU quickly and spin the fans up.</value>
+  </data>
+  <data name="Help_GodMode_CpuPL2_What" xml:space="preserve">
+    <value>PL2: the higher power the CPU may use for short bursts (see the duration setting), in watts. Makes apps feel snappy.</value>
+  </data>
+  <data name="Help_GodMode_CpuTau_Risk" xml:space="preserve">
+    <value>Long durations with a high short-term limit heat the laptop up faster.</value>
+  </data>
+  <data name="Help_GodMode_CpuTau_What" xml:space="preserve">
+    <value>How long, in seconds, the CPU may stay at the short-term limit before falling back to the long-term limit.</value>
+  </data>
+  <data name="Help_GodMode_CpuTemp_Risk" xml:space="preserve">
+    <value>Higher limits let the CPU run hotter for longer; they never go past the CPU&apos;s own safety limit.</value>
+  </data>
+  <data name="Help_GodMode_CpuTemp_What" xml:space="preserve">
+    <value>The CPU temperature at which the firmware starts lowering CPU power to stay at or below it.</value>
+  </data>
+  <data name="Help_GodMode_CpuTemp_When" xml:space="preserve">
+    <value>Lower it for a cooler, quieter laptop (with less performance).</value>
+  </data>
+  <data name="Help_GodMode_CurveOptimizer_Risk" xml:space="preserve">
+    <value>Too negative causes random crashes or freezes, sometimes only at idle. Change in small steps and test for hours.</value>
+  </data>
+  <data name="Help_GodMode_CurveOptimizer_What" xml:space="preserve">
+    <value>AMD Curve Optimizer for all cores: a negative value lowers voltage at every clock (undervolting), reducing heat and often raising sustained clocks.</value>
+  </data>
+  <data name="Help_GodMode_FanCurve_Risk" xml:space="preserve">
+    <value>A flatter curve runs hotter. LLT won&apos;t accept points below the laptop&apos;s minimum, and the firmware still throttles at its temperature limits.</value>
+  </data>
+  <data name="Help_GodMode_FanCurve_What" xml:space="preserve">
+    <value>Fan level at each of the firmware&apos;s ten temperature steps, used while this Custom preset is active. The firmware picks the step from the hottest of the CPU, GPU and heatsink sensors.</value>
+  </data>
+  <data name="Help_GodMode_FanMax_Risk" xml:space="preserve">
+    <value>Loud, and more fan wear over long periods.</value>
+  </data>
+  <data name="Help_GodMode_FanMax_What" xml:space="preserve">
+    <value>Runs both fans at full speed all the time while this preset is active, ignoring the curve.</value>
+  </data>
+  <data name="Help_GodMode_FanMax_When" xml:space="preserve">
+    <value>Short heavy loads like benchmarks, or cooling down quickly.</value>
+  </data>
+  <data name="Help_GodMode_GpuCtgp_Risk" xml:space="preserve">
+    <value>Higher values mean more heat and fan noise and need the full-power charger.</value>
+  </data>
+  <data name="Help_GodMode_GpuCtgp_What" xml:space="preserve">
+    <value>Configurable TGP: the GPU&apos;s main sustained power limit, in watts. The biggest single factor for gaming performance.</value>
+  </data>
+  <data name="Help_GodMode_GpuCtgp_When" xml:space="preserve">
+    <value>Lower it for quieter gaming or on a weaker charger.</value>
+  </data>
+  <data name="Help_GodMode_GpuDynamicBoost_Risk" xml:space="preserve">
+    <value>More GPU power means more heat in the shared cooling system.</value>
+  </data>
+  <data name="Help_GodMode_GpuDynamicBoost_What" xml:space="preserve">
+    <value>NVIDIA Dynamic Boost: extra watts the GPU may take from the CPU&apos;s budget when the CPU isn&apos;t busy.</value>
+  </data>
+  <data name="Help_GodMode_GpuTemp_Risk" xml:space="preserve">
+    <value>Higher limits let the GPU run hotter; they never go past the GPU&apos;s own safety limit.</value>
+  </data>
+  <data name="Help_GodMode_GpuTemp_What" xml:space="preserve">
+    <value>The GPU temperature at which it starts lowering clocks to stay at or below it.</value>
+  </data>
+  <data name="Help_GodMode_GpuToCpuBoost_What" xml:space="preserve">
+    <value>The extra power the CPU may borrow from the GPU&apos;s budget when the GPU isn&apos;t busy.</value>
+  </data>
+  <data name="Help_GodMode_GpuToCpuBoost_When" xml:space="preserve">
+    <value>Set to 0 W to stop the CPU drawing extra power during GPU-heavy games, for less heat and noise.</value>
+  </data>
+  <data name="Help_GodMode_GpuTpp_What" xml:space="preserve">
+    <value>NVIDIA&apos;s Total Processing Power target on AC: the combined CPU power level above which the GPU driver starts shifting power between CPU and GPU. The value is an offset from the firmware&apos;s baseline, set through Lenovo&apos;s firmware.</value>
+  </data>
+  <data name="Help_GodMode_GpuTpp_When" xml:space="preserve">
+    <value>Lower it to keep the CPU from taking power the GPU could use in games.</value>
+  </data>
+  <data name="Help_GodMode_GpuTppPcf_What" xml:space="preserve">
+    <value>NVIDIA&apos;s Total Processing Power target on AC: the combined CPU power level above which the GPU driver starts shifting power between CPU and GPU. The value is an offset from the firmware&apos;s baseline, set through Lenovo&apos;s firmware. This variant is set through the NVIDIA driver (NVAPI) instead of Lenovo&apos;s firmware.</value>
+  </data>
+  <data name="Help_GodMode_GpuTppPcf_When" xml:space="preserve">
+    <value>Lower it to keep the CPU from taking power the GPU could use in games.</value>
+  </data>
+  <data name="Help_GodMode_MaxOffset_Risk" xml:space="preserve">
+    <value>None to the hardware: this can only lower the ceiling. A low ceiling limits performance.</value>
+  </data>
+  <data name="Help_GodMode_MaxOffset_What" xml:space="preserve">
+    <value>Lowers the upper end of the power and temperature sliders in this preset. It can&apos;t raise it: nothing above the maximum the firmware reports is ever sent to the laptop.</value>
+  </data>
+  <data name="Help_GodMode_MinOffset_Risk" xml:space="preserve">
+    <value>None to the hardware: this can only raise the floor. A high floor leaves less room to limit power or temperature.</value>
+  </data>
+  <data name="Help_GodMode_MinOffset_What" xml:space="preserve">
+    <value>Raises the lower end of the power and temperature sliders in this preset. It can&apos;t lower it: nothing below the minimum the firmware reports is ever sent to the laptop.</value>
+  </data>
+  <data name="Help_GodMode_Overclocking_Risk" xml:space="preserve">
+    <value>Wrong values can cause crashes, data loss from crashes, or a failed boot. Change one thing at a time and stress-test.</value>
+  </data>
+  <data name="Help_GodMode_Overclocking_What" xml:space="preserve">
+    <value>Turns on AMD Precision Boost Overdrive and Curve Optimizer settings for this preset (AMD CPUs that support it).</value>
+  </data>
+  <data name="Help_GodMode_PboFrequency_Risk" xml:space="preserve">
+    <value>Higher clocks can be unstable without enough voltage headroom; test for crashes.</value>
+  </data>
+  <data name="Help_GodMode_PboFrequency_What" xml:space="preserve">
+    <value>AMD PBO boost override: MHz allowed above the factory maximum boost clock.</value>
+  </data>
+  <data name="Help_GodMode_PboScaler_Risk" xml:space="preserve">
+    <value>Higher values may shorten the processor&apos;s life and increase heat. Stress-test after changes.</value>
+  </data>
+  <data name="Help_GodMode_PboScaler_What" xml:space="preserve">
+    <value>AMD PBO scaler: how far boost may push beyond the processor&apos;s factory reliability margins (1x = stock).</value>
+  </data>
+  <data name="Help_GpuOc_Core_Risk" xml:space="preserve">
+    <value>Too high causes crashes, artifacts or driver resets. Raise in small steps (for example +25 MHz) and test.</value>
+  </data>
+  <data name="Help_GpuOc_Core_What" xml:space="preserve">
+    <value>Adds (or removes) MHz to the GPU core clock at every point of NVIDIA&apos;s boost curve.</value>
+  </data>
+  <data name="Help_GpuOc_Core_When" xml:space="preserve">
+    <value>For a few percent more performance, or a negative offset for less heat.</value>
+  </data>
+  <data name="Help_GpuOc_Memory_Risk" xml:space="preserve">
+    <value>Unstable memory clocks show as flickering textures, crashes or lower performance from error correction. Test after every change.</value>
+  </data>
+  <data name="Help_GpuOc_Memory_What" xml:space="preserve">
+    <value>Raises or lowers the video memory clock, which changes memory bandwidth.</value>
+  </data>
+  <data name="Help_GpuOc_VoltageCap_Risk" xml:space="preserve">
+    <value>Too low a cap with a high core offset can crash games.</value>
+  </data>
+  <data name="Help_GpuOc_VoltageCap_What" xml:space="preserve">
+    <value>Caps the highest voltage (and so the clock) the GPU uses under load, while still letting it clock down at idle. A simple form of undervolting.</value>
+  </data>
+  <data name="Help_GpuOc_VoltageCap_When" xml:space="preserve">
+    <value>To lower temperature and fan noise for a small loss of peak performance.</value>
+  </data>
+  <data name="Help_GpuOc_VoltageLock_Risk" xml:space="preserve">
+    <value>The GPU no longer clocks down when idle: more power, heat and fan noise.</value>
+  </data>
+  <data name="Help_GpuOc_VoltageLock_What" xml:space="preserve">
+    <value>Locks the GPU to one voltage and its matching clock all the time.</value>
+  </data>
+  <data name="Help_GpuOc_VoltageLock_When" xml:space="preserve">
+    <value>For benchmarks or troubleshooting clock swings.</value>
+  </data>
+  <data name="Help_Automation_Enable_What" xml:space="preserve">
+    <value>Turns all automatic actions on or off. Quick actions you start yourself still work.</value>
+  </data>
+  <data name="Help_Automation_Enable_When" xml:space="preserve">
+    <value>Turn it off temporarily if something keeps changing your settings and you want to find out why.</value>
+  </data>
+  <data name="Help_LampArray_Effect_Risk" xml:space="preserve">
+    <value>If another app also controls the keyboard through Dynamic Lighting, they can override each other. Windows Settings &gt; Personalization &gt; Dynamic Lighting decides which app is in control.</value>
+  </data>
+  <data name="Help_LampArray_Effect_What" xml:space="preserve">
+    <value>The lighting effect LLT draws on the keyboard through Windows Dynamic Lighting.</value>
+  </data>
+  <data name="Help_LampArray_Settings_What" xml:space="preserve">
+    <value>General options for keyboards controlled through Windows Dynamic Lighting (LampArray), such as brightness.</value>
+  </data>
+  <data name="Help_Macro_Enable_Risk" xml:space="preserve">
+    <value>Macros watch the keyboard with a low-level hook and send simulated key presses. Some anti-cheat software and game rules don&apos;t allow that.</value>
+  </data>
+  <data name="Help_Macro_Enable_What" xml:space="preserve">
+    <value>Turns macros on or off. LLT must be running for macros to work; game-safe mode suspends them while a protected game runs.</value>
+  </data>
+  <data name="Help_Macro_Event_What" xml:space="preserve">
+    <value>One recorded input: a key or mouse button going down or up, or a mouse movement, followed by the pause recorded before the next one.</value>
+  </data>
+  <data name="Help_Macro_IgnoreDelays_Risk" xml:space="preserve">
+    <value>Some apps and games miss keys sent too quickly.</value>
+  </data>
+  <data name="Help_Macro_IgnoreDelays_What" xml:space="preserve">
+    <value>Plays the keys as fast as possible instead of with the pauses you recorded.</value>
+  </data>
+  <data name="Help_Macro_Interrupt_What" xml:space="preserve">
+    <value>Stops playback as soon as you press any other key.</value>
+  </data>
+  <data name="Help_Macro_RecordingOptions_What" xml:space="preserve">
+    <value>What is recorded: keyboard only, keyboard and mouse buttons, or all input including mouse movement.</value>
+  </data>
+  <data name="Help_Macro_Repeat_What" xml:space="preserve">
+    <value>How many times the recorded sequence plays each time its key is pressed.</value>
+  </data>
+  <data name="Help_RgbKeyboard_Zone_What" xml:space="preserve">
+    <value>The color of this part of the keyboard. The 4-zone keyboard is split into four areas from left to right.</value>
+  </data>
+  <data name="Help_Spectrum_Brightness_What" xml:space="preserve">
+    <value>Brightness of the per-key RGB keyboard, for all effects.</value>
+  </data>
+  <data name="Help_Spectrum_Clockwise_What" xml:space="preserve">
+    <value>Whether a rotating effect turns clockwise or counter-clockwise.</value>
+  </data>
+  <data name="Help_Spectrum_Color_What" xml:space="preserve">
+    <value>The color the effect uses.</value>
+  </data>
+  <data name="Help_Spectrum_ColorBoost_What" xml:space="preserve">
+    <value>Brightens dim colors the way Lenovo Vantage does, so colors look the same as in Vantage.</value>
+  </data>
+  <data name="Help_Spectrum_ColorBoostSettings_What" xml:space="preserve">
+    <value>Fine-tunes the color boost: how much colors are brightened, the lowest level that is boosted, and when a color counts as white.</value>
+  </data>
+  <data name="Help_Spectrum_Colors_What" xml:space="preserve">
+    <value>The list of colors the effect cycles through.</value>
+  </data>
+  <data name="Help_Spectrum_Direction_What" xml:space="preserve">
+    <value>Which way the effect moves across the keyboard.</value>
+  </data>
+  <data name="Help_Spectrum_Effect_What" xml:space="preserve">
+    <value>The lighting animation, such as a static color, breathing, wave or rainbow; the list shows what this keyboard supports.</value>
+  </data>
+  <data name="Help_Spectrum_EffectItem_What" xml:space="preserve">
+    <value>One lighting effect in this profile and the keys it covers. Effects lower in the list are drawn over the ones above. Click to edit it.</value>
+  </data>
+  <data name="Help_Spectrum_Speed_What" xml:space="preserve">
+    <value>How fast the effect animates.</value>
+  </data>
+  <data name="Help_Step_AIEngineAutomationStep_What" xml:space="preserve">
+    <value>Turns Lenovo&apos;s AI Engine on or off; it shifts power between CPU and GPU automatically in supported games.</value>
+  </data>
+  <data name="Help_Step_AirplaneModeAutomationStep_What" xml:space="preserve">
+    <value>Turns Windows airplane mode on or off (all wireless radios).</value>
+  </data>
+  <data name="Help_Step_AlwaysOnUsbAutomationStep_Risk" xml:space="preserve">
+    <value>Drains the battery while off if the laptop isn&apos;t plugged in.</value>
+  </data>
+  <data name="Help_Step_AlwaysOnUsbAutomationStep_What" xml:space="preserve">
+    <value>Sets whether a USB port keeps powering devices while the laptop is off or asleep.</value>
+  </data>
+  <data name="Help_Step_AutoColorManagementAutomationStep_What" xml:space="preserve">
+    <value>Turns Windows Auto Color Management on or off.</value>
+  </data>
+  <data name="Help_Step_BatteryAutomationStep_What" xml:space="preserve">
+    <value>Sets the battery charging mode: Conservation, Normal or Rapid Charge.</value>
+  </data>
+  <data name="Help_Step_BatteryAutomationStep_When" xml:space="preserve">
+    <value>For example Conservation when the charger connects at your desk.</value>
+  </data>
+  <data name="Help_Step_BatteryNightChargeAutomationStep_What" xml:space="preserve">
+    <value>Turns overnight battery charging (80% first, 100% by morning) on or off.</value>
+  </data>
+  <data name="Help_Step_CloseAppAutomationStep_Risk" xml:space="preserve">
+    <value>Everything that needs LLT running stops: other automations, hotkeys, the OSD, custom fan curves and game-safe mode.</value>
+  </data>
+  <data name="Help_Step_CloseAppAutomationStep_What" xml:space="preserve">
+    <value>Quits LLT completely.</value>
+  </data>
+  <data name="Help_Step_CycleGodModePresetAutomationStep_What" xml:space="preserve">
+    <value>Switches to the next Custom mode preset, and applies it right away if Custom mode is active.</value>
+  </data>
+  <data name="Help_Step_DeactivateGPUAutomationStep_Risk" xml:space="preserve">
+    <value>Apps using the discrete GPU may crash or close and lose unsaved work.</value>
+  </data>
+  <data name="Help_Step_DeactivateGPUAutomationStep_What" xml:space="preserve">
+    <value>Restarts the discrete GPU or closes the apps using it, so it can power down (same as the dashboard&apos;s Discrete GPU card).</value>
+  </data>
+  <data name="Help_Step_DeactivateGPUAutomationStep_When" xml:space="preserve">
+    <value>For example when unplugging the charger.</value>
+  </data>
+  <data name="Help_Step_DelayAutomationStep_What" xml:space="preserve">
+    <value>Waits the given number of seconds before the next action.</value>
+  </data>
+  <data name="Help_Step_DelayAutomationStep_When" xml:space="preserve">
+    <value>When a device or setting needs a moment to settle, for example after a display connects.</value>
+  </data>
+  <data name="Help_Step_DisplayBrightnessAutomationStep_What" xml:space="preserve">
+    <value>Sets the built-in display&apos;s brightness.</value>
+  </data>
+  <data name="Help_Step_DpiScaleAutomationStep_Risk" xml:space="preserve">
+    <value>Some apps look blurry until restarted after a scale change.</value>
+  </data>
+  <data name="Help_Step_DpiScaleAutomationStep_What" xml:space="preserve">
+    <value>Sets Windows&apos; display scaling for the built-in display.</value>
+  </data>
+  <data name="Help_Step_FanMaxSpeedAutomationStep_Risk" xml:space="preserve">
+    <value>Loud; long use increases fan wear.</value>
+  </data>
+  <data name="Help_Step_FanMaxSpeedAutomationStep_What" xml:space="preserve">
+    <value>Turns full fan speed on, off, or toggles it.</value>
+  </data>
+  <data name="Help_Step_FanMaxSpeedAutomationStep_When" xml:space="preserve">
+    <value>For example on when a benchmark starts and off when it ends.</value>
+  </data>
+  <data name="Help_Step_FlipToStartAutomationStep_What" xml:space="preserve">
+    <value>Sets whether opening the lid turns the laptop on.</value>
+  </data>
+  <data name="Help_Step_FnLockAutomationStep_What" xml:space="preserve">
+    <value>Turns Fn Lock on or off.</value>
+  </data>
+  <data name="Help_Step_GodModePresetAutomationStep_What" xml:space="preserve">
+    <value>Selects a specific Custom mode preset (and applies it if Custom mode is active).</value>
+  </data>
+  <data name="Help_Step_GodModePresetAutomationStep_When" xml:space="preserve">
+    <value>For example a quiet preset when a video app starts.</value>
+  </data>
+  <data name="Help_Step_HardwareSensorsAutomationStep_What" xml:space="preserve">
+    <value>Turns detailed hardware sensors (PawnIO driver) on or off.</value>
+  </data>
+  <data name="Help_Step_HardwareSensorsAutomationStep_When" xml:space="preserve">
+    <value>Off when unplugging to save a little power, on when gaming.</value>
+  </data>
+  <data name="Help_Step_HDRAutomationStep_What" xml:space="preserve">
+    <value>Turns Windows HDR on or off for the built-in display.</value>
+  </data>
+  <data name="Help_Step_HybridModeAutomationStep_Risk" xml:space="preserve">
+    <value>Most changes need a restart; LLT asks before restarting.</value>
+  </data>
+  <data name="Help_Step_HybridModeAutomationStep_What" xml:space="preserve">
+    <value>Changes the GPU working mode (hybrid, discrete-only…).</value>
+  </data>
+  <data name="Help_Step_InstantBootAutomationStep_What" xml:space="preserve">
+    <value>Sets whether connecting the charger turns the laptop on.</value>
+  </data>
+  <data name="Help_Step_ITSModeAutomationStep_What" xml:space="preserve">
+    <value>Sets the ITS mode (on laptops that use ITS instead of power modes).</value>
+  </data>
+  <data name="Help_Step_MacroAutomationStep_Risk" xml:space="preserve">
+    <value>Macros send simulated key presses, which some anti-cheats and game rules don&apos;t allow.</value>
+  </data>
+  <data name="Help_Step_MacroAutomationStep_What" xml:space="preserve">
+    <value>Turns macros on, off, or toggles them.</value>
+  </data>
+  <data name="Help_Step_MacroAutomationStep_When" xml:space="preserve">
+    <value>For example off when a protected game starts.</value>
+  </data>
+  <data name="Help_Step_MicrophoneAutomationStep_What" xml:space="preserve">
+    <value>Mutes or unmutes all microphones.</value>
+  </data>
+  <data name="Help_Step_NotificationAutomationStep_What" xml:space="preserve">
+    <value>Shows an on-screen notification with your text.</value>
+  </data>
+  <data name="Help_Step_NotificationAutomationStep_When" xml:space="preserve">
+    <value>To confirm that an automation ran.</value>
+  </data>
+  <data name="Help_Step_OneLevelWhiteKeyboardBacklightAutomationStep_What" xml:space="preserve">
+    <value>Turns the single-level white keyboard backlight on or off.</value>
+  </data>
+  <data name="Help_Step_OsdAutomationStep_What" xml:space="preserve">
+    <value>Shows, hides or toggles the on-screen display. This is what the &quot;Toggle OSD&quot; quick action uses.</value>
+  </data>
+  <data name="Help_Step_OsdLockPositionAutomationStep_What" xml:space="preserve">
+    <value>Locks the OSD in place (clicks pass through it) or unlocks it so it can be dragged.</value>
+  </data>
+  <data name="Help_Step_OverclockDiscreteGPUAutomationStep_Risk" xml:space="preserve">
+    <value>An unstable overclock can crash games or reset the driver.</value>
+  </data>
+  <data name="Help_Step_OverclockDiscreteGPUAutomationStep_What" xml:space="preserve">
+    <value>Turns the discrete GPU overclock on or off.</value>
+  </data>
+  <data name="Help_Step_OverclockDiscreteGPUAutomationStep_When" xml:space="preserve">
+    <value>For example on when games run and off otherwise.</value>
+  </data>
+  <data name="Help_Step_OverDriveAutomationStep_What" xml:space="preserve">
+    <value>Turns panel overdrive on or off.</value>
+  </data>
+  <data name="Help_Step_PanelLogoBacklightAutomationStep_What" xml:space="preserve">
+    <value>Turns the lid logo light on or off.</value>
+  </data>
+  <data name="Help_Step_PlaySoundAutomationStep_What" xml:space="preserve">
+    <value>Plays a sound.</value>
+  </data>
+  <data name="Help_Step_PlaySoundAutomationStep_When" xml:space="preserve">
+    <value>As an audible confirmation that an automation ran.</value>
+  </data>
+  <data name="Help_Step_PortsBacklightAutomationStep_What" xml:space="preserve">
+    <value>Turns the rear ports light on or off.</value>
+  </data>
+  <data name="Help_Step_PowerModeAutomationStep_What" xml:space="preserve">
+    <value>Sets the power mode (Quiet, Balance, Performance, Custom…).</value>
+  </data>
+  <data name="Help_Step_PowerModeAutomationStep_When" xml:space="preserve">
+    <value>For example Performance when games start and Balance when they stop.</value>
+  </data>
+  <data name="Help_Step_QuickActionAutomationStep_What" xml:space="preserve">
+    <value>Runs the actions of another quick action, so shared actions are kept in one place.</value>
+  </data>
+  <data name="Help_Step_RefreshRateAutomationStep_What" xml:space="preserve">
+    <value>Sets the built-in display&apos;s refresh rate.</value>
+  </data>
+  <data name="Help_Step_RefreshRateAutomationStep_When" xml:space="preserve">
+    <value>For example 60 Hz on battery and the highest rate on the charger.</value>
+  </data>
+  <data name="Help_Step_ResolutionAutomationStep_What" xml:space="preserve">
+    <value>Sets the built-in display&apos;s resolution.</value>
+  </data>
+  <data name="Help_Step_RGBKeyboardBacklightAutomationStep_What" xml:space="preserve">
+    <value>Selects a 4-zone RGB keyboard preset (or turns the backlight off).</value>
+  </data>
+  <data name="Help_Step_RunAutomationStep_Risk" xml:space="preserve">
+    <value>The program runs with LLT&apos;s permissions, which are administrator rights. Only run programs you trust, and keep their files where other users can&apos;t replace them.</value>
+  </data>
+  <data name="Help_Step_RunAutomationStep_What" xml:space="preserve">
+    <value>Starts a program or script with optional arguments; it can run hidden, wait until it finishes, or skip starting it if it&apos;s already running.</value>
+  </data>
+  <data name="Help_Step_RunAutomationStep_When" xml:space="preserve">
+    <value>To start or stop your own tools along with other changes.</value>
+  </data>
+  <data name="Help_Step_ShowAppAutomationStep_What" xml:space="preserve">
+    <value>Opens the LLT window.</value>
+  </data>
+  <data name="Help_Step_SpeakerAutomationStep_What" xml:space="preserve">
+    <value>Mutes or unmutes the speakers.</value>
+  </data>
+  <data name="Help_Step_SpeakerVolumeAutomationStep_What" xml:space="preserve">
+    <value>Sets the speaker volume.</value>
+  </data>
+  <data name="Help_Step_SpectrumKeyboardBacklightBrightnessAutomationStep_What" xml:space="preserve">
+    <value>Sets the per-key RGB keyboard brightness.</value>
+  </data>
+  <data name="Help_Step_SpectrumKeyboardBacklightImportProfileAutomationStep_Risk" xml:space="preserve">
+    <value>Replaces the effects saved in the current slot.</value>
+  </data>
+  <data name="Help_Step_SpectrumKeyboardBacklightImportProfileAutomationStep_What" xml:space="preserve">
+    <value>Loads a per-key RGB lighting profile from a file into the current profile slot.</value>
+  </data>
+  <data name="Help_Step_SpectrumKeyboardBacklightProfileAutomationStep_What" xml:space="preserve">
+    <value>Switches the per-key RGB keyboard to one of its profile slots.</value>
+  </data>
+  <data name="Help_Step_TouchpadLockAutomationStep_What" xml:space="preserve">
+    <value>Turns the touchpad on or off.</value>
+  </data>
+  <data name="Help_Step_TouchpadLockAutomationStep_When" xml:space="preserve">
+    <value>For example off when a mouse is connected.</value>
+  </data>
+  <data name="Help_Step_TurnOffMonitorsAutomationStep_What" xml:space="preserve">
+    <value>Turns off all displays (they wake on mouse or keyboard input).</value>
+  </data>
+  <data name="Help_Step_WhiteKeyboardBacklightAutomationStep_What" xml:space="preserve">
+    <value>Sets the white keyboard backlight level.</value>
+  </data>
+  <data name="Help_Step_WiFiAutomationStep_What" xml:space="preserve">
+    <value>Turns Wi-Fi on or off.</value>
+  </data>
+  <data name="Help_Step_WinKeyAutomationStep_What" xml:space="preserve">
+    <value>Enables or disables the Windows key on the built-in keyboard.</value>
+  </data>
+  <data name="Help_Step_WinKeyAutomationStep_When" xml:space="preserve">
+    <value>Disable it when games start.</value>
+  </data>
+  <data name="Help_Trigger_ACAdapterConnectedAutomationPipelineTrigger_What" xml:space="preserve">
+    <value>Runs when the charger is connected.</value>
+  </data>
+  <data name="Help_Trigger_ACAdapterDisconnectedAutomationPipelineTrigger_What" xml:space="preserve">
+    <value>Runs when the charger is disconnected.</value>
+  </data>
+  <data name="Help_Trigger_ACAdapterDisconnectedAutomationPipelineTrigger_When" xml:space="preserve">
+    <value>For example to switch to Quiet and 60 Hz on battery.</value>
+  </data>
+  <data name="Help_Trigger_AndAutomationPipelineTrigger_What" xml:space="preserve">
+    <value>Runs when all of the combined triggers are true at the same time.</value>
+  </data>
+  <data name="Help_Trigger_BatteryPercentageAutomationPipelineTrigger_What" xml:space="preserve">
+    <value>Runs when the battery charge crosses the percentage you set.</value>
+  </data>
+  <data name="Help_Trigger_BatteryPercentageAutomationPipelineTrigger_When" xml:space="preserve">
+    <value>For example to turn on battery saving below 20%.</value>
+  </data>
+  <data name="Help_Trigger_DeviceConnectedAutomationPipelineTrigger_What" xml:space="preserve">
+    <value>Runs when a chosen device (for example a mouse, controller or dock) is connected.</value>
+  </data>
+  <data name="Help_Trigger_DeviceDisconnectedAutomationPipelineTrigger_What" xml:space="preserve">
+    <value>Runs when a chosen device is disconnected.</value>
+  </data>
+  <data name="Help_Trigger_DisplayOffAutomationPipelineTrigger_What" xml:space="preserve">
+    <value>Runs when Windows turns the displays off.</value>
+  </data>
+  <data name="Help_Trigger_DisplayOnAutomationPipelineTrigger_What" xml:space="preserve">
+    <value>Runs when Windows turns the displays on.</value>
+  </data>
+  <data name="Help_Trigger_ExternalDisplayConnectedAutomationPipelineTrigger_What" xml:space="preserve">
+    <value>Runs when an external display is connected.</value>
+  </data>
+  <data name="Help_Trigger_ExternalDisplayDisconnectedAutomationPipelineTrigger_What" xml:space="preserve">
+    <value>Runs when an external display is disconnected.</value>
+  </data>
+  <data name="Help_Trigger_GamesAreRunningAutomationPipelineTrigger_What" xml:space="preserve">
+    <value>Runs when a game starts, as decided by the game detection setting.</value>
+  </data>
+  <data name="Help_Trigger_GamesAreRunningAutomationPipelineTrigger_When" xml:space="preserve">
+    <value>To switch to Performance, disable the Windows key and similar.</value>
+  </data>
+  <data name="Help_Trigger_GamesStopAutomationPipelineTrigger_What" xml:space="preserve">
+    <value>Runs when the last detected game closes.</value>
+  </data>
+  <data name="Help_Trigger_GodModePresetChangedAutomationPipelineTrigger_What" xml:space="preserve">
+    <value>Runs when a specific Custom mode preset becomes active.</value>
+  </data>
+  <data name="Help_Trigger_HDROffAutomationPipelineTrigger_What" xml:space="preserve">
+    <value>Runs when HDR is turned off.</value>
+  </data>
+  <data name="Help_Trigger_HDROnAutomationPipelineTrigger_What" xml:space="preserve">
+    <value>Runs when HDR is turned on.</value>
+  </data>
+  <data name="Help_Trigger_HybridModeAutomationPipelineTrigger_What" xml:space="preserve">
+    <value>Runs when the GPU working mode becomes the one you choose, and at LLT startup if it already is.</value>
+  </data>
+  <data name="Help_Trigger_LidClosedAutomationPipelineTrigger_What" xml:space="preserve">
+    <value>Runs when the lid is closed (while the laptop stays awake, for example with an external display).</value>
+  </data>
+  <data name="Help_Trigger_LidOpenedAutomationPipelineTrigger_What" xml:space="preserve">
+    <value>Runs when the lid is opened.</value>
+  </data>
+  <data name="Help_Trigger_LowWattageACAdapterConnectedAutomationPipelineTrigger_What" xml:space="preserve">
+    <value>Runs when a charger too weak to power the laptop at full load is connected (for example a USB-C charger).</value>
+  </data>
+  <data name="Help_Trigger_LowWattageACAdapterConnectedAutomationPipelineTrigger_When" xml:space="preserve">
+    <value>To lower power limits so the battery doesn&apos;t drain while plugged in.</value>
+  </data>
+  <data name="Help_Trigger_OnResumeAutomationPipelineTrigger_What" xml:space="preserve">
+    <value>Runs when the laptop wakes from sleep or hibernation.</value>
+  </data>
+  <data name="Help_Trigger_OnResumeAutomationPipelineTrigger_When" xml:space="preserve">
+    <value>To re-apply settings the firmware resets on wake.</value>
+  </data>
+  <data name="Help_Trigger_OnStartupAutomationPipelineTrigger_Risk" xml:space="preserve">
+    <value>Actions marked unsafe at startup (such as quitting LLT) are skipped here so LLT can&apos;t lock itself out.</value>
+  </data>
+  <data name="Help_Trigger_OnStartupAutomationPipelineTrigger_What" xml:space="preserve">
+    <value>Runs when LLT starts.</value>
+  </data>
+  <data name="Help_Trigger_OrAutomationPipelineTrigger_What" xml:space="preserve">
+    <value>Runs when any one of the combined triggers happens.</value>
+  </data>
+  <data name="Help_Trigger_PeriodicAutomationPipelineTrigger_Risk" xml:space="preserve">
+    <value>Short intervals with heavy actions use CPU and battery.</value>
+  </data>
+  <data name="Help_Trigger_PeriodicAutomationPipelineTrigger_What" xml:space="preserve">
+    <value>Runs repeatedly at the interval you set.</value>
+  </data>
+  <data name="Help_Trigger_PowerModeAutomationPipelineTrigger_What" xml:space="preserve">
+    <value>Runs when the laptop switches to the power mode you choose, from Fn+Q, the dashboard or another automation.</value>
+  </data>
+  <data name="Help_Trigger_PowerModeAutomationPipelineTrigger_When" xml:space="preserve">
+    <value>To change the refresh rate or keyboard light with the mode.</value>
+  </data>
+  <data name="Help_Trigger_ProcessesAreRunningAutomationPipelineTrigger_Risk" xml:space="preserve">
+    <value>LLT only watches the list of running processes; it doesn&apos;t open or read them.</value>
+  </data>
+  <data name="Help_Trigger_ProcessesAreRunningAutomationPipelineTrigger_What" xml:space="preserve">
+    <value>Runs when one of the programs you list starts.</value>
+  </data>
+  <data name="Help_Trigger_ProcessesStopRunningAutomationPipelineTrigger_What" xml:space="preserve">
+    <value>Runs when all of the programs you list have closed.</value>
+  </data>
+  <data name="Help_Trigger_SessionLockAutomationPipelineTrigger_What" xml:space="preserve">
+    <value>Runs when you lock Windows.</value>
+  </data>
+  <data name="Help_Trigger_SessionUnlockAutomationPipelineTrigger_What" xml:space="preserve">
+    <value>Runs when you unlock Windows.</value>
+  </data>
+  <data name="Help_Trigger_TimeAutomationPipelineTrigger_What" xml:space="preserve">
+    <value>Runs at a set time of day, or at sunrise or sunset, optionally only on the days you choose.</value>
+  </data>
+  <data name="Help_Trigger_TimeRangeAutomationPipelineTrigger_What" xml:space="preserve">
+    <value>Is true between two times of day; useful combined with other triggers.</value>
+  </data>
+  <data name="Help_Trigger_TimeRangeAutomationPipelineTrigger_When" xml:space="preserve">
+    <value>For example quiet fans only during the night.</value>
+  </data>
+  <data name="Help_Trigger_UserInactivityAutomationPipelineTrigger_Risk" xml:space="preserve">
+    <value>None to games: LLT checks Windows&apos; own last-input time once a second and doesn&apos;t hook the keyboard or mouse.</value>
+  </data>
+  <data name="Help_Trigger_UserInactivityAutomationPipelineTrigger_What" xml:space="preserve">
+    <value>Runs after you haven&apos;t used the mouse or keyboard for the time you set.</value>
+  </data>
+  <data name="Help_Trigger_WiFiConnectedAutomationPipelineTrigger_What" xml:space="preserve">
+    <value>Runs when Wi-Fi connects (optionally only to the networks you list).</value>
+  </data>
+  <data name="Help_Trigger_WiFiDisconnectedAutomationPipelineTrigger_What" xml:space="preserve">
+    <value>Runs when Wi-Fi disconnects.</value>
+  </data>
+  <data name="Help_Osd_BackgroundColor_What" xml:space="preserve">
+    <value>The color behind the OSD&apos;s values.</value>
+  </data>
+  <data name="Help_Osd_CategoryColor_What" xml:space="preserve">
+    <value>The color of group names such as CPU, GPU and FPS.</value>
+  </data>
+  <data name="Help_Osd_CornerRadius_What" xml:space="preserve">
+    <value>How rounded the OSD&apos;s top and bottom corners are.</value>
+  </data>
+  <data name="Help_Osd_CriticalColor_What" xml:space="preserve">
+    <value>The color of values that passed their critical threshold (Thresholds tab).</value>
+  </data>
+  <data name="Help_Osd_FontSize_What" xml:space="preserve">
+    <value>The size of the OSD&apos;s text.</value>
+  </data>
+  <data name="Help_Osd_FpsRedline_What" xml:space="preserve">
+    <value>The lowest frame rate you find acceptable. Below it, the FPS value turns the critical color.</value>
+  </data>
+  <data name="Help_Osd_LabelColor_What" xml:space="preserve">
+    <value>The color of value names such as &quot;Temp&quot; or &quot;Usage&quot;.</value>
+  </data>
+  <data name="Help_Osd_LockPosition_What" xml:space="preserve">
+    <value>Locks the OSD where it is: clicks pass through it to the game or app below. Unlock it to drag it somewhere else.</value>
+  </data>
+  <data name="Help_Osd_LowFpsDelta_What" xml:space="preserve">
+    <value>The largest gap you accept between average FPS and the 1% low. A bigger gap means stutter; the value then turns the critical color.</value>
+  </data>
+  <data name="Help_Osd_Opacity_What" xml:space="preserve">
+    <value>How see-through the OSD&apos;s background is.</value>
+  </data>
+  <data name="Help_Osd_OverlayStyle_What" xml:space="preserve">
+    <value>The layout of the on-screen display: Panel (a block of rows) or Bar (one horizontal line, good along a screen edge).</value>
+  </data>
+  <data name="Help_Osd_RefreshInterval_Risk" xml:space="preserve">
+    <value>Very short intervals use a little more CPU, which can cost a few FPS on weak CPUs.</value>
+  </data>
+  <data name="Help_Osd_RefreshInterval_What" xml:space="preserve">
+    <value>How often the OSD&apos;s values update.</value>
+  </data>
+  <data name="Help_Osd_SnapThreshold_What" xml:space="preserve">
+    <value>How close (in pixels) the OSD must be dragged to a screen edge or corner before it snaps to it (both edges at once snaps it into the corner). 0 turns snapping off.</value>
+  </data>
+  <data name="Help_Osd_TempCritical_What" xml:space="preserve">
+    <value>Temperature (°C) at which CPU and GPU temperatures turn the critical color.</value>
+  </data>
+  <data name="Help_Osd_TempWarning_What" xml:space="preserve">
+    <value>Temperature (°C) at which CPU and GPU temperatures turn the warning color.</value>
+  </data>
+  <data name="Help_Osd_UsageCritical_What" xml:space="preserve">
+    <value>Usage (%) at which CPU, GPU and memory usage turn the critical color.</value>
+  </data>
+  <data name="Help_Osd_UsageWarning_What" xml:space="preserve">
+    <value>Usage (%) at which CPU, GPU and memory usage turn the warning color.</value>
+  </data>
+  <data name="Help_Osd_ValueColor_What" xml:space="preserve">
+    <value>The color of normal values.</value>
+  </data>
+  <data name="Help_Osd_WarningColor_What" xml:space="preserve">
+    <value>The color of values that passed their warning threshold (Thresholds tab).</value>
+  </data>
+  <data name="Help_Automation_Pipeline_What" xml:space="preserve">
+    <value>One automation or quick action: what starts it (for automations) and the actions it runs, top to bottom. Expand it to edit, reorder or delete actions.</value>
+  </data>
+  <data name="Help_Automation_Pipeline_When" xml:space="preserve">
+    <value>Automations run on their own when their trigger happens; quick actions run when you start them from the tray, a special key or another action.</value>
+  </data>
+  <data name="Help_EditDashboard_Group_What" xml:space="preserve">
+    <value>A group of cards on the dashboard. Rename it, move it up or down, and add, remove or reorder its cards.</value>
+  </data>
+  <data name="Help_RgbKeyboard_RGBKeyboardBacklightBrightness_What" xml:space="preserve">
+    <value>Brightness of the 4-zone RGB keyboard for this preset.</value>
+  </data>
+  <data name="Help_RgbKeyboard_RGBKeyboardBacklightEffect_What" xml:space="preserve">
+    <value>The lighting effect of this preset: static zone colors, breathing, a smooth color cycle, or a wave moving left or right.</value>
+  </data>
+  <data name="Help_RgbKeyboard_RGBKeyboardBacklightSpeed_What" xml:space="preserve">
+    <value>How fast the effect animates. Static colors ignore it.</value>
+  </data>
+  <data name="Help_Trigger_ITSModeAutomationPipelineTrigger_What" xml:space="preserve">
+    <value>Runs when the laptop switches to the ITS mode you choose (on laptops that use ITS instead of power modes).</value>
+  </data>
+  <data name="Osd_GameSafeBadge" xml:space="preserve">
+    <value>GAME-SAFE</value>
+  </data>
+  <data name="Osd_GameSafeBadge_Tooltip" xml:space="preserve">
+    <value>An anti-cheat service is running, so the OSD shows only readings that need no driver. Values that need the hardware-sensor driver show a dash until the game closes.</value>
   </data>
 </root>

@@ -124,6 +124,7 @@ public partial class ITSModeLoopControl
         var cardHeader = new CardHeaderControl
         {
             Title = displayName,
+            HelpKey = "Help_ITSModeLoop_Mode",
             Accessory = toggle,
         };
 

@@ -36,7 +36,7 @@
         <StackPanel Margin="0,60,8,0">
             <custom:CardControl Margin="0,0,0,24" Icon="Settings24">
                 <custom:CardControl.Header>
-                    <controls:CardHeaderControl Title="{x:Static resources:Resource.Settings}" />
+                    <controls:CardHeaderControl Title="{x:Static resources:Resource.Settings}" HelpKey="Help_LampArray_Settings" />
                 </custom:CardControl.Header>
                 <StackPanel>
                     <Grid Margin="0,0,0,8">
@@ -177,7 +177,7 @@
 
             <custom:CardControl Margin="0,0,0,24" Icon="ColorFill24">
                 <custom:CardControl.Header>
-                    <controls:CardHeaderControl Title="{x:Static resources:Resource.LampArrayRGBKeyboardPage_Effect}" />
+                    <controls:CardHeaderControl Title="{x:Static resources:Resource.LampArrayRGBKeyboardPage_Effect}" HelpKey="Help_LampArray_Effect" />
                 </custom:CardControl.Header>
                 <StackPanel>
                     <TextBlock

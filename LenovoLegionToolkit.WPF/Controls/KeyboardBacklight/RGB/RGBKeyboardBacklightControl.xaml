@@ -146,7 +146,7 @@
             VerticalAlignment="Top"
             Icon="Color24">
             <custom:CardControl.Header>
-                <controls:CardHeaderControl Title="{x:Static resources:Resource.RGBKeyboardBacklightControl_Zone1}" />
+                <controls:CardHeaderControl Title="{x:Static resources:Resource.RGBKeyboardBacklightControl_Zone1}" HelpKey="Help_RgbKeyboard_Zone" />
             </custom:CardControl.Header>
             <custom:CardControl.ContextMenu>
                 <ContextMenu>
@@ -167,7 +167,7 @@
             VerticalAlignment="Top"
             Icon="Color24">
             <custom:CardControl.Header>
-                <controls:CardHeaderControl Title="{x:Static resources:Resource.RGBKeyboardBacklightControl_Zone2}" />
+                <controls:CardHeaderControl Title="{x:Static resources:Resource.RGBKeyboardBacklightControl_Zone2}" HelpKey="Help_RgbKeyboard_Zone" />
             </custom:CardControl.Header>
             <custom:CardControl.ContextMenu>
                 <ContextMenu>
@@ -188,7 +188,7 @@
             VerticalAlignment="Top"
             Icon="Color24">
             <custom:CardControl.Header>
-                <controls:CardHeaderControl Title="{x:Static resources:Resource.RGBKeyboardBacklightControl_Zone3}" />
+                <controls:CardHeaderControl Title="{x:Static resources:Resource.RGBKeyboardBacklightControl_Zone3}" HelpKey="Help_RgbKeyboard_Zone" />
             </custom:CardControl.Header>
             <custom:CardControl.ContextMenu>
                 <ContextMenu>
@@ -209,7 +209,7 @@
             VerticalAlignment="Top"
             Icon="Color24">
             <custom:CardControl.Header>
-                <controls:CardHeaderControl Title="{x:Static resources:Resource.RGBKeyboardBacklightControl_Zone4}" />
+                <controls:CardHeaderControl Title="{x:Static resources:Resource.RGBKeyboardBacklightControl_Zone4}" HelpKey="Help_RgbKeyboard_Zone" />
             </custom:CardControl.Header>
             <custom:CardControl.ContextMenu>
                 <ContextMenu>

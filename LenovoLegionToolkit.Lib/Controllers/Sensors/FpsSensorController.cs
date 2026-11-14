@@ -74,23 +74,28 @@ namespace LenovoLegionToolkit.Lib.Controllers.Sensors
                 {
                     try
                     {
+                        // Found in this second's process snapshot, so it is running; no second lookup needed.
                         var currentProcess = GetForegroundProcess();
+                        var monitoredId = _currentMonitoredProcess?.Id;
 
-                        if (currentProcess != null && currentProcess.Id != lastProcess?.Id)
+                        switch (Decide(currentProcess?.Id, lastProcess?.Id, monitoredId))
                         {
-                            StopProcessMonitoring();
-
-                            if (!currentProcess.HasExited)
-                            {
-                                await StartProcessMonitoringAsync(currentProcess).ConfigureAwait(false);
+                            case MonitorStep.Switch:
+                                StopProcessMonitoring();
+                                await StartProcessMonitoringAsync(currentProcess!).ConfigureAwait(false);
+                                lastProcess?.Dispose();
                                 lastProcess = currentProcess;
-                            }
+                                currentProcess = null;   // kept, not disposed below
+                                break;
+
+                            case MonitorStep.Stop:
+                                StopProcessMonitoring();
+                                lastProcess?.Dispose();
+                                lastProcess = null;
+                                break;
                         }
-                        else if (currentProcess == null && _currentMonitoredProcess != null || currentProcess != null && _currentMonitoredProcess != null && currentProcess.Id == _currentMonitoredProcess.Id && _currentMonitoredProcess.HasExited)
-                        {
-                            StopProcessMonitoring();
-                            lastProcess = null;
-                        }
+
+                        currentProcess?.Dispose();
 
                         await Task.Delay(1000, _cancellationTokenSource.Token).ConfigureAwait(false);
                     }
@@ -145,16 +150,53 @@ namespace LenovoLegionToolkit.Lib.Controllers.Sensors
                         return null;
                 }
 
-                using var process = Process.GetProcessById((int)processId);
-
-                if (string.IsNullOrEmpty(process.ProcessName) || process.HasExited)
+                // From the system-wide process list: unlike Process.GetProcessById, this never opens the process.
+                var process = FindInProcessList((int)processId);
+                if (process is null || string.IsNullOrEmpty(process.ProcessName))
                     return null;
 
-                return IsProcessBlacklisted(process.ProcessName) ? null : Process.GetProcessById((int)processId);
+                return IsProcessBlacklisted(process.ProcessName) ? null : process;
             }
             catch (ArgumentException) { return null; }
             catch (InvalidOperationException) { return null; }
             catch (Win32Exception) { return null; }
+        }
+
+        public enum MonitorStep { Keep, Switch, Stop }
+
+        /// <summary>
+        /// What the once-a-second loop does, from the foreground process found in this second's snapshot (null when
+        /// none qualifies), the one it last started monitoring, and the one still being monitored (null once
+        /// monitoring ended, e.g. because the measurement failed):
+        /// a different foreground process is monitored instead; no foreground process stops monitoring.
+        /// </summary>
+        internal static MonitorStep Decide(int? foregroundId, int? lastStartedId, int? monitoredId)
+        {
+            if (foregroundId is { } id && id != lastStartedId)
+                return MonitorStep.Switch;
+
+            if (foregroundId is null && monitoredId is not null)
+                return MonitorStep.Stop;
+
+            return MonitorStep.Keep;
+        }
+
+        /// <summary>
+        /// The process with this id from <c>Process.GetProcesses()</c> (one NtQuerySystemInformation snapshot; no
+        /// process is opened, unlike <c>Process.GetProcessById</c> or <c>HasExited</c>, which call OpenProcess), or
+        /// null. The other entries are disposed. Being in the snapshot is also how the loop knows the game still runs.
+        /// </summary>
+        private static Process? FindInProcessList(int processId)
+        {
+            Process? found = null;
+            foreach (var process in Process.GetProcesses())
+            {
+                if (found is null && process.Id == processId)
+                    found = process;
+                else
+                    process.Dispose();
+            }
+            return found;
         }
 
         private Task StartProcessMonitoringAsync(Process process)

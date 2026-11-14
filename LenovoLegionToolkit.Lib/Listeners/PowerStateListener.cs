@@ -7,6 +7,7 @@ using Windows.Win32.Foundation;
 using Windows.Win32.System.Power;
 using Windows.Win32.UI.WindowsAndMessaging;
 using LenovoLegionToolkit.Lib.Controllers;
+using LenovoLegionToolkit.Lib.Controllers.GodMode;
 using LenovoLegionToolkit.Lib.Features;
 using LenovoLegionToolkit.Lib.Features.Hybrid.Notify;
 using System.Linq;
@@ -250,6 +251,9 @@ public sealed class PowerStateListener : IListener<PowerStateListener.ChangedEve
         {
             await gpuOverclockController.EnsureOverclockIsAppliedAsync().ConfigureAwait(false);
         }
+
+        // The God Mode ranges are re-read on the next apply, in case BIOS settings changed while asleep.
+        IoCContainer.Resolve<GodModeController>().ForgetFirmwareRanges();
 
         if (await _powerModeFeature.IsSupportedAsync().ConfigureAwait(false))
         {

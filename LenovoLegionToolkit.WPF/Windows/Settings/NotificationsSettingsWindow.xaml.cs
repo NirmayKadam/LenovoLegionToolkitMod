@@ -32,6 +32,8 @@ public partial class NotificationsSettingsWindow
         _powerModeCard,
         _itsModeCard,
         _refreshRateCard,
+        _osdCard,
+        _gameSafeModeCard,
         _acAdapterCard,
         _smartKeyCard,
         _automationCard
@@ -60,6 +62,8 @@ public partial class NotificationsSettingsWindow
         _powerModeToggle.IsChecked = _settings.Store.Notifications.PowerMode;
         _itsModeToggle.IsChecked = _settings.Store.Notifications.ITSMode;
         _refreshRateToggle.IsChecked = _settings.Store.Notifications.RefreshRate;
+        _osdToggle.IsChecked = _settings.Store.Notifications.Osd;
+        _gameSafeModeToggle.IsChecked = _settings.Store.Notifications.GameSafeMode;
         _acAdapterToggle.IsChecked = _settings.Store.Notifications.ACAdapter;
         _smartKeyToggle.IsChecked = _settings.Store.Notifications.SmartKey;
         _automationToggle.IsChecked = _settings.Store.Notifications.AutomationNotification;
@@ -236,6 +240,39 @@ public partial class NotificationsSettingsWindow
         _settings.SynchronizeStore();
     }
 
+    private void GameSafeModeToggle_Click(object sender, RoutedEventArgs e)
+    {
+        var state = _gameSafeModeToggle.IsChecked;
+        if (state is null)
+            return;
+
+        _settings.Store.Notifications.GameSafeMode = state.Value;
+        _settings.SynchronizeStore();
+    }
+
+    private void GameSafeModeCustomizeButton_Click(object sender, RoutedEventArgs e) =>
+        OpenCustomizeWindow(Resource.NotificationsSettingsWindow_GameSafeMode,
+        [
+            (NotificationType.GameSafeModeOn, Resource.Notification_GameSafeModeOn),
+            (NotificationType.GameSafeModeOff, Resource.Notification_GameSafeModeOff)
+        ]);
+
+    private void OsdToggle_Click(object sender, RoutedEventArgs e)
+    {
+        var state = _osdToggle.IsChecked;
+        if (state is null)
+            return;
+
+        _settings.Store.Notifications.Osd = state.Value;
+        _settings.SynchronizeStore();
+    }
+
+    private void OsdCustomizeButton_Click(object sender, RoutedEventArgs e) =>
+        OpenCustomizeWindow(Resource.NotificationsSettingsWindow_Osd,
+        [
+            (NotificationType.OsdShown, Resource.Notification_OsdShown),
+            (NotificationType.OsdHidden, Resource.Notification_OsdHidden)
+        ]);
     private void ACAdapterToggle_Click(object sender, RoutedEventArgs e)
     {
         var state = _acAdapterToggle.IsChecked;

@@ -11113,5 +11113,1139 @@ namespace LenovoLegionToolkit.WPF.Resources {
                 return ResourceManager.GetString("Yes", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Change the look of the whole app. Changes apply right away..
+        /// </summary>
+        public static string SettingsPage_Skin_Message {
+            get {
+                return ResourceManager.GetString("SettingsPage_Skin_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Style.
+        /// </summary>
+        public static string SettingsPage_Skin_Title {
+            get {
+                return ResourceManager.GetString("SettingsPage_Skin_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The selected style is dark only, so this setting doesn&apos;t apply to it..
+        /// </summary>
+        public static string SettingsPage_Theme_DarkOnlySkin {
+            get {
+                return ResourceManager.GetString("SettingsPage_Theme_DarkOnlySkin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This PC&apos;s graphics can&apos;t render the app on the GPU, so it uses Reduced..
+        /// </summary>
+        public static string SettingsPage_Animations_LimitedByRendering {
+            get {
+                return ResourceManager.GetString("SettingsPage_Animations_LimitedByRendering", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Windows animation effects are turned off, so the app uses Reduced..
+        /// </summary>
+        public static string SettingsPage_Animations_LimitedByWindows {
+            get {
+                return ResourceManager.GetString("SettingsPage_Animations_LimitedByWindows", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Full adds movement and live effects. Reduced keeps only fades. Off turns animations off..
+        /// </summary>
+        public static string SettingsPage_Animations_Message {
+            get {
+                return ResourceManager.GetString("SettingsPage_Animations_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Animations.
+        /// </summary>
+        public static string SettingsPage_Animations_Title {
+            get {
+                return ResourceManager.GetString("SettingsPage_Animations_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hardware acceleration is off, so the app uses Reduced. Turn it on below and restart the app to use Full..
+        /// </summary>
+        public static string SettingsPage_Animations_LimitedByHardwareAcceleration {
+            get {
+                return ResourceManager.GetString("SettingsPage_Animations_LimitedByHardwareAcceleration", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Status strip and power mode selector.
+        /// </summary>
+        public static string EditDashboardWindow_StatusStrip {
+            get {
+                return ResourceManager.GetString("EditDashboardWindow_StatusStrip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Battery.
+        /// </summary>
+        public static string StatusStrip_Battery {
+            get {
+                return ResourceManager.GetString("StatusStrip_Battery", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CPU.
+        /// </summary>
+        public static string StatusStrip_Cpu {
+            get {
+                return ResourceManager.GetString("StatusStrip_Cpu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fans.
+        /// </summary>
+        public static string StatusStrip_Fans {
+            get {
+                return ResourceManager.GetString("StatusStrip_Fans", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to GPU.
+        /// </summary>
+        public static string StatusStrip_Gpu {
+            get {
+                return ResourceManager.GetString("StatusStrip_Gpu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to GPU {0}.
+        /// </summary>
+        public static string StatusStrip_GpuFan {
+            get {
+                return ResourceManager.GetString("StatusStrip_GpuFan", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Low-wattage adapter.
+        /// </summary>
+        public static string StatusStrip_LowWattageAdapter {
+            get {
+                return ResourceManager.GetString("StatusStrip_LowWattageAdapter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to On battery.
+        /// </summary>
+        public static string StatusStrip_OnBattery {
+            get {
+                return ResourceManager.GetString("StatusStrip_OnBattery", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Plugged in.
+        /// </summary>
+        public static string StatusStrip_PluggedIn {
+            get {
+                return ResourceManager.GetString("StatusStrip_PluggedIn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Power mode.
+        /// </summary>
+        public static string StatusStrip_Power {
+            get {
+                return ResourceManager.GetString("StatusStrip_Power", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to How strongly the active items glow in the Neon style..
+        /// </summary>
+        public static string SettingsPage_NeonGlow_Message {
+            get {
+                return ResourceManager.GetString("SettingsPage_NeonGlow_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Glow needs hardware acceleration and isn&apos;t shown on this PC right now..
+        /// </summary>
+        public static string SettingsPage_NeonGlow_NeedsGpu {
+            get {
+                return ResourceManager.GetString("SettingsPage_NeonGlow_NeedsGpu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Glow.
+        /// </summary>
+        public static string SettingsPage_NeonGlow_Title {
+            get {
+                return ResourceManager.GetString("SettingsPage_NeonGlow_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The selected style draws its own solid background, so this only applies to Fluent glass..
+        /// </summary>
+        public static string SettingsPage_SolidSkin_Note {
+            get {
+                return ResourceManager.GetString("SettingsPage_SolidSkin_Note", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Scanline strength and the soft glow around text..
+        /// </summary>
+        public static string SettingsPage_RetroEffects_Message {
+            get {
+                return ResourceManager.GetString("SettingsPage_RetroEffects_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CRT effects.
+        /// </summary>
+        public static string SettingsPage_RetroEffects_Title {
+            get {
+                return ResourceManager.GetString("SettingsPage_RetroEffects_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Phosphor glow.
+        /// </summary>
+        public static string SettingsPage_RetroGlow {
+            get {
+                return ResourceManager.GetString("SettingsPage_RetroGlow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Phosphor glow needs hardware acceleration and isn&apos;t shown on this PC right now..
+        /// </summary>
+        public static string SettingsPage_RetroGlow_NeedsGpu {
+            get {
+                return ResourceManager.GetString("SettingsPage_RetroGlow_NeedsGpu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The color of the Retro CRT screen..
+        /// </summary>
+        public static string SettingsPage_RetroPhosphor_Message {
+            get {
+                return ResourceManager.GetString("SettingsPage_RetroPhosphor_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Phosphor.
+        /// </summary>
+        public static string SettingsPage_RetroPhosphor_Title {
+            get {
+                return ResourceManager.GetString("SettingsPage_RetroPhosphor_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Scanlines.
+        /// </summary>
+        public static string SettingsPage_RetroScanlines {
+            get {
+                return ResourceManager.GetString("SettingsPage_RetroScanlines", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to About {0}.
+        /// </summary>
+        public static string Help_IconName {
+            get {
+                return ResourceManager.GetString("Help_IconName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Risks.
+        /// </summary>
+        public static string Help_RiskLabel {
+            get {
+                return ResourceManager.GetString("Help_RiskLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to What it does.
+        /// </summary>
+        public static string Help_WhatLabel {
+            get {
+                return ResourceManager.GetString("Help_WhatLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to When to use it.
+        /// </summary>
+        public static string Help_WhenLabel {
+            get {
+                return ResourceManager.GetString("Help_WhenLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Three different things with similar names. Only the first one changes fans and power limits..
+        /// </summary>
+        public static string PowerExplainer_Message {
+            get {
+                return ResourceManager.GetString("PowerExplainer_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Set by the laptop&apos;s firmware: Quiet, Balance, Performance, and Extreme or Custom on some models. It changes how the fans behave and the CPU and GPU power and temperature limits. Switched with Fn+Q or on the dashboard..
+        /// </summary>
+        public static string PowerExplainer_ModeText {
+            get {
+                return ResourceManager.GetString("PowerExplainer_ModeText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Power mode (the laptop).
+        /// </summary>
+        public static string PowerExplainer_ModeTitle {
+            get {
+                return ResourceManager.GetString("PowerExplainer_ModeTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Windows&apos; classic plan (Control Panel, Power Options): when the screen turns off, when the PC sleeps, and the processor&apos;s minimum and maximum state. It doesn&apos;t change the fans or the power limits..
+        /// </summary>
+        public static string PowerExplainer_PlanText {
+            get {
+                return ResourceManager.GetString("PowerExplainer_PlanText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Windows power plan.
+        /// </summary>
+        public static string PowerExplainer_PlanTitle {
+            get {
+                return ResourceManager.GetString("PowerExplainer_PlanTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Power mode, Windows power plan and Windows power mode.
+        /// </summary>
+        public static string PowerExplainer_Title {
+            get {
+                return ResourceManager.GetString("PowerExplainer_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The Windows 11 slider (Settings, System, Power): Best power efficiency, Balanced or Best performance. It tunes how eagerly Windows boosts and schedules work. It doesn&apos;t change the fans or the power limits..
+        /// </summary>
+        public static string PowerExplainer_WinModeText {
+            get {
+                return ResourceManager.GetString("PowerExplainer_WinModeText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Windows power mode.
+        /// </summary>
+        public static string PowerExplainer_WinModeTitle {
+            get {
+                return ResourceManager.GetString("PowerExplainer_WinModeTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Help delay.
+        /// </summary>
+        public static string SettingsPage_HelpTooltips_Delay {
+            get {
+                return ResourceManager.GetString("SettingsPage_HelpTooltips_Delay", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Slow.
+        /// </summary>
+        public static string SettingsPage_HelpTooltips_DelayLong {
+            get {
+                return ResourceManager.GetString("SettingsPage_HelpTooltips_DelayLong", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Normal.
+        /// </summary>
+        public static string SettingsPage_HelpTooltips_DelayNormal {
+            get {
+                return ResourceManager.GetString("SettingsPage_HelpTooltips_DelayNormal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Quick.
+        /// </summary>
+        public static string SettingsPage_HelpTooltips_DelayShort {
+            get {
+                return ResourceManager.GetString("SettingsPage_HelpTooltips_DelayShort", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Explain a setting when you point at its name or its question-mark icon..
+        /// </summary>
+        public static string SettingsPage_HelpTooltips_Message {
+            get {
+                return ResourceManager.GetString("SettingsPage_HelpTooltips_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Help on hover.
+        /// </summary>
+        public static string SettingsPage_HelpTooltips_Title {
+            get {
+                return ResourceManager.GetString("SettingsPage_HelpTooltips_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to On-screen display hidden.
+        /// </summary>
+        public static string Notification_OsdHidden {
+            get {
+                return ResourceManager.GetString("Notification_OsdHidden", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to On-screen display shown.
+        /// </summary>
+        public static string Notification_OsdShown {
+            get {
+                return ResourceManager.GetString("Notification_OsdShown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to On-screen display.
+        /// </summary>
+        public static string NotificationsSettingsWindow_Osd {
+            get {
+                return ResourceManager.GetString("NotificationsSettingsWindow_Osd", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Create quick action.
+        /// </summary>
+        public static string OsdSettings_FnKey_Create {
+            get {
+                return ResourceManager.GetString("OsdSettings_FnKey_Create", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Created &quot;{0}&quot;. Now assign it to a key in Special keys..
+        /// </summary>
+        public static string OsdSettings_FnKey_Created {
+            get {
+                return ResourceManager.GetString("OsdSettings_FnKey_Created", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A quick action that toggles the OSD already exists: &quot;{0}&quot;. Assign it in Special keys..
+        /// </summary>
+        public static string OsdSettings_FnKey_Exists {
+            get {
+                return ResourceManager.GetString("OsdSettings_FnKey_Exists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Create a &apos;Toggle OSD&apos; quick action, then assign it to one of your laptop&apos;s special keys..
+        /// </summary>
+        public static string OsdSettings_FnKey_Message {
+            get {
+                return ResourceManager.GetString("OsdSettings_FnKey_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Special keys....
+        /// </summary>
+        public static string OsdSettings_FnKey_OpenSpecialKeys {
+            get {
+                return ResourceManager.GetString("OsdSettings_FnKey_OpenSpecialKeys", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Toggle OSD.
+        /// </summary>
+        public static string OsdSettings_FnKey_QuickActionName {
+            get {
+                return ResourceManager.GetString("OsdSettings_FnKey_QuickActionName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fn or special key.
+        /// </summary>
+        public static string OsdSettings_FnKey_Title {
+            get {
+                return ResourceManager.GetString("OsdSettings_FnKey_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remove shortcut.
+        /// </summary>
+        public static string OsdSettings_Hotkey_Clear {
+            get {
+                return ResourceManager.GetString("OsdSettings_Hotkey_Clear", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} is already used by another app. Pick a different combination..
+        /// </summary>
+        public static string OsdSettings_Hotkey_InUse {
+            get {
+                return ResourceManager.GetString("OsdSettings_Hotkey_InUse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A key combination that shows or hides the OSD from anywhere. Click the box, then press the combination..
+        /// </summary>
+        public static string OsdSettings_Hotkey_Message {
+            get {
+                return ResourceManager.GetString("OsdSettings_Hotkey_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hold Ctrl, Alt or Win and press a key, for example Ctrl+Shift+O..
+        /// </summary>
+        public static string OsdSettings_Hotkey_NeedsModifier {
+            get {
+                return ResourceManager.GetString("OsdSettings_Hotkey_NeedsModifier", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not set.
+        /// </summary>
+        public static string OsdSettings_Hotkey_None {
+            get {
+                return ResourceManager.GetString("OsdSettings_Hotkey_None", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Show/hide shortcut.
+        /// </summary>
+        public static string OsdSettings_Hotkey_Title {
+            get {
+                return ResourceManager.GetString("OsdSettings_Hotkey_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Game-safe mode off: everything resumed.
+        /// </summary>
+        public static string Notification_GameSafeModeOff {
+            get {
+                return ResourceManager.GetString("Notification_GameSafeModeOff", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Game-safe mode on: detailed sensors and macros paused.
+        /// </summary>
+        public static string Notification_GameSafeModeOn {
+            get {
+                return ResourceManager.GetString("Notification_GameSafeModeOn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Game-safe mode.
+        /// </summary>
+        public static string NotificationsSettingsWindow_GameSafeMode {
+            get {
+                return ResourceManager.GetString("NotificationsSettingsWindow_GameSafeMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to On now ({0} running)..
+        /// </summary>
+        public static string SettingsPage_GameSafeMode_Active {
+            get {
+                return ResourceManager.GetString("SettingsPage_GameSafeMode_Active", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to While a game with Vanguard, Easy Anti-Cheat or BattlEye is running, pause the parts of LLT that anti-cheats watch..
+        /// </summary>
+        public static string SettingsPage_GameSafeMode_Message {
+            get {
+                return ResourceManager.GetString("SettingsPage_GameSafeMode_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Game-safe mode.
+        /// </summary>
+        public static string SettingsPage_GameSafeMode_Title {
+            get {
+                return ResourceManager.GetString("SettingsPage_GameSafeMode_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fan curve: your Custom preset (fan level at each temperature step).
+        /// </summary>
+        public static string PowerModeDetails_FanCustom {
+            get {
+                return ResourceManager.GetString("PowerModeDetails_FanCustom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fan curve: the laptop&apos;s built-in curve for this mode. Lenovo doesn&apos;t expose it, so it isn&apos;t shown..
+        /// </summary>
+        public static string PowerModeDetails_FanFirmware {
+            get {
+                return ResourceManager.GetString("PowerModeDetails_FanFirmware", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fan curve: yours for this mode (fan level at each temperature step).
+        /// </summary>
+        public static string PowerModeDetails_FanUser {
+            get {
+                return ResourceManager.GetString("PowerModeDetails_FanUser", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Fan curve: yours for this mode, not applied yet..
+        /// </summary>
+        public static string PowerModeDetails_FanUserPending {
+            get {
+                return ResourceManager.GetString("PowerModeDetails_FanUserPending", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Fan curve: the laptop&apos;s built-in curve. Yours for this mode wasn&apos;t kept..
+        /// </summary>
+        public static string PowerModeDetails_FanUserNotKept {
+            get {
+                return ResourceManager.GetString("PowerModeDetails_FanUserNotKept", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to GPU clock offsets: core {0} MHz, memory {1} MHz.
+        /// </summary>
+        public static string PowerModeDetails_GpuOffsets {
+            get {
+                return ResourceManager.GetString("PowerModeDetails_GpuOffsets", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to GPU clock offsets: none.
+        /// </summary>
+        public static string PowerModeDetails_GpuOffsetsNone {
+            get {
+                return ResourceManager.GetString("PowerModeDetails_GpuOffsetsNone", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This laptop doesn&apos;t report power or temperature limits for {0}..
+        /// </summary>
+        public static string PowerModeDetails_NotProvided {
+            get {
+                return ResourceManager.GetString("PowerModeDetails_NotProvided", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (now {0}).
+        /// </summary>
+        public static string PowerModeDetails_Now {
+            get {
+                return ResourceManager.GetString("PowerModeDetails_Now", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your active Custom mode preset. Changes since the last mode are highlighted..
+        /// </summary>
+        public static string PowerModeDetails_SourceCustom {
+            get {
+                return ResourceManager.GetString("PowerModeDetails_SourceCustom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The laptop&apos;s own values for {0}. Changes since the last mode are highlighted..
+        /// </summary>
+        public static string PowerModeDetails_SourceFirmware {
+            get {
+                return ResourceManager.GetString("PowerModeDetails_SourceFirmware", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to What this power mode sets.
+        /// </summary>
+        public static string PowerModeDetails_Title {
+            get {
+                return ResourceManager.GetString("PowerModeDetails_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Frequency/voltage curve: not exposed by this laptop&apos;s firmware, so it can&apos;t be shown..
+        /// </summary>
+        public static string PowerModeDetails_VfCurve {
+            get {
+                return ResourceManager.GetString("PowerModeDetails_VfCurve", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Apply your own fan curve whenever the laptop switches to a power mode you&apos;ve set one for. Custom mode keeps its preset&apos;s curve..
+        /// </summary>
+        public static string FanCurvesWindow_Enabled_Message {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_Enabled_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use my fan curves.
+        /// </summary>
+        public static string FanCurvesWindow_Enabled_Title {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_Enabled_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Create Custom preset.
+        /// </summary>
+        public static string FanCurvesWindow_Fallback_Create {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_Fallback_Create", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Created the Custom preset &quot;{0}&quot;. Choose it in Custom mode settings..
+        /// </summary>
+        public static string FanCurvesWindow_Fallback_Created {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_Fallback_Created", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This laptop only honours custom fan curves in Custom mode. LLT can create a Custom preset with the selected mode&apos;s own power and temperature limits plus the curve above; then choose that preset in Custom mode. Fn+Q keeps cycling the built-in modes with their own curves..
+        /// </summary>
+        public static string FanCurvesWindow_Fallback_Message {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_Fallback_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The laptop doesn&apos;t report its limits for {0}, so a matching preset can&apos;t be made..
+        /// </summary>
+        public static string FanCurvesWindow_Fallback_NoDefaults {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_Fallback_NoDefaults", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} + my fan curve.
+        /// </summary>
+        public static string FanCurvesWindow_Fallback_PresetName {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_Fallback_PresetName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This curve goes below the laptop&apos;s minimum fan levels, so it wasn&apos;t saved..
+        /// </summary>
+        public static string FanCurvesWindow_Invalid {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_Invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Power mode.
+        /// </summary>
+        public static string FanCurvesWindow_Mode {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_Mode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This laptop doesn&apos;t provide the fan data needed to edit curves, so custom fan curves aren&apos;t available..
+        /// </summary>
+        public static string FanCurvesWindow_NoData {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_NoData", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The curve was applied and stayed in place..
+        /// </summary>
+        public static string FanCurvesWindow_Result_Applied {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_Result_Applied", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The firmware didn&apos;t keep the curve and put its own back..
+        /// </summary>
+        public static string FanCurvesWindow_Result_Rejected {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_Result_Rejected", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The power mode changed while the curve was being applied, so nothing more was written. Try again..
+        /// </summary>
+        public static string FanCurvesWindow_Result_Superseded {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_Result_Superseded", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The editor will switch to the {0} curve, so your unsaved changes to the curve shown now will be discarded..
+        /// </summary>
+        public static string FanCurvesWindow_Test_DiscardEdits {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_Test_DiscardEdits", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Apply now.
+        /// </summary>
+        public static string FanCurvesWindow_ApplyNow {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_ApplyNow", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Write the curve above to the fans now, without saving it..
+        /// </summary>
+        public static string FanCurvesWindow_ApplyNow_Tooltip {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_ApplyNow_Tooltip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Only for the active power mode ({0})..
+        /// </summary>
+        public static string FanCurvesWindow_ApplyNow_OnlyActive {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_ApplyNow_OnlyActive", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Applying….
+        /// </summary>
+        public static string FanCurvesWindow_Status_Applying {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_Status_Applying", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Testing… (about 4 seconds).
+        /// </summary>
+        public static string FanCurvesWindow_Status_Testing {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_Status_Testing", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Putting the firmware&apos;s curve back….
+        /// </summary>
+        public static string FanCurvesWindow_Status_Restoring {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_Status_Restoring", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Saved and applied..
+        /// </summary>
+        public static string FanCurvesWindow_Result_AppliedNow {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_Result_AppliedNow", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Applied to the fans, not saved..
+        /// </summary>
+        public static string FanCurvesWindow_Result_Previewed {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_Result_Previewed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Saved..
+        /// </summary>
+        public static string FanCurvesWindow_Result_Saved {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_Result_Saved", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Saved. It is used whenever the laptop is in {0}..
+        /// </summary>
+        public static string FanCurvesWindow_Result_SavedNotActive {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_Result_SavedNotActive", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: the firmware put its own curve back a few seconds after it was applied..
+        /// </summary>
+        public static string FanCurvesWindow_Result_RevertedLater {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_Result_RevertedLater", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The firmware didn&apos;t answer, so the curve couldn&apos;t be applied or tested. Nothing was recorded. Try again..
+        /// </summary>
+        public static string FanCurvesWindow_Result_Failed {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_Result_Failed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Turned off for safety: the last time these values were applied, LLT could not confirm they were stable..
+        /// </summary>
+        public static string OverclockDiscreteGPUControl_DisabledAfterCrash {
+            get {
+                return ResourceManager.GetString("OverclockDiscreteGPUControl_DisabledAfterCrash", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The values were saved, but the graphics driver did not accept them, so they are not active..
+        /// </summary>
+        public static string OverclockDiscreteGPUSettingsWindow_ApplyFailed {
+            get {
+                return ResourceManager.GetString("OverclockDiscreteGPUSettingsWindow_ApplyFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Applied without the voltage lock: the GPU&apos;s own voltage range could not be read, so LLT did not set a voltage..
+        /// </summary>
+        public static string OverclockDiscreteGPUSettingsWindow_VoltageLockSkipped {
+            get {
+                return ResourceManager.GetString("OverclockDiscreteGPUSettingsWindow_VoltageLockSkipped", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The values were saved but not applied now..
+        /// </summary>
+        public static string OverclockDiscreteGPUSettingsWindow_NotApplied {
+            get {
+                return ResourceManager.GetString("OverclockDiscreteGPUSettingsWindow_NotApplied", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Yes: the firmware kept a custom curve outside Custom mode..
+        /// </summary>
+        public static string FanCurvesWindow_Support_Accepts {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_Support_Accepts", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No: the firmware puts its own curve back outside Custom mode. Use a Custom preset instead (below)..
+        /// </summary>
+        public static string FanCurvesWindow_Support_Rejects {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_Support_Rejects", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Does this laptop keep custom curves?.
+        /// </summary>
+        public static string FanCurvesWindow_Support_Title {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_Support_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not tested yet. Test once to find out whether the firmware keeps a custom curve outside Custom mode..
+        /// </summary>
+        public static string FanCurvesWindow_Support_Unknown {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_Support_Unknown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Test now.
+        /// </summary>
+        public static string FanCurvesWindow_Test {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_Test", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to LLT will write the curve shown below to the fans and check twice, a few seconds apart, whether the firmware keeps it. The fans may speed up or slow down for a moment. Afterwards LLT puts the firmware&apos;s curve back unless this curve is turned on for the active mode. Continue?.
+        /// </summary>
+        public static string FanCurvesWindow_Test_Confirm {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_Test_Confirm", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Switch to Quiet, Balance or Performance first: the test is about the built-in modes..
+        /// </summary>
+        public static string FanCurvesWindow_Test_NotInCustom {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_Test_NotInCustom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fan curves per power mode.
+        /// </summary>
+        public static string FanCurvesWindow_Title {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use my curve in {0}.
+        /// </summary>
+        public static string FanCurvesWindow_UseCurve {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_UseCurve", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fan curves....
+        /// </summary>
+        public static string PowerModeDetails_FanCurvesButton {
+            get {
+                return ResourceManager.GetString("PowerModeDetails_FanCurvesButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Set your own fan curve for Quiet, Balance and Performance..
+        /// </summary>
+        public static string SettingsPage_FanCurves_Message {
+            get {
+                return ResourceManager.GetString("SettingsPage_FanCurves_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open....
+        /// </summary>
+        public static string SettingsPage_FanCurves_Open {
+            get {
+                return ResourceManager.GetString("SettingsPage_FanCurves_Open", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to GAME-SAFE.
+        /// </summary>
+        public static string Osd_GameSafeBadge {
+            get {
+                return ResourceManager.GetString("Osd_GameSafeBadge", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An anti-cheat service is running, so the OSD shows only readings that need no driver. Values that need the hardware-sensor driver show a dash until the game closes..
+        /// </summary>
+        public static string Osd_GameSafeBadge_Tooltip {
+            get {
+                return ResourceManager.GetString("Osd_GameSafeBadge_Tooltip", resourceCulture);
+            }
+        }
     }
 }

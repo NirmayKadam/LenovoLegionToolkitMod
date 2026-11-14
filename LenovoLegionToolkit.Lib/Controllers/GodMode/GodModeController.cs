@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Management;
+using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using LenovoLegionToolkit.Lib.Extensions;
@@ -15,6 +16,12 @@ using NvAPIWrapper.GPU;
 
 namespace LenovoLegionToolkit.Lib.Controllers.GodMode;
 
+/// <summary>
+/// The firmware took the fan table write without an error, but the table it reports afterwards is a different
+/// one. Distinct from a failed call, which says nothing about whether the firmware accepts the table.
+/// </summary>
+public class FanTableNotKeptException(string message) : Exception(message);
+
 public class GodModeController(
     GodModeSettings settings,
     VantageDisabler vantageDisabler,
@@ -24,6 +31,11 @@ public class GodModeController(
 {
     private const uint CAPABILITY_ID_MASK = 0xFFFF00FF;
     private const int BIOS_OC_MODE_ENABLED = 3;
+
+    // The fixed ranges of the AMD overclocking values (the same ones the God Mode window offers).
+    private const int AMD_PBO_SCALER_MAX = 7;
+    private const int AMD_PBO_BOOST_MAX = 200;
+    private const int AMD_CURVE_OPTIMIZER_MAX = 20;
 
     public event EventHandler<Guid>? PresetChanged;
 
@@ -200,34 +212,50 @@ public class GodModeController(
         var fanTable = preset.FanTable ?? await GetDefaultFanTableAsync().ConfigureAwait(false);
         var fanFullSpeed = preset.FanFullSpeed ?? false;
 
+        // The values that are sent come from here, not straight from the settings file: each one has been
+        // put through the firmware's own range (see GetRangeCheckedPresetAsync).
+        var checkedPreset = await GetRangeCheckedPresetAsync(presetId).ConfigureAwait(false);
+
         var cpuSettings = new (string Name, StepperValue? Value, Func<int, Task> Set)[]
         {
-            ("cpuLongTermPowerLimit", preset.CPULongTermPowerLimit, WMI.LenovoCpuMethod.CPUSetLongTermPowerLimitAsync),
-            ("cpuShortTermPowerLimit", preset.CPUShortTermPowerLimit, WMI.LenovoCpuMethod.CPUSetShortTermPowerLimitAsync),
-            ("cpuPeakPowerLimit", preset.CPUPeakPowerLimit, v => WMI.LenovoCpuMethod.CPUSetPeakPowerLimitAsync(v)),
-            ("cpuCrossLoadingPowerLimit", preset.CPUCrossLoadingPowerLimit, v => WMI.LenovoCpuMethod.CPUSetCrossLoadingPowerLimitAsync(v)),
-            ("apuSPPTPowerLimit", preset.APUsPPTPowerLimit, v => WMI.LenovoCpuMethod.SetAPUSPPTPowerLimitAsync(v)),
-            ("cpuTemperatureLimit", preset.CPUTemperatureLimit, v => WMI.LenovoCpuMethod.CPUSetTemperatureControlAsync(v)),
+            ("cpuLongTermPowerLimit", OnlyIfSaved(preset.CPULongTermPowerLimit, checkedPreset?.CPULongTermPowerLimit), WMI.LenovoCpuMethod.CPUSetLongTermPowerLimitAsync),
+            ("cpuShortTermPowerLimit", OnlyIfSaved(preset.CPUShortTermPowerLimit, checkedPreset?.CPUShortTermPowerLimit), WMI.LenovoCpuMethod.CPUSetShortTermPowerLimitAsync),
+            ("cpuPeakPowerLimit", OnlyIfSaved(preset.CPUPeakPowerLimit, checkedPreset?.CPUPeakPowerLimit), v => WMI.LenovoCpuMethod.CPUSetPeakPowerLimitAsync(v)),
+            ("cpuCrossLoadingPowerLimit", OnlyIfSaved(preset.CPUCrossLoadingPowerLimit, checkedPreset?.CPUCrossLoadingPowerLimit), v => WMI.LenovoCpuMethod.CPUSetCrossLoadingPowerLimitAsync(v)),
+            ("apuSPPTPowerLimit", OnlyIfSaved(preset.APUsPPTPowerLimit, checkedPreset?.APUsPPTPowerLimit), v => WMI.LenovoCpuMethod.SetAPUSPPTPowerLimitAsync(v)),
+            ("cpuTemperatureLimit", OnlyIfSaved(preset.CPUTemperatureLimit, checkedPreset?.CPUTemperatureLimit), v => WMI.LenovoCpuMethod.CPUSetTemperatureControlAsync(v)),
         };
 
         var gpuSettings = new (string Name, StepperValue? Value, Func<int, Task> Set)[]
         {
-            ("gpuPowerBoost", preset.GPUPowerBoost, v => WMI.LenovoGpuMethod.GPUSetPPABPowerLimitAsync(v)),
-            ("gpuConfigurableTgp", preset.GPUConfigurableTGP, v => WMI.LenovoGpuMethod.GPUSetCTGPPowerLimitAsync(v)),
-            ("gpuTemperatureLimit", preset.GPUTemperatureLimit, v => WMI.LenovoGpuMethod.GPUSetTemperatureLimitAsync(v)),
+            ("gpuPowerBoost", OnlyIfSaved(preset.GPUPowerBoost, checkedPreset?.GPUPowerBoost), v => WMI.LenovoGpuMethod.GPUSetPPABPowerLimitAsync(v)),
+            ("gpuConfigurableTgp", OnlyIfSaved(preset.GPUConfigurableTGP, checkedPreset?.GPUConfigurableTGP), v => WMI.LenovoGpuMethod.GPUSetCTGPPowerLimitAsync(v)),
+            ("gpuTemperatureLimit", OnlyIfSaved(preset.GPUTemperatureLimit, checkedPreset?.GPUTemperatureLimit), v => WMI.LenovoGpuMethod.GPUSetTemperatureLimitAsync(v)),
         };
 
-        foreach (var (name, value, set) in cpuSettings)
+        // If a limit can't be set, no further limits are written (as before), but the fan step below still
+        // runs, so raised limits are never left without the preset's fan settings. The error is raised after it.
+        ExceptionDispatchInfo? limitFailure = null;
+        try
         {
-            await TryApplyAsync(name, value, set, rethrow: true).ConfigureAwait(false);
-        }
+            foreach (var (name, value, set) in cpuSettings)
+            {
+                await TryApplyAsync(name, value, set, rethrow: true).ConfigureAwait(false);
+            }
 
-        foreach (var (name, value, set) in gpuSettings)
+            foreach (var (name, value, set) in gpuSettings)
+            {
+                await TryApplyAsync(name, value, set, rethrow: false).ConfigureAwait(false);
+            }
+        }
+        catch (Exception ex)
         {
-            await TryApplyAsync(name, value, set, rethrow: false).ConfigureAwait(false);
+            limitFailure = ExceptionDispatchInfo.Capture(ex);
         }
 
         await ApplyFanLegacyAsync(fanTable, fanFullSpeed).ConfigureAwait(false);
+
+        limitFailure?.Throw();
 
         await RaisePresetChanged(presetId).ConfigureAwait(false);
         Log.Instance.Trace($"State applied. [name={preset.Name}, id={presetId}]");
@@ -343,9 +371,25 @@ public class GodModeController(
         var fanTable = preset.FanTable ?? await GetDefaultFanTableAsync().ConfigureAwait(false);
         var fanFullSpeed = preset.FanFullSpeed ?? false;
 
+        // The values that are sent come from here, not straight from the settings file: each one has been
+        // put through the firmware's own range (see GetRangeCheckedPresetAsync).
+        var checkedPreset = await GetRangeCheckedPresetAsync(presetId).ConfigureAwait(false);
+
+        // If a limit can't be set, no further limits are written (as before), but the fan step below still
+        // runs, so raised limits are never left without the preset's fan settings. The error is raised after it.
+        ExceptionDispatchInfo? limitFailure = null;
+
         foreach (var cap in config.Capabilities)
         {
-            var stepperValue = GetStepperValueForStorePreset(preset, cap.PropertyName);
+            // Fan full speed is an on/off switch with no range; everything else is range-checked. A setting the
+            // preset doesn't save goes the "default" way below, as before, instead of resending a read-back value.
+            var stepperValue = cap.PropertyName == nameof(GodModePreset.FanFullSpeed)
+                ? GetStepperValueForStorePreset(preset, cap.PropertyName)
+                : OnlyIfSaved(GetStepperValueForStorePreset(preset, cap.PropertyName), GetStepperValueForPreset(checkedPreset, cap.PropertyName));
+
+            if (stepperValue is null && GetStepperValueForStorePreset(preset, cap.PropertyName) is { } saved)
+                Log.Instance.Trace($"Not applying saved {cap.PropertyName}={saved.Value}: its allowed range couldn't be read from the firmware.");
+
             var value = stepperValue?.Value;
             var defaultValue = GetDefaultValueFromDefaults(defaultPerformancePreset, cap.PropertyName);
 
@@ -370,7 +414,8 @@ public class GodModeController(
                     Log.Instance.Trace($"Failed to apply {cap.PropertyName} ({cap.RawId:X}). [value={value}]", ex);
                     if (!failAllowedIds.Contains(cap.RawId))
                     {
-                        throw;
+                        limitFailure = ExceptionDispatchInfo.Capture(ex);
+                        break;
                     }
                 }
             }
@@ -386,16 +431,22 @@ public class GodModeController(
                     Log.Instance.Trace($"Failed to apply default {cap.PropertyName} ({cap.RawId:X}). [value={defaultValue}]", ex);
                     if (!failAllowedIds.Contains(cap.RawId))
                     {
-                        throw;
+                        limitFailure = ExceptionDispatchInfo.Capture(ex);
+                        break;
                     }
                 }
             }
         }
 
+        if (limitFailure is not null)
+            Log.Instance.Trace($"A limit couldn't be set; applying the fan settings before reporting it.");
+
         if (preset.FanTable != null && config.Platform != GodModePlatform.NonGaming)
         {
             await ApplyFanSettingsAsync(config, fanTable, fanFullSpeed).ConfigureAwait(false);
         }
+
+        limitFailure?.Throw();
 
         if (config.Platform == GodModePlatform.Legion)
         {
@@ -464,20 +515,22 @@ public class GodModeController(
         {
             await WMI.LenovoOtherMethod.SetFeatureValueAsync((uint)CapabilityID.CPUOverclockingEnable, 1).ConfigureAwait(false);
 
+            // Each value is held to its fixed range here too, not only in the window, so a hand-edited settings
+            // file can't send something outside it.
             if (preset.PrecisionBoostOverdriveScaler is { } pboScaler)
             {
                 Log.Instance.Trace($"Applying PrecisionBoostOverdriveScaler: {pboScaler}...");
-                await WMI.LenovoCpuMethod.CPUSetOCDataAsync(17, (uint)CPUOverclockingID.PrecisionBoostOverdriveScaler, pboScaler.Value).ConfigureAwait(false);
+                await WMI.LenovoCpuMethod.CPUSetOCDataAsync(17, (uint)CPUOverclockingID.PrecisionBoostOverdriveScaler, Math.Clamp(pboScaler.Value, 0, AMD_PBO_SCALER_MAX)).ConfigureAwait(false);
             }
             if (preset.PrecisionBoostOverdriveBoostFrequency is { } pboFreq)
             {
                 Log.Instance.Trace($"Applying PrecisionBoostOverdriveBoostFrequency: {pboFreq}...");
-                await WMI.LenovoCpuMethod.CPUSetOCDataAsync(17, (uint)CPUOverclockingID.PrecisionBoostOverdriveBoostFrequency, pboFreq.Value).ConfigureAwait(false);
+                await WMI.LenovoCpuMethod.CPUSetOCDataAsync(17, (uint)CPUOverclockingID.PrecisionBoostOverdriveBoostFrequency, Math.Clamp(pboFreq.Value, 0, AMD_PBO_BOOST_MAX)).ConfigureAwait(false);
             }
             if (preset.AllCoreCurveOptimizer is { } coreCurve && preset.EnableAllCoreCurveOptimizer == true)
             {
                 Log.Instance.Trace($"Applying AllCoreCurveOptimizer: {coreCurve}...");
-                await WMI.LenovoCpuMethod.CPUSetOCDataAsync(17, (uint)CPUOverclockingID.AllCoreCurveOptimizer, coreCurve.Value).ConfigureAwait(false);
+                await WMI.LenovoCpuMethod.CPUSetOCDataAsync(17, (uint)CPUOverclockingID.AllCoreCurveOptimizer, Math.Clamp(coreCurve.Value, 0, AMD_CURVE_OPTIMIZER_MAX)).ConfigureAwait(false);
             }
         }
         else if (isOcEnabled && preset.EnableOverclocking == false)
@@ -732,6 +785,84 @@ public class GodModeController(
             nameof(GodModePreset.GPUTotalProcessingPowerTargetOnAcOffsetFromBaselineNVAPI) => preset.GPUTotalProcessingPowerTargetOnAcOffsetFromBaselineNVAPI,
             nameof(GodModePreset.GPUToCPUDynamicBoost) => preset.GPUToCPUDynamicBoost,
             nameof(GodModePreset.FanFullSpeed) when preset.FanFullSpeed != null => new StepperValue(preset.FanFullSpeed.Value ? 1 : 0, 0, 1, 1, [], 0),
+            _ => null,
+        };
+    }
+
+    /// <summary>
+    /// The active preset with every value put through the firmware's own range, steps and default: the same rule
+    /// the God Mode window shows (<see cref="CreateStepperValue"/>). This is what gets sent to the firmware, so a
+    /// hand-edited settings file, a backup from another model or a range changed by a BIOS update can't push a
+    /// value past what the firmware allows. A value whose range can't be read comes back empty and isn't sent.
+    /// </summary>
+    private async Task<GodModePreset?> GetRangeCheckedPresetAsync(Guid presetId)
+    {
+        try
+        {
+            var store = settings.Store;
+            if (IsValidStore(store))
+            {
+                var ranges = await _firmwareRanges.GetAsync(ReadFirmwareRangesAsync).ConfigureAwait(false);
+                var state = await LoadStateFromStoreAsync(store, ranges).ConfigureAwait(false);
+                if (state.Presets.TryGetValue(presetId, out var preset))
+                    return preset;
+            }
+        }
+        catch (Exception ex)
+        {
+            // Nothing is sent rather than unchecked values; the fan step still runs.
+            Log.Instance.Trace($"Couldn't read the firmware's ranges; no limits will be sent.", ex);
+            return null;
+        }
+
+        Log.Instance.Trace($"Preset {presetId} couldn't be range-checked; no limits will be sent.");
+        return null;
+    }
+
+    /// <summary>
+    /// The firmware's ranges, steps and defaults for each setting, read once and reused for every apply (they don't
+    /// change while running). Forgotten on resume from sleep (<see cref="ForgetFirmwareRanges"/>), so a change made
+    /// in BIOS setup in between is picked up. The God Mode window still reads live, since it shows current values.
+    /// </summary>
+    private readonly ReadOnceCache<GodModePreset> _firmwareRanges = new();
+
+    private async Task<GodModePreset> ReadFirmwareRangesAsync()
+    {
+        var config = await GetConfigAsync().ConfigureAwait(false);
+        return await GetDefaultStateAsync(config).ConfigureAwait(false);
+    }
+
+    public Task<GodModePreset?> GetRangeCheckedActivePresetAsync() => GetRangeCheckedPresetAsync(settings.Store.ActivePresetId);
+
+    /// <summary>Makes the next apply read the firmware's ranges again.</summary>
+    public void ForgetFirmwareRanges() => _firmwareRanges.Clear();
+
+    /// <summary>
+    /// The range-checked value, but only for a setting the preset actually saves. A setting it leaves empty is not
+    /// sent as a value (the checked preset would otherwise carry the firmware's read-back value for it).
+    /// </summary>
+    internal static StepperValue? OnlyIfSaved(StepperValue? saved, StepperValue? rangeChecked) => saved is null ? null : rangeChecked;
+
+    private static StepperValue? GetStepperValueForPreset(GodModePreset? preset, string propertyName)
+    {
+        if (preset is not { } p)
+            return null;
+
+        return propertyName switch
+        {
+            nameof(GodModePreset.CPULongTermPowerLimit) => p.CPULongTermPowerLimit,
+            nameof(GodModePreset.CPUShortTermPowerLimit) => p.CPUShortTermPowerLimit,
+            nameof(GodModePreset.CPUPeakPowerLimit) => p.CPUPeakPowerLimit,
+            nameof(GodModePreset.CPUCrossLoadingPowerLimit) => p.CPUCrossLoadingPowerLimit,
+            nameof(GodModePreset.CPUPL2Tau) => p.CPUPL2Tau,
+            nameof(GodModePreset.APUsPPTPowerLimit) => p.APUsPPTPowerLimit,
+            nameof(GodModePreset.CPUTemperatureLimit) => p.CPUTemperatureLimit,
+            nameof(GodModePreset.GPUPowerBoost) => p.GPUPowerBoost,
+            nameof(GodModePreset.GPUConfigurableTGP) => p.GPUConfigurableTGP,
+            nameof(GodModePreset.GPUTemperatureLimit) => p.GPUTemperatureLimit,
+            nameof(GodModePreset.GPUTotalProcessingPowerTargetOnAcOffsetFromBaseline) => p.GPUTotalProcessingPowerTargetOnAcOffsetFromBaseline,
+            nameof(GodModePreset.GPUTotalProcessingPowerTargetOnAcOffsetFromBaselineNVAPI) => p.GPUTotalProcessingPowerTargetOnAcOffsetFromBaselineNVAPI,
+            nameof(GodModePreset.GPUToCPUDynamicBoost) => p.GPUToCPUDynamicBoost,
             _ => null,
         };
     }
@@ -993,7 +1124,7 @@ public class GodModeController(
         }
 
         Log.Instance.Trace($"Fan table verification failed after {maxAttempts} attempts.");
-        throw new Exception(Resource.GodModeController_FanSetTableError_Message);
+        throw new FanTableNotKeptException(Resource.GodModeController_FanSetTableError_Message);
     }
 
     public Task<FanTable> GetDefaultFanTableAsync()
@@ -1340,7 +1471,17 @@ public class GodModeController(
         };
     }
 
-    private static StepperValue? CreateStepperValue(StepperValue? state, StepperValue? store = null, int? minValueOffset = 0, int? maxValueOffset = 0)
+    /// <summary>
+    /// A saved value fitted to what the firmware allows: <paramref name="state"/> carries the firmware's range (or
+    /// its list of steps) and default, <paramref name="store"/> the saved value. A value off the step grid moves
+    /// to the nearest step; a value outside the range becomes the firmware's default (or the nearest end).
+    /// <para>
+    /// The two offsets can only narrow the range (raise the minimum, lower the maximum). They can never widen it:
+    /// nothing above the firmware's maximum or below its minimum comes out of here.
+    /// </para>
+    /// Returns nothing when the firmware reported no range and no steps for the setting.
+    /// </summary>
+    internal static StepperValue? CreateStepperValue(StepperValue? state, StepperValue? store = null, int? minValueOffset = 0, int? maxValueOffset = 0)
     {
         if (state is not { } stateValue)
             return null;
@@ -1363,8 +1504,14 @@ public class GodModeController(
         if (stateValue.Step > 0)
         {
             var value = store?.Value ?? stateValue.Value;
-            var min = Math.Max(0, stateValue.Min + (minValueOffset ?? 0));
-            var max = stateValue.Max + (maxValueOffset ?? 0);
+            var min = Math.Max(0, stateValue.Min + Math.Max(0, minValueOffset ?? 0));
+            var max = stateValue.Max + Math.Min(0, maxValueOffset ?? 0);
+            if (max < min)
+            {
+                // Offsets that leave no room are ignored rather than obeyed.
+                min = Math.Max(0, stateValue.Min);
+                max = stateValue.Max;
+            }
             var step = stateValue.Step;
             var defaultValue = stateValue.DefaultValue;
 
@@ -1379,7 +1526,8 @@ public class GodModeController(
         return null;
     }
 
-    protected async Task<bool> IsValidFanTableAsync(FanTable fanTable)
+    /// <summary>Whether a fan table stays within this laptop's minimum and the firmware's maximum level (10).</summary>
+    public async Task<bool> IsValidFanTableAsync(FanTable fanTable)
     {
         var minimumFanTable = await GetMinimumFanTableAsync().ConfigureAwait(false);
         var minimum = minimumFanTable.GetTable();

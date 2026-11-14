@@ -153,7 +153,7 @@ public partial class WindowsPowerModesWindow
         {
             Margin = new Thickness(0, 0, 0, 8),
             Icon = SymbolRegular.PlugConnected24,
-            Header = new CardHeaderControl { Title = $"{Resource.WindowsPowerPlansWindow_PowerMode_Title} - {Resource.WindowsPowerPlansWindow_PowerMode_AC}" },
+            Header = new CardHeaderControl { Title = $"{Resource.WindowsPowerPlansWindow_PowerMode_Title} - {Resource.WindowsPowerPlansWindow_PowerMode_AC}", HelpKey = "Help_PowerMapping_WindowsModeAc" },
             Content = acCombo
         };
 
@@ -161,7 +161,7 @@ public partial class WindowsPowerModesWindow
         {
             Margin = new Thickness(0, 0, 0, 8),
             Icon = SymbolRegular.BatterySaver24,
-            Header = new CardHeaderControl { Title = $"{Resource.WindowsPowerPlansWindow_PowerMode_Title} - {Resource.WindowsPowerPlansWindow_PowerMode_DC}" },
+            Header = new CardHeaderControl { Title = $"{Resource.WindowsPowerPlansWindow_PowerMode_Title} - {Resource.WindowsPowerPlansWindow_PowerMode_DC}", HelpKey = "Help_PowerMapping_WindowsModeDc" },
             Content = dcCombo
         };
 
@@ -210,7 +210,7 @@ public partial class WindowsPowerModesWindow
         {
             Margin = new Thickness(0, 0, 0, 8),
             Icon = SymbolRegular.PlugConnected24,
-            Header = new CardHeaderControl { Title = $"{Resource.WindowsPowerPlansWindow_PowerMode_Title} - {Resource.WindowsPowerPlansWindow_PowerMode_AC}" },
+            Header = new CardHeaderControl { Title = $"{Resource.WindowsPowerPlansWindow_PowerMode_Title} - {Resource.WindowsPowerPlansWindow_PowerMode_AC}", HelpKey = "Help_PowerMapping_WindowsModeAc" },
             Content = acCombo
         };
 
@@ -218,7 +218,7 @@ public partial class WindowsPowerModesWindow
         {
             Margin = new Thickness(0, 0, 0, 8),
             Icon = SymbolRegular.BatterySaver24,
-            Header = new CardHeaderControl { Title = $"{Resource.WindowsPowerPlansWindow_PowerMode_Title} - {Resource.WindowsPowerPlansWindow_PowerMode_DC}" },
+            Header = new CardHeaderControl { Title = $"{Resource.WindowsPowerPlansWindow_PowerMode_Title} - {Resource.WindowsPowerPlansWindow_PowerMode_DC}", HelpKey = "Help_PowerMapping_WindowsModeDc" },
             Content = dcCombo
         };
 
@@ -261,7 +261,7 @@ public partial class WindowsPowerModesWindow
             {
                 Margin = new Thickness(0, 0, 0, 8),
                 Icon = SymbolRegular.WrenchScrewdriver24,
-                Header = new CardHeaderControl { Title = Resource.GodModeSettingsWindow_ActivePreset_Title },
+                Header = new CardHeaderControl { Title = Resource.GodModeSettingsWindow_ActivePreset_Title, HelpKey = "Help_PowerMapping_CustomPreset" },
                 Content = presetCombo
             };
 
@@ -269,7 +269,7 @@ public partial class WindowsPowerModesWindow
             {
                 Margin = new Thickness(0, 0, 0, 8),
                 Icon = SymbolRegular.PlugConnected24,
-                Header = new CardHeaderControl { Title = $"{Resource.WindowsPowerPlansWindow_PowerMode_Title} - {Resource.WindowsPowerPlansWindow_PowerMode_AC}" },
+                Header = new CardHeaderControl { Title = $"{Resource.WindowsPowerPlansWindow_PowerMode_Title} - {Resource.WindowsPowerPlansWindow_PowerMode_AC}", HelpKey = "Help_PowerMapping_WindowsModeAc" },
                 Content = acCombo
             };
 
@@ -277,7 +277,7 @@ public partial class WindowsPowerModesWindow
             {
                 Margin = new Thickness(0, 0, 0, 8),
                 Icon = SymbolRegular.BatterySaver24,
-                Header = new CardHeaderControl { Title = $"{Resource.WindowsPowerPlansWindow_PowerMode_Title} - {Resource.WindowsPowerPlansWindow_PowerMode_DC}" },
+                Header = new CardHeaderControl { Title = $"{Resource.WindowsPowerPlansWindow_PowerMode_Title} - {Resource.WindowsPowerPlansWindow_PowerMode_DC}", HelpKey = "Help_PowerMapping_WindowsModeDc" },
                 Content = dcCombo
             };
 

@@ -144,39 +144,39 @@
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                         <StackPanel Margin="0,0,8,0">
                             <godMode:GodModeValueControl
-                                x:Name="_cpuLongTermPowerLimitControl"
+                                x:Name="_cpuLongTermPowerLimitControl" HelpKey="Help_GodMode_CpuPL1"
                                 Title="{x:Static resources:Resource.GodModeSettingsWindow_CPU_LongTermPL}"
                                 Description="{x:Static resources:Resource.GodModeSettingsWindow_CPU_LongTermPL_Description}"
                                 Unit="{x:Static resources:Resource.Watt}" />
                             <godMode:GodModeValueControl
-                                x:Name="_cpuShortTermPowerLimitControl"
+                                x:Name="_cpuShortTermPowerLimitControl" HelpKey="Help_GodMode_CpuPL2"
                                 Title="{x:Static resources:Resource.GodModeSettingsWindow_CPU_ShortTermPL}"
                                 Description="{x:Static resources:Resource.GodModeSettingsWindow_CPU_ShortTermPL_Description}"
                                 Unit="{x:Static resources:Resource.Watt}" />
                             <godMode:GodModeValueControl
-                                x:Name="_cpuPeakPowerLimitControl"
+                                x:Name="_cpuPeakPowerLimitControl" HelpKey="Help_GodMode_CpuPeak"
                                 Title="{x:Static resources:Resource.GodModeSettingsWindow_CPU_PeakPL}"
                                 Description="{x:Static resources:Resource.GodModeSettingsWindow_CPU_PeakPL_Description}"
                                 Unit="{x:Static resources:Resource.Watt}"
                                 Warning="{x:Static resources:Resource.GodModeSettingsWindow_CPU_PeakPL_Warning}" />
                             <godMode:GodModeValueControl
-                                x:Name="_cpuCrossLoadingLimitControl"
+                                x:Name="_cpuCrossLoadingLimitControl" HelpKey="Help_GodMode_CpuCrossLoading"
                                 Title="{x:Static resources:Resource.GodModeSettingsWindow_CPU_CrossLoading}"
                                 Description="{x:Static resources:Resource.GodModeSettingsWindow_CPU_CrossLoading_Description}"
                                 Info="{x:Static resources:Resource.GodModeSettingsWindow_CPU_CrossLoading_Info}"
                                 Unit="{x:Static resources:Resource.Watt}" />
                             <godMode:GodModeValueControl
-                                x:Name="_cpuPL2TauControl"
+                                x:Name="_cpuPL2TauControl" HelpKey="Help_GodMode_CpuTau"
                                 Title="{x:Static resources:Resource.GodModeSettingsWindow_CPU_PL2Tau}"
                                 Description="{x:Static resources:Resource.GodModeSettingsWindow_CPU_PL2Tau_Description}"
                                 Unit="s" />
                             <godMode:GodModeValueControl
-                                x:Name="_apuSPPTPowerLimitControl"
+                                x:Name="_apuSPPTPowerLimitControl" HelpKey="Help_GodMode_ApuSppt"
                                 Title="{x:Static resources:Resource.GodModeSettingsWindow_CPU_APUsPPT_PL}"
                                 Description="{x:Static resources:Resource.GodModeSettingsWindow_CPU_APUsPPT_PL_Description}"
                                 Unit="{x:Static resources:Resource.Watt}" />
                             <godMode:GodModeValueControl
-                                x:Name="_cpuTemperatureLimitControl"
+                                x:Name="_cpuTemperatureLimitControl" HelpKey="Help_GodMode_CpuTemp"
                                 Title="{x:Static resources:Resource.GodModeSettingsWindow_CPU_TempLimit}"
                                 Description="{x:Static resources:Resource.GodModeSettingsWindow_CPU_TempLimit_Description}"
                                 Unit="{x:Static resources:Resource.Celsius}"
@@ -198,36 +198,36 @@
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                         <StackPanel Margin="0,0,8,0">
                             <godMode:GodModeValueControl
-                                x:Name="_gpuPowerBoostControl"
+                                x:Name="_gpuPowerBoostControl" HelpKey="Help_GodMode_GpuDynamicBoost"
                                 Title="{x:Static resources:Resource.GodModeSettingsWindow_GPU_DynamicBoost}"
                                 Description="{x:Static resources:Resource.GodModeSettingsWindow_GPU_DynamicBoost_Description}"
                                 Unit="{x:Static resources:Resource.Watt}" />
                             <godMode:GodModeValueControl
-                                x:Name="_gpuConfigurableTGPControl"
+                                x:Name="_gpuConfigurableTGPControl" HelpKey="Help_GodMode_GpuCtgp"
                                 Title="{x:Static resources:Resource.GodModeSettingsWindow_GPU_CTGP}"
                                 Description="{x:Static resources:Resource.GodModeSettingsWindow_GPU_CTGP_Description}"
                                 Unit="{x:Static resources:Resource.Watt}" />
                             <godMode:GodModeValueControl
-                                x:Name="_gpuTemperatureLimitControl"
+                                x:Name="_gpuTemperatureLimitControl" HelpKey="Help_GodMode_GpuTemp"
                                 Title="{x:Static resources:Resource.GodModeSettingsWindow_GPU_TempLimit}"
                                 Description="{x:Static resources:Resource.GodModeSettingsWindow_GPU_TempLimit_Description}"
                                 Unit="{x:Static resources:Resource.Celsius}"
                                 Warning="{x:Static resources:Resource.GodModeSettingsWindow_GPU_TempLimit_Warning}" />
                             <godMode:GodModeValueControl
-                                x:Name="_gpuTotalProcessingPowerTargetOnAcOffsetFromBaselineControl"
+                                x:Name="_gpuTotalProcessingPowerTargetOnAcOffsetFromBaselineControl" HelpKey="Help_GodMode_GpuTpp"
                                 Title="{x:Static resources:Resource.GodModeSettingsWindow_GPU_TotalProcessingPowerTargetOnAcOffsetFromBaselineControl}"
                                 Description="{x:Static resources:Resource.GodModeSettingsWindow_GPU_TotalProcessingPowerTargetOnAcOffsetFromBaselineControl_Description}"
                                 Info="{x:Static resources:Resource.GodModeSettingsWindow_GPU_TotalProcessingPowerTargetOnAcOffsetFromBaselineControl_Info}"
                                 Unit="{x:Static resources:Resource.Watt}" />
                             <godMode:GodModeValueControl
-                                x:Name="_pcfGpuTotalProcessingPowerTargetOnAcOffsetFromBaselineControl"
+                                x:Name="_pcfGpuTotalProcessingPowerTargetOnAcOffsetFromBaselineControl" HelpKey="Help_GodMode_GpuTppPcf"
                                 Title="{x:Static resources:Resource.GodModeSettingsWindow_GPU_TotalProcessingPowerTargetOnAcOffsetFromBaselineControl}"
                                 Description="{x:Static resources:Resource.GodModeSettingsWindow_GPU_TotalProcessingPowerTargetOnAcOffsetFromBaselineControl_Description}"
                                 Info="{x:Static resources:Resource.GodModeSettingsWindow_GPU_TotalProcessingPowerTargetOnAcOffsetFromBaselineControl_Info}"
                                 AllowValuesAbove255="True"
                                 Unit="{x:Static resources:Resource.Watt}" />
                             <godMode:GodModeValueControl
-                                x:Name="_gpuToCpuDynamicBoostControl"
+                                x:Name="_gpuToCpuDynamicBoostControl" HelpKey="Help_GodMode_GpuToCpuBoost"
                                 Title="{x:Static resources:Resource.GodModeSettingsWindow_GPU_ToCpuDynamicBoostControl}"
                                 Description="{x:Static resources:Resource.GodModeSettingsWindow_GPU_ToCpuDynamicBoostControl_Description}"
                                 Info="{x:Static resources:Resource.GodModeSettingsWindow_GPU_ToCpuDynamicBoostControl_Info}"
@@ -255,7 +255,7 @@
                                 <custom:CardControl.Header>
                                     <StackPanel x:Name="_fanCurveControlStackPanel">
                                         <controls:CardHeaderControl
-                                            Title="{x:Static resources:Resource.GodModeSettingsWindow_Fans_Curve_Title}"
+                                            Title="{x:Static resources:Resource.GodModeSettingsWindow_Fans_Curve_Title}" HelpKey="Help_GodMode_FanCurve"
                                             Info="{x:Static resources:Resource.GodModeSettingsWindow_Fans_Curve_Info}"
                                             Subtitle="{x:Static resources:Resource.GodModeSettingsWindow_Fans_Curve_Message}" />
                                         <wpfui:Button
@@ -273,7 +273,7 @@
                             <custom:CardControl x:Name="_fanFullSpeedCardControl" Margin="0,0,0,8">
                                 <custom:CardControl.Header>
                                     <controls:CardHeaderControl
-                                        Title="{x:Static resources:Resource.GodModeSettingsWindow_Fans_Max_Title}"
+                                        Title="{x:Static resources:Resource.GodModeSettingsWindow_Fans_Max_Title}" HelpKey="Help_GodMode_FanMax"
                                         Subtitle="{x:Static resources:Resource.GodModeSettingsWindow_Fans_Max_Message}"
                                         Warning="{x:Static resources:Resource.GodModeSettingsWindow_Fans_Max_Warning}" />
                                 </custom:CardControl.Header>
@@ -319,7 +319,7 @@
                             <custom:CardControl x:Name="_toggleOcCard" Margin="0,0,0,8">
                                 <custom:CardControl.Header>
                                     <controls:CardHeaderControl
-                                        Title="{x:Static resources:Resource.GodModeSettingsWindow_Toggle_OC_Title}"
+                                        Title="{x:Static resources:Resource.GodModeSettingsWindow_Toggle_OC_Title}" HelpKey="Help_GodMode_Overclocking"
                                         Subtitle="{x:Static resources:Resource.GodModeSettingsWindow_Toggle_OC_Message}"
                                         Warning="{x:Static resources:Resource.GodModeSettingsWindow_Toggle_OC_Warning}" />
                                 </custom:CardControl.Header>
@@ -331,19 +331,19 @@
                             </custom:CardControl>
 
                             <godMode:GodModeValueControl
-                                x:Name="_cpuPrecisionBoostOverdriveScaler"
+                                x:Name="_cpuPrecisionBoostOverdriveScaler" HelpKey="Help_GodMode_PboScaler"
                                 Title="{x:Static resources:Resource.GodModeSettingsWindow_PrecisionBoostOverdriveScaler_Title}"
                                 Description="{x:Static resources:Resource.GodModeSettingsWindow_PrecisionBoostOverdriveScaler_Description}"
                                 Unit="x" />
                             <godMode:GodModeValueControl
-                                x:Name="_cpuPrecisionBoostOverdriveBoostFrequency"
+                                x:Name="_cpuPrecisionBoostOverdriveBoostFrequency" HelpKey="Help_GodMode_PboFrequency"
                                 Title="{x:Static resources:Resource.GodModeSettingsWindow_PrecisionBoostOverdriveBoostFrequency_Title}"
                                 Description="{x:Static resources:Resource.GodModeSettingsWindow_PrecisionBoostOverdriveBoostFrequency_Description}"
                                 Unit="{x:Static resources:Resource.MHz}" />
 
                             <custom:CardControl x:Name="_toggleCoreCurveCard" Margin="0,0,0,8">
                                 <custom:CardControl.Header>
-                                    <controls:CardHeaderControl Title="{x:Static resources:Resource.GodModeSettingsWindow_Toggle_CoreCurve_Title}" Subtitle="{x:Static resources:Resource.GodModeSettingsWindow_Toggle_CoreCurve_Message}" />
+                                    <controls:CardHeaderControl Title="{x:Static resources:Resource.GodModeSettingsWindow_Toggle_CoreCurve_Title}" HelpKey="Help_GodMode_CoreCurve" Subtitle="{x:Static resources:Resource.GodModeSettingsWindow_Toggle_CoreCurve_Message}" />
                                 </custom:CardControl.Header>
                                 <wpfui:ToggleSwitch
                                     x:Name="_coreCurveToggle"
@@ -353,7 +353,7 @@
                             </custom:CardControl>
 
                             <godMode:GodModeValueControl
-                                x:Name="_cpuAllCoreCurveOptimizer"
+                                x:Name="_cpuAllCoreCurveOptimizer" HelpKey="Help_GodMode_CurveOptimizer"
                                 Title="{x:Static resources:Resource.GodModeSettingsWindow_AllCoreCurveOptimizer_Title}"
                                 Description="{x:Static resources:Resource.GodModeSettingsWindow_AllCoreCurveOptimizer_Description}"
                                 Info="{x:Static resources:Resource.GodModeSettingsWindow_AllCoreCurveOptimizer_Info}"
@@ -379,7 +379,7 @@
                             <custom:CardControl x:Name="_maxValueOffsetCardControl" Margin="0,0,0,8">
                                 <custom:CardControl.Header>
                                     <controls:CardHeaderControl
-                                        Title="{x:Static resources:Resource.GodModeSettingsWindow_Advanced_MaxOffset_Title}"
+                                        Title="{x:Static resources:Resource.GodModeSettingsWindow_Advanced_MaxOffset_Title}" HelpKey="Help_GodMode_MaxOffset"
                                         Subtitle="{x:Static resources:Resource.GodModeSettingsWindow_Advanced_MaxOffset_Message}"
                                         Warning="{x:Static resources:Resource.GodModeSettingsWindow_Advanced_MaxOffset_Warning}" />
                                 </custom:CardControl.Header>
@@ -390,14 +390,14 @@
                                     AutomationProperties.Name="{x:Static resources:Resource.GodModeSettingsWindow_Advanced_MaxOffset_Title}"
                                     ClearButtonEnabled="False"
                                     MaxDecimalPlaces="0"
-                                    Maximum="255"
+                                    Maximum="0"
                                     Minimum="-255" />
                             </custom:CardControl>
 
                             <custom:CardControl x:Name="_minValueOffsetCardControl" Margin="0,0,0,8">
                                 <custom:CardControl.Header>
                                     <controls:CardHeaderControl
-                                        Title="{x:Static resources:Resource.GodModeSettingsWindow_Advanced_MinOffset_Title}"
+                                        Title="{x:Static resources:Resource.GodModeSettingsWindow_Advanced_MinOffset_Title}" HelpKey="Help_GodMode_MinOffset"
                                         Subtitle="{x:Static resources:Resource.GodModeSettingsWindow_Advanced_MinOffset_Message}"
                                         Warning="{x:Static resources:Resource.GodModeSettingsWindow_Advanced_MinOffset_Warning}" />
                                 </custom:CardControl.Header>
@@ -409,7 +409,7 @@
                                     ClearButtonEnabled="False"
                                     MaxDecimalPlaces="0"
                                     Maximum="255"
-                                    Minimum="-255" />
+                                    Minimum="0" />
                             </custom:CardControl>
                         </StackPanel>
                     </ScrollViewer>

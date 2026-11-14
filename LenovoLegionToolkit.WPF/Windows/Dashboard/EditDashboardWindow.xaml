@@ -66,9 +66,15 @@
                 <StackPanel>
                     <custom:CardControl Margin="0,0,16,16">
                         <custom:CardControl.Header>
-                            <controls:CardHeaderControl Title="{x:Static resources:Resource.EditDashboardWindow_Sensors}" />
+                            <controls:CardHeaderControl Title="{x:Static resources:Resource.EditDashboardWindow_Sensors}" HelpKey="Help_EditDashboard_Sensors" />
                         </custom:CardControl.Header>
                         <wpfui:ToggleSwitch x:Name="_sensorsSwitch" AutomationProperties.Name="{x:Static resources:Resource.EditDashboardWindow_Sensors}" />
+                    </custom:CardControl>
+                    <custom:CardControl Margin="0,0,16,16">
+                        <custom:CardControl.Header>
+                            <controls:CardHeaderControl Title="{x:Static resources:Resource.EditDashboardWindow_StatusStrip}" HelpKey="Help_EditDashboard_StatusStrip" />
+                        </custom:CardControl.Header>
+                        <wpfui:ToggleSwitch x:Name="_statusStripSwitch" AutomationProperties.Name="{x:Static resources:Resource.EditDashboardWindow_StatusStrip}" />
                     </custom:CardControl>
                     <StackPanel
                         x:Name="_groupsStackPanel"

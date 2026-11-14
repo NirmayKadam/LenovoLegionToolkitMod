@@ -188,6 +188,7 @@ public partial class CreateAutomationPipelineWindow
             Header = new CardHeaderControl
             {
                 Title = Resource.MultipleTriggersAutomationPipelineTrigger_DisplayName,
+                HelpKey = "Help_Automation_MultipleTriggers",
                 Accessory = new SymbolIcon { Symbol = SymbolRegular.ChevronRight24 }
             },
             Margin = new(0, 8, 0, 0),
@@ -237,6 +238,7 @@ public partial class CreateAutomationPipelineWindow
             Header = new CardHeaderControl
             {
                 Title = trigger.DisplayName,
+                HelpKey = $"Help_Trigger_{trigger.GetType().Name}",
                 Accessory = accessory
             },
             Margin = new(0, 8, 0, 0),

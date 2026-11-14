@@ -15,8 +15,28 @@ using NvAPIWrapper.Native.GPU.Structures;
 
 namespace LenovoLegionToolkit.Lib.Controllers;
 
+/// <summary>What an attempt to apply the GPU overclock came to.</summary>
+public enum GPUOverclockApplyResult
+{
+    /// <summary>The driver accepted the values.</summary>
+    Applied,
+
+    /// <summary>The clock offsets were applied, but no voltage lock: the GPU's own voltage range couldn't be read.</summary>
+    AppliedWithoutVoltageLock,
+
+    /// <summary>Nothing was sent (overclock off, GPU asleep or missing, or Lenovo's own software running).</summary>
+    NotApplied,
+
+    /// <summary>The driver refused the values, or part of them.</summary>
+    Failed,
+
+    /// <summary>The previous run's apply was never confirmed, so the overclock was switched off instead.</summary>
+    DisabledAfterInterruptedApply,
+}
+
 public class GPUOverclockController
 {
+    private readonly OverclockApplyGuard _guard;
     private readonly GPUOverclockSettings _settings;
     private readonly VantageDisabler _vantageDisabler;
     private readonly LegionSpaceDisabler _legionSpaceDisabler;
@@ -26,12 +46,14 @@ public class GPUOverclockController
     public event EventHandler? Changed;
 
     public GPUOverclockController(GPUOverclockSettings settings,
+        OverclockApplyGuard guard,
         VantageDisabler vantageDisabler,
         LegionSpaceDisabler legionSpaceDisabler,
         LegionZoneDisabler legionZoneDisabler,
         NativeWindowsMessageListener nativeWindowsMessageListener)
     {
         _settings = settings;
+        _guard = guard;
         _vantageDisabler = vantageDisabler;
         _legionSpaceDisabler = legionSpaceDisabler;
         _legionZoneDisabler = legionZoneDisabler;
@@ -74,6 +96,9 @@ public class GPUOverclockController
                 _settings.Store.Enabled = false;
                 _settings.Store.Info = GPUOverclockInfo.Zero;
                 _settings.SynchronizeStore();
+
+                // Nothing will be applied, so a pending "apply in progress" note would only cause a false warning.
+                _guard.Abandon();
             }
         }
         catch
@@ -86,7 +111,15 @@ public class GPUOverclockController
         return isSupported;
     }
 
-    public (bool, GPUOverclockInfo) GetState() => (_settings.Store.Enabled, _settings.Store.Info);
+    /// <summary>Whether the overclock is off because a previous run's apply was never confirmed stable.</summary>
+    public bool WasDisabledAfterInterruptedApply => _guard.DisabledAfterInterruptedApply;
+
+    public (bool, GPUOverclockInfo) GetState()
+    {
+        // Before anything in this run reads "enabled": an apply the previous run never confirmed turns it off.
+        _guard.RecoverFromInterruptedApply();
+        return (_settings.Store.Enabled, _settings.Store.Info);
+    }
 
     public void SaveState(bool enabled, GPUOverclockInfo info)
     {
@@ -95,16 +128,48 @@ public class GPUOverclockController
         _settings.Store.Enabled = enabled;
         _settings.Store.Info = info;
         _settings.SynchronizeStore();
+
+        if (enabled)
+            _guard.AcknowledgeDisabled();
     }
 
-    public async Task ApplyStateAsync(bool force = false)
+    /// <summary>The app is exiting normally: an apply still waiting to be confirmed is not held against the values.</summary>
+    public void OnCleanExit() => _guard.Abandon();
+
+    /// <summary>
+    /// The highest voltage lock that may be sent to this GPU (the top of its own voltage/frequency curve, within
+    /// LLT's fixed limit), or null when the curve can't be read right now.
+    /// </summary>
+    public int? GetVoltageLockLimitMv()
     {
+        try
+        {
+            NVAPI.Initialize();
+            return NVAPI.GetGPU() is { } gpu
+                ? OverclockApplyGuard.ClampVoltageLockMv(GetMaxVoltageLockMv(), GetMinVoltageLockMv(), GetMaxVoltageLockMv(), ReadCurveMaxMv(gpu))
+                : null;
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Couldn't read the GPU's voltage range.", ex);
+            return null;
+        }
+    }
+
+    public async Task<GPUOverclockApplyResult> ApplyStateAsync(bool force = false)
+    {
+        if (_guard.RecoverFromInterruptedApply())
+        {
+            Changed?.Invoke(this, EventArgs.Empty);
+            return GPUOverclockApplyResult.DisabledAfterInterruptedApply;
+        }
+
         if (await _vantageDisabler.GetStatusAsync().ConfigureAwait(false) == SoftwareStatus.Enabled)
         {
             Log.Instance.Trace($"Can't correctly apply state when Vantage is running.");
 
             Changed?.Invoke(this, EventArgs.Empty);
-            return;
+            return GPUOverclockApplyResult.NotApplied;
         }
 
         if (await _legionSpaceDisabler.GetStatusAsync().ConfigureAwait(false) == SoftwareStatus.Enabled)
@@ -112,7 +177,7 @@ public class GPUOverclockController
             Log.Instance.Trace($"Can't correctly apply state when Legion Space is running.");
 
             Changed?.Invoke(this, EventArgs.Empty);
-            return;
+            return GPUOverclockApplyResult.NotApplied;
         }
 
         if (await _legionZoneDisabler.GetStatusAsync().ConfigureAwait(false) == SoftwareStatus.Enabled)
@@ -120,7 +185,7 @@ public class GPUOverclockController
             Log.Instance.Trace($"Can't correctly apply state when Legion Zone is running.");
 
             Changed?.Invoke(this, EventArgs.Empty);
-            return;
+            return GPUOverclockApplyResult.NotApplied;
         }
 
         if (IoCContainer.Resolve<HybridModeFeature>().ShouldKeepDGPUAsleep())
@@ -128,7 +193,7 @@ public class GPUOverclockController
             Log.Instance.Trace($"dGPU eject is being ensured — skipping overclock apply.");
 
             Changed?.Invoke(this, EventArgs.Empty);
-            return;
+            return GPUOverclockApplyResult.NotApplied;
         }
 
         var enabled = _settings.Store.Enabled;
@@ -148,7 +213,7 @@ public class GPUOverclockController
 
             Changed?.Invoke(this, EventArgs.Empty);
 
-            return;
+            return GPUOverclockApplyResult.NotApplied;
         }
 
         Log.Instance.Trace($"Applying overclock: {info}.");
@@ -162,26 +227,57 @@ public class GPUOverclockController
             {
                 Log.Instance.Trace($"dGPU not found.");
 
-                Changed?.Invoke(this, EventArgs.Empty);
-
-                return;
+                return GPUOverclockApplyResult.NotApplied;
             }
 
-            SetOverclockInfo(gpu, info);
+            // Saved before the driver is touched, so a freeze during or right after the apply is noticed at the
+            // next start (see OverclockApplyGuard). Stock values and values already proven stable need no note.
+            var unproven = _guard.Begin(info);
 
-            Log.Instance.Trace($"Applied overclock: {info}, current: {GetOverclockInfo(gpu)}.");
+            var (clocksApplied, voltage) = SetOverclockInfo(gpu, info);
+
+            if (!clocksApplied)
+            {
+                // Nothing took effect, so there is nothing to hold against these values.
+                _guard.Abandon();
+                Log.Instance.Trace($"The driver refused the overclock: {info}.");
+                return GPUOverclockApplyResult.Failed;
+            }
+
+            if (unproven)
+                _ = ConfirmStableLaterAsync(info);
+
+            Log.Instance.Trace($"Applied overclock: {info}, voltage: {voltage}, current: {GetOverclockInfo(gpu)}.");
+
+            return voltage switch
+            {
+                VoltageOutcome.Failed => GPUOverclockApplyResult.Failed,
+                VoltageOutcome.SkippedNoCurve => GPUOverclockApplyResult.AppliedWithoutVoltageLock,
+                _ => GPUOverclockApplyResult.Applied,
+            };
         }
         catch (Exception ex)
         {
-            Log.Instance.Trace($"Failed to apply overclock: {info}, clearing settings...", ex);
-
-            _settings.Store.Enabled = false;
-            _settings.Store.Info = GPUOverclockInfo.Zero;
-            _settings.SynchronizeStore();
+            // The saved values are kept: this may be the GPU waking up or the driver restarting, not bad values.
+            Log.Instance.Trace($"Failed to apply overclock: {info}.", ex);
+            return GPUOverclockApplyResult.Failed;
         }
         finally
         {
             Changed?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    private async Task ConfirmStableLaterAsync(GPUOverclockInfo info)
+    {
+        try
+        {
+            await Task.Delay(OverclockApplyGuard.StabilityWindow).ConfigureAwait(false);
+            _guard.ConfirmStable(info);
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Couldn't record the overclock as stable.", ex);
         }
     }
 
@@ -220,10 +316,73 @@ public class GPUOverclockController
 
     public static int GetMaxVoltageCapMv() => 1200;
 
-    private static void SetOverclockInfo(PhysicalGPU gpu, GPUOverclockInfo info)
+    private enum VoltageOutcome
     {
-        var coreDelta = Math.Clamp(info.CoreDeltaMhz, GetMinCoreDeltaMhz(), GetMaxCoreDeltaMhz());
-        var memoryDelta = Math.Clamp(info.MemoryDeltaMhz, GetMinMemoryDeltaMhz(), GetMaxMemoryDeltaMhz());
+        /// <summary>Voltage lock/cap set as asked, or reset to stock because none was asked for.</summary>
+        Applied,
+
+        /// <summary>A voltage lock was asked for but not sent: the GPU's own voltage range couldn't be read.</summary>
+        SkippedNoCurve,
+
+        /// <summary>The driver refused the voltage part.</summary>
+        Failed,
+    }
+
+    /// <summary>
+    /// The range of clock offsets the driver reports for one clock (graphics or memory) of this GPU, in kHz; null
+    /// when it can't be read. The entry is picked by its clock domain, not by its position in the list.
+    /// </summary>
+    private static (int? Min, int? Max) ReadDriverDeltaRangeKhz(PhysicalGPU gpu, PublicClockDomain domain)
+    {
+        try
+        {
+            var entry = GPUApi.GetPerformanceStates20(gpu.Handle).Clocks[PerformanceStateId.P0_3DPerformance]
+                .FirstOrDefault(c => c.DomainId == domain);
+            if (entry is null)
+                return (null, null);
+
+            var range = entry.FrequencyDeltaInkHz.DeltaRange;
+            return (range.Minimum, range.Maximum);
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Couldn't read the driver's clock offset range.", ex);
+            return (null, null);
+        }
+    }
+
+    /// <summary>The highest voltage on the GPU's own voltage/frequency curve, in mV; null when it can't be read.</summary>
+    private static int? ReadCurveMaxMv(PhysicalGPU gpu)
+    {
+        try
+        {
+            var max = GPUApi.GetClientClkVFPointsStatus(gpu.Handle).Points
+                .Where(p => p.VoltageInMicroV > 0)
+                .Select(p => (int)p.VoltageInMilliV)
+                .DefaultIfEmpty(0)
+                .Max();
+            return max > 0 ? max : null;
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Couldn't read the GPU's voltage/frequency curve.", ex);
+            return null;
+        }
+    }
+
+    private static (bool ClocksApplied, VoltageOutcome Voltage) SetOverclockInfo(PhysicalGPU gpu, GPUOverclockInfo info)
+    {
+        var (coreMinKhz, coreMaxKhz) = ReadDriverDeltaRangeKhz(gpu, PublicClockDomain.Graphics);
+        var (memoryMinKhz, memoryMaxKhz) = ReadDriverDeltaRangeKhz(gpu, PublicClockDomain.Memory);
+
+        var coreDelta = OverclockApplyGuard.ClampDeltaMhz(info.CoreDeltaMhz, GetMinCoreDeltaMhz(), GetMaxCoreDeltaMhz(), coreMinKhz, coreMaxKhz);
+        var memoryDelta = OverclockApplyGuard.ClampDeltaMhz(info.MemoryDeltaMhz, GetMinMemoryDeltaMhz(), GetMaxMemoryDeltaMhz(), memoryMinKhz, memoryMaxKhz);
+
+        if (coreDelta != info.CoreDeltaMhz || memoryDelta != info.MemoryDeltaMhz)
+            Log.Instance.Trace($"Clock offsets limited to the allowed range. [core={info.CoreDeltaMhz}->{coreDelta}, memory={info.MemoryDeltaMhz}->{memoryDelta}]");
+
+        var clocksApplied = true;
+        var voltageOutcome = VoltageOutcome.Applied;
 
         var clockEntries = new[]
         {
@@ -241,6 +400,7 @@ public class GPUOverclockController
         catch (Exception ex)
         {
             Log.Instance.Trace($"Failed to apply performance states.", ex);
+            clocksApplied = false;
         }
 
         try
@@ -310,9 +470,13 @@ public class GPUOverclockController
                     Log.Instance.Trace($"No matching V/F curve point found for voltage cap {voltageCap} mV.");
                 }
             }
-            else if (info.VoltageLockMv > 0)
+            else if (info.VoltageLockMv > 0
+                     && OverclockApplyGuard.ClampVoltageLockMv(info.VoltageLockMv, GetMinVoltageLockMv(), GetMaxVoltageLockMv(), ReadCurveMaxMv(gpu)) is { } voltageLock)
             {
-                var voltageLock = Math.Clamp(info.VoltageLockMv, GetMinVoltageLockMv(), GetMaxVoltageLockMv());
+                // Never above the top of the GPU's own voltage/frequency curve.
+                if (voltageLock != info.VoltageLockMv)
+                    Log.Instance.Trace($"Voltage lock limited to the GPU's own range. [{info.VoltageLockMv}->{voltageLock} mV]");
+
                 var voltageLockEntry = new PrivateClockBoostLockV2.ClockBoostLock(
                     PublicClockDomain.Voltage,
                     ClockLockMode.Manual,
@@ -331,6 +495,14 @@ public class GPUOverclockController
             }
             else
             {
+                // No voltage setting asked for, or a lock was asked for but the GPU's own range couldn't be
+                // read: in both cases the voltage goes back to stock rather than to an unchecked number.
+                if (info.VoltageLockMv > 0)
+                {
+                    Log.Instance.Trace($"Voltage lock {info.VoltageLockMv} mV not applied: the GPU's voltage range couldn't be read.");
+                    voltageOutcome = VoltageOutcome.SkippedNoCurve;
+                }
+
                 var voltageResetEntry = new PrivateClockBoostLockV2.ClockBoostLock(
                     PublicClockDomain.Voltage,
                     ClockLockMode.None,
@@ -351,7 +523,10 @@ public class GPUOverclockController
         catch (Exception ex)
         {
             Log.Instance.Trace($"Failed to apply undervolting settings.", ex);
+            voltageOutcome = VoltageOutcome.Failed;
         }
+
+        return (clocksApplied, voltageOutcome);
     }
 
     private static GPUOverclockInfo GetOverclockInfo(PhysicalGPU gpu)

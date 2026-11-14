@@ -43,7 +43,9 @@ public partial class OverclockDiscreteGPUSettingsWindow
 
         int minLock = GPUOverclockController.GetMinVoltageLockMv();
         _voltageLockSlider.Minimum = minLock - _voltageLockSlider.TickFrequency;
-        _voltageLockSlider.Maximum = GPUOverclockController.GetMaxVoltageLockMv();
+        // The slider stops at the top of this GPU's own voltage range when it can be read. When it can't, the
+        // fixed limit is shown, but applying then sets no voltage lock at all (the result message says so).
+        _voltageLockSlider.Maximum = _gpuOverclockController.GetVoltageLockLimitMv() ?? GPUOverclockController.GetMaxVoltageLockMv();
         if (info.VoltageLockMv >= minLock)
         {
             _voltageLockSlider.Value = info.VoltageLockMv;
@@ -110,16 +112,29 @@ public partial class OverclockDiscreteGPUSettingsWindow
     private async void ApplyButton_Click(object sender, RoutedEventArgs e)
     {
         Save();
-        await ApplyAsync();
-        SnackbarHelper.Show(Resource.OverclockDiscreteGPUSettingsWindow_Title, Resource.Snackbar_SettingsApplied_Message, SnackbarType.Success);
+        ShowResult(await ApplyAsync());
     }
 
     private async void ApplyAndCloseButton_Click(object sender, RoutedEventArgs e)
     {
         Save();
-        await ApplyAsync();
-        SnackbarHelper.Show(Resource.OverclockDiscreteGPUSettingsWindow_Title, Resource.Snackbar_SettingsApplied_Message, SnackbarType.Success);
+        ShowResult(await ApplyAsync());
         Close();
+    }
+
+    /// <summary>Says what actually happened, instead of always "applied".</summary>
+    private static void ShowResult(GPUOverclockApplyResult result)
+    {
+        var (message, type) = result switch
+        {
+            GPUOverclockApplyResult.Applied => (Resource.Snackbar_SettingsApplied_Message, SnackbarType.Success),
+            GPUOverclockApplyResult.AppliedWithoutVoltageLock => (Resource.OverclockDiscreteGPUSettingsWindow_VoltageLockSkipped, SnackbarType.Warning),
+            GPUOverclockApplyResult.Failed => (Resource.OverclockDiscreteGPUSettingsWindow_ApplyFailed, SnackbarType.Error),
+            GPUOverclockApplyResult.DisabledAfterInterruptedApply => (Resource.OverclockDiscreteGPUControl_DisabledAfterCrash, SnackbarType.Warning),
+            _ => (Resource.OverclockDiscreteGPUSettingsWindow_NotApplied, SnackbarType.Info),
+        };
+
+        SnackbarHelper.Show(Resource.OverclockDiscreteGPUSettingsWindow_Title, message, type);
     }
 
     private void SaveButton_Click(object sender, RoutedEventArgs e)
@@ -139,5 +154,5 @@ public partial class OverclockDiscreteGPUSettingsWindow
         _gpuOverclockController.SaveState(enabled, info);
     }
 
-    private async Task ApplyAsync() => await _gpuOverclockController.ApplyStateAsync();
+    private Task<GPUOverclockApplyResult> ApplyAsync() => _gpuOverclockController.ApplyStateAsync();
 }

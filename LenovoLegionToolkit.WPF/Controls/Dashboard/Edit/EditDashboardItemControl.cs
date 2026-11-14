@@ -72,6 +72,7 @@ public class EditDashboardItemControl : UserControl
         _stackPanel.Children.Add(_deleteButton);
 
         _cardHeaderControl.Title = DashboardItem.GetTitle();
+        _cardHeaderControl.HelpKey = DashboardItem.GetHelpKey();
         _cardHeaderControl.Accessory = _stackPanel;
 
         var dragHandle = new SymbolIcon

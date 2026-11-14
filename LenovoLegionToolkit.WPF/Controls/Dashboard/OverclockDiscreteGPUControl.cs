@@ -8,6 +8,7 @@ using LenovoLegionToolkit.Lib.Controllers;
 using LenovoLegionToolkit.Lib.Listeners;
 using LenovoLegionToolkit.Lib.Utils;
 using LenovoLegionToolkit.WPF.Resources;
+using LenovoLegionToolkit.WPF.Utils;
 using LenovoLegionToolkit.WPF.Windows.Dashboard;
 using Wpf.Ui.Common;
 using Wpf.Ui.Controls;
@@ -30,7 +31,8 @@ public class OverclockDiscreteGPUControl : AbstractRefreshingControl
     private readonly CardHeaderControl _cardHeaderControl = new()
     {
         Title = Resource.OverclockDiscreteGPUControl_Title,
-        Subtitle = Resource.OverclockDiscreteGPUControl_Message
+        Subtitle = Resource.OverclockDiscreteGPUControl_Message,
+        HelpKey = "Help_Dashboard_OverclockDiscreteGpu"
     };
 
     private readonly StackPanel _accessoryStackPanel = new()
@@ -87,7 +89,20 @@ public class OverclockDiscreteGPUControl : AbstractRefreshingControl
         var (enabled, _) = _controller.GetState();
         _toggle.IsChecked = enabled;
         _toggle.Visibility = Visibility.Visible;
+
+        // Stays until the user turns the overclock on again.
+        var disabledForSafety = _controller.WasDisabledAfterInterruptedApply;
+        _cardHeaderControl.Warning = disabledForSafety ? Resource.OverclockDiscreteGPUControl_DisabledAfterCrash : string.Empty;
+
+        if (disabledForSafety && !_safetyNoticeShown)
+        {
+            _safetyNoticeShown = true;
+            SnackbarHelper.Show(Resource.OverclockDiscreteGPUControl_Title, Resource.OverclockDiscreteGPUControl_DisabledAfterCrash, SnackbarType.Warning);
+        }
     }
+
+    // Once per run, however many times the dashboard is rebuilt.
+    private static bool _safetyNoticeShown;
 
     private async void NativeWindowsMessageListener_Changed(object? sender, NativeWindowsMessageListener.ChangedEventArgs e)
     {

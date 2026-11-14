@@ -87,6 +87,11 @@ public class IoCModule : Module
         builder.Register<PanelLogoLenovoLightingBacklightFeature>(true);
         builder.Register<PortsBacklightFeature>();
         builder.Register<PowerModeFeature>();
+        builder.Register<AntiCheatMonitor>();
+        builder.Register<PowerModeProfileReader>();
+        builder.Register<FanProfileSettings>();
+        builder.Register<GodModeFanTableAccess>();
+        builder.Register<FanProfileController>();
         builder.Register<RefreshRateFeature>();
         builder.Register<ResolutionFeature>();
         builder.Register<SpeakerFeature>();
@@ -133,6 +138,7 @@ public class IoCModule : Module
         builder.Register<DisplayBrightnessController>();
         builder.Register<GodModeController>();
         builder.Register<GPUController>();
+        builder.Register<OverclockApplyGuard>();
         builder.Register<GPUOverclockController>();
         builder.Register<RGBKeyboardBacklightController>();
         builder.Register<LampArrayController>();

@@ -52,7 +52,20 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
+
+                <TextBlock
+                    x:Name="_gameSafeBadge"
+                    Grid.Column="9"
+                    Margin="4,0,0,0"
+                    VerticalAlignment="Center"
+                    FontSize="11"
+                    FontWeight="SemiBold"
+                    Foreground="#FFB0B0B0"
+                    Text="{x:Static resources:Resource.Osd_GameSafeBadge}"
+                    ToolTip="{x:Static resources:Resource.Osd_GameSafeBadge_Tooltip}"
+                    Visibility="Collapsed" />
 
                 <StackPanel
                     x:Name="_fpsGroup"

@@ -22,7 +22,9 @@ public class HWiNFOIntegration(SensorsController sensorController, IntegrationsS
 
     private string? _pchFanSensorName;
 
-    private readonly TimeSpan _refreshInterval = TimeSpan.FromSeconds(1);
+    // HWiNFO reads its custom sensors every 2 s by default, so a 1 s update was half wasted. The reads below are
+    // shared with the dashboard and status strip (SensorsController, Battery), so they cost nothing extra there.
+    private readonly TimeSpan _refreshInterval = TimeSpan.FromSeconds(2);
 
     private CancellationTokenSource? _cts;
     private Task? _refreshTask;

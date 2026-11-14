@@ -28,6 +28,16 @@
         ClipToBounds="True"
         CornerRadius="12">
         <StackPanel>
+            <TextBlock
+                x:Name="_gameSafeBadge"
+                Margin="0,0,0,4"
+                FontFamily="Segoe UI"
+                FontSize="11"
+                FontWeight="SemiBold"
+                Foreground="#FFB0B0B0"
+                Text="{x:Static resources:Resource.Osd_GameSafeBadge}"
+                ToolTip="{x:Static resources:Resource.Osd_GameSafeBadge_Tooltip}"
+                Visibility="Collapsed" />
             <StackPanel x:Name="_sensorsPanel">
 
                 <StackPanel.Resources>

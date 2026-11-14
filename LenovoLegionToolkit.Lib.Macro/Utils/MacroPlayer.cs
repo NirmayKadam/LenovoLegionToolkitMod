@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -33,6 +34,9 @@ internal class MacroPlayer
         _cancellationTokenSource.Cancel();
     }
 
+    /// <summary>Stops a sequence that is playing, without starting another.</summary>
+    public void Stop() => _cancellationTokenSource.Cancel();
+
     public async Task StartPlayingAsync(MacroSequence sequence)
     {
         await _cancellationTokenSource.CancelAsync();
@@ -46,29 +50,81 @@ internal class MacroPlayer
         {
             _isPlayingInterruptableSequence.Value = sequence.InterruptOnOtherKey;
 
-            for (var i = 0; i < sequence.RepeatCount; i++)
+            // Keys and mouse buttons this sequence has pressed and not yet released. If it is stopped half-way
+            // (another key pressed, or game-safe mode starting), they are released, so nothing stays held down.
+            var held = new HeldInputs();
+            try
             {
-                foreach (var macroEvent in sequence.Events ?? [])
+                for (var i = 0; i < sequence.RepeatCount; i++)
                 {
-                    if (!sequence.IgnoreDelays)
-                        await Task.Delay(macroEvent.Delay, token).ConfigureAwait(false);
-
-                    token.ThrowIfCancellationRequested();
-
-                    try
+                    foreach (var macroEvent in sequence.Events ?? [])
                     {
-                        var input = ToInput(macroEvent, Screen.PrimaryScreen?.WorkingArea ?? Rectangle.Empty);
-                        var result = PInvoke.SendInput(MemoryMarshal.CreateSpan(ref input, 1), Marshal.SizeOf<INPUT>());
-                        if (result == 0)
-                            PInvokeExtensions.ThrowIfWin32Error($"Failed to send input. Return code was {result}.");
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Instance.Trace($"Failed to send input for event {macroEvent}", ex);
+                        if (!sequence.IgnoreDelays)
+                            await Task.Delay(macroEvent.Delay, token).ConfigureAwait(false);
+
+                        token.ThrowIfCancellationRequested();
+
+                        if (Send(macroEvent))
+                            held.Track(macroEvent);
                     }
                 }
             }
+            finally
+            {
+                foreach (var release in held.Releases())
+                    Send(release);
+            }
         }, token);
+    }
+
+    /// <summary>Sends one event as simulated input. False if Windows refused it.</summary>
+    private static bool Send(MacroEvent macroEvent)
+    {
+        try
+        {
+            var input = ToInput(macroEvent, Screen.PrimaryScreen?.WorkingArea ?? Rectangle.Empty);
+            var result = PInvoke.SendInput(MemoryMarshal.CreateSpan(ref input, 1), Marshal.SizeOf<INPUT>());
+            if (result == 0)
+                PInvokeExtensions.ThrowIfWin32Error($"Failed to send input. Return code was {result}.");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Failed to send input for event {macroEvent}", ex);
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Which keys and mouse buttons a playing sequence holds down: a "down" adds one, the matching "up" removes it.
+    /// Wheel and move events hold nothing.
+    /// </summary>
+    internal sealed class HeldInputs
+    {
+        private readonly List<(MacroSource Source, uint Key)> _held = [];
+
+        public void Track(MacroEvent macroEvent)
+        {
+            var id = (macroEvent.Source, macroEvent.Key);
+            if (macroEvent.Direction == MacroDirection.Down)
+            {
+                if (!_held.Contains(id))
+                    _held.Add(id);
+            }
+            else if (macroEvent.Direction == MacroDirection.Up)
+            {
+                _held.Remove(id);
+            }
+        }
+
+        /// <summary>The "up" events for everything still held, most recently pressed first.</summary>
+        public IReadOnlyList<MacroEvent> Releases()
+        {
+            var releases = new List<MacroEvent>();
+            for (var i = _held.Count - 1; i >= 0; i--)
+                releases.Add(new MacroEvent { Source = _held[i].Source, Key = _held[i].Key, Direction = MacroDirection.Up });
+            return releases;
+        }
     }
 
     private static INPUT ToInput(MacroEvent macroEvent, Rectangle screenArea) => macroEvent.Source switch

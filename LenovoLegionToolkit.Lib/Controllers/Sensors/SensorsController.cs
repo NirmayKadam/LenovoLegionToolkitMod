@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using LenovoLegionToolkit.Lib.Utils;
 
 namespace LenovoLegionToolkit.Lib.Controllers.Sensors;
 
@@ -14,6 +15,12 @@ public class SensorsController(
 {
     private ISensorsController? _controller;
 
+    // The dashboard sensors, the status strip and the HWiNFO integration all read these every second. Callers
+    // within 750 ms (less than the shortest refresh interval, 1 s) share one real read.
+    private static readonly TimeSpan SharedFor = TimeSpan.FromMilliseconds(750);
+    private readonly SharedReading<SensorsData> _data = new(SharedFor);
+    private readonly SharedReading<FanSpeedTable> _fanSpeeds = new(SharedFor);
+
     public async Task<bool> IsSupportedAsync() => await GetControllerAsync().ConfigureAwait(false) is not null;
 
     public async Task PrepareAsync()
@@ -22,17 +29,17 @@ public class SensorsController(
         await controller.PrepareAsync().ConfigureAwait(false);
     }
 
-    public async Task<SensorsData> GetDataAsync()
+    public Task<SensorsData> GetDataAsync() => _data.GetAsync(async () =>
     {
         var controller = await GetControllerAsync().ConfigureAwait(false) ?? throw new InvalidOperationException("No supported controller found");
         return await controller.GetDataAsync().ConfigureAwait(false);
-    }
+    });
 
-    public async Task<FanSpeedTable> GetFanSpeedsAsync()
+    public Task<FanSpeedTable> GetFanSpeedsAsync() => _fanSpeeds.GetAsync(async () =>
     {
         var controller = await GetControllerAsync().ConfigureAwait(false) ?? throw new InvalidOperationException("No supported controller found");
         return await controller.GetFanSpeedsAsync().ConfigureAwait(false);
-    }
+    });
 
     public async Task<ISensorsController?> GetControllerAsync()
     {

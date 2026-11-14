@@ -56,7 +56,7 @@
 
                 <custom:CardControl x:Name="_effectTypeCard" Margin="0,0,0,8">
                     <custom:CardControl.Header>
-                        <controls:CardHeaderControl x:Name="_effectTypeCardHeader" Title="{x:Static resources:Resource.SpectrumKeyboardBacklightEditEffectWindow_Effect_Title}" />
+                        <controls:CardHeaderControl x:Name="_effectTypeCardHeader" Title="{x:Static resources:Resource.SpectrumKeyboardBacklightEditEffectWindow_Effect_Title}" HelpKey="Help_Spectrum_Effect" />
                     </custom:CardControl.Header>
                     <ComboBox
                         x:Name="_effectTypeComboBox"
@@ -69,7 +69,7 @@
 
                 <custom:CardControl x:Name="_directionCard" Margin="0,0,0,8">
                     <custom:CardControl.Header>
-                        <controls:CardHeaderControl Title="{x:Static resources:Resource.SpectrumKeyboardBacklightEditEffectWindow_Direction_Title}" />
+                        <controls:CardHeaderControl Title="{x:Static resources:Resource.SpectrumKeyboardBacklightEditEffectWindow_Direction_Title}" HelpKey="Help_Spectrum_Direction" />
                     </custom:CardControl.Header>
                     <ComboBox
                         x:Name="_directionComboBox"
@@ -81,7 +81,7 @@
 
                 <custom:CardControl x:Name="_clockwiseDirectionCard" Margin="0,0,0,8">
                     <custom:CardControl.Header>
-                        <controls:CardHeaderControl Title="{x:Static resources:Resource.SpectrumKeyboardBacklightEditEffectWindow_ClockwiseDirection_Title}" />
+                        <controls:CardHeaderControl Title="{x:Static resources:Resource.SpectrumKeyboardBacklightEditEffectWindow_ClockwiseDirection_Title}" HelpKey="Help_Spectrum_Clockwise" />
                     </custom:CardControl.Header>
                     <ComboBox
                         x:Name="_clockwiseDirectionComboBox"
@@ -93,7 +93,7 @@
 
                 <custom:CardControl x:Name="_speedCard" Margin="0,0,0,8">
                     <custom:CardControl.Header>
-                        <controls:CardHeaderControl Title="{x:Static resources:Resource.SpectrumKeyboardBacklightEditEffectWindow_Speed_Title}" />
+                        <controls:CardHeaderControl Title="{x:Static resources:Resource.SpectrumKeyboardBacklightEditEffectWindow_Speed_Title}" HelpKey="Help_Spectrum_Speed" />
                     </custom:CardControl.Header>
                     <ComboBox
                         x:Name="_speedComboBox"
@@ -105,7 +105,7 @@
 
                 <custom:CardControl x:Name="_colorModeCard" Margin="0,0,0,8">
                     <custom:CardControl.Header>
-                        <controls:CardHeaderControl Title="{x:Static resources:Resource.SpectrumKeyboardBacklightEditEffectWindow_Color_Title}" />
+                        <controls:CardHeaderControl Title="{x:Static resources:Resource.SpectrumKeyboardBacklightEditEffectWindow_Color_Title}" HelpKey="Help_Spectrum_Color" />
                     </custom:CardControl.Header>
                     <ComboBox
                         x:Name="_colorModeComboBox"
@@ -118,28 +118,28 @@
 
                 <custom:CardControl x:Name="_singleColor" Margin="0,0,0,8">
                     <custom:CardControl.Header>
-                        <controls:CardHeaderControl Title="{x:Static resources:Resource.SpectrumKeyboardBacklightEditEffectWindow_Color_Title}" />
+                        <controls:CardHeaderControl Title="{x:Static resources:Resource.SpectrumKeyboardBacklightEditEffectWindow_Color_Title}" HelpKey="Help_Spectrum_Color" />
                     </custom:CardControl.Header>
                     <controls:ColorPickerControl x:Name="_singleColorPicker" />
                 </custom:CardControl>
 
                 <custom:CardControl x:Name="_multiColors" Margin="0,0,0,8">
                     <custom:CardControl.Header>
-                        <controls:CardHeaderControl Title="{x:Static resources:Resource.SpectrumKeyboardBacklightEditEffectWindow_Colors_Title}" />
+                        <controls:CardHeaderControl Title="{x:Static resources:Resource.SpectrumKeyboardBacklightEditEffectWindow_Colors_Title}" HelpKey="Help_Spectrum_Colors" />
                     </custom:CardControl.Header>
                     <controls:MultiColorPickerControl x:Name="_multiColorPicker" />
                 </custom:CardControl>
                 
                 <custom:CardControl x:Name="_vantageColorBoostCard" Margin="0,0,0,8">
                     <custom:CardControl.Header>
-                        <controls:CardHeaderControl Title="{x:Static resources:Resource.SpectrumKeyboardBacklightEditEffectWindow_VantageColorBoost_Title}" />
+                        <controls:CardHeaderControl Title="{x:Static resources:Resource.SpectrumKeyboardBacklightEditEffectWindow_VantageColorBoost_Title}" HelpKey="Help_Spectrum_ColorBoost" />
                     </custom:CardControl.Header>
                     <wpfui:ToggleSwitch x:Name="_vantageColorBoostToggle" Checked="VantageColorBoost_Changed" Unchecked="VantageColorBoost_Changed" />
                 </custom:CardControl>
 
                 <custom:CardControl x:Name="_vantageSettingsCard" Margin="0,0,0,8">
                     <custom:CardControl.Header>
-                        <controls:CardHeaderControl Title="{x:Static resources:Resource.SpectrumKeyboardBacklightEditEffectWindow_VantageColorBoostSettings_Title}" />
+                        <controls:CardHeaderControl Title="{x:Static resources:Resource.SpectrumKeyboardBacklightEditEffectWindow_VantageColorBoostSettings_Title}" HelpKey="Help_Spectrum_ColorBoostSettings" />
                     </custom:CardControl.Header>
                     <StackPanel Margin="0,0,0,8">
                         <Grid Margin="0,0,0,12">

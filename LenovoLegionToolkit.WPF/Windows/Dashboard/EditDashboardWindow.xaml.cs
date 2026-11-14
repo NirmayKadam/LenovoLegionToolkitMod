@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Input;
 using LenovoLegionToolkit.Lib;
 using LenovoLegionToolkit.Lib.Extensions;
+using LenovoLegionToolkit.Lib.Settings;
 using LenovoLegionToolkit.WPF.Controls.Dashboard.Edit;
 using LenovoLegionToolkit.WPF.Resources;
 using LenovoLegionToolkit.WPF.Settings;
@@ -16,6 +17,7 @@ namespace LenovoLegionToolkit.WPF.Windows.Dashboard;
 public partial class EditDashboardWindow
 {
     private readonly DashboardSettings _dashboardSettings = IoCContainer.Resolve<DashboardSettings>();
+    private readonly ApplicationSettings _applicationSettings = IoCContainer.Resolve<ApplicationSettings>();
 
     private readonly DashboardGroup[] _groups;
 
@@ -50,6 +52,7 @@ public partial class EditDashboardWindow
         _groupsStackPanel.Children.Clear();
 
         _sensorsSwitch.IsChecked = _dashboardSettings.Store.ShowSensors;
+        _statusStripSwitch.IsChecked = _applicationSettings.Store.ShowStatusStrip;
 
         foreach (var group in groups)
             _groupsStackPanel.Children.Add(CreateGroupControl(group));
@@ -83,6 +86,9 @@ public partial class EditDashboardWindow
         _dashboardSettings.Store.Groups = null;
         _dashboardSettings.SynchronizeStore();
 
+        _applicationSettings.Store.ShowStatusStrip = true;
+        _applicationSettings.SynchronizeStore();
+
         Close();
 
         Apply?.Invoke(this, EventArgs.Empty);
@@ -96,6 +102,9 @@ public partial class EditDashboardWindow
             .Select(c => c.GetDashboardGroup())
             .ToArray();
         _dashboardSettings.SynchronizeStore();
+
+        _applicationSettings.Store.ShowStatusStrip = _statusStripSwitch.IsChecked ?? true;
+        _applicationSettings.SynchronizeStore();
 
         Close();
 

@@ -18,7 +18,7 @@
             Margin="0,0,0,8"
             Icon="ArrowRepeatAll24">
             <custom:CardControl.Header>
-                <controls:CardHeaderControl Title="{x:Static resources:Resource.MacroSequenceControl_Repeat_Title}" />
+                <controls:CardHeaderControl Title="{x:Static resources:Resource.MacroSequenceControl_Repeat_Title}" HelpKey="Help_Macro_Repeat" />
             </custom:CardControl.Header>
             <ComboBox
                 x:Name="_repeatComboBox"
@@ -31,7 +31,7 @@
             Margin="0,0,0,8"
             Icon="Clock24">
             <custom:CardControl.Header>
-                <controls:CardHeaderControl Title="{x:Static resources:Resource.MacroSequenceControl_IgnoreDelays_Title}" />
+                <controls:CardHeaderControl Title="{x:Static resources:Resource.MacroSequenceControl_IgnoreDelays_Title}" HelpKey="Help_Macro_IgnoreDelays" />
             </custom:CardControl.Header>
             <wpfui:ToggleSwitch
                 x:Name="_ignoreDelaysToggle"
@@ -44,7 +44,7 @@
             Margin="0,0,0,16"
             Icon="ArrowStepInRight24">
             <custom:CardControl.Header>
-                <controls:CardHeaderControl Title="{x:Static resources:Resource.MacroSequenceControl_InterruptOnOtherKey_Title}" />
+                <controls:CardHeaderControl Title="{x:Static resources:Resource.MacroSequenceControl_InterruptOnOtherKey_Title}" HelpKey="Help_Macro_Interrupt" />
             </custom:CardControl.Header>
             <wpfui:ToggleSwitch
                 x:Name="_interruptOnOtherKeyToggle"
@@ -54,7 +54,7 @@
         </custom:CardControl>
         <custom:CardControl Margin="0,0,0,16" Icon="Settings24">
             <custom:CardControl.Header>
-                <controls:CardHeaderControl Title="{x:Static resources:Resource.MacroSequenceControl_RecordingOptions}" />
+                <controls:CardHeaderControl Title="{x:Static resources:Resource.MacroSequenceControl_RecordingOptions}" HelpKey="Help_Macro_RecordingOptions" />
             </custom:CardControl.Header>
             <ComboBox
                 x:Name="_settingsComboBox"

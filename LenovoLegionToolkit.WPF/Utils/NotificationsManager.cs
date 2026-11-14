@@ -97,6 +97,10 @@ public class NotificationsManager
                 NotificationType.ITSModeCool => _settings.Store.Notifications.ITSMode,
                 NotificationType.ITSModePerformance => _settings.Store.Notifications.ITSMode,
                 NotificationType.ITSModeGeek => _settings.Store.Notifications.ITSMode,
+                NotificationType.OsdShown => _settings.Store.Notifications.Osd,
+                NotificationType.OsdHidden => _settings.Store.Notifications.Osd,
+                NotificationType.GameSafeModeOn => _settings.Store.Notifications.GameSafeMode,
+                NotificationType.GameSafeModeOff => _settings.Store.Notifications.GameSafeMode,
                 _ => throw new ArgumentException(nameof(notification.Type))
             };
 
@@ -155,6 +159,10 @@ public class NotificationsManager
                 NotificationType.ITSModeCool => string.Format("{0}", notification.Args),
                 NotificationType.ITSModePerformance => string.Format("{0}", notification.Args),
                 NotificationType.ITSModeGeek => string.Format("{0}", notification.Args),
+                NotificationType.OsdShown => Resource.Notification_OsdShown,
+                NotificationType.OsdHidden => Resource.Notification_OsdHidden,
+                NotificationType.GameSafeModeOn => Resource.Notification_GameSafeModeOn,
+                NotificationType.GameSafeModeOff => Resource.Notification_GameSafeModeOff,
                 _ => throw new ArgumentException(nameof(notification.Type))
             };
 
@@ -310,6 +318,10 @@ public class NotificationsManager
         NotificationType.ITSModeCool => SymbolRegular.Gauge24,
         NotificationType.ITSModePerformance => SymbolRegular.Gauge24,
         NotificationType.ITSModeGeek => SymbolRegular.Gauge24,
+        NotificationType.OsdShown => SymbolRegular.Eye24,
+        NotificationType.OsdHidden => SymbolRegular.EyeOff24,
+        NotificationType.GameSafeModeOn => SymbolRegular.ShieldCheckmark24,
+        NotificationType.GameSafeModeOff => SymbolRegular.Shield24,
         _ => SymbolRegular.Question24,
     };
 

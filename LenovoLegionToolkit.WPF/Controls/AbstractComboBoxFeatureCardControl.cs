@@ -47,13 +47,24 @@ public abstract class AbstractComboBoxFeatureCardControl<T> : AbstractRefreshing
         set => _cardHeaderControl.Subtitle = value;
     }
 
+    /// <summary>Resource key prefix of the card's hover explanation (see <c>HelpContent</c>).</summary>
+    protected string? HelpKey
+    {
+        get => _cardHeaderControl.HelpKey;
+        set => _cardHeaderControl.HelpKey = value;
+    }
+
     protected string Warning
     {
         get => _cardHeaderControl.Warning;
         set => _cardHeaderControl.Warning = value;
     }
 
-    protected AbstractComboBoxFeatureCardControl() => InitializeComponent();
+    protected AbstractComboBoxFeatureCardControl()
+    {
+        InitializeComponent();
+        HelpKey = $"Help_Feature_{typeof(T).Name}";
+    }
 
     private void InitializeComponent()
     {

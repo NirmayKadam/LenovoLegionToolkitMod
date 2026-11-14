@@ -33,7 +33,7 @@
 
             <custom:CardControl Margin="0,0,0,24" Icon="BrightnessHigh24">
                 <custom:CardControl.Header>
-                    <controls:CardHeaderControl Title="{x:Static resources:Resource.SpectrumKeyboardBacklightControl_Brightness_Title}" />
+                    <controls:CardHeaderControl Title="{x:Static resources:Resource.SpectrumKeyboardBacklightControl_Brightness_Title}" HelpKey="Help_Spectrum_Brightness" />
                 </custom:CardControl.Header>
                 <Slider
                     x:Name="_brightnessSlider"

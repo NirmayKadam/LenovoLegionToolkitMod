@@ -55,7 +55,17 @@ public class ApplicationSettings : AbstractSettings<ApplicationSettingsStore>
         public WindowBackdropType BackdropType { get; set; } = WindowBackdropType.Mica;
         public bool KeepDgpuAwake { get; set; }
         public int LockedPStateId { get; set; } = -1;
-
+        public UiSkin Skin { get; set; } = UiSkin.Fluent;
+        public int NeonGlow { get; set; } = 60;
+        public RetroPhosphor RetroPhosphor { get; set; } = RetroPhosphor.Green;
+        public int RetroScanlines { get; set; } = 50;
+        public bool RetroGlow { get; set; } = true;
+        public AnimationLevel Animations { get; set; } = AnimationLevel.Full;
+        public bool ShowStatusStrip { get; set; } = true;
+        public bool ShowHelpTooltips { get; set; } = true;
+        public int HelpTooltipDelayMs { get; set; } = 400;
+        public bool GameSafeMode { get; set; } = true;
+        public bool PowerModeDetailsExpanded { get; set; } = true;
     }
     public class GameDetectionSettings
     {

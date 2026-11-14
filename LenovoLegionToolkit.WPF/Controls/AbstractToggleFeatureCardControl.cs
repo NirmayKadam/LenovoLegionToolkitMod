@@ -46,6 +46,13 @@ public abstract class AbstractToggleFeatureCardControl<T> : AbstractRefreshingCo
         set => _cardHeaderControl.Subtitle = value;
     }
 
+    /// <summary>Resource key prefix of the card's hover explanation (see <c>HelpContent</c>).</summary>
+    protected string? HelpKey
+    {
+        get => _cardHeaderControl.HelpKey;
+        set => _cardHeaderControl.HelpKey = value;
+    }
+
     protected string Warning
     {
         get => _cardHeaderControl.Warning;
@@ -67,6 +74,7 @@ public abstract class AbstractToggleFeatureCardControl<T> : AbstractRefreshingCo
     protected AbstractToggleFeatureCardControl()
     {
         InitializeComponent();
+        HelpKey = $"Help_Feature_{typeof(T).Name}";
     }
 
     private void InitializeComponent()

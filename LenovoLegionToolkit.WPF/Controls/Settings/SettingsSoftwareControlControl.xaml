@@ -15,7 +15,7 @@
                 Visibility="Collapsed">
                 <custom:CardControl.Header>
                     <controls:CardHeaderControl
-                        Title="{x:Static resources:Resource.SettingsPage_DisableVantage_Title}"
+                        Title="{x:Static resources:Resource.SettingsPage_DisableVantage_Title}" HelpKey="Help_Settings_DisableVantage"
                         Subtitle="{x:Static resources:Resource.SettingsPage_DisableVantage_Message}"
                         Info="{x:Static resources:Resource.SettingsPage_Common_RestartRecommended}" />
                 </custom:CardControl.Header>
@@ -33,7 +33,7 @@
                 Visibility="Collapsed">
                 <custom:CardControl.Header>
                     <controls:CardHeaderControl
-                        Title="{x:Static resources:Resource.SettingsPage_DisableLegionZone_Title}"
+                        Title="{x:Static resources:Resource.SettingsPage_DisableLegionZone_Title}" HelpKey="Help_Settings_DisableLegionZone"
                         Subtitle="{x:Static resources:Resource.SettingsPage_DisableLegionZone_Message}"
                         Info="{x:Static resources:Resource.SettingsPage_Common_RestartRecommended}" />
                 </custom:CardControl.Header>
@@ -51,7 +51,7 @@
                 Visibility="Collapsed">
                 <custom:CardControl.Header>
                     <controls:CardHeaderControl
-                        Title="{x:Static resources:Resource.SettingsPage_DisableLegionSpace_Title}"
+                        Title="{x:Static resources:Resource.SettingsPage_DisableLegionSpace_Title}" HelpKey="Help_Settings_DisableLegionSpace"
                         Subtitle="{x:Static resources:Resource.SettingsPage_DisableLegionSpace_Message}"
                         Info="{x:Static resources:Resource.SettingsPage_Common_RestartRecommended}" />
                 </custom:CardControl.Header>
@@ -69,7 +69,7 @@
                 Visibility="Collapsed">
                 <custom:CardControl.Header>
                     <controls:CardHeaderControl
-                        Title="{x:Static resources:Resource.SettingsPage_DisableLenovoHotkeys_Title}"
+                        Title="{x:Static resources:Resource.SettingsPage_DisableLenovoHotkeys_Title}" HelpKey="Help_Settings_DisableLenovoHotkeys"
                         Subtitle="{x:Static resources:Resource.SettingsPage_DisableLenovoHotkeys_Message}"
                         Info="{x:Static resources:Resource.SettingsPage_Common_RestartRecommended}" />
                 </custom:CardControl.Header>

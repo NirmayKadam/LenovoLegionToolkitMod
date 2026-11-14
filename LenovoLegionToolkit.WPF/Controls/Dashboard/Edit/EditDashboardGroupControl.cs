@@ -24,7 +24,7 @@ public class EditDashboardGroupControl : UserControl
         Margin = new(0, 0, 0, 8)
     };
 
-    private readonly CardHeaderControl _cardHeaderControl = new();
+    private readonly CardHeaderControl _cardHeaderControl = new() { HelpKey = "Help_EditDashboard_Group" };
 
     private readonly StackPanel _stackPanel = new();
 

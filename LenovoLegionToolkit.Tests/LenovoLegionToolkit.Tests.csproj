@@ -19,5 +19,7 @@
 		<ProjectReference Include="..\LenovoLegionToolkit.CLI.Lib\LenovoLegionToolkit.CLI.Lib.csproj" />
 		<ProjectReference Include="..\LenovoLegionToolkit.Lib\LenovoLegionToolkit.Lib.csproj" />
 		<ProjectReference Include="..\LenovoLegionToolkit.Lib.Automation\LenovoLegionToolkit.Lib.Automation.csproj" />
+		<!-- UI skins, motion and dashboard formatting helpers live in the WPF app. -->
+		<ProjectReference Include="..\LenovoLegionToolkit.WPF\LenovoLegionToolkit.WPF.csproj" />
 	</ItemGroup>
 </Project>

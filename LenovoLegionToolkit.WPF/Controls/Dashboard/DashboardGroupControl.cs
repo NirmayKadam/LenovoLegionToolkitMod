@@ -24,29 +24,37 @@ public class DashboardGroupControl : UserControl
 
     private async void DashboardGroupControl_Initialized(object? sender, System.EventArgs e)
     {
-        var stackPanel = new StackPanel { Margin = new(0, 0, 16, 0) };
-
-        var textBlock = new TextBlock
+        // The dashboard waits for every group before it stops showing "loading". If building a card fails, the
+        // error still goes to the app's handler (it isn't caught here), but this group must still report that it's
+        // finished, or the whole dashboard would stay on the loader forever.
+        try
         {
-            Text = _dashboardGroup.GetName(),
-            Focusable = true,
-            FontSize = 24,
-            FontWeight = FontWeights.Medium,
-            Margin = new(0, 16, 0, 24)
-        };
-        AutomationProperties.SetName(textBlock, textBlock.Text);
-        stackPanel.Children.Add(textBlock);
+            var stackPanel = new StackPanel { Margin = new(0, 0, 16, 0) };
 
-        var controlsTasks = _dashboardGroup.Items.Select(i => i.GetControlAsync());
-        var controls = await Task.WhenAll(controlsTasks);
+            var textBlock = new TextBlock
+            {
+                Text = _dashboardGroup.GetName(),
+                Focusable = true,
+                FontSize = 24,
+                FontWeight = FontWeights.Medium,
+                Margin = new(0, 16, 0, 24)
+            };
+            AutomationProperties.SetName(textBlock, textBlock.Text);
+            stackPanel.Children.Add(textBlock);
 
-        foreach (var control in controls.SelectMany(c => c))
-        {
-            stackPanel.Children.Add(control);
+            var controlsTasks = _dashboardGroup.Items.Select(i => i.GetControlAsync());
+            var controls = await Task.WhenAll(controlsTasks);
+
+            foreach (var control in controls.SelectMany(c => c))
+            {
+                stackPanel.Children.Add(control);
+            }
+
+            Content = stackPanel;
         }
-
-        Content = stackPanel;
-
-        _initializedTaskCompletionSource.TrySetResult();
+        finally
+        {
+            _initializedTaskCompletionSource.TrySetResult();
+        }
     }
 }

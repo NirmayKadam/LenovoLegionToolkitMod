@@ -4,6 +4,7 @@ using System.Windows.Media;
 using LenovoLegionToolkit.Lib;
 using LenovoLegionToolkit.Lib.Settings;
 using LenovoLegionToolkit.WPF.Utils;
+using LenovoLegionToolkit.WPF.Utils.Skins;
 using Wpf.Ui.Appearance;
 using Wpf.Ui.Controls;
 
@@ -16,8 +17,11 @@ public class BaseWindow : UiWindow
         SnapsToDevicePixels = true;
         ExtendsContentIntoTitleBar = true;
 
-        var settings = IoCContainer.Resolve<ApplicationSettings>();
-        WindowBackdropType = ThemeManager.GetBackgroundType(settings.Store.BackdropType);
+        // Skins with a solid background (Neon, Retro) turn the backdrop off.
+        WindowBackdropType = ThemeManager.GetBackgroundType(IoCContainer.Resolve<ThemeManager>().GetEffectiveBackdrop());
+
+        // The skin decides the font; Fluent's value is the system font windows use by default.
+        SetResourceReference(FontFamilyProperty, SkinKeys.FontFamily);
 
         DpiChanged += BaseWindow_DpiChanged;
 

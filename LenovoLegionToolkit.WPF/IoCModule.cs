@@ -27,6 +27,8 @@ public class IoCModule : Module
         builder.Register<HardwareSensorSettings>();
 
         builder.Register<IpcServer>();
+        builder.Register<GlobalHotkeyService>();
+        builder.Register<GameSafeMode>();
 
         builder.RegisterType<Station.Services.NavigationService>().As<INavigationService>().SingleInstance();
         builder.RegisterType<Station.Services.AutomationStepRegistry>().As<IAutomationStepRegistry>().SingleInstance();

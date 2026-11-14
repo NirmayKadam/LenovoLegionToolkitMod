@@ -53,7 +53,7 @@
 
                 <custom:CardControl Margin="0,0,0,8">
                     <custom:CardControl.Header>
-                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_DontShowNotifications_Title}" Subtitle="{x:Static resources:Resource.NotificationsSettingsWindow_DontShowNotifications_Message}" />
+                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_DontShowNotifications_Title}" HelpKey="Help_Notifications_DisableAll" Subtitle="{x:Static resources:Resource.NotificationsSettingsWindow_DontShowNotifications_Message}" />
                     </custom:CardControl.Header>
                     <wpfui:ToggleSwitch
                         x:Name="_dontShowNotificationsToggle"
@@ -64,7 +64,7 @@
 
                 <custom:CardControl Margin="0,0,0,8">
                     <custom:CardControl.Header>
-                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_NotificationAlwaysOnTop_Title}" Subtitle="{x:Static resources:Resource.NotificationsSettingsWindow_NotificationAlwaysOnTop_Message}" />
+                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_NotificationAlwaysOnTop_Title}" HelpKey="Help_Notifications_AlwaysOnTop" Subtitle="{x:Static resources:Resource.NotificationsSettingsWindow_NotificationAlwaysOnTop_Message}" />
                     </custom:CardControl.Header>
                     <wpfui:ToggleSwitch
                         x:Name="_notificationAlwaysOnTopToggle"
@@ -75,7 +75,7 @@
 
                 <custom:CardControl Margin="0,0,0,8">
                     <custom:CardControl.Header>
-                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_NotificationOnAllScreens_Title}" Subtitle="{x:Static resources:Resource.NotificationsSettingsWindow_NotificationOnAllScreens_Message}" />
+                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_NotificationOnAllScreens_Title}" HelpKey="Help_Notifications_AllScreens" Subtitle="{x:Static resources:Resource.NotificationsSettingsWindow_NotificationOnAllScreens_Message}" />
                     </custom:CardControl.Header>
                     <wpfui:ToggleSwitch
                         x:Name="_notificationOnAllScreensToggle"
@@ -86,7 +86,7 @@
 
                 <custom:CardControl x:Name="_notificationPositionCard" Margin="0,0,0,8">
                     <custom:CardControl.Header>
-                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_NotificationPosition_Title}" />
+                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_NotificationPosition_Title}" HelpKey="Help_Notifications_Position" />
                     </custom:CardControl.Header>
                     <ComboBox
                         x:Name="_notificationPositionComboBox"
@@ -99,7 +99,7 @@
 
                 <custom:CardControl x:Name="_notificationDurationCard" Margin="0,0,0,24">
                     <custom:CardControl.Header>
-                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_NotificationDuration_Title}" />
+                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_NotificationDuration_Title}" HelpKey="Help_Notifications_Duration" />
                     </custom:CardControl.Header>
                     <ComboBox
                         x:Name="_notificationDurationComboBox"
@@ -113,7 +113,7 @@
 
                 <custom:CardControl x:Name="_updateAvailableCard" Margin="0,0,0,8">
                     <custom:CardControl.Header>
-                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_Updates_Title}" />
+                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_Updates_Title}" HelpKey="Help_Notifications_Updates" />
                     </custom:CardControl.Header>
                     <StackPanel Margin="0,0,0,8" Orientation="Horizontal" VerticalAlignment="Center">
                         <wpfui:Button
@@ -131,7 +131,7 @@
 
                 <custom:CardControl x:Name="_automationCard" Margin="0,0,0,24">
                     <custom:CardControl.Header>
-                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_Automation}" />
+                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_Automation}" HelpKey="Help_Notifications_Automation" />
                     </custom:CardControl.Header>
                     <StackPanel Margin="0,0,0,8" Orientation="Horizontal" VerticalAlignment="Center">
                         <wpfui:Button
@@ -149,7 +149,7 @@
 
                 <custom:CardControl x:Name="_capsLockCard" Margin="0,0,0,8">
                     <custom:CardControl.Header>
-                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_CapsLock}" />
+                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_CapsLock}" HelpKey="Help_Notifications_KeyState" />
                     </custom:CardControl.Header>
                     <StackPanel Margin="0,0,0,8" Orientation="Horizontal" VerticalAlignment="Center">
                         <wpfui:Button
@@ -167,7 +167,7 @@
 
                 <custom:CardControl x:Name="_numLockCard" Margin="0,0,0,8">
                     <custom:CardControl.Header>
-                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_NumLock}" />
+                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_NumLock}" HelpKey="Help_Notifications_KeyState" />
                     </custom:CardControl.Header>
                     <StackPanel Margin="0,0,0,8" Orientation="Horizontal" VerticalAlignment="Center">
                         <wpfui:Button
@@ -185,7 +185,7 @@
 
                 <custom:CardControl x:Name="_fnLockCard" Margin="0,0,0,8">
                     <custom:CardControl.Header>
-                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_FnLock}" />
+                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_FnLock}" HelpKey="Help_Notifications_KeyState" />
                     </custom:CardControl.Header>
                     <StackPanel Margin="0,0,0,8" Orientation="Horizontal" VerticalAlignment="Center">
                         <wpfui:Button
@@ -203,7 +203,7 @@
 
                 <custom:CardControl x:Name="_touchpadLockCard" Margin="0,0,0,8">
                     <custom:CardControl.Header>
-                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_TouchpadLock}" />
+                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_TouchpadLock}" HelpKey="Help_Notifications_KeyState" />
                     </custom:CardControl.Header>
                     <StackPanel Margin="0,0,0,8" Orientation="Horizontal" VerticalAlignment="Center">
                         <wpfui:Button
@@ -221,7 +221,7 @@
 
                 <custom:CardControl x:Name="_smartKeyCard" Margin="0,0,0,8">
                     <custom:CardControl.Header>
-                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_SmartKey}" />
+                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_SmartKey}" HelpKey="Help_Notifications_KeyState" />
                     </custom:CardControl.Header>
                     <StackPanel Margin="0,0,0,8" Orientation="Horizontal" VerticalAlignment="Center">
                         <wpfui:Button
@@ -239,7 +239,7 @@
 
                 <custom:CardControl x:Name="_keyboardBacklightCard" Margin="0,0,0,24">
                     <custom:CardControl.Header>
-                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_KeyboardBacklight}" />
+                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_KeyboardBacklight}" HelpKey="Help_Notifications_KeyState" />
                     </custom:CardControl.Header>
                     <StackPanel Margin="0,0,0,8" Orientation="Horizontal" VerticalAlignment="Center">
                         <wpfui:Button
@@ -257,7 +257,7 @@
 
                 <custom:CardControl x:Name="_cameraLockCard" Margin="0,0,0,8">
                     <custom:CardControl.Header>
-                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_Camera}" />
+                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_Camera}" HelpKey="Help_Notifications_KeyState" />
                     </custom:CardControl.Header>
                     <StackPanel Margin="0,0,0,8" Orientation="Horizontal" VerticalAlignment="Center">
                         <wpfui:Button
@@ -275,7 +275,7 @@
 
                 <custom:CardControl x:Name="_microphoneCard" Margin="0,0,0,8">
                     <custom:CardControl.Header>
-                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_Microphone}" />
+                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_Microphone}" HelpKey="Help_Notifications_KeyState" />
                     </custom:CardControl.Header>
                     <StackPanel Margin="0,0,0,8" Orientation="Horizontal" VerticalAlignment="Center">
                         <wpfui:Button
@@ -293,7 +293,7 @@
 
                 <custom:CardControl x:Name="_airplaneModeCard" Margin="0,0,0,24">
                     <custom:CardControl.Header>
-                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_AirplaneMode}" />
+                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_AirplaneMode}" HelpKey="Help_Notifications_KeyState" />
                     </custom:CardControl.Header>
                     <StackPanel Margin="0,0,0,8" Orientation="Horizontal" VerticalAlignment="Center">
                         <wpfui:Button
@@ -311,7 +311,7 @@
 
                 <custom:CardControl x:Name="_powerModeCard" Margin="0,0,0,8">
                     <custom:CardControl.Header>
-                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_PowerMode}" />
+                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_PowerMode}" HelpKey="Help_Notifications_PowerMode" />
                     </custom:CardControl.Header>
                     <StackPanel Margin="0,0,0,8" Orientation="Horizontal" VerticalAlignment="Center">
                         <wpfui:Button
@@ -329,7 +329,7 @@
 
                 <custom:CardControl x:Name="_itsModeCard" Margin="0,0,0,8">
                     <custom:CardControl.Header>
-                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_ITSMode}" />
+                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_ITSMode}" HelpKey="Help_Notifications_ITSMode" />
                     </custom:CardControl.Header>
                     <StackPanel Margin="0,0,0,8" Orientation="Horizontal" VerticalAlignment="Center">
                         <wpfui:Button
@@ -345,9 +345,45 @@
                     </StackPanel>
                 </custom:CardControl>
 
+                <custom:CardControl x:Name="_gameSafeModeCard" Margin="0,0,0,24">
+                    <custom:CardControl.Header>
+                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_GameSafeMode}" HelpKey="Help_Notifications_GameSafeMode" />
+                    </custom:CardControl.Header>
+                    <StackPanel Margin="0,0,0,8" Orientation="Horizontal" VerticalAlignment="Center">
+                        <wpfui:Button
+                            Icon="Edit24"
+                            Margin="0,0,8,0"
+                            AutomationProperties.Name="{x:Static resources:Resource.Customize}"
+                            ToolTip="{x:Static resources:Resource.Customize}"
+                            Click="GameSafeModeCustomizeButton_Click" />
+                        <wpfui:ToggleSwitch
+                            x:Name="_gameSafeModeToggle"
+                            AutomationProperties.Name="{x:Static resources:Resource.NotificationsSettingsWindow_GameSafeMode}"
+                            Click="GameSafeModeToggle_Click" />
+                    </StackPanel>
+                </custom:CardControl>
+
+                <custom:CardControl x:Name="_osdCard" Margin="0,0,0,24">
+                    <custom:CardControl.Header>
+                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_Osd}" HelpKey="Help_Notifications_Osd" />
+                    </custom:CardControl.Header>
+                    <StackPanel Margin="0,0,0,8" Orientation="Horizontal" VerticalAlignment="Center">
+                        <wpfui:Button
+                            Icon="Edit24"
+                            Margin="0,0,8,0"
+                            AutomationProperties.Name="{x:Static resources:Resource.Customize}"
+                            ToolTip="{x:Static resources:Resource.Customize}"
+                            Click="OsdCustomizeButton_Click" />
+                        <wpfui:ToggleSwitch
+                            x:Name="_osdToggle"
+                            AutomationProperties.Name="{x:Static resources:Resource.NotificationsSettingsWindow_Osd}"
+                            Click="OsdToggle_Click" />
+                    </StackPanel>
+                </custom:CardControl>
+
                 <custom:CardControl x:Name="_refreshRateCard" Margin="0,0,0,24">
                     <custom:CardControl.Header>
-                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_RefreshRate}" />
+                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_RefreshRate}" HelpKey="Help_Notifications_KeyState" />
                     </custom:CardControl.Header>
                     <StackPanel Margin="0,0,0,8" Orientation="Horizontal" VerticalAlignment="Center">
                         <wpfui:Button
@@ -365,7 +401,7 @@
 
                 <custom:CardControl x:Name="_acAdapterCard" Margin="0,0,0,24">
                     <custom:CardControl.Header>
-                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_ACAdapter}" />
+                        <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_ACAdapter}" HelpKey="Help_Notifications_ACAdapter" />
                     </custom:CardControl.Header>
                     <StackPanel Margin="0,0,0,8" Orientation="Horizontal" VerticalAlignment="Center">
                         <wpfui:Button

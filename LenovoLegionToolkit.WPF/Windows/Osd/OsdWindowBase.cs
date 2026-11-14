@@ -14,6 +14,8 @@ using System.Windows.Threading;
 using Microsoft.Win32;
 using LenovoLegionToolkit.Lib;
 using LenovoLegionToolkit.Lib.Controllers.Sensors;
+using LenovoLegionToolkit.Lib.System;
+using LenovoLegionToolkit.WPF.Utils;
 using LenovoLegionToolkit.Lib.Listeners;
 using LenovoLegionToolkit.Lib.Messaging;
 using LenovoLegionToolkit.Lib.Messaging.Messages;
@@ -50,6 +52,7 @@ public abstract class OsdWindowBase : Window
     protected readonly SensorsController _controller = IoCContainer.Resolve<SensorsController>();
     protected readonly SensorsGroupController _sensorsGroupControllers = IoCContainer.Resolve<SensorsGroupController>();
     protected readonly FpsSensorController _fpsController = IoCContainer.Resolve<FpsSensorController>();
+    private readonly GameSafeMode _gameSafeMode = IoCContainer.Resolve<GameSafeMode>();
     protected readonly HardwareSensorSettings _hardwareSensorSettings = IoCContainer.Resolve<HardwareSensorSettings>();
     protected readonly ApplicationSettings _applicationSettings = IoCContainer.Resolve<ApplicationSettings>();
     protected readonly SessionLockUnlockListener _sessionListener = IoCContainer.Resolve<SessionLockUnlockListener>();
@@ -99,6 +102,7 @@ public abstract class OsdWindowBase : Window
         InitializeComponentSpecifics();
         SubscribeEvents();
         _fpsController.FpsDataUpdated += OnFpsDataUpdated;
+        _gameSafeMode.ActiveChanged += OnGameSafeModeChanged;
 
         ApplyAppearanceSettings();
         UpdateMeasurementControlsVisibility();
@@ -218,8 +222,21 @@ public abstract class OsdWindowBase : Window
     {
         await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.Render);
 
+        ShowGameSafeBadge();
         UpdateLayout();
         SetWindowPosition();
+    }
+
+    private void OnGameSafeModeChanged(object? sender, bool active) => Dispatcher.BeginInvoke(ShowGameSafeBadge);
+
+    /// <summary>
+    /// Shows the layout's "game-safe" label (an element named _gameSafeBadge) while game-safe mode limits the OSD to
+    /// driver-free readings, so a missing value reads as deliberate rather than broken.
+    /// </summary>
+    private void ShowGameSafeBadge()
+    {
+        if (FindName("_gameSafeBadge") is FrameworkElement badge)
+            badge.Visibility = _gameSafeMode.IsActive ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void OnSizeChanged(object sender, SizeChangedEventArgs e)
@@ -379,6 +396,7 @@ public abstract class OsdWindowBase : Window
 
         SystemEvents.DisplaySettingsChanged -= OnDisplaySettingsChanged;
         _sessionListener.Changed -= OnSessionLockStateChanged;
+        _gameSafeMode.ActiveChanged -= OnGameSafeModeChanged;
 
         _cts?.Cancel();
         _cts?.Dispose();
@@ -758,41 +776,14 @@ public abstract class OsdWindowBase : Window
 
         _lastUpdate = DateTime.Now;
 
-        var snapshot = new SensorSnapshot
-        {
-            CpuUsage = groupSnapshot[SensorItem.CpuUtilization],
-            CpuFrequency = _sensorsGroupControllers.ShowAverageCpuFrequency
-                ? groupSnapshot[SensorItem.CpuAverageFrequency] : groupSnapshot[SensorItem.CpuMaxFrequency],
-            CpuPClock = _sensorsGroupControllers.ShowAverageCpuFrequency
-                ? groupSnapshot[SensorItem.CpuPAverageFrequency] : groupSnapshot[SensorItem.CpuPMaxFrequency],
-            CpuEClock = _sensorsGroupControllers.ShowAverageCpuFrequency
-                ? groupSnapshot[SensorItem.CpuEAverageFrequency] : groupSnapshot[SensorItem.CpuEMaxFrequency],
-            CpuTemp = groupSnapshot[SensorItem.CpuTemperature],
-            CpuPower = groupSnapshot[SensorItem.CpuPower],
-            CpuVoltage = groupSnapshot[SensorItem.CpuVoltage],
-            CpuFanSpeed = mainData?.CPU.FanSpeed ?? -1,
-
-            GpuUsage = groupSnapshot[SensorItem.GpuUtilization],
-            GpuFrequency = groupSnapshot[SensorItem.GpuFrequency],
-            GpuTemp = groupSnapshot[SensorItem.GpuCoreTemperature],
-            GpuVramUsage = groupSnapshot[SensorItem.GpuVramUtilization],
-            GpuVramUsed = groupSnapshot[SensorItem.GpuVramUsed],
-            GpuVramTotal = groupSnapshot[SensorItem.GpuVramTotal],
-            GpuVramTemp = groupSnapshot[SensorItem.GpuVramTemperature],
-            GpuPower = groupSnapshot[SensorItem.GpuPower],
-            GpuFanSpeed = mainData?.GPU.FanSpeed ?? -1,
-
-            MemUsage = groupSnapshot[SensorItem.MemoryUtilization],
-            MemUsed = groupSnapshot[SensorItem.MemoryUsed],
-            MemTotal = groupSnapshot[SensorItem.MemoryTotal],
-            MemTemp = groupSnapshot[SensorItem.MemoryTemperature],
-
-            PchTemp = mainData?.PCH.Temperature ?? -1,
-            PchFanSpeed = mainData?.PCH.FanSpeed ?? -1,
-
-            Disk1Temp = groupSnapshot[SensorItem.Disk1Temperature],
-            Disk2Temp = groupSnapshot[SensorItem.Disk2Temperature]
-        };
+        // Detailed readings need hardware sensors (PawnIO). Without them, or in game-safe mode, use only
+        // driver-free sources; anything else shows as missing instead of a stale value.
+        var useDetailed = _applicationSettings.Store.EnableHardwareSensors && !_sensorsGroupControllers.IsPaused && !_gameSafeMode.IsActive;
+        var snapshot = OsdSnapshotBuilder.Build(
+            useDetailed ? groupSnapshot : null,
+            mainData,
+            useDetailed ? null : SystemMemory.GetStatus(),
+            _sensorsGroupControllers.ShowAverageCpuFrequency);
 
         await Dispatcher.BeginInvoke(() => UpdateSensorData(snapshot), DispatcherPriority.Normal);
     }

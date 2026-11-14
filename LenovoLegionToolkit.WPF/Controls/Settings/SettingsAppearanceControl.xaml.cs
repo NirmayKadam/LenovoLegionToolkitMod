@@ -13,6 +13,7 @@ using LenovoLegionToolkit.Lib.Utils;
 using LenovoLegionToolkit.WPF.Extensions;
 using LenovoLegionToolkit.WPF.Resources;
 using LenovoLegionToolkit.WPF.Utils;
+using LenovoLegionToolkit.WPF.Utils.Skins;
 using LenovoLegionToolkit.WPF.Windows.Utils;
 using Microsoft.Win32;
 using SymbolRegular = Wpf.Ui.Common.SymbolRegular;
@@ -24,6 +25,9 @@ public partial class SettingsAppearanceControl
     private readonly ApplicationSettings _settings = IoCContainer.Resolve<ApplicationSettings>();
     private readonly ThemeManager _themeManager = IoCContainer.Resolve<ThemeManager>();
 
+    // Sliders re-apply the theme; this keeps that to a few times a second while dragging.
+    private readonly ThrottleLastDispatcher _skinOptionThrottle = new(TimeSpan.FromMilliseconds(150), nameof(SettingsAppearanceControl));
+
     private bool _isRefreshing;
 
     public SettingsAppearanceControl()
@@ -34,8 +38,11 @@ public partial class SettingsAppearanceControl
 
     private void ThemeManager_ThemeApplied(object? sender, EventArgs e)
     {
-        if (!_isRefreshing)
-            UpdateAccentColorPicker();
+        if (_isRefreshing)
+            return;
+
+        UpdateAccentColorPicker();
+        UpdateForSkin();
     }
 
     public async Task RefreshAsync()
@@ -54,7 +61,24 @@ public partial class SettingsAppearanceControl
             _langCardControl.Visibility = Visibility.Collapsed;
         }
 
+        _skinComboBox.SetItems(SkinPalette.Available, _themeManager.GetEffectiveSkin(), t => t.GetDisplayName());
+        _skinComboBox.Visibility = Visibility.Visible;
+        _skinComboBox.IsEnabled = !SystemParameters.HighContrast;
+
+        _animationsComboBox.SetItems(Enum.GetValues<AnimationLevel>(), _settings.Store.Animations, t => t.GetDisplayName());
+        _animationsComboBox.Visibility = Visibility.Visible;
+        UpdateAnimationsNote();
+
+        _neonGlowSlider.Value = _settings.Store.NeonGlow;
+        _neonGlowValueText.Text = FormatPercent(_settings.Store.NeonGlow);
+
+        _retroPhosphorComboBox.SetItems(Enum.GetValues<RetroPhosphor>(), _settings.Store.RetroPhosphor, t => t.GetDisplayName());
+        _retroScanlinesSlider.Value = _settings.Store.RetroScanlines;
+        _retroScanlinesValueText.Text = FormatPercent(_settings.Store.RetroScanlines);
+        _retroGlowToggle.IsChecked = _settings.Store.RetroGlow;
+
         _themeComboBox.SetItems(Enum.GetValues<Theme>(), _settings.Store.Theme, t => t.GetDisplayName());
+        UpdateForSkin();
 
         UpdateAccentColorPicker();
         _accentColorSourceComboBox.SetItems(Enum.GetValues<AccentColorSource>(), _settings.Store.AccentColorSource, t => t.GetDisplayName());
@@ -109,6 +133,122 @@ public partial class SettingsAppearanceControl
             Dispatcher.Invoke(() => App.Current.RestartMainWindow()),
             TaskScheduler.Default);
     }
+
+    private void SkinComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_isRefreshing)
+            return;
+
+        if (!_skinComboBox.TryGetSelectedItem(out UiSkin skin))
+            return;
+
+        _settings.Store.Skin = skin;
+        _settings.SynchronizeStore();
+
+        _themeManager.Apply();
+
+        UpdateForSkin();
+    }
+
+    private void AnimationsComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_isRefreshing)
+            return;
+
+        if (!_animationsComboBox.TryGetSelectedItem(out AnimationLevel level))
+            return;
+
+        _settings.Store.Animations = level;
+        _settings.SynchronizeStore();
+
+        Motion.Refresh();
+        UpdateAnimationsNote();
+    }
+
+    /// <summary>
+    /// Says why Full isn't being used when Windows or the renderer holds the app at Reduced.
+    /// </summary>
+    private void UpdateAnimationsNote()
+    {
+        _animationsCardHeader.Info = Motion.Limit switch
+        {
+            MotionLimit.WindowsAnimationsOff => Resource.SettingsPage_Animations_LimitedByWindows,
+            MotionLimit.HardwareAccelerationOff => Resource.SettingsPage_Animations_LimitedByHardwareAcceleration,
+            MotionLimit.NoHardwareRendering => Resource.SettingsPage_Animations_LimitedByRendering,
+            _ => string.Empty
+        };
+    }
+
+    private async void NeonGlowSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (_isRefreshing)
+            return;
+
+        var glow = (int)Math.Round(e.NewValue);
+        _neonGlowValueText.Text = FormatPercent(glow);
+        _settings.Store.NeonGlow = glow;
+        _settings.SynchronizeStore();
+
+        await _skinOptionThrottle.DispatchAsync(() => Dispatcher.InvokeAsync(_themeManager.Apply).Task);
+    }
+
+    private void RetroPhosphorComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_isRefreshing || !_retroPhosphorComboBox.TryGetSelectedItem(out RetroPhosphor phosphor))
+            return;
+
+        _settings.Store.RetroPhosphor = phosphor;
+        _settings.SynchronizeStore();
+        _themeManager.Apply();
+    }
+
+    private async void RetroScanlinesSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (_isRefreshing)
+            return;
+
+        var value = (int)Math.Round(e.NewValue);
+        _retroScanlinesValueText.Text = FormatPercent(value);
+        _settings.Store.RetroScanlines = value;
+        _settings.SynchronizeStore();
+
+        await _skinOptionThrottle.DispatchAsync(() => Dispatcher.InvokeAsync(_themeManager.Apply).Task);
+    }
+
+    private void RetroGlowToggle_Changed(object sender, RoutedEventArgs e)
+    {
+        if (_isRefreshing)
+            return;
+
+        _settings.Store.RetroGlow = _retroGlowToggle.IsChecked == true;
+        _settings.SynchronizeStore();
+        _themeManager.Apply();
+    }
+
+    /// <summary>
+    /// Shows the options of the active skin and explains settings it overrides: dark-only skins ignore the
+    /// Theme setting, and solid-background skins ignore the backdrop and background image.
+    /// </summary>
+    private void UpdateForSkin()
+    {
+        var palette = _themeManager.CurrentPalette;
+
+        _themeComboBox.IsEnabled = !palette.DarkOnly;
+        _themeCardHeader.Info = palette.DarkOnly ? Resource.SettingsPage_Theme_DarkOnlySkin : string.Empty;
+
+        _backdropCardHeader.Info = palette.SolidBackground ? Resource.SettingsPage_SolidSkin_Note : Resource.SettingsPage_WindowBackdropType_Info;
+        _backgroundImageCardHeader.Info = palette.SolidBackground ? Resource.SettingsPage_SolidSkin_Note : string.Empty;
+
+        _neonGlowCard.Visibility = palette.Skin == UiSkin.Neon ? Visibility.Visible : Visibility.Collapsed;
+        _neonGlowCardHeader.Info = Motion.EffectsAllowed ? string.Empty : Resource.SettingsPage_NeonGlow_NeedsGpu;
+
+        var retro = palette.Skin == UiSkin.Retro ? Visibility.Visible : Visibility.Collapsed;
+        _retroPhosphorCard.Visibility = retro;
+        _retroEffectsCard.Visibility = retro;
+        _retroEffectsCardHeader.Info = Motion.EffectsAllowed ? string.Empty : Resource.SettingsPage_RetroGlow_NeedsGpu;
+    }
+
+    private static string FormatPercent(int value) => $"{value}{Resource.Percent}";
 
     private void ThemeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {

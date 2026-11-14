@@ -91,6 +91,9 @@ public partial class App
 
     private async void Application_Startup(object sender, StartupEventArgs e)
     {
+        // Before any window or animation exists: every animation runs at 30 fps instead of the display's rate.
+        Motion.CapAnimationFrameRate();
+
         try
         {
             if (!await InitializeCoreEnvironmentAsync(e))
@@ -114,6 +117,9 @@ public partial class App
 
                 Compatibility.PrintControllerVersionAsync().ConfigureAwait(false);
                 InitOsd();
+                IoCContainer.Resolve<GlobalHotkeyService>().Start();
+                IoCContainer.Resolve<GameSafeMode>().Start();
+                StartFanProfiles();
                 InitAppMessages();
                 LogIdentityStatus();
 
@@ -206,6 +212,8 @@ public partial class App
         WinFormsApp.SetHighDpiMode(WinFormsHighDpiMode.PerMonitorV2);
 
         var settings = IoCContainer.Resolve<ApplicationSettings>();
+
+        Controls.Help.HelpPresenter.Configure(settings.Store.ShowHelpTooltips, settings.Store.HelpTooltipDelayMs);
 
         if (!settings.Store.EnableHardwareAcceleration)
         {
@@ -302,6 +310,7 @@ public partial class App
         MainWindow = mainWindow;
         MainWindowInstance = mainWindow;
 
+        Motion.Initialize();
         IoCContainer.Resolve<ThemeManager>().Apply();
         InitSetLogIndicator();
 
@@ -415,7 +424,24 @@ public partial class App
 
     private void Application_Exit(object sender, ExitEventArgs e)
     {
+        NoteCleanExitForGpuOverclock();
         _singleInstanceMutex?.Close();
+    }
+
+    /// <summary>
+    /// A normal exit or Windows shutdown is not a crash: a GPU overclock still waiting to be confirmed stable is
+    /// not held against its values at the next start.
+    /// </summary>
+    private static void NoteCleanExitForGpuOverclock()
+    {
+        try
+        {
+            IoCContainer.Resolve<GPUOverclockController>().OnCleanExit();
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Couldn't note the clean exit for GPU overclock.", ex);
+        }
     }
 
     public async Task ShutdownAsync()
@@ -484,6 +510,8 @@ public partial class App
 
     private void ExecuteShutdownLogic()
     {
+        NoteCleanExitForGpuOverclock();
+
         var overclockController = IoCContainer.Resolve<AmdOverclockingController>();
 
         var cleanInfo = new ShutdownInfo
@@ -1040,7 +1068,7 @@ public partial class App
         {
             Dispatcher.Invoke(() =>
             {
-                HandleOsdCommand(message.State);
+                HandleOsdCommand(message.State, notify: true);
             });
         });
 
@@ -1066,8 +1094,22 @@ public partial class App
         });
     }
 
-    private void HandleOsdCommand(ToggleState command)
+/// <summary>
+    /// Per-mode fan curves: applied after every power-mode change, and shown on the dashboard's details card.
+    /// </summary>
+    private static void StartFanProfiles()
     {
+        var controller = IoCContainer.Resolve<Lib.Controllers.FanProfileController>();
+        controller.Start(IoCContainer.Resolve<Lib.Listeners.PowerModeListener>(), IoCContainer.Resolve<Lib.Listeners.PowerStateListener>());
+        IoCContainer.Resolve<Lib.Controllers.PowerModeProfileReader>().UserFanCurve = controller.CurveInUse;
+
+        // The firmware starts with its own curve, so the current mode's curve is applied once now.
+        _ = Task.Run(controller.ApplyForCurrentModeAsync);
+    }
+
+    private void HandleOsdCommand(ToggleState command, bool notify = false)
+    {
+        var wasVisible = OsdWindow?.IsVisible ?? false;
         var OsdSettings = IoCContainer.Resolve<OsdSettings>();
         bool shouldBeBar = OsdSettings.Store.SelectedStyleIndex == 1;
 
@@ -1089,8 +1131,13 @@ public partial class App
             OsdWindow?.Hide();
         }
 
-        OsdSettings.Store.ShowOsd = OsdWindow?.IsVisible ?? false;
+        var isVisible = OsdWindow?.IsVisible ?? false;
+        OsdSettings.Store.ShowOsd = isVisible;
         OsdSettings.SynchronizeStore();
+
+        // A short confirmation when the user toggles it (hotkey, Fn key, quick action), not when restoring at startup.
+        if (notify && isVisible != wasVisible)
+            MessagingCenter.Publish(new NotificationMessage(isVisible ? NotificationType.OsdShown : NotificationType.OsdHidden));
     }
 
     private void EnsureCorrectOsdStyle(bool shouldBeBar)

@@ -13,7 +13,7 @@ public abstract class AbstractComboBoxRGBKeyboardCardControl<T> : UserControl
 {
     private readonly CardControl _cardControl = new();
 
-    private readonly CardHeaderControl _cardHeaderControl = new();
+    private readonly CardHeaderControl _cardHeaderControl = new() { HelpKey = $"Help_RgbKeyboard_{typeof(T).Name}" };
 
     private readonly ComboBox _comboBox = new();
 

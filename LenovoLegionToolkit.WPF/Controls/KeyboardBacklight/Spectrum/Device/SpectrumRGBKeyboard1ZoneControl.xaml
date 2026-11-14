@@ -63,7 +63,7 @@
             Margin="0,0,8,24"
             Icon="BrightnessHigh24">
             <custom:CardControl.Header>
-                <controls:CardHeaderControl Title="{x:Static resources:Resource.RGBKeyboardBacklightBrightnessCardControl_Brightness}" />
+                <controls:CardHeaderControl Title="{x:Static resources:Resource.RGBKeyboardBacklightBrightnessCardControl_Brightness}" HelpKey="Help_Spectrum_Brightness" />
             </custom:CardControl.Header>
             <Slider
                 x:Name="_brightnessSlider"
@@ -127,7 +127,7 @@
             Margin="0,0,8,8"
             Icon="Keyboard24">
             <custom:CardControl.Header>
-                <controls:CardHeaderControl Title="{x:Static resources:Resource.SpectrumKeyboardBacklightEditEffectWindow_Effect_Title}" />
+                <controls:CardHeaderControl Title="{x:Static resources:Resource.SpectrumKeyboardBacklightEditEffectWindow_Effect_Title}" HelpKey="Help_Spectrum_Effect" />
             </custom:CardControl.Header>
             <ComboBox
                 x:Name="_effectComboBox"
@@ -144,7 +144,7 @@
             Margin="0,0,8,8"
             Icon="Keyboard24">
             <custom:CardControl.Header>
-                <controls:CardHeaderControl Title="{x:Static resources:Resource.SpectrumKeyboardBacklightEditEffectWindow_Speed_Title}" />
+                <controls:CardHeaderControl Title="{x:Static resources:Resource.SpectrumKeyboardBacklightEditEffectWindow_Speed_Title}" HelpKey="Help_Spectrum_Speed" />
             </custom:CardControl.Header>
             <ComboBox
                 x:Name="_speedComboBox"
@@ -162,7 +162,7 @@
             Margin="0,0,8,8"
             Icon="Color24">
             <custom:CardControl.Header>
-                <controls:CardHeaderControl Title="{x:Static resources:Resource.SpectrumKeyboardBacklightEditEffectWindow_Color_Title}" />
+                <controls:CardHeaderControl Title="{x:Static resources:Resource.SpectrumKeyboardBacklightEditEffectWindow_Color_Title}" HelpKey="Help_Spectrum_Color" />
             </custom:CardControl.Header>
             <ComboBox
                 x:Name="_colorModeComboBox"
@@ -181,7 +181,7 @@
             VerticalAlignment="Top"
             Icon="Color24">
             <custom:CardControl.Header>
-                <controls:CardHeaderControl Title="{x:Static resources:Resource.RGBKeyboardBacklightControl_Zone1}" />
+                <controls:CardHeaderControl Title="{x:Static resources:Resource.RGBKeyboardBacklightControl_Zone1}" HelpKey="Help_RgbKeyboard_Zone" />
             </custom:CardControl.Header>
             <controls:ColorPickerControl x:Name="_zone1ColorPicker" ColorChangedDelayed="CardControl_Changed" />
         </custom:CardControl>

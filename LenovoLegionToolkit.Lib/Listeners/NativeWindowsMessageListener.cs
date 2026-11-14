@@ -94,6 +94,25 @@ public class NativeWindowsMessageListener : NativeWindow, IListener<NativeWindow
         return EnsureInitializedAsync();
     });
 
+    /// <summary>
+    /// Removes (true) or restores (false) the keyboard hook used for the Caps Lock / Num Lock notifications,
+    /// for game-safe mode. Device, display and lid notifications keep working: they don't use the hook.
+    /// </summary>
+    public Task SetKeyboardHookSuspendedAsync(bool suspended) => _mainThreadDispatcher.DispatchAsync(() =>
+    {
+        if (suspended && _kbHook != default)
+        {
+            PInvoke.UnhookWindowsHookEx(_kbHook);
+            _kbHook = default;
+        }
+        else if (!suspended && _kbHook == default && Handle != IntPtr.Zero)
+        {
+            _kbHook = PInvoke.SetWindowsHookEx(WINDOWS_HOOK_ID.WH_KEYBOARD_LL, _kbProc, HINSTANCE.Null, 0);
+        }
+
+        return Task.CompletedTask;
+    });
+
     public Task StopAsync() => _mainThreadDispatcher.DispatchAsync(() =>
     {
         PInvoke.UnhookWindowsHookEx(_kbHook);

@@ -127,7 +127,8 @@ public partial class SpecialKeysWindow
             Content = new CardHeaderControl
             {
                 Title = displayName,
-                Subtitle = subtitleText
+                Subtitle = subtitleText,
+                HelpKey = "Help_SpecialKeys_Key"
             },
             Tag = code,
             Cursor = Cursors.Hand,
@@ -154,7 +155,8 @@ public partial class SpecialKeysWindow
             Icon = SymbolRegular.Keyboard24,
             Content = new CardHeaderControl
             {
-                Title = displayName
+                Title = displayName,
+                HelpKey = "Help_SpecialKeys_HiddenKey"
             },
             Cursor = Cursors.Arrow,
             ContextMenu = CreateUnhideContextMenu(code, isCustom)

@@ -18,6 +18,11 @@
         Margin="0,0,0,12"
         IndicatorMargin="0,64,0,0">
         <StackPanel x:Name="_panel">
+            <StackPanel x:Name="_statusArea" Margin="0,16,8,0">
+                <dashboard:StatusStripControl />
+                <dashboard:PowerModeSelectorControl />
+                <dashboard:PowerModeDetailsControl />
+            </StackPanel>
             <!-- <dashboard:SensorsControl x:Name="_sensors" Margin="0,16,16,0" /> !-->
             <Grid x:Name="_content" />
         </StackPanel>

@@ -12,7 +12,7 @@
     mc:Ignorable="d">
     <custom:CardControl x:Name="_card" Margin="0,0,0,8">
         <custom:CardControl.Header>
-            <controls:CardHeaderControl x:Name="_header" />
+            <controls:CardHeaderControl x:Name="_header" HelpKey="Help_Macro_Event" />
         </custom:CardControl.Header>
     </custom:CardControl>
 </UserControl>

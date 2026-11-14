@@ -16,6 +16,7 @@ using LenovoLegionToolkit.Lib.Messaging.Messages;
 using LenovoLegionToolkit.Lib.Settings;
 using LenovoLegionToolkit.Lib.System;
 using LenovoLegionToolkit.Lib.Utils;
+using LenovoLegionToolkit.WPF.Controls.Help;
 using LenovoLegionToolkit.WPF.Extensions;
 using LenovoLegionToolkit.WPF.Resources;
 using LenovoLegionToolkit.WPF.Settings;
@@ -51,6 +52,10 @@ public partial class SettingsAppBehaviorControl
 
         _autorunComboBox.SetItems(Enum.GetValues<AutorunState>(), Autorun.State, t => t.GetDisplayName());
         _minimizeToTrayToggle.IsChecked = _settings.Store.MinimizeToTray;
+        _helpTooltipsToggle.IsChecked = _settings.Store.ShowHelpTooltips;
+        _gameSafeModeToggle.IsChecked = _settings.Store.GameSafeMode;
+        UpdateGameSafeModeStatus();
+        _helpTooltipDelayComboBox.SelectedIndex = _settings.Store.HelpTooltipDelayMs switch { <= 200 => 0, <= 600 => 1, _ => 2 };
         _minimizeOnCloseToggle.IsChecked = _settings.Store.MinimizeOnClose;
         _useNewSensorDashboardToggle.IsChecked = _settings.Store.UseNewSensorDashboard;
         _lockWindowSizeToggle.IsChecked = _settings.Store.LockWindowSize;
@@ -94,16 +99,10 @@ public partial class SettingsAppBehaviorControl
 
         _hardwareSensorsToggle.IsChecked = _settings.Store.EnableHardwareSensors;
 
-        if (_settings.Store.EnableHardwareSensors)
-        {
-            _useNewSensorDashboardCardControl.Visibility = Visibility.Visible;
-            _osdCardControl.Visibility = Visibility.Visible;
-        }
-        else
-        {
-            _useNewSensorDashboardCardControl.Visibility = Visibility.Collapsed;
-            _osdCardControl.Visibility = Visibility.Collapsed;
-        }
+        _useNewSensorDashboardCardControl.Visibility = _settings.Store.EnableHardwareSensors ? Visibility.Visible : Visibility.Collapsed;
+
+        // The OSD works without hardware sensors too: it then shows driver-free readings only.
+        _osdCardControl.Visibility = Visibility.Visible;
 
         var pawnIOState = PawnIOHelper.GetPawnIOState();
 
@@ -141,6 +140,50 @@ public partial class SettingsAppBehaviorControl
 
             _ = SnackbarHelper.ShowAsync(Resource.SettingsPage_Autorun_Unprotected_Title, Resource.SettingsPage_Autorun_Unprotected_Message, SnackbarType.Warning);
         }
+    }
+
+    private async void GameSafeModeToggle_Click(object sender, RoutedEventArgs e)
+    {
+        if (_isRefreshing || !IsLoaded)
+            return;
+
+        _settings.Store.GameSafeMode = _gameSafeModeToggle.IsChecked == true;
+        _settings.SynchronizeStore();
+        await IoCContainer.Resolve<GameSafeMode>().RefreshAsync();
+        UpdateGameSafeModeStatus();
+    }
+
+    /// <summary>Shows whether game-safe mode is on right now, and which anti-cheat triggered it.</summary>
+    private void UpdateGameSafeModeStatus()
+    {
+        var gameSafeMode = IoCContainer.Resolve<GameSafeMode>();
+        var monitor = IoCContainer.Resolve<AntiCheatMonitor>();
+        _gameSafeModeCardHeader.Success = gameSafeMode.IsActive
+            ? string.Format(Resource.SettingsPage_GameSafeMode_Active, string.Join(", ", monitor.ActiveServices))
+            : string.Empty;
+    }
+
+    private void HelpTooltipsToggle_Click(object sender, RoutedEventArgs e)
+    {
+        if (_isRefreshing || !IsLoaded)
+            return;
+
+        _settings.Store.ShowHelpTooltips = _helpTooltipsToggle.IsChecked == true;
+        _settings.SynchronizeStore();
+        HelpPresenter.Configure(_settings.Store.ShowHelpTooltips, _settings.Store.HelpTooltipDelayMs);
+    }
+
+    private void HelpTooltipDelayComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_isRefreshing || !IsLoaded)
+            return;
+
+        if (_helpTooltipDelayComboBox.SelectedItem is not ComboBoxItem { Tag: string tag } || !int.TryParse(tag, out var delay))
+            return;
+
+        _settings.Store.HelpTooltipDelayMs = delay;
+        _settings.SynchronizeStore();
+        HelpPresenter.Configure(_settings.Store.ShowHelpTooltips, _settings.Store.HelpTooltipDelayMs);
     }
 
     private void MinimizeToTrayToggle_Click(object sender, RoutedEventArgs e)
@@ -320,11 +363,6 @@ public partial class SettingsAppBehaviorControl
         {
             _useNewSensorDashboardToggle.IsChecked = false;
             _settings.Store.UseNewSensorDashboard = false;
-
-            _osdToggle.IsChecked = false;
-            _OsdSettings.Store.ShowOsd = false;
-            App.Current.OsdWindow?.Hide();
-            _OsdSettings.SynchronizeStore();
         }
 
         _settings.Store.EnableHardwareSensors = state.Value;
@@ -336,7 +374,6 @@ public partial class SettingsAppBehaviorControl
         }
 
         _useNewSensorDashboardCardControl.Visibility = state.Value ? Visibility.Visible : Visibility.Collapsed;
-        _osdCardControl.Visibility = state.Value ? Visibility.Visible : Visibility.Collapsed;
 
         MessagingCenter.Publish(new SensorDashboardSwappedMessage());
     }

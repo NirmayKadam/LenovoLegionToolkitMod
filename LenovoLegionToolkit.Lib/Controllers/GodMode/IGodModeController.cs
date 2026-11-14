@@ -16,6 +16,9 @@ public interface IGodModeController
     Task<string?> GetActivePresetNameAsync();
     Task<Dictionary<Guid, GodModeSettings.GodModeSettingsStore.Preset>> GetGodModePresetsAsync();
     Task<GodModeState> GetStateAsync();
+
+    /// <summary>The active preset as it is sent: every value fitted to the firmware's range. Null if that can't be read.</summary>
+    Task<GodModePreset?> GetRangeCheckedActivePresetAsync();
     Task SetStateAsync(GodModeState state);
     Task ApplyStateAsync();
     Task<FanTable> GetDefaultFanTableAsync();

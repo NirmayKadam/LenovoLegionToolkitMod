@@ -11,7 +11,7 @@
             <custom:CardControl Margin="0,0,0,8" Icon="PlugConnected24">
                 <custom:CardControl.Header>
                     <controls:CardHeaderControl
-                        Title="{x:Static resources:Resource.SettingsPage_HWiNFO_Title}"
+                        Title="{x:Static resources:Resource.SettingsPage_HWiNFO_Title}" HelpKey="Help_Settings_HWiNFO"
                         Subtitle="{x:Static resources:Resource.SettingsPage_HWiNFO_Message}"
                         Info="{x:Static resources:Resource.SettingsPage_HWiNFO_RestartInfo}" />
                 </custom:CardControl.Header>
@@ -24,7 +24,7 @@
             </custom:CardControl>
             <custom:CardControl Margin="0,0,0,8" Icon="WindowConsole20">
                 <custom:CardControl.Header>
-                    <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_CLI_Title}" Subtitle="{x:Static resources:Resource.SettingsPage_CLI_Message}" />
+                    <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_CLI_Title}" HelpKey="Help_Settings_CLI" Subtitle="{x:Static resources:Resource.SettingsPage_CLI_Message}" />
                 </custom:CardControl.Header>
                     <wpfui:ToggleSwitch
                     x:Name="_cliInterfaceToggle"
@@ -35,7 +35,7 @@
             </custom:CardControl>
             <custom:CardControl Margin="0,0,0,8" Icon="Folder24">
                 <custom:CardControl.Header>
-                    <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_CLIAddToPath_Title}" Subtitle="{x:Static resources:Resource.SettingsPage_CLIAddToPath_Message}" />
+                    <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_CLIAddToPath_Title}" HelpKey="Help_Settings_CLIPath" Subtitle="{x:Static resources:Resource.SettingsPage_CLIAddToPath_Message}" />
                 </custom:CardControl.Header>
                     <wpfui:ToggleSwitch
                     x:Name="_cliPathToggle"

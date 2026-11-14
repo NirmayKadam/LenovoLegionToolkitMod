@@ -4,6 +4,8 @@ using System.Windows.Automation;
 using System.Windows.Automation.Peers;
 using System.Windows.Controls;
 using CustomControls = LenovoLegionToolkit.WPF.Controls.Custom;
+using LenovoLegionToolkit.WPF.Controls.Help;
+using LenovoLegionToolkit.WPF.Resources;
 using Wpf.Ui.Common;
 using Wpf.Ui.Controls;
 
@@ -83,13 +85,52 @@ public class CardHeaderControl : UserControl
 
     private UIElement? _accessory;
 
+    private string _title = string.Empty;
+    private string? _helpKey;
+    private HelpContent? _help;
+
+    // The ⓘ after the title. It can take keyboard focus so the explanation is reachable without a mouse.
+    private readonly SymbolIcon _helpIcon = new()
+    {
+        Symbol = SymbolRegular.QuestionCircle24,
+        FontSize = 14,
+        Margin = new(6, 0, 0, 0),
+        Focusable = true,
+        Cursor = System.Windows.Input.Cursors.Help,
+    };
+
+    // Made once and re-added on every title rebuild: the ⓘ stays this container's child after the title's inlines
+    // are cleared, so wrapping it in a new container each time throws "already the logical child of another element".
+    private readonly System.Windows.Documents.InlineUIContainer _helpIconContainer;
+
+    public CardHeaderControl()
+    {
+        _helpIconContainer = new(_helpIcon) { BaselineAlignment = BaselineAlignment.Center };
+    }
+
     public string Title
     {
-        get => _titleTextBlock.Text;
+        get => _title;
         set
         {
-            _titleTextBlock.Text = value;
+            _title = value ?? string.Empty;
+            RebuildTitle();
             RefreshLayout();
+        }
+    }
+
+    /// <summary>
+    /// Resource key prefix of this setting's hover explanation (see <see cref="HelpContent"/>). When set and the
+    /// text exists, a ⓘ appears after the title and hovering the title or focusing the ⓘ shows the explanation.
+    /// </summary>
+    public string? HelpKey
+    {
+        get => _helpKey;
+        set
+        {
+            _helpKey = value;
+            _help = HelpContent.Resolve(value);
+            RebuildTitle();
         }
     }
 
@@ -230,6 +271,46 @@ public class CardHeaderControl : UserControl
         RefreshLayout();
 
         IsEnabledChanged += (_, _) => UpdateTextStyle();
+
+        Loaded += (_, _) => HelpPresenter.SettingsChanged += HelpPresenter_SettingsChanged;
+        Unloaded += (_, _) => HelpPresenter.SettingsChanged -= HelpPresenter_SettingsChanged;
+    }
+
+    private void HelpPresenter_SettingsChanged(object? sender, EventArgs e) => Dispatcher.Invoke(RebuildTitle);
+
+    /// <summary>
+    /// The title text, followed by the ⓘ when there's help to show and hover help is on. The explanation is
+    /// attached to both the title and the ⓘ (the latter also opens it on keyboard focus).
+    /// </summary>
+    private void RebuildTitle()
+    {
+        _titleTextBlock.Inlines.Clear();
+        _titleTextBlock.Inlines.Add(new System.Windows.Documents.Run(_title));
+
+        var help = HelpPresenter.IsEnabled ? _help : null;
+
+        if (help is null)
+        {
+            _titleTextBlock.ToolTip = null;
+            _helpIcon.ToolTip = null;
+            AutomationProperties.SetHelpText(this, string.Empty);
+            return;
+        }
+
+        _titleTextBlock.Inlines.Add(_helpIconContainer);
+
+        _titleTextBlock.ToolTip = HelpPresenter.CreateToolTip(_title, help);
+        _helpIcon.ToolTip = HelpPresenter.CreateToolTip(_title, help);
+        foreach (var target in new DependencyObject[] { _titleTextBlock, _helpIcon })
+        {
+            ToolTipService.SetInitialShowDelay(target, HelpPresenter.InitialDelayMs);
+            ToolTipService.SetShowDuration(target, 60000);
+        }
+        ToolTipService.SetShowsToolTipOnKeyboardFocus(_helpIcon, true);
+
+        AutomationProperties.SetName(_helpIcon, string.Format(Resource.Help_IconName, _title));
+        AutomationProperties.SetHelpText(this, help.ToPlainText());
+        AutomationProperties.SetHelpText(_helpIcon, help.ToPlainText());
     }
 
     private static void ConfigureMessageGrid(Grid grid, SymbolIcon icon, TextBlock text)
@@ -295,6 +376,7 @@ public class CardHeaderControl : UserControl
         {
             _titleTextBlock.SetResourceReference(ForegroundProperty, "TextFillColorPrimaryBrush");
             _subtitleTextBlock.SetResourceReference(ForegroundProperty, "TextFillColorSecondaryBrush");
+            _helpIcon.SetResourceReference(ForegroundProperty, "TextFillColorTertiaryBrush");
 
             _infoIcon.Symbol = SymbolRegular.Info24;
             _infoIcon.SetResourceReference(ForegroundProperty, "SystemAccentColorSecondaryBrush");
@@ -316,6 +398,7 @@ public class CardHeaderControl : UserControl
         {
             _titleTextBlock.SetResourceReference(ForegroundProperty, "TextFillColorDisabledBrush");
             _subtitleTextBlock.SetResourceReference(ForegroundProperty, "TextFillColorDisabledBrush");
+            _helpIcon.SetResourceReference(ForegroundProperty, "TextFillColorDisabledBrush");
             _infoIcon.SetResourceReference(ForegroundProperty, "TextFillColorDisabledBrush");
             _infoTextBlock.SetResourceReference(ForegroundProperty, "TextFillColorDisabledBrush");
             _warningIcon.SetResourceReference(ForegroundProperty, "TextFillColorDisabledBrush");
@@ -348,9 +431,9 @@ public class CardHeaderControl : UserControl
             if (result == string.Empty)
                 result = AutomationProperties.GetName(owner);
 
-            if (result == string.Empty && !string.IsNullOrWhiteSpace(owner._titleTextBlock.Text))
+            if (result == string.Empty && !string.IsNullOrWhiteSpace(owner._title))
             {
-                result = owner._titleTextBlock.Text;
+                result = owner._title;
 
                 if (!string.IsNullOrWhiteSpace(owner._subtitleTextBlock.Text))
                     result += $", {owner._subtitleTextBlock.Text}";

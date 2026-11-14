@@ -67,7 +67,7 @@
 
         <custom:CardControl x:Name="_batteryTemperatureCardControl" Margin="0,0,0,24">
             <custom:CardControl.Header>
-                <controls:CardHeaderControl Title="{x:Static resources:Resource.BatteryPage_BatteryTemperature_Title}" Subtitle="{x:Static resources:Resource.BatteryPage_BatteryTemperature_Message}" />
+                <controls:CardHeaderControl Title="{x:Static resources:Resource.BatteryPage_BatteryTemperature_Title}" HelpKey="Help_Battery_Temperature" Subtitle="{x:Static resources:Resource.BatteryPage_BatteryTemperature_Message}" />
             </custom:CardControl.Header>
             <TextBlock
                 x:Name="_batteryTemperatureText"
@@ -80,7 +80,7 @@
 
         <custom:CardControl Margin="0,0,0,8">
             <custom:CardControl.Header>
-                <controls:CardHeaderControl Title="{x:Static resources:Resource.BatteryPage_DischargeRate_Title}" Subtitle="{x:Static resources:Resource.BatteryPage_DischargeRate_Message}" />
+                <controls:CardHeaderControl Title="{x:Static resources:Resource.BatteryPage_DischargeRate_Title}" HelpKey="Help_Battery_Rate" Subtitle="{x:Static resources:Resource.BatteryPage_DischargeRate_Message}" />
             </custom:CardControl.Header>
             <TextBlock
                 x:Name="_batteryDischargeRateText"
@@ -93,7 +93,7 @@
 
         <custom:CardControl Margin="0,0,0,8">
             <custom:CardControl.Header>
-                <controls:CardHeaderControl Title="{x:Static resources:Resource.BatteryPage_MinDischargeRate_Title}" Subtitle="{x:Static resources:Resource.BatteryPage_MinDischargeRate_Message}" />
+                <controls:CardHeaderControl Title="{x:Static resources:Resource.BatteryPage_MinDischargeRate_Title}" HelpKey="Help_Battery_MinRate" Subtitle="{x:Static resources:Resource.BatteryPage_MinDischargeRate_Message}" />
             </custom:CardControl.Header>
             <TextBlock
                 x:Name="_batteryMinDischargeRateText"
@@ -106,7 +106,7 @@
 
         <custom:CardControl Margin="0,0,0,8">
             <custom:CardControl.Header>
-                <controls:CardHeaderControl Title="{x:Static resources:Resource.BatteryPage_MaxDischargeRate_Title}" Subtitle="{x:Static resources:Resource.BatteryPage_MaxDischargeRate_Message}" />
+                <controls:CardHeaderControl Title="{x:Static resources:Resource.BatteryPage_MaxDischargeRate_Title}" HelpKey="Help_Battery_MaxRate" Subtitle="{x:Static resources:Resource.BatteryPage_MaxDischargeRate_Message}" />
             </custom:CardControl.Header>
             <TextBlock
                 x:Name="_batteryMaxDischargeRateText"
@@ -119,7 +119,7 @@
 
         <custom:CardControl Margin="0,0,0,8">
             <custom:CardControl.Header>
-                <controls:CardHeaderControl Title="{x:Static resources:Resource.BatteryPage_CurrentCapacity_Title}" Subtitle="{x:Static resources:Resource.BatteryPage_CurrentCapacity_Message}" />
+                <controls:CardHeaderControl Title="{x:Static resources:Resource.BatteryPage_CurrentCapacity_Title}" HelpKey="Help_Battery_Current" Subtitle="{x:Static resources:Resource.BatteryPage_CurrentCapacity_Message}" />
             </custom:CardControl.Header>
             <TextBlock
                 x:Name="_batteryCapacityText"
@@ -132,7 +132,7 @@
 
         <custom:CardControl Margin="0,0,0,8">
             <custom:CardControl.Header>
-                <controls:CardHeaderControl Title="{x:Static resources:Resource.BatteryPage_FullChargeCapacity_Title}" Subtitle="{x:Static resources:Resource.BatteryPage_FullChargeCapacity_Message}" />
+                <controls:CardHeaderControl Title="{x:Static resources:Resource.BatteryPage_FullChargeCapacity_Title}" HelpKey="Help_Battery_Full" Subtitle="{x:Static resources:Resource.BatteryPage_FullChargeCapacity_Message}" />
             </custom:CardControl.Header>
             <TextBlock
                 x:Name="_batteryFullChargeCapacityText"
@@ -145,7 +145,7 @@
 
         <custom:CardControl Margin="0,0,0,8">
             <custom:CardControl.Header>
-                <controls:CardHeaderControl Title="{x:Static resources:Resource.BatteryPage_DesignCapacity_Title}" Subtitle="{x:Static resources:Resource.BatteryPage_DesignCapacity_Message}" />
+                <controls:CardHeaderControl Title="{x:Static resources:Resource.BatteryPage_DesignCapacity_Title}" HelpKey="Help_Battery_Design" Subtitle="{x:Static resources:Resource.BatteryPage_DesignCapacity_Message}" />
             </custom:CardControl.Header>
             <TextBlock
                 x:Name="_batteryDesignCapacityText"
@@ -158,7 +158,7 @@
 
         <custom:CardControl Margin="0,0,0,24">
             <custom:CardControl.Header>
-                <controls:CardHeaderControl Title="{x:Static resources:Resource.BatteryPage_BatteryHealth_Title}" Subtitle="{x:Static resources:Resource.BatteryPage_BatteryHealth_Message}" />
+                <controls:CardHeaderControl Title="{x:Static resources:Resource.BatteryPage_BatteryHealth_Title}" HelpKey="Help_Battery_Health" Subtitle="{x:Static resources:Resource.BatteryPage_BatteryHealth_Message}" />
             </custom:CardControl.Header>
             <TextBlock
                 x:Name="_batteryHealthText"
@@ -171,7 +171,7 @@
 
         <custom:CardControl Margin="0,0,0,8">
             <custom:CardControl.Header>
-                <controls:CardHeaderControl Title="{x:Static resources:Resource.BatteryPage_OnBatterySince_Title}" Subtitle="{x:Static resources:Resource.BatteryPage_OnBatterySince_Message}" />
+                <controls:CardHeaderControl Title="{x:Static resources:Resource.BatteryPage_OnBatterySince_Title}" HelpKey="Help_Battery_OnBatterySince" Subtitle="{x:Static resources:Resource.BatteryPage_OnBatterySince_Message}" />
             </custom:CardControl.Header>
             <TextBlock
                 x:Name="_onBatterySinceText"
@@ -184,7 +184,7 @@
 
         <custom:CardControl Margin="0,0,0,8">
             <custom:CardControl.Header>
-                <controls:CardHeaderControl Title="{x:Static resources:Resource.BatteryPage_CycleCount_Title}" Subtitle="{x:Static resources:Resource.BatteryPage_CycleCount_Message}" />
+                <controls:CardHeaderControl Title="{x:Static resources:Resource.BatteryPage_CycleCount_Title}" HelpKey="Help_Battery_Cycles" Subtitle="{x:Static resources:Resource.BatteryPage_CycleCount_Message}" />
             </custom:CardControl.Header>
             <TextBlock
                 x:Name="_batteryCycleCountText"
@@ -197,7 +197,7 @@
 
         <custom:CardControl x:Name="_batteryManufactureDateCardControl" Margin="0,0,0,8">
             <custom:CardControl.Header>
-                <controls:CardHeaderControl Title="{x:Static resources:Resource.BatteryPage_ManufactureDate_Title}" Subtitle="{x:Static resources:Resource.BatteryPage_ManufactureDate_Message}" />
+                <controls:CardHeaderControl Title="{x:Static resources:Resource.BatteryPage_ManufactureDate_Title}" HelpKey="Help_Battery_ManufactureDate" Subtitle="{x:Static resources:Resource.BatteryPage_ManufactureDate_Message}" />
             </custom:CardControl.Header>
             <TextBlock
                 x:Name="_batteryManufactureDateText"
@@ -210,7 +210,7 @@
 
         <custom:CardControl x:Name="_batteryFirstUseDateCardControl" Margin="0,0,0,8">
             <custom:CardControl.Header>
-                <controls:CardHeaderControl Title="{x:Static resources:Resource.BatteryPage_FirstUseDate_Title}" Subtitle="{x:Static resources:Resource.BatteryPage_FirstUse_Message}" />
+                <controls:CardHeaderControl Title="{x:Static resources:Resource.BatteryPage_FirstUseDate_Title}" HelpKey="Help_Battery_FirstUse" Subtitle="{x:Static resources:Resource.BatteryPage_FirstUse_Message}" />
             </custom:CardControl.Header>
             <TextBlock
                 x:Name="_batteryFirstUseDateText"

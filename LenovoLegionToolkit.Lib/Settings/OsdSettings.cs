@@ -10,6 +10,9 @@ public class OsdSettings() : AbstractSettings<OsdSettings.OsdSettingsStore>("osd
     public class OsdSettingsStore
     {
         public bool ShowOsd { get; set; }
+
+        /// <summary>Global keyboard shortcut that shows/hides the OSD; null when none is set.</summary>
+        public HotkeyBinding? ToggleHotkey { get; set; }
         public double OsdRefreshInterval { get; set; } = 1;
         public int SelectedStyleIndex { get; set; } = 0;
         public List<OsdItem> Items { get; set; } = Enum.GetValues<OsdItem>().ToList();

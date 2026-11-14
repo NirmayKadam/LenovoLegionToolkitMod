@@ -56,6 +56,7 @@ public partial class AddDashboardItemWindow
             Header = new CardHeaderControl
             {
                 Title = item.GetTitle(),
+                HelpKey = item.GetHelpKey(),
                 Accessory = new SymbolIcon { Symbol = SymbolRegular.ChevronRight24 }
             },
             Margin = new(0, 8, 0, 0),

@@ -10,7 +10,7 @@
         <StackPanel Margin="0,0,16,12">
             <custom:CardControl Margin="0,0,0,8" Icon="Keyboard24">
                 <custom:CardControl.Header>
-                    <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_SmartFnLock_Title}" Subtitle="{x:Static resources:Resource.SettingsPage_SmartFnLock_Message}" />
+                    <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_SmartFnLock_Title}" HelpKey="Help_Settings_SmartFnLock" Subtitle="{x:Static resources:Resource.SettingsPage_SmartFnLock_Message}" />
                 </custom:CardControl.Header>
                 <ComboBox
                     x:Name="_smartFnLockComboBox"
@@ -27,7 +27,7 @@
                 Click="ExcludeRefreshRates_Click"
                 Icon="DesktopPulse24"
                 Visibility="Collapsed">
-                <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_ExcludeRefreshRates_Title}" Subtitle="{x:Static resources:Resource.SettingsPage_ExcludeRefreshRates_Message}" />
+                <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_ExcludeRefreshRates_Title}" HelpKey="Help_Settings_ExcludeRefreshRates" Subtitle="{x:Static resources:Resource.SettingsPage_ExcludeRefreshRates_Message}" />
             </custom:CardAction>
 
             <custom:CardAction
@@ -35,7 +35,7 @@
                 Margin="0,0,0,8"
                 Click="SpecialKeys_Click"
                 Icon="Keyboard24">
-                <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_SmartKeys_Title}" Subtitle="{x:Static resources:Resource.SettingsPage_SmartKeys_Message}" />
+                <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_SmartKeys_Title}" HelpKey="Help_Settings_SmartKeys" Subtitle="{x:Static resources:Resource.SettingsPage_SmartKeys_Message}" />
             </custom:CardAction>
 
             <custom:CardAction
@@ -43,7 +43,7 @@
                 Margin="0,0,0,8"
                 Click="KeyDiscovery_Click"
                 Icon="Search24">
-                <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_Key_Discovery_Title}" Subtitle="{x:Static resources:Resource.SettingsPage_Key_Discovery_Message}" />
+                <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_Key_Discovery_Title}" HelpKey="Help_Settings_KeyDiscovery" Subtitle="{x:Static resources:Resource.SettingsPage_Key_Discovery_Message}" />
             </custom:CardAction>
         </StackPanel>
     </ScrollViewer>

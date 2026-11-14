@@ -141,6 +141,39 @@ public class SensorsGroupController : IDisposable
     private Task? _producerTask;
     public event Action<HardwareSensorSnapshot>? SensorsUpdated;
 
+    /// <summary>
+    /// True while game-safe mode has paused detailed sensors: no readings go through LibreHardwareMonitor or
+    /// the PawnIO driver, and <see cref="Snapshot"/> reports every reading as missing (-1) instead of stale values.
+    /// </summary>
+    public bool IsPaused { get => _isPaused; private set => _isPaused = value; }
+
+    // Set by game-safe mode's thread, read by the sensor update loop.
+    private volatile bool _isPaused;
+
+    private bool _refreshGpuAfterResume;
+
+    public void SetPaused(bool paused)
+    {
+        if (paused == IsPaused)
+            return;
+
+        IsPaused = paused;
+        Log.Instance.Trace($"Detailed sensors {(paused ? "paused" : "resumed")}.");
+
+        if (paused)
+        {
+            Snapshot = new HardwareSensorSnapshot();
+            SensorsUpdated?.Invoke(Snapshot);
+            return;
+        }
+
+        if (_refreshGpuAfterResume)
+        {
+            _refreshGpuAfterResume = false;
+            NeedRefreshHardware(HARDWARE_ID_NVIDIA_GPU);
+        }
+    }
+
     private readonly GPUController _gpuController = IoCContainer.Resolve<GPUController>();
 
     private readonly struct SensorSubscription(TimeSpan interval, HardwareUpdateScope scope)
@@ -226,6 +259,10 @@ public class SensorsGroupController : IDisposable
 
     public async Task<LibreHardwareMonitorInitialState> IsSupportedAsync()
     {
+        // Don't start the driver-backed library while game-safe mode is on; report what's known so far.
+        if (IsPaused && !_hardwareInitialized)
+            return InitialState;
+
         LibreHardwareMonitorInitialState result = await InitializeAsync().ConfigureAwait(false);
         try
         {
@@ -395,6 +432,13 @@ public class SensorsGroupController : IDisposable
     public void NeedRefreshHardware(string hardwareId)
     {
         if (!IsLibreHardwareMonitorInitialized() || _computer == null || hardwareId != HARDWARE_ID_NVIDIA_GPU) return;
+
+        // Reopening goes through the driver; while paused, do it once sensors resume instead.
+        if (IsPaused)
+        {
+            _refreshGpuAfterResume = true;
+            return;
+        }
         lock (_hardwareLock)
         {
             ResetSensors();
@@ -418,7 +462,7 @@ public class SensorsGroupController : IDisposable
 
     public async Task UpdateAsync(bool force = false, HardwareUpdateScope scope = HardwareUpdateScope.All)
     {
-        if (_isResetting || !IsLibreHardwareMonitorInitialized()) return;
+        if (_isResetting || IsPaused || !IsLibreHardwareMonitorInitialized()) return;
 
         var now = Environment.TickCount64;
         if (!force && now - _lastUpdateTick < MIN_UPDATE_INTERVAL_MS) return;
@@ -515,6 +559,12 @@ public class SensorsGroupController : IDisposable
                         snap = snap.WithValues(gpuValues);
                         snap = snap.WithValues(_memoryProvider.Values);
                         snap = snap.WithValues(_storageProvider.Values);
+
+                        // Game-safe mode may have started while this read was running (the read itself can't be
+                        // stopped half-way). Its result is dropped, so the cleared snapshot stays.
+                        if (IsPaused)
+                            return;
+
                         Snapshot = snap;
 
                         SensorsUpdated?.Invoke(Snapshot);

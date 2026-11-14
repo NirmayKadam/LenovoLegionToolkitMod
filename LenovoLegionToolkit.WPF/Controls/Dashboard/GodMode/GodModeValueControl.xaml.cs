@@ -27,6 +27,13 @@ public partial class GodModeValueControl
         }
     }
 
+    /// <summary>Resource key prefix of the field's hover explanation (see <c>HelpContent</c>).</summary>
+    public string? HelpKey
+    {
+        get => _cardControlHeader.HelpKey;
+        set => _cardControlHeader.HelpKey = value;
+    }
+
     public string Description
     {
         get => _cardControlHeader.Subtitle;

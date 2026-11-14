@@ -10,7 +10,7 @@
         <StackPanel Margin="0,0,16,12">
             <custom:CardControl Margin="0,0,0,8" Icon="BrightnessHigh24">
                 <custom:CardControl.Header>
-                    <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_SynchronizeBrightnessToAllPowerPlans_Title}" Subtitle="{x:Static resources:Resource.SettingsPage_SynchronizeBrightnessToAllPowerPlans_Message}" />
+                    <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_SynchronizeBrightnessToAllPowerPlans_Title}" HelpKey="Help_Settings_SyncBrightness" Subtitle="{x:Static resources:Resource.SettingsPage_SynchronizeBrightnessToAllPowerPlans_Message}" />
                 </custom:CardControl.Header>
                 <wpfui:ToggleSwitch
                     x:Name="_synchronizeBrightnessToAllPowerPlansToggle"
@@ -26,7 +26,7 @@
                 Icon="Image24"
                 Visibility="Collapsed">
                 <controls:CardHeaderControl
-                    Title="{x:Static resources:Resource.SettingsPage_BootLogo_Title}"
+                    Title="{x:Static resources:Resource.SettingsPage_BootLogo_Title}" HelpKey="Help_Settings_BootLogo"
                     Subtitle="{x:Static resources:Resource.SettingsPage_BootLogo_Message}"
                     Info="{x:Static resources:Resource.SettingsPage_BootLogo_EFIInfo}" />
             </custom:CardAction>

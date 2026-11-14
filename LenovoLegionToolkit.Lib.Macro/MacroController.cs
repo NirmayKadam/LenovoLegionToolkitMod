@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Win32;
 using Windows.Win32.Foundation;
@@ -74,12 +75,91 @@ public class MacroController
         _settings.SynchronizeStore();
     }
 
+    private bool _started;
+    private bool _suspended;
+
+    /// <summary>
+    /// The thread that started macros (the UI thread). Windows delivers a low-level keyboard hook's events only to
+    /// the thread that installed it, and only while that thread runs a message loop, so the hook is always
+    /// installed and removed there, even when game-safe mode pauses or resumes macros from a background thread.
+    /// </summary>
+    private SynchronizationContext? _hookThread;
+
+    /// <summary>True while game-safe mode has paused macros: no keyboard hook and no simulated input.</summary>
+    public bool IsSuspended => _suspended;
+
+    /// <summary>Installs the keyboard hook. Call on the UI thread, which must keep running a message loop.</summary>
     public void Start()
+    {
+        _hookThread ??= SynchronizationContext.Current;
+        _started = true;
+
+        if (_suspended)
+            return;
+
+        InstallHook();
+    }
+
+    /// <summary>For tests: told which thread installed the keyboard hook.</summary>
+    internal Action<int>? HookInstalledOnThread { get; set; }
+
+    private void InstallHook()
     {
         if (_kbHook != default)
             return;
 
         _kbHook = PInvoke.SetWindowsHookEx(WINDOWS_HOOK_ID.WH_KEYBOARD_LL, _kbProc, HINSTANCE.Null, 0);
+        HookInstalledOnThread?.Invoke(Environment.CurrentManagedThreadId);
+    }
+
+    private void RemoveHook()
+    {
+        if (_kbHook == default)
+            return;
+
+        PInvoke.UnhookWindowsHookEx(_kbHook);
+        _kbHook = default;
+    }
+
+    /// <summary>Runs <paramref name="action"/> on the thread that started macros, waiting for it.</summary>
+    private void OnHookThread(Action action)
+    {
+        var target = _hookThread;
+        if (target is null || target == SynchronizationContext.Current)
+            action();
+        else
+            target.Send(_ => action(), null);
+    }
+
+    /// <summary>
+    /// Pauses macros while an anti-cheat-protected game runs: stops any sequence that is playing (it sends
+    /// simulated key presses) and removes the keyboard hook. <see cref="Resume"/> restores the previous state.
+    /// Safe to call from any thread.
+    /// </summary>
+    public void Suspend()
+    {
+        if (_suspended)
+            return;
+
+        _suspended = true;
+        _player.Stop();
+        OnHookThread(RemoveHook);
+
+        StateChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    /// <summary>Ends <see cref="Suspend"/>. Safe to call from any thread.</summary>
+    public void Resume()
+    {
+        if (!_suspended)
+            return;
+
+        _suspended = false;
+
+        if (_started)
+            OnHookThread(InstallHook);
+
+        StateChanged?.Invoke(this, EventArgs.Empty);
     }
 
     public void StartRecording(MacroRecorderSettings settings = MacroRecorderSettings.Keyboard) => _recorder.StartRecording(settings);

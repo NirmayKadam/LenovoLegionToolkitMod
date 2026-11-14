@@ -63,7 +63,7 @@
                     <custom:CardControl Margin="0,0,0,8" Icon="Flash24">
                         <custom:CardControl.Header>
                             <controls:CardHeaderControl
-                                Title="{x:Static resources:Resource.OverclockDiscreteGPUSettingsWindow_CoreFrequencyOffset_Title}"
+                                Title="{x:Static resources:Resource.OverclockDiscreteGPUSettingsWindow_CoreFrequencyOffset_Title}" HelpKey="Help_GpuOc_Core"
                                 Subtitle="{x:Static resources:Resource.OverclockDiscreteGPUSettingsWindow_CoreDesc}" />
                         </custom:CardControl.Header>
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -86,7 +86,7 @@
                     <custom:CardControl Margin="0,0,0,24" Icon="Memory16">
                         <custom:CardControl.Header>
                             <controls:CardHeaderControl
-                                Title="{x:Static resources:Resource.OverclockDiscreteGPUSettingsWindow_MemoryFrequencyOffset_Title}"
+                                Title="{x:Static resources:Resource.OverclockDiscreteGPUSettingsWindow_MemoryFrequencyOffset_Title}" HelpKey="Help_GpuOc_Memory"
                                 Subtitle="{x:Static resources:Resource.OverclockDiscreteGPUSettingsWindow_MemoryDesc}" />
                         </custom:CardControl.Header>
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -112,7 +112,7 @@
                     <custom:CardControl Margin="0,0,0,8" Icon="ArrowDown24">
                         <custom:CardControl.Header>
                             <controls:CardHeaderControl
-                                Title="{x:Static resources:Resource.OverclockDiscreteGPUSettingsWindow_VoltageCap}"
+                                Title="{x:Static resources:Resource.OverclockDiscreteGPUSettingsWindow_VoltageCap}" HelpKey="Help_GpuOc_VoltageCap"
                                 Subtitle="{x:Static resources:Resource.OverclockDiscreteGPUSettingsWindow_VoltageCapDesc}" />
                         </custom:CardControl.Header>
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -135,7 +135,7 @@
                     <custom:CardControl Margin="0,0,0,8" Icon="LockClosed24">
                         <custom:CardControl.Header>
                             <controls:CardHeaderControl
-                                Title="{x:Static resources:Resource.OverclockDiscreteGPUSettingsWindow_VoltageLock}"
+                                Title="{x:Static resources:Resource.OverclockDiscreteGPUSettingsWindow_VoltageLock}" HelpKey="Help_GpuOc_VoltageLock"
                                 Subtitle="{x:Static resources:Resource.OverclockDiscreteGPUSettingsWindow_VoltageLockDesc}" />
                         </custom:CardControl.Header>
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">

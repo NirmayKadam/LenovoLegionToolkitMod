@@ -184,7 +184,7 @@
                         <custom:CardControl Margin="0,0,0,8" Icon="Power24">
                             <custom:CardControl.Header>
                                 <controls:CardHeaderControl
-                                    Title="{x:Static resources:Resource.DiscreteGPUControl_KeepDgpuAwakeTitle}"
+                                    Title="{x:Static resources:Resource.DiscreteGPUControl_KeepDgpuAwakeTitle}" HelpKey="Help_DiscreteGpu_KeepAwake"
                                     Subtitle="{x:Static resources:Resource.DiscreteGPUControl_KeepDgpuAwakeDescription}"
                                     Info="{x:Static resources:Resource.DiscreteGPUControl_KeepDgpuAwakeInfo}" />
                             </custom:CardControl.Header>
@@ -194,7 +194,7 @@
                         <custom:CardControl Margin="0,0,0,8" Icon="Flash24">
                             <custom:CardControl.Header>
                                 <controls:CardHeaderControl
-                                    Title="{x:Static resources:Resource.DiscreteGPUControl_PStateLockTitle}"
+                                    Title="{x:Static resources:Resource.DiscreteGPUControl_PStateLockTitle}" HelpKey="Help_DiscreteGpu_PState"
                                     Subtitle="{x:Static resources:Resource.DiscreteGPUControl_PStateLockDescription}"
                                     Info="{x:Static resources:Resource.DiscreteGPUControl_PStateLockInfo}" />
                             </custom:CardControl.Header>

@@ -1823,5 +1823,86 @@ namespace LenovoLegionToolkit.Lib.Resources {
                 return ResourceManager.GetString("WinKeyState_On", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Full.
+        /// </summary>
+        public static string AnimationLevel_Full {
+            get {
+                return ResourceManager.GetString("AnimationLevel_Full", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Off.
+        /// </summary>
+        public static string AnimationLevel_Off {
+            get {
+                return ResourceManager.GetString("AnimationLevel_Off", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reduced.
+        /// </summary>
+        public static string AnimationLevel_Reduced {
+            get {
+                return ResourceManager.GetString("AnimationLevel_Reduced", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Amber.
+        /// </summary>
+        public static string RetroPhosphor_Amber {
+            get {
+                return ResourceManager.GetString("RetroPhosphor_Amber", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Green.
+        /// </summary>
+        public static string RetroPhosphor_Green {
+            get {
+                return ResourceManager.GetString("RetroPhosphor_Green", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to White.
+        /// </summary>
+        public static string RetroPhosphor_White {
+            get {
+                return ResourceManager.GetString("RetroPhosphor_White", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fluent glass.
+        /// </summary>
+        public static string UiSkin_Fluent {
+            get {
+                return ResourceManager.GetString("UiSkin_Fluent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Neon.
+        /// </summary>
+        public static string UiSkin_Neon {
+            get {
+                return ResourceManager.GetString("UiSkin_Neon", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Retro CRT.
+        /// </summary>
+        public static string UiSkin_Retro {
+            get {
+                return ResourceManager.GetString("UiSkin_Retro", resourceCulture);
+            }
+        }
     }
 }

@@ -10,6 +10,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using System.Windows.Shell;
 using Microsoft.Xaml.Behaviors.Core;
@@ -73,6 +75,11 @@ public partial class MainWindow
         Loaded += MainWindow_Loaded;
         SourceInitialized += MainWindow_SourceInitialized;
         StateChanged += MainWindow_StateChanged;
+
+        ApplyPageTransition();
+        Motion.LevelChanged += Motion_LevelChanged;
+        IoCContainer.Resolve<ThemeManager>().ThemeApplied += ThemeManager_ThemeApplied;
+        _contentGrid.IsVisibleChanged += ContentGrid_IsVisibleChanged;
 
         var version = Assembly.GetEntryAssembly()?.GetName().Version;
 #if DEBUG
@@ -226,10 +233,205 @@ public partial class MainWindow
     {
         _trayHelper?.Dispose();
         _trayHelper = null;
+
+        Motion.LevelChanged -= Motion_LevelChanged;
+        IoCContainer.Resolve<ThemeManager>().ThemeApplied -= ThemeManager_ThemeApplied;
+        _sweepLoop?.Dispose();
+        _sweepLoop = null;
+        StopCrtLoops();
     }
+
+    private IDisposable? _sweepLoop;
+    private IDisposable? _rollBandLoop;
+    private IDisposable? _flickerLoop;
+    private DropShadowEffect? _phosphorGlow;
+    private UiSkin? _lastSkin;
+    private bool _powerOnShown;
+
+    private void ThemeManager_ThemeApplied(object? sender, EventArgs e)
+    {
+        UpdateSkinDecorations();
+        UpdateCrt();
+        SetVisual();
+    }
+
+    // ---- Retro CRT ----
+
+    /// <summary>
+    /// Shows or hides the CRT layer for the Retro skin and applies its settings. Looping effects (rolling band,
+    /// flicker) only run at Full motion while the window is on screen; the phosphor glow is one effect on the
+    /// content, used only when it's turned on and the GPU draws effects.
+    /// </summary>
+    private void UpdateCrt()
+    {
+        var palette = IoCContainer.Resolve<ThemeManager>().CurrentPalette;
+        var settings = IoCContainer.Resolve<ApplicationSettings>();
+        var retro = palette.Skin == UiSkin.Retro;
+        var switchedToRetro = retro && _lastSkin is not null && _lastSkin != UiSkin.Retro;
+        _lastSkin = palette.Skin;
+
+        StopCrtLoops();
+
+        if (!retro)
+        {
+            _crtLayer.Visibility = Visibility.Collapsed;
+            SetPhosphorGlow(null);
+            return;
+        }
+
+        var phosphor = palette.Colors?.TextPrimary ?? Colors.White;
+
+        _crtLayer.Visibility = Visibility.Visible;
+        _scanlines.Opacity = Math.Clamp(settings.Store.RetroScanlines, 0, 100) / 100.0 * 0.6;
+
+        _rollBand.Fill = new LinearGradientBrush(
+            new GradientStopCollection
+            {
+                new(Color.FromArgb(0, phosphor.R, phosphor.G, phosphor.B), 0),
+                new(Color.FromArgb(0x14, phosphor.R, phosphor.G, phosphor.B), 0.5),
+                new(Color.FromArgb(0, phosphor.R, phosphor.G, phosphor.B), 1),
+            }, 90);
+        _rollBand.Opacity = 1;
+
+        var roll = new DoubleAnimation(-140, SystemParameters.VirtualScreenHeight, TimeSpan.FromSeconds(7)) { RepeatBehavior = RepeatBehavior.Forever };
+        Storyboard.SetTarget(roll, _rollBand);
+        Storyboard.SetTargetProperty(roll, new PropertyPath("(0).(1)", RenderTransformProperty, TranslateTransform.YProperty));
+        _rollBandLoop = Motion.RegisterLoop(_rollBand, new Storyboard { Children = { roll } });
+
+        // A barely visible, irregular flicker (a few percent of the glass layer's strength).
+        var flicker = new DoubleAnimationUsingKeyFrames { Duration = TimeSpan.FromSeconds(3.7), RepeatBehavior = RepeatBehavior.Forever };
+        foreach (var (ms, value) in new[] { (0, 1.0), (900, 0.96), (1000, 1.0), (2300, 0.97), (2380, 1.0), (3700, 1.0) })
+            flicker.KeyFrames.Add(new LinearDoubleKeyFrame(value, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(ms))));
+        Storyboard.SetTarget(flicker, _crtLayer);
+        Storyboard.SetTargetProperty(flicker, new PropertyPath(OpacityProperty));
+        _flickerLoop = Motion.RegisterLoop(_crtLayer, new Storyboard { Children = { flicker } });
+
+        SetPhosphorGlow(settings.Store.RetroGlow && Motion.EffectsAllowed ? phosphor : null);
+
+        if (switchedToRetro)
+            PlayPowerOn();
+    }
+
+    private void StopCrtLoops()
+    {
+        _rollBandLoop?.Dispose();
+        _rollBandLoop = null;
+        _flickerLoop?.Dispose();
+        _flickerLoop = null;
+    }
+
+    private void SetPhosphorGlow(Color? color)
+    {
+        if (color is null)
+        {
+            if (_phosphorGlow is not null && ReferenceEquals(_contentGrid.Effect, _phosphorGlow))
+                _contentGrid.Effect = null;
+            _phosphorGlow = null;
+            return;
+        }
+
+        _phosphorGlow = new DropShadowEffect
+        {
+            Color = color.Value,
+            BlurRadius = 10,
+            ShadowDepth = 0,
+            Opacity = 0.35,
+            RenderingBias = RenderingBias.Performance,
+        };
+        _phosphorGlow.Freeze();
+        _contentGrid.Effect = _phosphorGlow;
+    }
+
+    /// <summary>
+    /// The picture opening up from a bright line, like an old monitor warming up. Full motion only.
+    /// </summary>
+    private void PlayPowerOn()
+    {
+        if (Motion.Level != AnimationLevel.Full || !_contentGrid.IsVisible)
+            return;
+
+        _powerOnShown = true;
+        var scale = new ScaleTransform(1, 1);
+        _contentGrid.RenderTransformOrigin = new Point(0.5, 0.5);
+        _contentGrid.RenderTransform = scale;
+
+        var duration = TimeSpan.FromMilliseconds(650);
+        var open = new DoubleAnimationUsingKeyFrames { Duration = duration, FillBehavior = FillBehavior.Stop };
+        open.KeyFrames.Add(new DiscreteDoubleKeyFrame(0.01, KeyTime.FromTimeSpan(TimeSpan.Zero)));
+        open.KeyFrames.Add(new EasingDoubleKeyFrame(0.01, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(120))));
+        open.KeyFrames.Add(new EasingDoubleKeyFrame(1, KeyTime.FromTimeSpan(duration), new CubicEase { EasingMode = EasingMode.EaseOut }));
+        scale.BeginAnimation(ScaleTransform.ScaleYProperty, open);
+
+        var fade = new DoubleAnimation(0.2, 1, duration) { FillBehavior = FillBehavior.Stop };
+        _contentGrid.BeginAnimation(OpacityProperty, fade);
+    }
+
+    private void ContentGrid_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+        // First time the content appears in Retro (app start), play the warm-up once.
+        if (_contentGrid.IsVisible && !_powerOnShown && _lastSkin == UiSkin.Retro)
+            PlayPowerOn();
+    }
+
+    /// <summary>
+    /// Skin-specific window decorations: Neon's sweep line under the title bar.
+    /// </summary>
+    private void UpdateSkinDecorations()
+    {
+        var palette = IoCContainer.Resolve<ThemeManager>().CurrentPalette;
+
+        if (palette.Skin != UiSkin.Neon)
+        {
+            _sweepLoop?.Dispose();
+            _sweepLoop = null;
+            _sweepLine.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        var glow = palette.GlowColor;
+        var shift = new TranslateTransform(-0.65, 0);
+        var brush = new LinearGradientBrush
+        {
+            StartPoint = new Point(0, 0.5),
+            EndPoint = new Point(1, 0.5),
+            RelativeTransform = shift,
+            GradientStops =
+            {
+                new GradientStop(Color.FromArgb(0, glow.R, glow.G, glow.B), 0.35),
+                new GradientStop(glow, 0.5),
+                new GradientStop(Color.FromArgb(0, glow.R, glow.G, glow.B), 0.65),
+            }
+        };
+        _sweepLine.Fill = brush;
+        _sweepLine.Visibility = Visibility.Visible;
+
+        var sweep = new DoubleAnimation(-0.65, 0.65, TimeSpan.FromSeconds(3.2)) { RepeatBehavior = RepeatBehavior.Forever };
+        Storyboard.SetTarget(sweep, _sweepLine);
+        Storyboard.SetTargetProperty(sweep, new PropertyPath("(0).(1).(2)", System.Windows.Shapes.Shape.FillProperty, Brush.RelativeTransformProperty, TranslateTransform.XProperty));
+        var storyboard = new Storyboard { Children = { sweep } };
+
+        _sweepLoop?.Dispose();
+        _sweepLoop = Motion.RegisterLoop(_sweepLine, storyboard);
+    }
+
+    private void Motion_LevelChanged(object? sender, EventArgs e) => ApplyPageTransition();
+
+    private void ApplyPageTransition()
+    {
+        var (type, duration) = Motion.PageTransition(Motion.Level);
+        _navigationStore.TransitionType = type;
+        _navigationStore.TransitionDuration = duration;
+    }
+
+    /// <summary>
+    /// Looping effects run only while the window is actually on screen.
+    /// </summary>
+    private void UpdateMotionWindowState() => Motion.SetWindowShown(IsVisible && WindowState != WindowState.Minimized);
 
     private void MainWindow_StateChanged(object? sender, EventArgs e)
     {
+        UpdateMotionWindowState();
+
         Log.Instance.Trace($"Window state changed to {WindowState}");
 
         if (_windowSizeLocked && WindowState == WindowState.Maximized)
@@ -256,6 +458,8 @@ public partial class MainWindow
         var settings = IoCContainer.Resolve<ApplicationSettings>();
         ApplyWindowLock(settings.Store.LockWindowSize);
         Topmost = settings.Store.AlwaysOnTop;
+
+        UpdateMotionWindowState();
 
         if (!IsVisible)
             return;
@@ -605,7 +809,14 @@ public partial class MainWindow
         var opacity = settings.Store.Opacity;
         try
         {
-            if (result != string.Empty)
+            if (IoCContainer.Resolve<ThemeManager>().CurrentPalette.SolidBackground)
+            {
+                // Neon and Retro draw their own solid background; the image setting is kept for Fluent.
+                _backgroundImage.ImageSource = null;
+                SetWindowOpacity(1);
+                SetBackgroundBlur(0);
+            }
+            else if (result != string.Empty)
             {
                 SetMainWindowBackgroundImage(result);
                 SetWindowOpacity(opacity);

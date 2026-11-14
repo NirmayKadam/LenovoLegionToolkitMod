@@ -528,7 +528,11 @@ public enum NotificationType
     ITSModeAuto,
     ITSModeCool,
     ITSModePerformance,
-    ITSModeGeek
+    ITSModeGeek,
+    OsdShown,
+    OsdHidden,
+    GameSafeModeOn,
+    GameSafeModeOff
 }
 
 public enum OneLevelWhiteKeyboardBacklightState
@@ -950,6 +954,36 @@ public enum Theme
     Light,
     [Display(ResourceType = typeof(Resource), Name = "Theme_Dark")]
     Dark
+}
+
+public enum UiSkin
+{
+    [Display(ResourceType = typeof(Resource), Name = "UiSkin_Fluent")]
+    Fluent,
+    [Display(ResourceType = typeof(Resource), Name = "UiSkin_Neon")]
+    Neon,
+    [Display(ResourceType = typeof(Resource), Name = "UiSkin_Retro")]
+    Retro
+}
+
+public enum RetroPhosphor
+{
+    [Display(ResourceType = typeof(Resource), Name = "RetroPhosphor_Green")]
+    Green,
+    [Display(ResourceType = typeof(Resource), Name = "RetroPhosphor_Amber")]
+    Amber,
+    [Display(ResourceType = typeof(Resource), Name = "RetroPhosphor_White")]
+    White
+}
+
+public enum AnimationLevel
+{
+    [Display(ResourceType = typeof(Resource), Name = "AnimationLevel_Full")]
+    Full,
+    [Display(ResourceType = typeof(Resource), Name = "AnimationLevel_Reduced")]
+    Reduced,
+    [Display(ResourceType = typeof(Resource), Name = "AnimationLevel_Off")]
+    Off
 }
 
 public enum ThermalModeState

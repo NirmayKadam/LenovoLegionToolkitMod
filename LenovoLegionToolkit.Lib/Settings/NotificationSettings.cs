@@ -17,6 +17,8 @@ public class NotificationSettings() : AbstractSettings<NotificationSettings.Noti
         public bool Microphone { get; set; } = true;
         public bool PowerMode { get; set; } = true;
         public bool RefreshRate { get; set; } = true;
+        public bool Osd { get; set; } = true;
+        public bool GameSafeMode { get; set; } = true;
         public bool ACAdapter { get; set; }
         public bool SmartKey { get; set; }
         public bool AutomationNotification { get; set; } = true;

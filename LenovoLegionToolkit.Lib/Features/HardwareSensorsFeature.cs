@@ -8,7 +8,7 @@ using LenovoLegionToolkit.Lib.Utils;
 
 namespace LenovoLegionToolkit.Lib.Features;
 
-public class HardwareSensorsFeature(ApplicationSettings settings, OsdSettings osdSettings, SensorsGroupController sensorsGroupController) : IFeature<HardwareSensorsState>
+public class HardwareSensorsFeature(ApplicationSettings settings, SensorsGroupController sensorsGroupController) : IFeature<HardwareSensorsState>
 {
     public Task<bool> IsSupportedAsync() => Task.FromResult(PawnIOHelper.GetPawnIOState() == PawnIOState.Installed);
 
@@ -27,13 +27,9 @@ public class HardwareSensorsFeature(ApplicationSettings settings, OsdSettings os
         if (state == HardwareSensorsState.On && !sensorsGroupController.IsLibreHardwareMonitorInitialized())
             await sensorsGroupController.IsSupportedAsync().ConfigureAwait(false);
 
+        // The OSD keeps running without hardware sensors; it switches to driver-free readings.
         if (state == HardwareSensorsState.Off)
-        {
             settings.Store.UseNewSensorDashboard = false;
-            osdSettings.Store.ShowOsd = false;
-            osdSettings.SynchronizeStore();
-            MessagingCenter.Publish(new OsdChangedMessage(ToggleState.Off));
-        }
 
         settings.Store.EnableHardwareSensors = state == HardwareSensorsState.On;
         settings.SynchronizeStore();

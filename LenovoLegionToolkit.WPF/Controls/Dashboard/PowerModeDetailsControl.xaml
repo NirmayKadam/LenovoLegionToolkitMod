@@ -1,0 +1,79 @@
+<UserControl
+    x:Class="LenovoLegionToolkit.WPF.Controls.Dashboard.PowerModeDetailsControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="clr-namespace:LenovoLegionToolkit.WPF.Controls"
+    xmlns:resources="clr-namespace:LenovoLegionToolkit.WPF.Resources"
+    xmlns:wpfui="http://schemas.lepo.co/wpfui/2022/xaml"
+    Visibility="Collapsed">
+    <Border
+        Margin="0,0,8,8"
+        Padding="14,12"
+        Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+        BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+        BorderThickness="1"
+        CornerRadius="{DynamicResource ControlCornerRadius}">
+        <StackPanel>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <controls:CardHeaderControl
+                    x:Name="_header"
+                    Title="{x:Static resources:Resource.PowerModeDetails_Title}"
+                    HelpKey="Help_Dashboard_PowerModeDetails" />
+                <wpfui:Button
+                    x:Name="_expandButton"
+                    Grid.Column="1"
+                    Appearance="Transparent"
+                    AutomationProperties.Name="{x:Static resources:Resource.PowerModeDetails_Title}"
+                    Click="ExpandButton_Click"
+                    Icon="ChevronUp24" />
+            </Grid>
+
+            <StackPanel x:Name="_body" Margin="0,8,0,0">
+                <!--  One row per value: name, value (previous → current when it changed), live read-back.  -->
+                <Grid x:Name="_rows">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                </Grid>
+
+                <TextBlock
+                    x:Name="_fanLabel"
+                    Margin="0,12,0,4"
+                    FontSize="12"
+                    Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                    TextWrapping="Wrap" />
+                <wpfui:Button
+                    Margin="0,0,0,6"
+                    Padding="10,4"
+                    Appearance="Secondary"
+                    Click="FanCurvesButton_Click"
+                    Content="{x:Static resources:Resource.PowerModeDetails_FanCurvesButton}"
+                    Icon="WeatherDuststorm24" />
+                <UniformGrid
+                    x:Name="_fanBars"
+                    Height="36"
+                    HorizontalAlignment="Left"
+                    Rows="1"
+                    Visibility="Collapsed" />
+
+                <TextBlock
+                    x:Name="_clocks"
+                    Margin="0,10,0,0"
+                    FontSize="12"
+                    Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                    TextWrapping="Wrap" />
+                <TextBlock
+                    Margin="0,4,0,0"
+                    FontSize="12"
+                    Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                    Text="{x:Static resources:Resource.PowerModeDetails_VfCurve}"
+                    TextWrapping="Wrap" />
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</UserControl>

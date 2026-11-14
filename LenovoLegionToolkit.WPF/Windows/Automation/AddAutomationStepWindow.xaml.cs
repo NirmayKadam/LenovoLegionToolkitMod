@@ -94,6 +94,7 @@ public partial class AddAutomationStepWindow
             Header = new CardHeaderControl
             {
                 Title = Resource.AddAutomationStepWindow_MultipleSteps,
+                HelpKey = "Help_Automation_MultipleSteps",
                 Accessory = new SymbolIcon { Symbol = SymbolRegular.ChevronRight24 }
             },
             Margin = new(0, 8, 0, 0),
@@ -143,6 +144,7 @@ public partial class AddAutomationStepWindow
             Header = new CardHeaderControl
             {
                 Title = stepControl.Title,
+                HelpKey = stepControl.HelpKey,
                 Accessory = accessory
             },
             Margin = new(0, 8, 0, 0),
