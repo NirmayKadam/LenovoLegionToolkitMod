@@ -659,7 +659,17 @@ public partial class App
 
     #region Exception Handling
 
-    private void LogUnhandledException(Exception exception)
+    /// <summary>
+    /// Writes an error report to the local log folder (even with trace logging off), so a crash leaves more than
+    /// a one-line Windows event. Nothing is sent anywhere.
+    /// </summary>
+    private static void WriteErrorReport(Exception exception, string kind, bool closing)
+    {
+        var version = Assembly.GetEntryAssembly()?.GetName().Version;
+        Log.Instance.ErrorReport($"Unhandled {kind} error{(closing ? " (LLT closed)" : string.Empty)} [version={version}]", exception);
+    }
+
+    private void LogUnhandledException(Exception exception, string kind)
     {
         if (exception == null)
         {
@@ -671,6 +681,7 @@ public partial class App
             Console.WriteLine(@$"[UnhandledException] {exception}");
         }
 
+        WriteErrorReport(exception, kind, closing: false);
         Log.Instance.Trace($"Exception in LogUnhandledException {exception.Message}", exception);
         var userMessage = GetFriendlyErrorMessage(exception);
 
@@ -742,9 +753,19 @@ public partial class App
     {
         AppDomain.CurrentDomain.UnhandledException += (s, e) =>
         {
-            if (!ShouldIgnoreException((Exception)e.ExceptionObject))
+            if (e.ExceptionObject is not Exception exception)
+                return;
+
+            // The app is about to end: always leave a report, whatever kind of error it is.
+            if (e.IsTerminating)
             {
-                LogUnhandledException((Exception)e.ExceptionObject);
+                WriteErrorReport(exception, "background", closing: true);
+                return;
+            }
+
+            if (!ShouldIgnoreException(exception))
+            {
+                LogUnhandledException(exception, "background");
             }
         };
 
@@ -752,7 +773,7 @@ public partial class App
         {
             if (!ShouldIgnoreException(e.Exception))
             {
-                LogUnhandledException(e.Exception);
+                LogUnhandledException(e.Exception, "UI");
             }
 
             e.Handled = true;
@@ -762,7 +783,7 @@ public partial class App
         {
             if (!ShouldIgnoreException(e.Exception))
             {
-                LogUnhandledException(e.Exception);
+                LogUnhandledException(e.Exception, "task");
             }
 
             e.SetObserved();

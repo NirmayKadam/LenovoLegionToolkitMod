@@ -19,20 +19,6 @@ public class GameAutoListener : AbstractAutoListener<GameAutoListener.ChangedEve
         public bool Running { get; } = running;
     }
 
-    private class ProcessEqualityComparer : IEqualityComparer<Process>
-    {
-        public bool Equals(Process? x, Process? y)
-        {
-            if (ReferenceEquals(x, y)) return true;
-            if (x is null) return false;
-            if (y is null) return false;
-            if (x.GetType() != y.GetType()) return false;
-            return x.Id == y.Id;
-        }
-
-        public int GetHashCode(Process obj) => obj.Id;
-    }
-
     private static readonly Lock Lock = new();
 
     private readonly InstanceStartedEventAutoAutoListener _instanceStartedEventAutoAutoListener;
@@ -43,8 +29,9 @@ public class GameAutoListener : AbstractAutoListener<GameAutoListener.ChangedEve
     private readonly ApplicationSettings _settings;
 
     private readonly HashSet<ProcessInfo> _detectedGamePathsCache = [];
-    private readonly HashSet<Process> _processCache = new(new ProcessEqualityComparer());
-    private readonly HashSet<Process> _gameModePinnedProcesses = new(new ProcessEqualityComparer());
+    // Keyed by the id read when a process is added: a disposed Process object can't tell its id (see ProcessSet).
+    private readonly ProcessSet _processCache = new();
+    private readonly ProcessSet _gameModePinnedProcesses = new();
 
     private bool _lastState;
     private bool _preserveStateOnNextStart;
@@ -686,7 +673,23 @@ public class GameAutoListener : AbstractAutoListener<GameAutoListener.ChangedEve
         catch { /* Ignore */ }
     }
 
+    /// <summary>
+    /// Runs on a thread-pool thread, where an exception would end the whole app, so nothing may escape it.
+    /// </summary>
     private void Process_Exited(object? o, EventArgs args)
+    {
+        try
+        {
+            HandleProcessExited(o);
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Failed to handle a game exiting.", ex);
+            Log.Instance.ErrorReport("Game listener: failed to handle a game exiting (LLT kept running).", ex);
+        }
+    }
+
+    private void HandleProcessExited(object? o)
     {
         lock (Lock)
         {

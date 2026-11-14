@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -124,24 +125,28 @@ public static class BootLogo
                 throw new CantMountUEFIPartitionException();
             }
 
-            DeleteLogosOnEfiPartition(drive.Value);
-
-            var destinationPath = CopyLogoToEfiPartition(info, sourcePath, drive.Value);
-
-            byte[] hash;
-            if (useSha256)
+            string? destinationPath = null;
+            foreach (var step in EnableSteps(info.Enabled != 0))
             {
-                hash = SHA256.HashData(File.ReadAllBytes(destinationPath));
+                switch (step)
+                {
+                    case BootLogoStep.DisableFlag:
+                        SetInfo(info with { Enabled = 0 });
+                        break;
+                    case BootLogoStep.DeleteFiles:
+                        DeleteLogosOnEfiPartition(drive.Value);
+                        break;
+                    case BootLogoStep.CopyImage:
+                        destinationPath = CopyLogoToEfiPartition(info, sourcePath, drive.Value);
+                        break;
+                    case BootLogoStep.WriteChecksum:
+                        WriteChecksum(version, ComputeHash(destinationPath!, useSha256));
+                        break;
+                    case BootLogoStep.EnableFlag:
+                        SetInfo(info with { Enabled = 1 });
+                        break;
+                }
             }
-            else
-            {
-                var crc = Crc32Adler.Calculate(destinationPath);
-                hash = new byte[32];
-                BitConverter.GetBytes(crc).CopyTo(hash, 0);
-            }
-
-            WriteChecksum(version, hash);
-            SetInfo(info with { Enabled = 1 });
         }
         finally
         {
@@ -156,23 +161,62 @@ public static class BootLogo
     {
         Log.Instance.Trace($"Disabling logo...");
 
-        char? drive = null;
-        try
+        foreach (var step in DisableSteps())
         {
-            drive = await MountEfiPartitionAsync().ConfigureAwait(false);
-            if (drive.HasValue)
-                DeleteLogosOnEfiPartition(drive.Value);
+            switch (step)
+            {
+                case BootLogoStep.DisableFlag:
+                    SetInfo(GetInfo() with { Enabled = 0 });
+                    break;
+                case BootLogoStep.ClearChecksum:
+                    WriteChecksum(SHA256_VERSION, new byte[32]);
+                    break;
+                case BootLogoStep.DeleteFiles:
+                    char? drive = null;
+                    try
+                    {
+                        drive = await MountEfiPartitionAsync().ConfigureAwait(false);
+                        if (drive.HasValue)
+                            DeleteLogosOnEfiPartition(drive.Value);
+                    }
+                    finally
+                    {
+                        if (drive.HasValue)
+                            await UnMountEfiPartitionAsync(drive.Value).ConfigureAwait(false);
+                    }
+                    break;
+            }
         }
-        finally
-        {
-            if (drive.HasValue)
-                await UnMountEfiPartitionAsync(drive.Value).ConfigureAwait(false);
-        }
-
-        WriteChecksum(SHA256_VERSION, new byte[32]);
-        SetInfo(GetInfo() with { Enabled = 0 });
 
         Log.Instance.Trace($"Disabled logo.");
+    }
+
+    /// <summary>One change to the boot logo's UEFI flag, checksum or image file.</summary>
+    internal enum BootLogoStep { DisableFlag, DeleteFiles, CopyImage, WriteChecksum, ClearChecksum, EnableFlag }
+
+    /// <summary>
+    /// The order for turning a custom logo on. The firmware's "enabled" flag is off whenever files are being
+    /// changed and is set only after the new image and its checksum are in place, so an interruption at any point
+    /// (LLT killed, power lost) leaves the logo disabled, and the laptop shows the stock logo, never an enabled
+    /// flag pointing at a missing or half-written file.
+    /// </summary>
+    internal static IReadOnlyList<BootLogoStep> EnableSteps(bool currentlyEnabled) => currentlyEnabled
+        ? [BootLogoStep.DisableFlag, BootLogoStep.DeleteFiles, BootLogoStep.CopyImage, BootLogoStep.WriteChecksum, BootLogoStep.EnableFlag]
+        : [BootLogoStep.DeleteFiles, BootLogoStep.CopyImage, BootLogoStep.WriteChecksum, BootLogoStep.EnableFlag];
+
+    /// <summary>The order for turning the custom logo off: the flag first, then the checksum, then the files.</summary>
+    internal static IReadOnlyList<BootLogoStep> DisableSteps() =>
+        [BootLogoStep.DisableFlag, BootLogoStep.ClearChecksum, BootLogoStep.DeleteFiles];
+
+    private static byte[] ComputeHash(string path, bool useSha256)
+    {
+        if (useSha256)
+            return SHA256.HashData(File.ReadAllBytes(path));
+
+        var crc = Crc32Adler.Calculate(path);
+        var hash = new byte[32];
+        BitConverter.GetBytes(crc).CopyTo(hash, 0);
+        return hash;
     }
 
     private static unsafe BootLogoInfo GetInfo()

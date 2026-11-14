@@ -2,7 +2,7 @@
 
 ## Automated tests
 
-The `LenovoLegionToolkit.Tests` project (xUnit) has **549 tests**. Run them with:
+The `LenovoLegionToolkit.Tests` project (xUnit) has **565 tests**. Run them with:
 
 ```powershell
 dotnet test LenovoLegionToolkit.Tests\LenovoLegionToolkit.Tests.csproj -c Release
@@ -57,6 +57,9 @@ These can only be checked on real hardware with an installed (Program Files), el
 - [ ] Fan curves, two modes with curves: press Fn+Q quickly several times; the curve in use is the one for the mode you end in
 - [ ] Fan curves: sleep and resume do not change the recorded Accepts/Rejects; the curve is back after resume and after restarting LLT
 - [ ] Fan curves: turning the feature off brings the firmware's curve back without changing mode
+- [ ] Round 1: start and quit games several times over a few days; LLT keeps running (no new "Lenovo Legion Toolkit.exe" crash in the Windows Application log)
+- [ ] Round 1: change the custom boot logo once and turn it off once; both show correctly at the next boot
+- [ ] Round 1: `error_*.txt` appears in `%LOCALAPPDATA%\LenovoLegionToolkit\log` only when something actually fails
 - [ ] LLT in the tray, untouched for 2 minutes: near 0% CPU in Task Manager, memory steady (compare with the 2026-11-14 measurement: 7–17% of one core, 320–380 MB)
 - [ ] Dashboard open for 1 minute: CPU clearly lower than before (32–48% of one core); then compare Retro with Fluent
 - [ ] Dashboard sensors, status strip, battery page, HWiNFO values and a package download still update; Fan curves window shows its busy ring

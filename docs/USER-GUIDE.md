@@ -272,6 +272,7 @@ On first start after installing this mod, settings from the old location are cop
 | "Smart App Control blocked part of this app" | Smart App Control rejects self-signed builds. Turn it off, or sign the app with a trusted certificate ([BUILDING.md](BUILDING.md)). |
 | The app won't start after installing to a custom folder | Reinstall to Program Files (uiAccess needs a protected folder) |
 | "Unsupported" message | Your model isn't in LLT's list. `--skip-compat-check` lets you try at your own risk. |
+| LLT closed by itself, or showed an error | Look in `%LOCALAPPDATA%\LenovoLegionToolkit\log` for `error_*.txt`. LLT writes one there for any unexpected error, even with logging off, and keeps the newest 20. They stay on your PC; nothing is sent anywhere. Attach the newest one when reporting a problem. |
 | A card is missing | Your laptop doesn't support it, or Lenovo's software is interfering (turn it off in Software control) |
 | Settings snap back or modes change by themselves | Vantage, Legion Zone or Legion Space is still running |
 | Performance/Custom is refused | You're on battery; plug in the charger (or use `--allow-all-power-modes-on-battery`) |
