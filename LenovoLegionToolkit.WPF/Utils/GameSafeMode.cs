@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using LenovoLegionToolkit.Lib;
 using LenovoLegionToolkit.Lib.Controllers.Sensors;
+using LenovoLegionToolkit.Lib.GameProfiles;
 using LenovoLegionToolkit.Lib.Listeners;
 using LenovoLegionToolkit.Lib.Macro;
 using LenovoLegionToolkit.Lib.Messaging;
@@ -30,17 +31,25 @@ public sealed class GameSafeMode
     private readonly Func<bool> _settingEnabled;
     private readonly Func<bool, Task> _switch;
     private readonly Action<string, Exception> _reportError;
+    private readonly Func<bool> _forcedByProfile;
 
-    public GameSafeMode(AntiCheatMonitor monitor, ApplicationSettings settings, SensorsGroupController sensors, MacroController macros, NativeWindowsMessageListener nativeListener)
-        : this(monitor, () => settings.Store.GameSafeMode, active => SwitchAsync(active, sensors, macros, nativeListener), Log.Instance.ErrorReport) { }
+    public GameSafeMode(AntiCheatMonitor monitor, ApplicationSettings settings, SensorsGroupController sensors, MacroController macros, NativeWindowsMessageListener nativeListener, GameProfileController gameProfiles)
+        : this(monitor, () => settings.Store.GameSafeMode, active => SwitchAsync(active, sensors, macros, nativeListener), Log.Instance.ErrorReport, () => gameProfiles.ForceGameSafe)
+    {
+        gameProfiles.ForceGameSafeChanged += (_, _) => _ = ApplyAsync();
+    }
 
-    /// <summary>For tests: the setting, the actual pausing/resuming and the error report are supplied by the caller.</summary>
-    internal GameSafeMode(AntiCheatMonitor monitor, Func<bool> settingEnabled, Func<bool, Task> switchTo, Action<string, Exception> reportError)
+    /// <summary>
+    /// For tests: the setting, the actual pausing/resuming, the error report and whether a game profile forces
+    /// game-safe mode are supplied by the caller.
+    /// </summary>
+    internal GameSafeMode(AntiCheatMonitor monitor, Func<bool> settingEnabled, Func<bool, Task> switchTo, Action<string, Exception> reportError, Func<bool>? forcedByProfile = null)
     {
         _monitor = monitor;
         _settingEnabled = settingEnabled;
         _switch = switchTo;
         _reportError = reportError;
+        _forcedByProfile = forcedByProfile ?? (() => false);
         _monitor.ProtectedGameChanged += (_, _) => _ = ApplyAsync();
     }
 
@@ -50,8 +59,12 @@ public sealed class GameSafeMode
     /// <summary>Raised when <see cref="IsActive"/> changes (on a background thread).</summary>
     public event EventHandler<bool>? ActiveChanged;
 
-    /// <summary>Whether game-safe mode should be on, given the setting and whether a protected game runs.</summary>
-    public static bool ShouldBeActive(bool settingEnabled, bool protectedGameRunning) => settingEnabled && protectedGameRunning;
+    /// <summary>
+    /// Whether game-safe mode should be on: a game profile that asks for it wins (even with the setting off);
+    /// otherwise the setting must be on and a protected game running.
+    /// </summary>
+    public static bool ShouldBeActive(bool settingEnabled, bool protectedGameRunning, bool forcedByProfile = false) =>
+        forcedByProfile || (settingEnabled && protectedGameRunning);
 
     /// <summary>How often the anti-cheat services are checked while the setting is on.</summary>
     private static readonly TimeSpan CheckInterval = TimeSpan.FromSeconds(5);
@@ -80,13 +93,14 @@ public sealed class GameSafeMode
             else
                 _monitor.Stop();
 
-            var active = ShouldBeActive(settingEnabled, _monitor.IsProtectedGameRunning);
+            var forced = _forcedByProfile();
+            var active = ShouldBeActive(settingEnabled, _monitor.IsProtectedGameRunning, forced);
             if (active == IsActive)
                 return;
 
             // Recorded before switching, so if pausing fails part-way, the next switch still resumes everything.
             IsActive = active;
-            Log.Instance.Trace($"Game-safe mode {(active ? "on" : "off")}. [services={string.Join(",", _monitor.ActiveServices)}]");
+            Log.Instance.Trace($"Game-safe mode {(active ? "on" : "off")}. [services={string.Join(",", _monitor.ActiveServices)}, gameProfile={forced}]");
 
             try
             {

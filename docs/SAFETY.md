@@ -39,6 +39,17 @@ These are sent to the running firmware or GPU driver. LLT applies them again whe
 | GPU power target offset (PCF) | Firmware-reported range, as for God Mode | Switch power mode; LLT resets it |
 | AMD Precision Boost Overdrive / Curve Optimizer (AMD models only, and only when BIOS overclocking is enabled) | Fixed ranges (scaler 0–7, boost 0–200 MHz, curve 0–20), checked every time they are applied | Turn overclocking off in the God Mode preset |
 
+## Changes a game profile makes to other software
+
+Only while a profiled game runs, and only to apps and services you listed. LLT recognises the game from the names Windows reports and from the process list, and never opens, reads or changes the game's process. Every change is written to `game_profile_session.json` **before** it is made.
+
+| Change | What limits it | How it is undone |
+|---|---|---|
+| Efficiency mode and below-normal priority for listed apps | Only apps in your session and outside the Windows folder; never the game, LLT, or a real-time process. Efficiency mode only when Windows reports the app's current setting and it is off | When the game ends, when LLT exits, or at LLT's next start if it was ended mid-game: the app's earlier priority and efficiency setting come back, only for the same process (an id reused by another process is left alone). Without LLT: closing the app, or a restart |
+| Stopping listed services | Only running Win32 services that accept a stop and that no running service depends on (LLT never stops a cascade). A fixed list (Windows core, audio, network, security, Windows Update, input and display, NVIDIA display drivers, Lenovo's services, anti-cheats, Gaming Services, Print Spooler) can't be added | Started again when the game ends, when LLT exits, or at LLT's next start if it was ended mid-game. A service already running again is left as it is. Without LLT: a restart starts automatic services again |
+| Closing listed apps | A normal close request (like clicking X); an app may ask to save, and one that doesn't close in 10 s is left open. LLT never ends a process | **Not reversible**: closed apps aren't reopened. The Game profiles window says so before the first use |
+| Game-safe mode for the game | The same pauses as automatic game-safe mode | Ends with the game |
+
 ## If a GPU overclock makes the laptop unstable
 
 - Before LLT applies GPU values that have not yet proven stable, it notes that an apply is in progress. After 60 seconds without a crash the note is removed.

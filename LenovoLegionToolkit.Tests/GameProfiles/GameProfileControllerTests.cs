@@ -1,0 +1,426 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using LenovoLegionToolkit.Lib.GameProfiles;
+using LenovoLegionToolkit.Lib.Settings;
+using Xunit;
+
+namespace LenovoLegionToolkit.Tests.GameProfiles;
+
+/// <summary>
+/// Game profiles act on other software, so these tests check the controller's decisions against a scripted Windows
+/// (<see cref="ScriptedSystem"/>): processes and services are plain records, and every call is recorded. What the
+/// real Windows does with a stop, a close or efficiency mode is on the laptop checklist.
+/// </summary>
+public sealed class GameProfileControllerTests : IDisposable
+{
+    private const int GamePid = 4000;
+    private static readonly DateTime Started = new(2026, 11, 17, 10, 0, 0, DateTimeKind.Utc);
+    private static readonly string UserApp = @"C:\Users\me\AppData\Local\App\app.exe";
+
+    private readonly string _dir = Path.Combine(Path.GetTempPath(), "llt-gameprofile-tests-" + Guid.NewGuid().ToString("N"));
+
+    public void Dispose()
+    {
+        if (Directory.Exists(_dir))
+            Directory.Delete(_dir, true);
+    }
+
+    /// <summary>A scripted Windows: running processes and services, and a record of every call.</summary>
+    private sealed class ScriptedSystem : IGameProfileSystem
+    {
+        public Dictionary<int, (string Name, AppProcess App)> Processes { get; } = [];
+        public Dictionary<string, ServiceInfo> Services { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>Every process id LLT asked about or changed (the game's must never appear).</summary>
+        public List<int> TouchedPids { get; } = [];
+
+        public List<string> Calls { get; } = [];
+
+        public bool StopFails { get; set; }
+        public HashSet<int> WontClose { get; } = [];
+
+        public void AddApp(int pid, string name, ProcessPriorityClass priority = ProcessPriorityClass.Normal, ThrottleState? throttle = null, string? path = null, int session = 1) =>
+            Processes[pid] = (name, new AppProcess(pid, Started, path ?? UserApp, session, priority, throttle ?? new ThrottleState(0, 0)));
+
+        public void AddService(string name, bool running = true, bool canStop = true, bool driver = false, bool dependents = false) =>
+            Services[name] = new ServiceInfo(name, name, driver, running, canStop, dependents);
+
+        public IReadOnlyList<int> FindByName(string exeName) =>
+            Processes.Where(p => string.Equals(p.Value.Name, exeName, StringComparison.OrdinalIgnoreCase)).Select(p => p.Key).ToList();
+
+        public AppProcess? ReadApp(int processId)
+        {
+            TouchedPids.Add(processId);
+            return Processes.TryGetValue(processId, out var p) ? p.App : null;
+        }
+
+        public bool SetApp(int processId, DateTime startTimeUtc, ProcessPriorityClass priority, ThrottleState? throttle)
+        {
+            TouchedPids.Add(processId);
+            if (!Processes.TryGetValue(processId, out var p) || p.App.StartTimeUtc != startTimeUtc)
+                return false;
+
+            Calls.Add($"set {p.Name} {priority} {(throttle is { } t ? t.IsEfficient ? "eco" : $"throttle {t.ControlMask}/{t.StateMask}" : "-")}");
+            Processes[processId] = (p.Name, p.App with { Priority = priority, Throttle = throttle ?? p.App.Throttle });
+            return true;
+        }
+
+        public Task<bool> CloseAppAsync(int processId, DateTime startTimeUtc, TimeSpan timeout)
+        {
+            TouchedPids.Add(processId);
+            if (WontClose.Contains(processId) || !Processes.TryGetValue(processId, out var p))
+                return Task.FromResult(false);
+
+            Calls.Add($"close {p.Name}");
+            Processes.Remove(processId);
+            return Task.FromResult(true);
+        }
+
+        public ServiceInfo? ReadService(string name) => Services.TryGetValue(name, out var s) ? s : null;
+
+        public Task<bool> StopServiceAsync(string name, TimeSpan timeout)
+        {
+            Calls.Add($"stop {name}");
+            if (StopFails)
+                return Task.FromResult(false);
+            Services[name] = Services[name] with { Running = false };
+            return Task.FromResult(true);
+        }
+
+        public Task<bool> StartServiceAsync(string name, TimeSpan timeout)
+        {
+            Calls.Add($"start {name}");
+            Services[name] = Services[name] with { Running = true };
+            return Task.FromResult(true);
+        }
+    }
+
+    private GameProfile Profile(Action<GameProfile>? configure = null)
+    {
+        var profile = new GameProfile { Name = "My Game", ExeName = "game", Enabled = true, ChangesConfirmed = true };
+        configure?.Invoke(profile);
+        return profile;
+    }
+
+    private (GameProfileController Controller, GameProfileSessionSettings Session, List<Exception> Reports) Create(ScriptedSystem system, params GameProfile[] profiles)
+    {
+        var settings = new GameProfileSettings(_dir);
+        settings.Store.Profiles = [.. profiles];
+        var session = new GameProfileSessionSettings(_dir);
+        var reports = new List<Exception>();
+        return (new GameProfileController(settings, session, system, (_, ex) => reports.Add(ex)), session, reports);
+    }
+
+    // ---- Recognising the game ----
+
+    [Theory]
+    [InlineData("game", "game", true)]
+    [InlineData("GAME", "game", true)]
+    [InlineData("game2", "game", false)]
+    [InlineData("VALORANT-Win64-", "VALORANT-Win64-Shipping", true)]   // the process trace's 15-character name
+    [InlineData("VALORANT-Win64", "VALORANT-Win64-Shipping", false)]
+    [InlineData("cs2", "cs2", true)]
+    public void IsGame_MatchesFullAndCutNames(string reported, string exeName, bool expected) =>
+        Assert.Equal(expected, GameProfileController.IsGame(reported, exeName));
+
+    // ---- Applying and putting back ----
+
+    [Fact]
+    public async Task GameStartAndEnd_EasesClosesPauses_ThenPutsBackExactlyWhatChanged()
+    {
+        var system = new ScriptedSystem();
+        system.AddApp(100, "browser");
+        system.AddApp(101, "chat");
+        system.AddService("InventorySvc");
+        var (controller, session, reports) = Create(system, Profile(p =>
+        {
+            p.EfficiencyApps = ["browser"];
+            p.CloseApps = ["chat"];
+            p.PauseServices = ["InventorySvc"];
+        }));
+        var events = new List<GameProfileReport>();
+        controller.Reported += (_, r) => events.Add(r);
+
+        await controller.ProcessStartedAsync("game", GamePid);
+
+        Assert.Equal(["set browser BelowNormal eco", "close chat", "stop InventorySvc"], system.Calls);
+        Assert.Equal(new GameProfileReport("My Game", true, 1, 1, 0, 1, 0), events.Single());
+        Assert.Equal("My Game", controller.ActiveGameName);
+        Assert.Equal(ProcessPriorityClass.BelowNormal, system.Processes[100].App.Priority);
+
+        system.Calls.Clear();
+        await controller.ProcessStoppedAsync("game", GamePid);
+
+        Assert.Equal(["start InventorySvc", "set browser Normal throttle 0/0"], system.Calls);
+        Assert.Equal(ProcessPriorityClass.Normal, system.Processes[100].App.Priority);
+        Assert.False(system.Processes.ContainsKey(101));   // closed apps aren't reopened
+        Assert.Null(controller.ActiveGameName);
+        Assert.Null(new GameProfileSessionSettings(_dir).Store.ProfileId);
+        Assert.Empty(reports);
+    }
+
+    [Fact]
+    public async Task TheGamesOwnProcess_IsNeverOpenedOrChanged_EvenWhenListed()
+    {
+        var system = new ScriptedSystem();
+        system.AddApp(GamePid, "game");
+        var (controller, _, _) = Create(system, Profile(p =>
+        {
+            p.EfficiencyApps = ["game", "Lenovo Legion Toolkit"];
+            p.CloseApps = ["game"];
+        }));
+
+        await controller.ProcessStartedAsync("game", GamePid);
+        await controller.ProcessStoppedAsync("game", GamePid);
+
+        Assert.DoesNotContain(GamePid, system.TouchedPids);
+        Assert.Empty(system.Calls);
+    }
+
+    [Fact]
+    public async Task AppsLltMustNotTouch_AreLeftAlone()
+    {
+        var system = new ScriptedSystem();
+        system.AddApp(200, "svchostlike", session: 0);                                 // a service process
+        system.AddApp(201, "winapp", path: Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "winapp.exe"));
+        system.AddApp(202, "rt", ProcessPriorityClass.RealTime);
+        var (controller, _, _) = Create(system, Profile(p => p.EfficiencyApps = ["svchostlike", "winapp", "rt"]));
+        var events = new List<GameProfileReport>();
+        controller.Reported += (_, r) => events.Add(r);
+
+        await controller.ProcessStartedAsync("game", GamePid);
+
+        Assert.Empty(system.Calls);
+        Assert.Equal(3, events.Single().Problems);
+    }
+
+    [Fact]
+    public async Task AnAppAlreadyInEfficiencyMode_KeepsIt_AndOnlyItsPriorityIsPutBack()
+    {
+        var system = new ScriptedSystem();
+        system.AddApp(100, "browser", throttle: ThrottleState.Efficient);
+        var (controller, _, _) = Create(system, Profile(p => p.EfficiencyApps = ["browser"]));
+
+        await controller.ProcessStartedAsync("game", GamePid);
+        await controller.ProcessStoppedAsync("game", GamePid);
+
+        Assert.Equal(["set browser BelowNormal -", "set browser Normal -"], system.Calls);
+        Assert.True(system.Processes[100].App.Throttle!.Value.IsEfficient);
+    }
+
+    [Fact]
+    public async Task WhenWindowsCantReportEfficiencyMode_OnlyThePriorityChanges()
+    {
+        var system = new ScriptedSystem();
+        system.Processes[100] = ("browser", new AppProcess(100, Started, UserApp, 1, ProcessPriorityClass.Normal, null));
+        var (controller, _, _) = Create(system, Profile(p => p.EfficiencyApps = ["browser"]));
+
+        await controller.ProcessStartedAsync("game", GamePid);
+
+        Assert.Equal(["set browser BelowNormal -"], system.Calls);
+    }
+
+    [Fact]
+    public async Task AnAppIdReusedByAnotherProcess_IsNotTouchedOnRestore()
+    {
+        var system = new ScriptedSystem();
+        system.AddApp(100, "browser");
+        var (controller, _, _) = Create(system, Profile(p => p.EfficiencyApps = ["browser"]));
+
+        await controller.ProcessStartedAsync("game", GamePid);
+        // The browser ends and another process gets the same id.
+        system.Processes[100] = ("other", new AppProcess(100, Started.AddMinutes(5), UserApp, 1, ProcessPriorityClass.High, new ThrottleState(0, 0)));
+        system.Calls.Clear();
+        await controller.ProcessStoppedAsync("game", GamePid);
+
+        Assert.Empty(system.Calls);
+        Assert.Equal(ProcessPriorityClass.High, system.Processes[100].App.Priority);
+    }
+
+    // ---- Services ----
+
+    [Theory]
+    [InlineData("Spooler")]          // on the fixed deny list
+    [InlineData("SPOOLER")]          // in any case
+    [InlineData("vgc")]              // anti-cheat
+    public async Task ProtectedServices_AreNeverStopped(string name)
+    {
+        var system = new ScriptedSystem();
+        system.AddService(name);
+        var (controller, _, _) = Create(system, Profile(p => p.PauseServices = [name]));
+
+        await controller.ProcessStartedAsync("game", GamePid);
+
+        Assert.DoesNotContain(system.Calls, c => c.StartsWith("stop"));
+    }
+
+    [Fact]
+    public async Task ServicesThatMustNotStop_AreLeftRunning()
+    {
+        var system = new ScriptedSystem();
+        system.AddService("drv", driver: true);
+        system.AddService("nostop", canStop: false);
+        system.AddService("needed", dependents: true);
+        system.AddService("off", running: false);
+        var (controller, _, _) = Create(system, Profile(p => p.PauseServices = ["drv", "nostop", "needed", "off", "missing"]));
+        var events = new List<GameProfileReport>();
+        controller.Reported += (_, r) => events.Add(r);
+
+        await controller.ProcessStartedAsync("game", GamePid);
+
+        Assert.Empty(system.Calls);
+        Assert.Equal(4, events.Single().Problems);   // "off" isn't running: nothing to pause, not a problem
+    }
+
+    [Theory]
+    [InlineData("Spooler", null, ServiceRefusal.Protected)]
+    [InlineData("anything", null, ServiceRefusal.NotInstalled)]
+    public void Rules_RefuseBeforeLookingAtTheService(string name, ServiceInfo? service, ServiceRefusal expected) =>
+        Assert.Equal(expected, ServiceRules.Check(name, service));
+
+    [Fact]
+    public void Rules_AllowAStoppableRunningService_AndListAStoppedOne()
+    {
+        var running = new ServiceInfo("InventorySvc", "Inventory", false, true, true, false);
+        Assert.Null(ServiceRules.Check("InventorySvc", running));
+
+        var stopped = running with { Running = false };
+        Assert.Equal(ServiceRefusal.NotRunning, ServiceRules.Check("InventorySvc", stopped));
+        Assert.Null(ServiceRules.CheckForList("InventorySvc", stopped));   // may be added; paused if running then
+    }
+
+    [Fact]
+    public async Task AServiceRunningAgainBeforeTheGameEnds_IsLeftAsItIs()
+    {
+        var system = new ScriptedSystem();
+        system.AddService("InventorySvc");
+        var (controller, _, _) = Create(system, Profile(p => p.PauseServices = ["InventorySvc"]));
+
+        await controller.ProcessStartedAsync("game", GamePid);
+        system.Services["InventorySvc"] = system.Services["InventorySvc"] with { Running = true };   // started by something else
+        system.Calls.Clear();
+        await controller.ProcessStoppedAsync("game", GamePid);
+
+        Assert.Empty(system.Calls);
+    }
+
+    [Fact]
+    public async Task AFailedStop_IsCounted_AndTheOtherStepsStillRun()
+    {
+        var system = new ScriptedSystem { StopFails = true };
+        system.AddApp(100, "browser");
+        system.AddService("InventorySvc");
+        var (controller, session, _) = Create(system, Profile(p =>
+        {
+            p.PauseServices = ["InventorySvc"];
+            p.EfficiencyApps = ["browser"];
+        }));
+        var events = new List<GameProfileReport>();
+        controller.Reported += (_, r) => events.Add(r);
+
+        await controller.ProcessStartedAsync("game", GamePid);
+
+        Assert.Contains("set browser BelowNormal eco", system.Calls);
+        Assert.Equal(1, events.Single().Problems);
+        Assert.Empty(session.Store.PausedServices);   // still running, so nothing to start again later
+    }
+
+    // ---- Lifetimes ----
+
+    [Fact]
+    public async Task TwoInstancesOfTheGame_PutBackOnlyAfterTheLastEnds()
+    {
+        var system = new ScriptedSystem();
+        system.AddService("InventorySvc");
+        var (controller, _, _) = Create(system, Profile(p => p.PauseServices = ["InventorySvc"]));
+
+        await controller.ProcessStartedAsync("game", GamePid);
+        await controller.ProcessStartedAsync("game", GamePid + 1);
+        await controller.ProcessStoppedAsync("game", GamePid);
+        Assert.DoesNotContain("start InventorySvc", system.Calls);
+
+        await controller.ProcessStoppedAsync("game", GamePid + 1);
+        Assert.Contains("start InventorySvc", system.Calls);
+        Assert.Single(system.Calls, c => c.StartsWith("stop"));
+    }
+
+    /// <summary>
+    /// LLT ended while the game ran: the session note is still there at the next start, and everything in it is
+    /// put back. A new controller over the same files plays the next start.
+    /// </summary>
+    [Fact]
+    public async Task AfterLltWasEndedMidGame_TheNextStartPutsEverythingBack()
+    {
+        var system = new ScriptedSystem();
+        system.AddApp(100, "browser");
+        system.AddService("InventorySvc");
+        var profile = Profile(p =>
+        {
+            p.EfficiencyApps = ["browser"];
+            p.PauseServices = ["InventorySvc"];
+        });
+        var (first, _, _) = Create(system, profile);
+        await first.ProcessStartedAsync("game", GamePid);
+        system.Calls.Clear();
+
+        var (next, session, _) = Create(system, profile);
+        Assert.Equal(profile.Id, session.Store.ProfileId);
+        await next.RecoverAsync();
+
+        Assert.Equal(["start InventorySvc", "set browser Normal throttle 0/0"], system.Calls);
+        Assert.Null(new GameProfileSessionSettings(_dir).Store.ProfileId);
+    }
+
+    [Fact]
+    public async Task ForcedGameSafe_IsOnOnlyWhileTheGameRuns()
+    {
+        var system = new ScriptedSystem();
+        var (controller, _, _) = Create(system, Profile(p => p.ForceGameSafe = true));
+        var changes = 0;
+        controller.ForceGameSafeChanged += (_, _) => changes++;
+
+        await controller.ProcessStartedAsync("game", GamePid);
+        Assert.True(controller.ForceGameSafe);
+
+        await controller.ProcessStoppedAsync("game", GamePid);
+        Assert.False(controller.ForceGameSafe);
+        Assert.Equal(2, changes);
+    }
+
+    [Fact]
+    public async Task ADisabledProfile_DoesNothing()
+    {
+        var system = new ScriptedSystem();
+        system.AddService("InventorySvc");
+        var (controller, _, _) = Create(system, Profile(p =>
+        {
+            p.Enabled = false;
+            p.PauseServices = ["InventorySvc"];
+        }));
+
+        await controller.ProcessStartedAsync("game", GamePid);
+
+        Assert.Empty(system.Calls);
+        Assert.Null(controller.ActiveGameName);
+    }
+
+    [Fact]
+    public async Task TurningTheActiveProfileOff_PutsEverythingBackAtOnce()
+    {
+        var system = new ScriptedSystem();
+        system.AddService("InventorySvc");
+        var profile = Profile(p => p.PauseServices = ["InventorySvc"]);
+        var (controller, _, _) = Create(system, profile);
+        await controller.ProcessStartedAsync("game", GamePid);
+
+        profile.Enabled = false;
+        await controller.RefreshAsync();
+
+        Assert.Contains("start InventorySvc", system.Calls);
+        Assert.Null(controller.ActiveGameName);
+    }
+}

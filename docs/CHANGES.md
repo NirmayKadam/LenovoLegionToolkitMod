@@ -347,3 +347,42 @@ Tests: `Tests/Controllers/GPURefreshLoopTests.cs`, 6 new.
 - `FanCurvesWindow` can open on a given mode.
 - Tests: `Tests/UI/WindowsPowerCardsTests.cs` (which Windows section each mapping shows). The refactored windows have no automated tests; they are on the laptop checklist.
 - Not verified on the laptop yet.
+
+### 3. Game profiles
+- `LenovoLegionToolkit.Lib/GameProfiles/GameProfileController.cs` (new): while a chosen game runs, it can:
+  - force game-safe mode;
+  - ease listed apps (efficiency mode and below-normal priority);
+  - ask listed apps to close;
+  - stop listed services.
+
+  When the game ends, everything it changed is put back in reverse order. It listens to process start/stop events only while an enabled profile exists.
+- **Recognising the game:** from the names Windows reports, including the process trace's 15-character names, and from the process list. The game's process is never opened.
+- **Session note:** every change is noted in `game_profile_session.json` before it is made. It is put back when the game ends, when LLT exits (at most 30 s, otherwise at the next start), or at the next start after LLT was ended mid-game.
+- **Errors:** one failed step doesn't stop the others, and failures are counted in the report.
+- `LenovoLegionToolkit.Lib/GameProfiles/ServiceRules.cs` (new): the fixed deny list, plus no drivers, no services that can't stop, and no services other running services depend on (stops use `stopDependentServices: false`).
+- `LenovoLegionToolkit.Lib/GameProfiles/WindowsGameProfileSystem.cs`, `GameProfileCatalog.cs`, `IGameProfileSystem.cs` (new): the Windows calls. Running apps are listed from the process and window lists. Efficiency mode is read and set through `GetProcessInformation`/`SetProcessInformation` (`NativeMethods.txt`: `GetProcessInformation`).
+- `LenovoLegionToolkit.Lib/Settings/GameProfileSettings.cs` (new): `game_profiles.json` and the session note.
+- `LenovoLegionToolkit.WPF/Utils/GameSafeMode.cs`: a profile that asks for game-safe mode wins, even with the setting off; the anti-cheat check still follows the setting only.
+- `LenovoLegionToolkit.WPF/Windows/Settings/GameProfilesWindow.xaml(.cs)` (new), opened from Settings → App behaviour:
+  - games on the left;
+  - on the right, per game: on/off, game-safe, and the three lists. Apps are picked from running apps or by browsing; services from running ones, with the protected or refused ones greyed out with the reason.
+  - It asks before a profile first changes other software, saying that closed apps aren't reopened.
+- **Notifications** `GameProfileOn`/`GameProfileOff`: what was changed or put back, with a setting in the notification options. Settings → App behaviour says when game-safe mode is on because of a profile.
+- `App.xaml.cs`: the profile is started after start-up and put back on exit.
+- Tests: `Tests/GameProfiles/GameProfileControllerTests.cs` (new, scripted Windows), plus forced game-safe cases in `GameSafeModeTests`. They cover:
+  - apply and put back exactly;
+  - the game's process is never touched, even when listed;
+  - off-limits apps;
+  - an app already in efficiency mode;
+  - unknown efficiency setting;
+  - a reused process id;
+  - protected and unstoppable services;
+  - a service running again;
+  - a failed stop;
+  - two game instances;
+  - recovery after LLT was ended;
+  - turning a running profile off;
+  - name matching.
+
+  These are new features, so no old bug was shown failing first.
+- Not verified on the laptop yet.

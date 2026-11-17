@@ -120,6 +120,7 @@ public partial class App
                 IoCContainer.Resolve<GlobalHotkeyService>().Start();
                 IoCContainer.Resolve<GameSafeMode>().Start();
                 StartFanProfiles();
+                StartGameProfiles();
                 InitAppMessages();
                 LogIdentityStatus();
 
@@ -446,6 +447,8 @@ public partial class App
 
     public async Task ShutdownAsync()
     {
+        // Puts back what a running game's profile changed; if it takes too long, the next start does it.
+        await SafeExecuteAsync<Lib.GameProfiles.GameProfileController>(c => c.EndSessionAsync().WaitAsync(TimeSpan.FromSeconds(30)));
         await SafeExecuteAsync<AIController>(c => c.StopAsync());
 
         await SafeExecuteAsync<RGBKeyboardBacklightController>(async c =>
@@ -1126,6 +1129,20 @@ public partial class App
 
         // The firmware starts with its own curve, so the current mode's curve is applied once now.
         _ = Task.Run(controller.ApplyForCurrentModeAsync);
+    }
+
+    /// <summary>
+    /// Puts back what a game profile left behind if LLT was ended mid-game, then watches for profiled games; each
+    /// apply and put-back is shown as a notification.
+    /// </summary>
+    private static void StartGameProfiles()
+    {
+        var controller = IoCContainer.Resolve<Lib.GameProfiles.GameProfileController>();
+        controller.Reported += (_, report) => MessagingCenter.Publish(new NotificationMessage(
+            report.Started ? NotificationType.GameProfileOn : NotificationType.GameProfileOff,
+            GameProfileText.Summary(report)));
+
+        _ = Task.Run(controller.StartAsync);
     }
 
     private void HandleOsdCommand(ToggleState command, bool notify = false)

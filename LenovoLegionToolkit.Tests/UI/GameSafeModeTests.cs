@@ -65,6 +65,34 @@ public class GameSafeModeTests
     public void ShouldBeActive_NeedsTheSettingAndAProtectedGame(bool setting, bool game, bool expected) =>
         Assert.Equal(expected, GameSafeMode.ShouldBeActive(setting, game));
 
+    /// <summary>A game profile that asks for game-safe mode wins, even with the setting off and no anti-cheat.</summary>
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    public void ShouldBeActive_AForcingGameProfileAlwaysWins(bool setting, bool game) =>
+        Assert.True(GameSafeMode.ShouldBeActive(setting, game, forcedByProfile: true));
+
+    [Fact]
+    public async Task ForcedByAGameProfile_SwitchesOnWithTheSettingOff_AndOffAgain()
+    {
+        var forced = false;
+        using var monitor = new AntiCheatMonitor(_ => false);
+        var switches = new List<bool>();
+        var mode = new GameSafeMode(monitor, () => false, active => { switches.Add(active); return Task.CompletedTask; }, (_, _) => { }, () => forced);
+
+        forced = true;
+        await mode.RefreshAsync();
+        Assert.True(mode.IsActive);
+        Assert.False(monitor.IsRunning);   // the anti-cheat check still follows the setting only
+
+        forced = false;
+        await mode.RefreshAsync();
+        Assert.False(mode.IsActive);
+        Assert.Equal([true, false], switches);
+    }
+
     // ---- Switching on and off ----
 
     /// <summary>

@@ -101,6 +101,8 @@ public class NotificationsManager
                 NotificationType.OsdHidden => _settings.Store.Notifications.Osd,
                 NotificationType.GameSafeModeOn => _settings.Store.Notifications.GameSafeMode,
                 NotificationType.GameSafeModeOff => _settings.Store.Notifications.GameSafeMode,
+                NotificationType.GameProfileOn => _settings.Store.Notifications.GameProfile,
+                NotificationType.GameProfileOff => _settings.Store.Notifications.GameProfile,
                 _ => throw new ArgumentException(nameof(notification.Type))
             };
 
@@ -163,6 +165,8 @@ public class NotificationsManager
                 NotificationType.OsdHidden => Resource.Notification_OsdHidden,
                 NotificationType.GameSafeModeOn => Resource.Notification_GameSafeModeOn,
                 NotificationType.GameSafeModeOff => Resource.Notification_GameSafeModeOff,
+                NotificationType.GameProfileOn => string.Format("{0}", notification.Args),
+                NotificationType.GameProfileOff => string.Format("{0}", notification.Args),
                 _ => throw new ArgumentException(nameof(notification.Type))
             };
 
@@ -322,6 +326,8 @@ public class NotificationsManager
         NotificationType.OsdHidden => SymbolRegular.EyeOff24,
         NotificationType.GameSafeModeOn => SymbolRegular.ShieldCheckmark24,
         NotificationType.GameSafeModeOff => SymbolRegular.Shield24,
+        NotificationType.GameProfileOn => SymbolRegular.Games24,
+        NotificationType.GameProfileOff => SymbolRegular.Games24,
         _ => SymbolRegular.Question24,
     };
 
@@ -340,6 +346,7 @@ public class NotificationsManager
         NotificationType.SpectrumBacklightOff => SymbolRegular.Line24,
         NotificationType.TouchpadOff => SymbolRegular.Line24,
         NotificationType.WhiteKeyboardBacklightOff => SymbolRegular.Line24,
+        NotificationType.GameProfileOff => SymbolRegular.Line24,
         _ => null,
     };
 

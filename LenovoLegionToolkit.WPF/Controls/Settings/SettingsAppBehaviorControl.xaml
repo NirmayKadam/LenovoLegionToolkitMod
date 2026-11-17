@@ -65,6 +65,18 @@
                     AutomationProperties.Name="{x:Static resources:Resource.SettingsPage_GameSafeMode_Title}"
                     Click="GameSafeModeToggle_Click" />
             </custom:CardControl>
+            <custom:CardControl Margin="0,0,0,8" Icon="Games24">
+                <custom:CardControl.Header>
+                    <controls:CardHeaderControl
+                        Title="{x:Static resources:Resource.GameProfiles_Title}"
+                        Subtitle="{x:Static resources:Resource.SettingsPage_GameProfiles_Message}"
+                        HelpKey="Help_Settings_GameProfiles" />
+                </custom:CardControl.Header>
+                <wpfui:Button
+                    Appearance="Secondary"
+                    Click="GameProfilesButton_Click"
+                    Content="{x:Static resources:Resource.SettingsPage_FanCurves_Open}" />
+            </custom:CardControl>
             <custom:CardControl Margin="0,0,0,8" Icon="QuestionCircle24">
                 <custom:CardControl.Header>
                     <controls:CardHeaderControl

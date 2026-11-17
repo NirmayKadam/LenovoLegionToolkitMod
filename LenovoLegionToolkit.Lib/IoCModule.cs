@@ -92,6 +92,9 @@ public class IoCModule : Module
         builder.Register<FanProfileSettings>();
         builder.Register<GodModeFanTableAccess>();
         builder.Register<FanProfileController>();
+        builder.Register<GameProfileSettings>();
+        builder.Register<GameProfileSessionSettings>();
+        builder.Register<GameProfiles.GameProfileController>();
         builder.Register<RefreshRateFeature>();
         builder.Register<ResolutionFeature>();
         builder.Register<SpeakerFeature>();

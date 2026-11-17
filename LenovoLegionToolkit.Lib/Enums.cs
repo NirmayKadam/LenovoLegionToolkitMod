@@ -532,7 +532,9 @@ public enum NotificationType
     OsdShown,
     OsdHidden,
     GameSafeModeOn,
-    GameSafeModeOff
+    GameSafeModeOff,
+    GameProfileOn,
+    GameProfileOff
 }
 
 public enum OneLevelWhiteKeyboardBacklightState

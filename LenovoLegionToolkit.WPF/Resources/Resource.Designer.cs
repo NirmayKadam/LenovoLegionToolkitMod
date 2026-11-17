@@ -12652,5 +12652,455 @@ namespace LenovoLegionToolkit.WPF.Resources {
                 return ResourceManager.GetString("Help_Settings_PowerModeProfiles_When", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Game profiles.
+        /// </summary>
+        public static string GameProfiles_Title {
+            get {
+                return ResourceManager.GetString("GameProfiles_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Per game: game-safe mode, and easing, closing or pausing other apps and services while it runs..
+        /// </summary>
+        public static string SettingsPage_GameProfiles_Message {
+            get {
+                return ResourceManager.GetString("SettingsPage_GameProfiles_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to On now for {0}&apos;s game profile..
+        /// </summary>
+        public static string SettingsPage_GameSafeMode_ActiveProfile {
+            get {
+                return ResourceManager.GetString("SettingsPage_GameSafeMode_ActiveProfile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add game....
+        /// </summary>
+        public static string GameProfiles_AddGame {
+            get {
+                return ResourceManager.GetString("GameProfiles_AddGame", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remove.
+        /// </summary>
+        public static string GameProfiles_RemoveGame {
+            get {
+                return ResourceManager.GetString("GameProfiles_RemoveGame", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remove the profile for {0}? If the game is running, what the profile changed is put back now..
+        /// </summary>
+        public static string GameProfiles_RemoveGame_Confirm {
+            get {
+                return ResourceManager.GetString("GameProfiles_RemoveGame_Confirm", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add a game to give it a profile: pick the game&apos;s .exe, for example the one in its install folder..
+        /// </summary>
+        public static string GameProfiles_NoGame {
+            get {
+                return ResourceManager.GetString("GameProfiles_NoGame", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use this profile.
+        /// </summary>
+        public static string GameProfiles_Enabled_Title {
+            get {
+                return ResourceManager.GetString("GameProfiles_Enabled_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to While this game runs, LLT applies the settings below. When it ends, LLT puts back what it changed..
+        /// </summary>
+        public static string GameProfiles_Enabled_Message {
+            get {
+                return ResourceManager.GetString("GameProfiles_Enabled_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Game-safe mode.
+        /// </summary>
+        public static string GameProfiles_ForceGameSafe_Title {
+            get {
+                return ResourceManager.GetString("GameProfiles_ForceGameSafe_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to On while this game runs, even without a detected anti-cheat and even with game-safe mode off in Settings..
+        /// </summary>
+        public static string GameProfiles_ForceGameSafe_Message {
+            get {
+                return ResourceManager.GetString("GameProfiles_ForceGameSafe_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ease these apps.
+        /// </summary>
+        public static string GameProfiles_Ease_Title {
+            get {
+                return ResourceManager.GetString("GameProfiles_Ease_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Windows efficiency mode and a lower priority while the game runs; put back afterwards..
+        /// </summary>
+        public static string GameProfiles_Ease_Message {
+            get {
+                return ResourceManager.GetString("GameProfiles_Ease_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Close these apps.
+        /// </summary>
+        public static string GameProfiles_Close_Title {
+            get {
+                return ResourceManager.GetString("GameProfiles_Close_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Asked to close when the game starts, like clicking X, so an app can still ask to save. They aren&apos;t reopened afterwards..
+        /// </summary>
+        public static string GameProfiles_Close_Message {
+            get {
+                return ResourceManager.GetString("GameProfiles_Close_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pause these services.
+        /// </summary>
+        public static string GameProfiles_Services_Title {
+            get {
+                return ResourceManager.GetString("GameProfiles_Services_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Stopped while the game runs and started again afterwards. Services that Windows, the hardware, security or games need can&apos;t be added..
+        /// </summary>
+        public static string GameProfiles_Services_Message {
+            get {
+                return ResourceManager.GetString("GameProfiles_Services_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add app....
+        /// </summary>
+        public static string GameProfiles_AddApp {
+            get {
+                return ResourceManager.GetString("GameProfiles_AddApp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add service....
+        /// </summary>
+        public static string GameProfiles_AddService {
+            get {
+                return ResourceManager.GetString("GameProfiles_AddService", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Browse for an .exe....
+        /// </summary>
+        public static string GameProfiles_Browse {
+            get {
+                return ResourceManager.GetString("GameProfiles_Browse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Programs (*.exe).
+        /// </summary>
+        public static string GameProfiles_ExeFilter {
+            get {
+                return ResourceManager.GetString("GameProfiles_ExeFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remove {0}.
+        /// </summary>
+        public static string GameProfiles_RemoveItem {
+            get {
+                return ResourceManager.GetString("GameProfiles_RemoveItem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No other running service can be added..
+        /// </summary>
+        public static string GameProfiles_NoServices {
+            get {
+                return ResourceManager.GetString("GameProfiles_NoServices", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Change other apps and services?.
+        /// </summary>
+        public static string GameProfiles_Confirm_Title {
+            get {
+                return ResourceManager.GetString("GameProfiles_Confirm_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to While {0} runs, LLT will: • ease {1} app(s) with efficiency mode and a lower priority, • ask {2} app(s) to close (they won&apos;t be reopened), • stop {3} service(s).  When the game ends, LLT puts the[rest of string was truncated].
+        /// </summary>
+        public static string GameProfiles_Confirm_Message {
+            get {
+                return ResourceManager.GetString("GameProfiles_Confirm_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Profile in effect for {0}..
+        /// </summary>
+        public static string GameProfiles_Status_Active {
+            get {
+                return ResourceManager.GetString("GameProfiles_Status_Active", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No profiled game is running..
+        /// </summary>
+        public static string GameProfiles_Status_Idle {
+            get {
+                return ResourceManager.GetString("GameProfiles_Status_Idle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: game profile on. Apps eased: {1}, closed: {2}, left open: {3}. Services paused: {4}..
+        /// </summary>
+        public static string GameProfiles_Summary_On {
+            get {
+                return ResourceManager.GetString("GameProfiles_Summary_On", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: game profile off. Services started again: {1}, apps put back: {2}..
+        /// </summary>
+        public static string GameProfiles_Summary_Off {
+            get {
+                return ResourceManager.GetString("GameProfiles_Summary_Off", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} step(s) couldn&apos;t be done; the log has details..
+        /// </summary>
+        public static string GameProfiles_Summary_Problems {
+            get {
+                return ResourceManager.GetString("GameProfiles_Summary_Problems", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to protected.
+        /// </summary>
+        public static string GameProfiles_Refusal_Protected {
+            get {
+                return ResourceManager.GetString("GameProfiles_Refusal_Protected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to a driver.
+        /// </summary>
+        public static string GameProfiles_Refusal_Driver {
+            get {
+                return ResourceManager.GetString("GameProfiles_Refusal_Driver", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to not installed.
+        /// </summary>
+        public static string GameProfiles_Refusal_NotInstalled {
+            get {
+                return ResourceManager.GetString("GameProfiles_Refusal_NotInstalled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to not running.
+        /// </summary>
+        public static string GameProfiles_Refusal_NotRunning {
+            get {
+                return ResourceManager.GetString("GameProfiles_Refusal_NotRunning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to can&apos;t be stopped.
+        /// </summary>
+        public static string GameProfiles_Refusal_CannotStop {
+            get {
+                return ResourceManager.GetString("GameProfiles_Refusal_CannotStop", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to other services need it.
+        /// </summary>
+        public static string GameProfiles_Refusal_Dependents {
+            get {
+                return ResourceManager.GetString("GameProfiles_Refusal_Dependents", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Game profiles.
+        /// </summary>
+        public static string NotificationsSettingsWindow_GameProfile {
+            get {
+                return ResourceManager.GetString("NotificationsSettingsWindow_GameProfile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Game profile on.
+        /// </summary>
+        public static string Notification_GameProfileOn {
+            get {
+                return ResourceManager.GetString("Notification_GameProfileOn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Game profile off.
+        /// </summary>
+        public static string Notification_GameProfileOff {
+            get {
+                return ResourceManager.GetString("Notification_GameProfileOff", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Per game, what LLT does while it runs: game-safe mode, Windows efficiency mode and a lower priority for apps you list, closing apps you list, and stopping services you list. When the game ends, LLT pu[rest of string was truncated].
+        /// </summary>
+        public static string Help_Settings_GameProfiles_What {
+            get {
+                return ResourceManager.GetString("Help_Settings_GameProfiles_What", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to To free CPU, memory or network for a game, or to keep game-safe mode on for a game whose anti-cheat isn&apos;t detected..
+        /// </summary>
+        public static string Help_Settings_GameProfiles_When {
+            get {
+                return ResourceManager.GetString("Help_Settings_GameProfiles_When", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Closed apps aren&apos;t reopened. A stopped service is unavailable until the game ends. LLT recognises the game from its name only and never opens or changes the game&apos;s process..
+        /// </summary>
+        public static string Help_Settings_GameProfiles_Risk {
+            get {
+                return ResourceManager.GetString("Help_Settings_GameProfiles_Risk", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Turns this game&apos;s profile on or off. Turning it off while the game runs puts everything back at once..
+        /// </summary>
+        public static string Help_GameProfiles_Enabled_What {
+            get {
+                return ResourceManager.GetString("Help_GameProfiles_Enabled_What", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Game-safe mode pauses LLT&apos;s hardware-sensor driver, macros and keyboard hook. This turns it on for this game even if its anti-cheat isn&apos;t detected and even with game-safe mode off in Setting[rest of string was truncated].
+        /// </summary>
+        public static string Help_GameProfiles_ForceGameSafe_What {
+            get {
+                return ResourceManager.GetString("Help_GameProfiles_ForceGameSafe_What", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to While the game runs, these apps get Windows efficiency mode (as in Task Manager) and below-normal priority, so they use less CPU. Their earlier priority and efficiency setting come back when the game [rest of string was truncated].
+        /// </summary>
+        public static string Help_GameProfiles_Ease_What {
+            get {
+                return ResourceManager.GetString("Help_GameProfiles_Ease_What", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to When the game starts, LLT asks these apps to close, the same as clicking their X. An app may ask to save first; if it doesn&apos;t close within 10 seconds, it is left open..
+        /// </summary>
+        public static string Help_GameProfiles_Close_What {
+            get {
+                return ResourceManager.GetString("Help_GameProfiles_Close_What", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Closed apps aren&apos;t reopened when the game ends..
+        /// </summary>
+        public static string Help_GameProfiles_Close_Risk {
+            get {
+                return ResourceManager.GetString("Help_GameProfiles_Close_Risk", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to While the game runs, LLT stops these Windows services and starts them again afterwards. It never stops a driver, a service that can&apos;t be stopped, a service other running services need, or one on [rest of string was truncated].
+        /// </summary>
+        public static string Help_GameProfiles_Services_What {
+            get {
+                return ResourceManager.GetString("Help_GameProfiles_Services_What", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Whatever the service does is unavailable until the game ends..
+        /// </summary>
+        public static string Help_GameProfiles_Services_Risk {
+            get {
+                return ResourceManager.GetString("Help_GameProfiles_Services_Risk", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A notification when a game&apos;s profile starts and when it ends, saying what was changed and put back..
+        /// </summary>
+        public static string Help_Notifications_GameProfile_What {
+            get {
+                return ResourceManager.GetString("Help_Notifications_GameProfile_What", resourceCulture);
+            }
+        }
     }
 }

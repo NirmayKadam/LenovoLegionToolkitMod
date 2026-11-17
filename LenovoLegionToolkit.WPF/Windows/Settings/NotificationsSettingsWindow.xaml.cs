@@ -64,6 +64,7 @@ public partial class NotificationsSettingsWindow
         _refreshRateToggle.IsChecked = _settings.Store.Notifications.RefreshRate;
         _osdToggle.IsChecked = _settings.Store.Notifications.Osd;
         _gameSafeModeToggle.IsChecked = _settings.Store.Notifications.GameSafeMode;
+        _gameProfileToggle.IsChecked = _settings.Store.Notifications.GameProfile;
         _acAdapterToggle.IsChecked = _settings.Store.Notifications.ACAdapter;
         _smartKeyToggle.IsChecked = _settings.Store.Notifications.SmartKey;
         _automationToggle.IsChecked = _settings.Store.Notifications.AutomationNotification;
@@ -255,6 +256,23 @@ public partial class NotificationsSettingsWindow
         [
             (NotificationType.GameSafeModeOn, Resource.Notification_GameSafeModeOn),
             (NotificationType.GameSafeModeOff, Resource.Notification_GameSafeModeOff)
+        ]);
+
+    private void GameProfileToggle_Click(object sender, RoutedEventArgs e)
+    {
+        var state = _gameProfileToggle.IsChecked;
+        if (state is null)
+            return;
+
+        _settings.Store.Notifications.GameProfile = state.Value;
+        _settings.SynchronizeStore();
+    }
+
+    private void GameProfileCustomizeButton_Click(object sender, RoutedEventArgs e) =>
+        OpenCustomizeWindow(Resource.NotificationsSettingsWindow_GameProfile,
+        [
+            (NotificationType.GameProfileOn, Resource.Notification_GameProfileOn),
+            (NotificationType.GameProfileOff, Resource.Notification_GameProfileOff)
         ]);
 
     private void OsdToggle_Click(object sender, RoutedEventArgs e)

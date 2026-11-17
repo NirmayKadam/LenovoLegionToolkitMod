@@ -153,14 +153,24 @@ public partial class SettingsAppBehaviorControl
         UpdateGameSafeModeStatus();
     }
 
+    private void GameProfilesButton_Click(object sender, RoutedEventArgs e)
+    {
+        var window = new LenovoLegionToolkit.WPF.Windows.Settings.GameProfilesWindow { Owner = Window.GetWindow(this) };
+        window.ShowDialog();
+        UpdateGameSafeModeStatus();
+    }
+
     /// <summary>Shows whether game-safe mode is on right now, and which anti-cheat triggered it.</summary>
     private void UpdateGameSafeModeStatus()
     {
         var gameSafeMode = IoCContainer.Resolve<GameSafeMode>();
         var monitor = IoCContainer.Resolve<AntiCheatMonitor>();
-        _gameSafeModeCardHeader.Success = gameSafeMode.IsActive
-            ? string.Format(Resource.SettingsPage_GameSafeMode_Active, string.Join(", ", monitor.ActiveServices))
-            : string.Empty;
+        var gameProfiles = IoCContainer.Resolve<Lib.GameProfiles.GameProfileController>();
+        _gameSafeModeCardHeader.Success = !gameSafeMode.IsActive
+            ? string.Empty
+            : monitor.ActiveServices.Count > 0
+                ? string.Format(Resource.SettingsPage_GameSafeMode_Active, string.Join(", ", monitor.ActiveServices))
+                : string.Format(Resource.SettingsPage_GameSafeMode_ActiveProfile, gameProfiles.ActiveGameName);
     }
 
     private void HelpTooltipsToggle_Click(object sender, RoutedEventArgs e)
