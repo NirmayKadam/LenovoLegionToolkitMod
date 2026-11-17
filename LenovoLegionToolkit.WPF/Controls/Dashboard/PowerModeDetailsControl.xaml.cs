@@ -225,6 +225,13 @@ public partial class PowerModeDetailsControl
         await RefreshAsync();
     }
 
+    private async void ProfilesButton_Click(object sender, RoutedEventArgs e)
+    {
+        var window = new LenovoLegionToolkit.WPF.Windows.Dashboard.PowerModeProfilesWindow { Owner = Window.GetWindow(this) };
+        window.ShowDialog();
+        await RefreshAsync();
+    }
+
     /// <summary>Asks first, then goes back to the firmware's curve for the shown mode (same path as the Fan curves window).</summary>
     private async void UseFirmwareCurveButton_Click(object sender, RoutedEventArgs e)
     {

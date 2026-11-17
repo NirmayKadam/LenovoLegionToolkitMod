@@ -55,6 +55,13 @@
                         Click="FanCurvesButton_Click"
                         Content="{x:Static resources:Resource.PowerModeDetails_FanCurvesButton}"
                         Icon="WeatherDuststorm24" />
+                    <wpfui:Button
+                        Margin="0,0,8,0"
+                        Padding="10,4"
+                        Appearance="Secondary"
+                        Click="ProfilesButton_Click"
+                        Content="{x:Static resources:Resource.PowerModeProfiles_Open}"
+                        Icon="Layer24" />
                     <!--  Only while a curve of yours is set for the shown mode.  -->
                     <wpfui:Button
                         x:Name="_useFirmwareCurveButton"

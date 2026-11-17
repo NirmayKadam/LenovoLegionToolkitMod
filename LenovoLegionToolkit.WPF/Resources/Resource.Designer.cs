@@ -12364,5 +12364,293 @@ namespace LenovoLegionToolkit.WPF.Resources {
                 return ResourceManager.GetString("PowerModeDetails_UseFirmwareCurve", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Power mode profiles.
+        /// </summary>
+        public static string PowerModeProfiles_Title {
+            get {
+                return ResourceManager.GetString("PowerModeProfiles_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Everything a power mode brings, in one place: its fan curve and the Windows power plan or power mode LLT switches to with it. Changes for the mode the laptop is in take effect at once; the others when[rest of string was truncated].
+        /// </summary>
+        public static string PowerModeProfiles_Message {
+            get {
+                return ResourceManager.GetString("PowerModeProfiles_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Profiles....
+        /// </summary>
+        public static string PowerModeProfiles_Open {
+            get {
+                return ResourceManager.GetString("PowerModeProfiles_Open", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fan curve.
+        /// </summary>
+        public static string PowerModeProfiles_Fan_Title {
+            get {
+                return ResourceManager.GetString("PowerModeProfiles_Fan_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Edit....
+        /// </summary>
+        public static string PowerModeProfiles_Fan_Edit {
+            get {
+                return ResourceManager.GetString("PowerModeProfiles_Fan_Edit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Yours, in use..
+        /// </summary>
+        public static string PowerModeProfiles_Fan_User {
+            get {
+                return ResourceManager.GetString("PowerModeProfiles_Fan_User", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Yours. It is applied when the laptop switches to this mode..
+        /// </summary>
+        public static string PowerModeProfiles_Fan_Pending {
+            get {
+                return ResourceManager.GetString("PowerModeProfiles_Fan_Pending", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Yours, but the firmware didn&apos;t keep it, so its own curve is in use..
+        /// </summary>
+        public static string PowerModeProfiles_Fan_NotKept {
+            get {
+                return ResourceManager.GetString("PowerModeProfiles_Fan_NotKept", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The firmware&apos;s own curve..
+        /// </summary>
+        public static string PowerModeProfiles_Fan_Firmware {
+            get {
+                return ResourceManager.GetString("PowerModeProfiles_Fan_Firmware", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Yours is saved, but per-mode fan curves are turned off, so the firmware&apos;s curve is in use..
+        /// </summary>
+        public static string PowerModeProfiles_Fan_Off {
+            get {
+                return ResourceManager.GetString("PowerModeProfiles_Fan_Off", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Windows power settings.
+        /// </summary>
+        public static string PowerModeProfiles_WindowsOff_Title {
+            get {
+                return ResourceManager.GetString("PowerModeProfiles_WindowsOff_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to LLT doesn&apos;t change Windows&apos; power plan or power mode with the power mode. To have it do that, choose a mapping in Settings → Power..
+        /// </summary>
+        public static string PowerModeProfiles_WindowsOff_Message {
+            get {
+                return ResourceManager.GetString("PowerModeProfiles_WindowsOff_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Custom mode.
+        /// </summary>
+        public static string PowerModeProfiles_Custom_Title {
+            get {
+                return ResourceManager.GetString("PowerModeProfiles_Custom_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Custom mode uses its God Mode preset, which holds its own limits, fan curve and Windows power plan or power mode..
+        /// </summary>
+        public static string PowerModeProfiles_Custom_Message {
+            get {
+                return ResourceManager.GetString("PowerModeProfiles_Custom_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to God Mode settings....
+        /// </summary>
+        public static string PowerModeProfiles_Custom_Open {
+            get {
+                return ResourceManager.GetString("PowerModeProfiles_Custom_Open", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Apply now.
+        /// </summary>
+        public static string PowerModeProfiles_ApplyNow {
+            get {
+                return ResourceManager.GetString("PowerModeProfiles_ApplyNow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Applies this mode&apos;s fan curve and Windows power setting again, the way a power-mode change does..
+        /// </summary>
+        public static string PowerModeProfiles_ApplyNow_Tooltip {
+            get {
+                return ResourceManager.GetString("PowerModeProfiles_ApplyNow_Tooltip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Only for the mode the laptop is in ({0}). The other modes&apos; settings apply when you switch to them..
+        /// </summary>
+        public static string PowerModeProfiles_ApplyNow_OnlyActive {
+            get {
+                return ResourceManager.GetString("PowerModeProfiles_ApplyNow_OnlyActive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Applying....
+        /// </summary>
+        public static string PowerModeProfiles_Applying {
+            get {
+                return ResourceManager.GetString("PowerModeProfiles_Applying", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your fan curve is in use..
+        /// </summary>
+        public static string PowerModeProfiles_Applied_FanUser {
+            get {
+                return ResourceManager.GetString("PowerModeProfiles_Applied_FanUser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The firmware&apos;s fan curve is in use..
+        /// </summary>
+        public static string PowerModeProfiles_Applied_FanFirmware {
+            get {
+                return ResourceManager.GetString("PowerModeProfiles_Applied_FanFirmware", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your fan curve wasn&apos;t kept, so the firmware&apos;s curve is in use..
+        /// </summary>
+        public static string PowerModeProfiles_Applied_FanNotKept {
+            get {
+                return ResourceManager.GetString("PowerModeProfiles_Applied_FanNotKept", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This mode&apos;s Windows power setting is applied..
+        /// </summary>
+        public static string PowerModeProfiles_Applied_Windows {
+            get {
+                return ResourceManager.GetString("PowerModeProfiles_Applied_Windows", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Couldn&apos;t apply. Switching power mode applies these settings too..
+        /// </summary>
+        public static string PowerModeProfiles_ApplyFailed {
+            get {
+                return ResourceManager.GetString("PowerModeProfiles_ApplyFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Couldn&apos;t read the power modes..
+        /// </summary>
+        public static string PowerModeProfiles_LoadFailed {
+            get {
+                return ResourceManager.GetString("PowerModeProfiles_LoadFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Each power mode&apos;s fan curve and Windows power plan or mode, together..
+        /// </summary>
+        public static string SettingsPage_PowerModeProfiles_Message {
+            get {
+                return ResourceManager.GetString("SettingsPage_PowerModeProfiles_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Power mode profiles....
+        /// </summary>
+        public static string WindowsPowerWindows_ProfilesLink {
+            get {
+                return ResourceManager.GetString("WindowsPowerWindows_ProfilesLink", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Whose fan curve this mode uses: yours (set in the Fan curves window) or the firmware&apos;s. Edit opens the Fan curves window on this mode; Use firmware curve removes yours..
+        /// </summary>
+        public static string Help_PowerModeProfiles_Fan_What {
+            get {
+                return ResourceManager.GetString("Help_PowerModeProfiles_Fan_What", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to With the mapping off, LLT leaves Windows&apos; power plan and power mode as they are when the power mode changes. Settings → Power has the mapping: a Windows power plan per mode, or a Windows power mo[rest of string was truncated].
+        /// </summary>
+        public static string Help_PowerModeProfiles_WindowsOff_What {
+            get {
+                return ResourceManager.GetString("Help_PowerModeProfiles_WindowsOff_What", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Custom mode&apos;s settings belong to its God Mode preset (limits, fan curve, and the Windows power plan or mode chosen for the preset), so they are changed in God Mode settings..
+        /// </summary>
+        public static string Help_PowerModeProfiles_Custom_What {
+            get {
+                return ResourceManager.GetString("Help_PowerModeProfiles_Custom_What", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to One window per power mode with its fan curve and the Windows power plan or power mode LLT uses with it. It changes the same settings as the Fan curves window and the Windows power plan and power mode [rest of string was truncated].
+        /// </summary>
+        public static string Help_Settings_PowerModeProfiles_What {
+            get {
+                return ResourceManager.GetString("Help_Settings_PowerModeProfiles_What", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to To see or change everything a mode does at once, instead of in three places..
+        /// </summary>
+        public static string Help_Settings_PowerModeProfiles_When {
+            get {
+                return ResourceManager.GetString("Help_Settings_PowerModeProfiles_When", resourceCulture);
+            }
+        }
     }
 }

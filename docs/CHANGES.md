@@ -331,3 +331,19 @@ Tests: `Tests/Controllers/GPURefreshLoopTests.cs`, 6 new.
   - a failed re-apply is reported;
   - nothing to reset changes nothing.
 - Not verified on the laptop yet.
+
+### 2. Power mode profiles
+- `LenovoLegionToolkit.WPF/Windows/Dashboard/PowerModeProfilesWindow.xaml(.cs)` (new): one tab per power mode.
+  - **Fan curve:** whose curve the mode uses, with **Edit…** (opens the Fan curves window on that mode) and **Use firmware curve**.
+  - **Windows:** the plan cards (plan mapping) or the power-mode cards (power-mode mapping), or a note when the mapping is off.
+  - **Apply now:** for the mode the laptop is in, it applies its fan curve and Windows setting again, the way a mode change does.
+  - **Custom tab:** points to God Mode settings.
+  - It edits the same settings through the same paths; there are no new firmware writes.
+- `LenovoLegionToolkit.WPF/Controls/Settings/WindowsPowerCards.cs` (new): the plan, Balanced-overlay and power-mode cards, plus saving a built-in mode's choices (applied at once when the laptop is in that mode). `WindowsPowerPlansWindow` and `WindowsPowerModesWindow` now build their per-mode and ITS tabs from it instead of four copies of the same code. Choice handlers no longer let an error escape into WPF.
+- **Opens from:**
+  - the power-mode details card (**Profiles…**);
+  - Settings → Power;
+  - the two Windows power windows.
+- `FanCurvesWindow` can open on a given mode.
+- Tests: `Tests/UI/WindowsPowerCardsTests.cs` (which Windows section each mapping shows). The refactored windows have no automated tests; they are on the laptop checklist.
+- Not verified on the laptop yet.

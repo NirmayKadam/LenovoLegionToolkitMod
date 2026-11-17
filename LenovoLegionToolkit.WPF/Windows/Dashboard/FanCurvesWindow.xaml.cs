@@ -44,6 +44,9 @@ public partial class FanCurvesWindow
     /// <summary>The mode an unsaved curve was tried on with Apply now; put back to what's saved when the window closes.</summary>
     private PowerModeState? _previewMode;
 
+    /// <summary>The mode to show first, when opened for one mode (Power mode profiles); otherwise the active one.</summary>
+    private readonly PowerModeState? _initialMode;
+
     private enum StatusKind { Neutral, Success, Warning }
 
     private enum FanAction { Save, Test, Preview }
@@ -62,6 +65,8 @@ public partial class FanCurvesWindow
         };
     }
 
+    public FanCurvesWindow(PowerModeState initialMode) : this() => _initialMode = initialMode;
+
     private PowerModeState? SelectedMode => _modeComboBox.TryGetSelectedItem(out PowerModeState mode) ? mode : null;
 
     private async Task LoadAsync()
@@ -70,7 +75,7 @@ public partial class FanCurvesWindow
         try
         {
             var modes = (await _powerModeFeature.GetAllStatesAsync()).Where(m => m != PowerModeState.GodMode).ToArray();
-            var current = await _powerModeFeature.GetStateAsync();
+            var current = _initialMode ?? await _powerModeFeature.GetStateAsync();
             _modeComboBox.SetItems(modes, modes.Contains(current) ? current : modes.First(), m => m.GetDisplayName());
 
             _enabledToggle.IsChecked = _settings.Store.Enabled;

@@ -59,6 +59,15 @@
             <wpfui:DynamicScrollViewer>
                 <StackPanel Margin="0,0,16,16">
 
+                    <!--  The same choices, together with each mode's fan curve.  -->
+                    <wpfui:Button
+                        Margin="0,0,0,8"
+                        HorizontalAlignment="Right"
+                        Appearance="Secondary"
+                        Click="PowerModeProfilesButton_Click"
+                        Content="{x:Static resources:Resource.WindowsPowerWindows_ProfilesLink}"
+                        Icon="Layer24" />
+
                     <custom:CardControl
                         x:Name="_aoAcWarningCard"
                         Margin="0,0,0,16"

@@ -2,7 +2,7 @@
 
 ## Automated tests
 
-The `LenovoLegionToolkit.Tests` project (xUnit) has **597 tests**. Run them with:
+The `LenovoLegionToolkit.Tests` project (xUnit) has **602 tests**. Run them with:
 
 ```powershell
 dotnet test LenovoLegionToolkit.Tests\LenovoLegionToolkit.Tests.csproj -c Release
@@ -69,6 +69,8 @@ These can only be checked on real hardware with an installed (Program Files), el
 - [ ] Round 2: changing "GPU monitoring interval" in the dGPU window changes how often the card updates
 - [ ] Round 2: a game-trigger automation with dGPU game detection still detects a game started on the dGPU
 - [ ] Round 3: Fan curves window, **Use firmware curve** on Balance (with your curve set, laptop in Balance): the fans go back to the firmware's behaviour without a visible mode change, and the details card says "firmware"; **Reset all modes** removes every curve; the details card's **Use firmware curve** does the same for the shown mode
+- [ ] Round 3: Power mode profiles (details card → Profiles…, Settings → Power): each tab shows the right fan status and, for your "Windows power plan" mapping, the plan cards; choosing a plan for the active mode switches the Windows plan at once; **Apply now** on the active mode; the Custom tab opens God Mode settings
+- [ ] Round 3: the Windows power plans and Windows power modes windows still show and save every mode, the Custom tab(s) and (on ITS laptops) the ITS modes as before; their "Power mode profiles…" button opens the new window
 - [ ] LLT in the tray, untouched for 2 minutes: near 0% CPU in Task Manager, memory steady (compare with the 2026-11-14 measurement: 7–17% of one core, 320–380 MB)
 - [ ] Dashboard open for 1 minute: CPU clearly lower than before (32–48% of one core); then compare Retro with Fluent
 - [ ] Dashboard sensors, status strip, battery page, HWiNFO values and a package download still update; Fan curves window shows its busy ring

@@ -203,4 +203,10 @@ public partial class SettingsPowerControl
         var window = new LenovoLegionToolkit.WPF.Windows.Dashboard.FanCurvesWindow { Owner = Window.GetWindow(this) };
         window.ShowDialog();
     }
+
+    private void PowerModeProfilesButton_Click(object sender, RoutedEventArgs e)
+    {
+        var window = new LenovoLegionToolkit.WPF.Windows.Dashboard.PowerModeProfilesWindow { Owner = Window.GetWindow(this) };
+        window.ShowDialog();
+    }
 }

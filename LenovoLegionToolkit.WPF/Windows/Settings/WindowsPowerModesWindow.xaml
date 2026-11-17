@@ -56,13 +56,22 @@
             IndicatorVerticalAlignment="Center">
 
             <wpfui:DynamicScrollViewer>
-                <TabControl
-                    x:Name="_tabControl"
-                    Margin="0,0,16,16"
-                    Grid.IsSharedSizeScope="True"
-                    HorizontalContentAlignment="Center"
-                    ItemContainerStyle="{StaticResource SegmentedControlItemStyle}"
-                    Style="{StaticResource SegmentedControlStyle}" />
+                <StackPanel Margin="0,0,16,16">
+                    <!--  The same choices, together with each mode's fan curve.  -->
+                    <wpfui:Button
+                        Margin="0,0,0,8"
+                        HorizontalAlignment="Right"
+                        Appearance="Secondary"
+                        Click="PowerModeProfilesButton_Click"
+                        Content="{x:Static resources:Resource.WindowsPowerWindows_ProfilesLink}"
+                        Icon="Layer24" />
+                    <TabControl
+                        x:Name="_tabControl"
+                        Grid.IsSharedSizeScope="True"
+                        HorizontalContentAlignment="Center"
+                        ItemContainerStyle="{StaticResource SegmentedControlItemStyle}"
+                        Style="{StaticResource SegmentedControlStyle}" />
+                </StackPanel>
             </wpfui:DynamicScrollViewer>
 
         </controls:LoadableControl>

@@ -10,7 +10,9 @@ using LenovoLegionToolkit.Lib.Controllers.GodMode;
 using LenovoLegionToolkit.Lib.Extensions;
 using LenovoLegionToolkit.Lib.Features;
 using LenovoLegionToolkit.Lib.Settings;
+using LenovoLegionToolkit.Lib.Utils;
 using LenovoLegionToolkit.WPF.Controls;
+using LenovoLegionToolkit.WPF.Controls.Settings;
 using LenovoLegionToolkit.WPF.Controls.Custom;
 using LenovoLegionToolkit.WPF.Extensions;
 using LenovoLegionToolkit.WPF.Resources;
@@ -70,7 +72,7 @@ public partial class WindowsPowerModesWindow
                 }
                 else
                 {
-                    BuildModeTab(powerModes, state, state.GetDisplayName(), (mode, isAc) => WindowsPowerModeAcDcChangedAsync(mode, state, isAc));
+                    BuildModeTab(state, state.GetDisplayName(), (mode, isAc) => WindowsPowerModeAcDcChangedAsync(mode, state, isAc));
                 }
             }
 
@@ -93,7 +95,7 @@ public partial class WindowsPowerModesWindow
                 var itsModes = await _itsModeFeature.GetAllStatesAsync();
                 foreach (var itsMode in itsModes.Where(m => m != ITSMode.None))
                 {
-                    BuildITSModeTab(powerModes, itsMode);
+                    BuildITSModeTab(itsMode);
                 }
             }
 
@@ -113,120 +115,35 @@ public partial class WindowsPowerModesWindow
         _loader.IsLoading = false;
     }
 
-    private void BuildModeTab(WindowsPowerMode[] powerModes, PowerModeState powerModeState, string title,
+    /// <summary>A tab with the AC and battery power-mode cards; by default for a built-in mode's own saved choices.</summary>
+    private void BuildModeTab(PowerModeState powerModeState, string title,
         Func<WindowsPowerMode, bool, Task> onChanged,
         WindowsPowerMode? savedAc = null, WindowsPowerMode? savedDc = null)
     {
-        var defaultMode = _settings.Store.PowerModes.GetValueOrDefault(powerModeState, WindowsPowerMode.Balanced);
-        savedAc ??= _settings.Store.Overrides.GetPowerModeOnAc(powerModeState);
-        savedDc ??= _settings.Store.Overrides.GetPowerModeOnDc(powerModeState);
-
-        var tabItem = new TabItem
-        {
-            Header = title,
-            Tag = powerModeState
-        };
-
         var container = new StackPanel();
+        var cards = WindowsPowerCards.ModeCards(
+            savedAc ?? WindowsPowerCards.SavedMode(_settings, powerModeState, isAc: true),
+            savedDc ?? WindowsPowerCards.SavedMode(_settings, powerModeState, isAc: false),
+            onChanged);
+        foreach (var card in cards)
+            container.Children.Add(card);
 
-        var acCombo = new ComboBox { MinWidth = 200, VerticalAlignment = VerticalAlignment.Center };
-        acCombo.SetItems(powerModes, savedAc ?? defaultMode, pm => pm.GetDisplayName());
-        acCombo.SelectionChanged += async (_, _) =>
-        {
-            if (acCombo.TryGetSelectedItem(out WindowsPowerMode mode))
-            {
-                await onChanged(mode, true);
-            }
-        };
-
-        var dcCombo = new ComboBox { MinWidth = 200, VerticalAlignment = VerticalAlignment.Center };
-        dcCombo.SetItems(powerModes, savedDc ?? defaultMode, pm => pm.GetDisplayName());
-        dcCombo.SelectionChanged += async (_, _) =>
-        {
-            if (dcCombo.TryGetSelectedItem(out WindowsPowerMode mode))
-            {
-                await onChanged(mode, false);
-            }
-        };
-
-        var acCard = new CardControl
-        {
-            Margin = new Thickness(0, 0, 0, 8),
-            Icon = SymbolRegular.PlugConnected24,
-            Header = new CardHeaderControl { Title = $"{Resource.WindowsPowerPlansWindow_PowerMode_Title} - {Resource.WindowsPowerPlansWindow_PowerMode_AC}", HelpKey = "Help_PowerMapping_WindowsModeAc" },
-            Content = acCombo
-        };
-
-        var dcCard = new CardControl
-        {
-            Margin = new Thickness(0, 0, 0, 8),
-            Icon = SymbolRegular.BatterySaver24,
-            Header = new CardHeaderControl { Title = $"{Resource.WindowsPowerPlansWindow_PowerMode_Title} - {Resource.WindowsPowerPlansWindow_PowerMode_DC}", HelpKey = "Help_PowerMapping_WindowsModeDc" },
-            Content = dcCombo
-        };
-
-        container.Children.Add(acCard);
-        container.Children.Add(dcCard);
-
-        tabItem.Content = container;
-        _tabControl.Items.Add(tabItem);
+        _tabControl.Items.Add(new TabItem { Header = title, Tag = powerModeState, Content = container });
     }
 
-    private void BuildITSModeTab(WindowsPowerMode[] powerModes, ITSMode itsMode)
+    private void BuildITSModeTab(ITSMode itsMode)
     {
         var defaultMode = _settings.Store.ITSPowerModes.GetValueOrDefault(itsMode, WindowsPowerMode.Balanced);
-        var savedAc = _settings.Store.ITSOverrides.GetPowerModeOnAc(itsMode);
-        var savedDc = _settings.Store.ITSOverrides.GetPowerModeOnDc(itsMode);
-
-        var tabItem = new TabItem
-        {
-            Header = _itsModeFeature.GetITSModeDisplayName(itsMode),
-            Tag = itsMode
-        };
 
         var container = new StackPanel();
+        var cards = WindowsPowerCards.ModeCards(
+            _settings.Store.ITSOverrides.GetPowerModeOnAc(itsMode) ?? defaultMode,
+            _settings.Store.ITSOverrides.GetPowerModeOnDc(itsMode) ?? defaultMode,
+            (mode, isAc) => ITSModeAcDcChangedAsync(itsMode, mode, isAc));
+        foreach (var card in cards)
+            container.Children.Add(card);
 
-        var acCombo = new ComboBox { MinWidth = 200, VerticalAlignment = VerticalAlignment.Center };
-        acCombo.SetItems(powerModes, savedAc ?? defaultMode, pm => pm.GetDisplayName());
-        acCombo.SelectionChanged += async (_, _) =>
-        {
-            if (acCombo.TryGetSelectedItem(out WindowsPowerMode mode))
-            {
-                await ITSModeAcDcChangedAsync(itsMode, mode, isAc: true);
-            }
-        };
-
-        var dcCombo = new ComboBox { MinWidth = 200, VerticalAlignment = VerticalAlignment.Center };
-        dcCombo.SetItems(powerModes, savedDc ?? defaultMode, pm => pm.GetDisplayName());
-        dcCombo.SelectionChanged += async (_, _) =>
-        {
-            if (dcCombo.TryGetSelectedItem(out WindowsPowerMode mode))
-            {
-                await ITSModeAcDcChangedAsync(itsMode, mode, isAc: false);
-            }
-        };
-
-        var acCard = new CardControl
-        {
-            Margin = new Thickness(0, 0, 0, 8),
-            Icon = SymbolRegular.PlugConnected24,
-            Header = new CardHeaderControl { Title = $"{Resource.WindowsPowerPlansWindow_PowerMode_Title} - {Resource.WindowsPowerPlansWindow_PowerMode_AC}", HelpKey = "Help_PowerMapping_WindowsModeAc" },
-            Content = acCombo
-        };
-
-        var dcCard = new CardControl
-        {
-            Margin = new Thickness(0, 0, 0, 8),
-            Icon = SymbolRegular.BatterySaver24,
-            Header = new CardHeaderControl { Title = $"{Resource.WindowsPowerPlansWindow_PowerMode_Title} - {Resource.WindowsPowerPlansWindow_PowerMode_DC}", HelpKey = "Help_PowerMapping_WindowsModeDc" },
-            Content = dcCombo
-        };
-
-        container.Children.Add(acCard);
-        container.Children.Add(dcCard);
-
-        tabItem.Content = container;
-        _tabControl.Items.Add(tabItem);
+        _tabControl.Items.Add(new TabItem { Header = _itsModeFeature.GetITSModeDisplayName(itsMode), Tag = itsMode, Content = container });
     }
 
     private async Task BuildGodModeTabAsync(WindowsPowerMode[] powerModes)
@@ -345,9 +262,22 @@ public partial class WindowsPowerModesWindow
             var savedDc = singlePreset.Value?.Overrides.TryGetEnum<WindowsPowerMode>(PowerOverrideKey.PowerModeOnDc) ?? _settings.Store.Overrides.GetPowerModeOnDc(PowerModeState.GodMode) ?? defaultMode;
 
             var presetKey = singlePreset.Key.ToString();
-            BuildModeTab(powerModes, PowerModeState.GodMode, PowerModeState.GodMode.GetDisplayName(),
+            BuildModeTab(PowerModeState.GodMode, PowerModeState.GodMode.GetDisplayName(),
                 async (mode, isAc) => await GodModePresetPowerModeChangedAsync(presetKey, mode, isAc),
                 savedAc: savedAc, savedDc: savedDc);
+        }
+    }
+
+    private async void PowerModeProfilesButton_Click(object sender, RoutedEventArgs e)
+    {
+        new Dashboard.PowerModeProfilesWindow { Owner = this }.ShowDialog();
+        try
+        {
+            await RefreshAsync();   // the profiles window may have changed these choices
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Refreshing Windows power modes failed.", ex);
         }
     }
 
@@ -358,22 +288,7 @@ public partial class WindowsPowerModesWindow
             return;
         }
 
-        if (isAc)
-        {
-            _settings.Store.Overrides.SetPowerModeOnAc(powerModeState, windowsPowerMode);
-        }
-        else
-        {
-            _settings.Store.Overrides.SetPowerModeOnDc(powerModeState, windowsPowerMode);
-        }
-
-        _settings.SynchronizeStore();
-
-        var currentState = await _powerModeFeature.GetStateAsync();
-        if (currentState == powerModeState)
-        {
-            await _powerModeFeature.EnsureCorrectWindowsPowerSettingsAreSetAsync();
-        }
+        await WindowsPowerCards.SaveModeAsync(_settings, _powerModeFeature, powerModeState, windowsPowerMode, isAc);
     }
 
     private async Task ITSModeAcDcChangedAsync(ITSMode itsMode, WindowsPowerMode windowsPowerMode, bool isAc)

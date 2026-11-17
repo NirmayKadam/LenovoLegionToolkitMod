@@ -5596,4 +5596,100 @@ If the laptop is in one of these modes now, the power mode is applied again so t
   <data name="PowerModeDetails_UseFirmwareCurve" xml:space="preserve">
     <value>Use firmware curve</value>
   </data>
+  <data name="PowerModeProfiles_Title" xml:space="preserve">
+    <value>Power mode profiles</value>
+  </data>
+  <data name="PowerModeProfiles_Message" xml:space="preserve">
+    <value>Everything a power mode brings, in one place: its fan curve and the Windows power plan or power mode LLT switches to with it. Changes for the mode the laptop is in take effect at once; the others when you switch to them.</value>
+  </data>
+  <data name="PowerModeProfiles_Open" xml:space="preserve">
+    <value>Profiles...</value>
+  </data>
+  <data name="PowerModeProfiles_Fan_Title" xml:space="preserve">
+    <value>Fan curve</value>
+  </data>
+  <data name="PowerModeProfiles_Fan_Edit" xml:space="preserve">
+    <value>Edit...</value>
+  </data>
+  <data name="PowerModeProfiles_Fan_User" xml:space="preserve">
+    <value>Yours, in use.</value>
+  </data>
+  <data name="PowerModeProfiles_Fan_Pending" xml:space="preserve">
+    <value>Yours. It is applied when the laptop switches to this mode.</value>
+  </data>
+  <data name="PowerModeProfiles_Fan_NotKept" xml:space="preserve">
+    <value>Yours, but the firmware didn&apos;t keep it, so its own curve is in use.</value>
+  </data>
+  <data name="PowerModeProfiles_Fan_Firmware" xml:space="preserve">
+    <value>The firmware&apos;s own curve.</value>
+  </data>
+  <data name="PowerModeProfiles_Fan_Off" xml:space="preserve">
+    <value>Yours is saved, but per-mode fan curves are turned off, so the firmware&apos;s curve is in use.</value>
+  </data>
+  <data name="PowerModeProfiles_WindowsOff_Title" xml:space="preserve">
+    <value>Windows power settings</value>
+  </data>
+  <data name="PowerModeProfiles_WindowsOff_Message" xml:space="preserve">
+    <value>LLT doesn&apos;t change Windows&apos; power plan or power mode with the power mode. To have it do that, choose a mapping in Settings → Power.</value>
+  </data>
+  <data name="PowerModeProfiles_Custom_Title" xml:space="preserve">
+    <value>Custom mode</value>
+  </data>
+  <data name="PowerModeProfiles_Custom_Message" xml:space="preserve">
+    <value>Custom mode uses its God Mode preset, which holds its own limits, fan curve and Windows power plan or power mode.</value>
+  </data>
+  <data name="PowerModeProfiles_Custom_Open" xml:space="preserve">
+    <value>God Mode settings...</value>
+  </data>
+  <data name="PowerModeProfiles_ApplyNow" xml:space="preserve">
+    <value>Apply now</value>
+  </data>
+  <data name="PowerModeProfiles_ApplyNow_Tooltip" xml:space="preserve">
+    <value>Applies this mode&apos;s fan curve and Windows power setting again, the way a power-mode change does.</value>
+  </data>
+  <data name="PowerModeProfiles_ApplyNow_OnlyActive" xml:space="preserve">
+    <value>Only for the mode the laptop is in ({0}). The other modes&apos; settings apply when you switch to them.</value>
+  </data>
+  <data name="PowerModeProfiles_Applying" xml:space="preserve">
+    <value>Applying...</value>
+  </data>
+  <data name="PowerModeProfiles_Applied_FanUser" xml:space="preserve">
+    <value>Your fan curve is in use.</value>
+  </data>
+  <data name="PowerModeProfiles_Applied_FanFirmware" xml:space="preserve">
+    <value>The firmware&apos;s fan curve is in use.</value>
+  </data>
+  <data name="PowerModeProfiles_Applied_FanNotKept" xml:space="preserve">
+    <value>Your fan curve wasn&apos;t kept, so the firmware&apos;s curve is in use.</value>
+  </data>
+  <data name="PowerModeProfiles_Applied_Windows" xml:space="preserve">
+    <value>This mode&apos;s Windows power setting is applied.</value>
+  </data>
+  <data name="PowerModeProfiles_ApplyFailed" xml:space="preserve">
+    <value>Couldn&apos;t apply. Switching power mode applies these settings too.</value>
+  </data>
+  <data name="PowerModeProfiles_LoadFailed" xml:space="preserve">
+    <value>Couldn&apos;t read the power modes.</value>
+  </data>
+  <data name="SettingsPage_PowerModeProfiles_Message" xml:space="preserve">
+    <value>Each power mode&apos;s fan curve and Windows power plan or mode, together.</value>
+  </data>
+  <data name="WindowsPowerWindows_ProfilesLink" xml:space="preserve">
+    <value>Power mode profiles...</value>
+  </data>
+  <data name="Help_PowerModeProfiles_Fan_What" xml:space="preserve">
+    <value>Whose fan curve this mode uses: yours (set in the Fan curves window) or the firmware&apos;s. Edit opens the Fan curves window on this mode; Use firmware curve removes yours.</value>
+  </data>
+  <data name="Help_PowerModeProfiles_WindowsOff_What" xml:space="preserve">
+    <value>With the mapping off, LLT leaves Windows&apos; power plan and power mode as they are when the power mode changes. Settings → Power has the mapping: a Windows power plan per mode, or a Windows power mode per mode.</value>
+  </data>
+  <data name="Help_PowerModeProfiles_Custom_What" xml:space="preserve">
+    <value>Custom mode&apos;s settings belong to its God Mode preset (limits, fan curve, and the Windows power plan or mode chosen for the preset), so they are changed in God Mode settings.</value>
+  </data>
+  <data name="Help_Settings_PowerModeProfiles_What" xml:space="preserve">
+    <value>One window per power mode with its fan curve and the Windows power plan or power mode LLT uses with it. It changes the same settings as the Fan curves window and the Windows power plan and power mode windows.</value>
+  </data>
+  <data name="Help_Settings_PowerModeProfiles_When" xml:space="preserve">
+    <value>To see or change everything a mode does at once, instead of in three places.</value>
+  </data>
 </root>
