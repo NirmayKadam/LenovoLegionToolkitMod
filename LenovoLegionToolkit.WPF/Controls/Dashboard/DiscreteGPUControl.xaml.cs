@@ -7,7 +7,6 @@ using System.Windows.Controls.Primitives;
 using LenovoLegionToolkit.Lib;
 using LenovoLegionToolkit.Lib.Controllers;
 using LenovoLegionToolkit.Lib.Listeners;
-using LenovoLegionToolkit.Lib.Settings;
 using LenovoLegionToolkit.Lib.Utils;
 using LenovoLegionToolkit.WPF.Resources;
 using LenovoLegionToolkit.WPF.Windows.Dashboard;
@@ -17,7 +16,6 @@ namespace LenovoLegionToolkit.WPF.Controls.Dashboard;
 public partial class DiscreteGPUControl
 {
     private readonly GPUController _gpuController = IoCContainer.Resolve<GPUController>();
-    private readonly ApplicationSettings _settings = IoCContainer.Resolve<ApplicationSettings>();
     private readonly NativeWindowsMessageListener _nativeWindowsMessageListener = IoCContainer.Resolve<NativeWindowsMessageListener>();
 
     public DiscreteGPUControl()
@@ -32,16 +30,17 @@ public partial class DiscreteGPUControl
 
     protected override void OnFinishedLoading() { }
 
-    protected override async Task OnRefreshAsync()
+    protected override Task OnRefreshAsync()
     {
         if (!IsVisible || Window.GetWindow(this)?.WindowState == WindowState.Minimized)
-            return;
+            return Task.CompletedTask;
 
         if (!_gpuController.IsSupported())
             throw new InvalidOperationException("Unsupported operation");
 
-        _gpuController.Interval = _settings.Store.GPUMonitoringInterval;
-        await _gpuController.StartAsync();
+        // The GPU check runs while this card is on screen (it lets go when hidden).
+        _gpuController.Hold(this);
+        return Task.CompletedTask;
     }
 
     private async void NativeWindowsMessageListener_Changed(object? sender, NativeWindowsMessageListener.ChangedEventArgs e)
@@ -56,15 +55,15 @@ public partial class DiscreteGPUControl
         await RefreshAsync();
     }
 
-    private async void DiscreteGPUControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+    private void DiscreteGPUControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
     {
         if (IsVisible)
             return;
 
         _content.Visibility = Visibility.Hidden;
 
-        if (!_settings.Store.GameDetection.UseDiscreteGPU)
-            await _gpuController.StopAsync();
+        // Game detection holds the check itself when it needs it, so this never stops it for anyone else.
+        _gpuController.Release(this);
     }
 
     private void GpuController_Refreshed(object? sender, GPUStatus e) => Dispatcher.Invoke(() =>

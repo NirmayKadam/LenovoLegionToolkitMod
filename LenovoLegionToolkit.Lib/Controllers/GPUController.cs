@@ -27,28 +27,161 @@ public class GPUController
     private readonly Func<Task> _initialize;
     private readonly Func<CancellationToken, Task> _refresh;
     private readonly Action<string, Exception> _reportError;
+    private readonly Func<int> _interval;
+    private readonly Func<int> _startupDelay;
+    private readonly TimeSpan? _readerHold;
 
     public GPUController()
     {
         _initialize = InitializeAsync;
         _refresh = DoRefreshAsync;
         _reportError = Log.Instance.ErrorReport;
+        _interval = () => IoCContainer.Resolve<ApplicationSettings>().Store.GPUMonitoringInterval;
+        _startupDelay = () => IoCContainer.Resolve<ApplicationSettings>().Store.GPUMonitoringStartupDelay;
     }
 
     /// <summary>
     /// For tests: the start-up step, the per-round refresh and the error report are supplied by the caller, since
-    /// NVIDIA's API can't be driven in a test.
+    /// NVIDIA's API can't be driven in a test; so are the timings, so a test runs in milliseconds.
     /// </summary>
-    internal GPUController(Func<Task> initialize, Func<CancellationToken, Task> refresh, Action<string, Exception> reportError)
+    internal GPUController(Func<Task> initialize, Func<CancellationToken, Task> refresh, Action<string, Exception> reportError, Func<int> interval, int startupDelayMs, TimeSpan readerHold)
     {
         _initialize = initialize;
         _refresh = refresh;
         _reportError = reportError;
+        _interval = interval;
+        _startupDelay = () => startupDelayMs;
+        _readerHold = readerHold;
     }
 
-    public int Interval { get; set; } = 5000;
+    /// <summary>Time between rounds: the "GPU monitoring interval" setting, read every round.</summary>
+    private int Interval => _interval();
+
+    /// <summary>How long one read keeps the check running: three rounds, and at least 15 s.</summary>
+    private TimeSpan ReaderHold => _readerHold ?? TimeSpan.FromMilliseconds(Math.Max(3L * Interval, 15_000));
+
+    // ---- Who needs the check ----
+    // The check runs while at least one holder holds it, or a reader has read within ReaderHold. This lock guards
+    // the holders, the readers and starting/stopping the loop; it is never held across an NVIDIA call or an await.
+
+    private readonly object _holdersLock = new();
+    private readonly HashSet<object> _holders = new(ReferenceEqualityComparer.Instance);
+    private readonly Dictionary<object, long> _readerLastRead = new(ReferenceEqualityComparer.Instance);
+    private bool _startedBefore;
 
     private CancellationTokenSource? _refreshCancellationTokenSource;
+
+    /// <summary>
+    /// Keeps the check running until <see cref="Release"/> with the same holder (the dGPU card while visible, the
+    /// dGPU window while open, game detection while it runs). Holding twice is the same as once.
+    /// </summary>
+    public void Hold(object holder)
+    {
+        lock (_holdersLock)
+        {
+            _holders.Add(holder);
+            // The start-up delay only applies to the first start after LLT launches.
+            StartLoopIfStopped(_startedBefore ? 0 : _startupDelay());
+        }
+    }
+
+    /// <summary>Lets go of a hold; the check stops at once if nothing else needs it.</summary>
+    public void Release(object holder)
+    {
+        CancellationTokenSource? stop;
+        lock (_holdersLock)
+        {
+            _holders.Remove(holder);
+            stop = TakeLoopIfUnneeded();
+        }
+
+        if (stop is null)
+            return;
+
+        Log.Instance.Trace($"GPU check stopped: nothing needs it.");
+        stop.Cancel();
+    }
+
+    /// <summary>
+    /// The GPU's current state, for code that reads it before touching the GPU (the sensors). Each read keeps the
+    /// check running for <see cref="ReaderHold"/>. If the check wasn't running, the state is refreshed first, so a
+    /// reader never acts on a state from before. Never throws: on failure the state is <see cref="GPUState.Unknown"/>.
+    /// </summary>
+    public async Task<GPUState> GetFreshStateAsync(object reader)
+    {
+        try
+        {
+            bool running;
+            lock (_holdersLock)
+            {
+                _readerLastRead[reader] = Environment.TickCount64;
+                running = _refreshCancellationTokenSource is not null;
+            }
+
+            if (!running)
+            {
+                try
+                {
+                    // The loop's own start-up step first (nothing to do when NVIDIA's API is already set up).
+                    await _initialize().ConfigureAwait(false);
+                    await RefreshNowAsync().ConfigureAwait(false);
+                }
+                finally
+                {
+                    // Started even if the refresh failed; the loop reports its own failures. Its first round is
+                    // one interval away, since this read just refreshed.
+                    lock (_holdersLock)
+                    {
+                        _startedBefore = true;
+                        StartLoopIfStopped(Interval);
+                    }
+                }
+            }
+
+            using (await _stateLock.LockAsync().ConfigureAwait(false))
+            {
+                return _state;
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Couldn't read the GPU state.", ex);
+            return GPUState.Unknown;
+        }
+    }
+
+    /// <summary>Starts the loop unless it runs. Caller holds <see cref="_holdersLock"/>.</summary>
+    private void StartLoopIfStopped(int delayMs)
+    {
+        if (_refreshCancellationTokenSource is not null)
+            return;
+
+        var cancellationTokenSource = new CancellationTokenSource();
+        _refreshCancellationTokenSource = cancellationTokenSource;
+        _startedBefore = true;
+
+        // On a pool thread, so the start-up step's NVIDIA calls never run under the lock or on the caller's thread.
+        _ = Task.Run(() => RefreshLoopAsync(delayMs, cancellationTokenSource));
+    }
+
+    /// <summary>
+    /// If nothing needs the check any more, marks the loop as stopped and returns its token source for the caller
+    /// to cancel outside the lock; otherwise null. Caller holds <see cref="_holdersLock"/>.
+    /// </summary>
+    private CancellationTokenSource? TakeLoopIfUnneeded()
+    {
+        var now = Environment.TickCount64;
+        var holdMs = (long)ReaderHold.TotalMilliseconds;
+        foreach (var expired in _readerLastRead.Where(r => now - r.Value > holdMs).Select(r => r.Key).ToList())
+            _readerLastRead.Remove(expired);
+
+        if (_refreshCancellationTokenSource is null || _holders.Count > 0 || _readerLastRead.Count > 0)
+            return null;
+
+        var cancellationTokenSource = _refreshCancellationTokenSource;
+        _refreshCancellationTokenSource = null;
+        return cancellationTokenSource;
+    }
 
     private GPUState _state = GPUState.Unknown;
     private List<Process> _processes = [];
@@ -76,14 +209,6 @@ public class GPUController
         }
     }
 
-    public async Task<GPUState> GetLastKnownStateAsync()
-    {
-        using (await _stateLock.LockAsync().ConfigureAwait(false))
-        {
-            return _state;
-        }
-    }
-
     public async Task<GPUStatus> RefreshNowAsync()
     {
         await _refreshGate.WaitAsync().ConfigureAwait(false);
@@ -100,41 +225,6 @@ public class GPUController
         {
             return new GPUStatus(_state, _performanceState, _processes, _sleepBlockerReason);
         }
-    }
-
-    public Task StartAsync(int delay = -1, int interval = 5_000)
-    {
-        if (IsStarted)
-        {
-            return Task.CompletedTask;
-        }
-
-        Interval = interval;
-
-        var startupDelay = delay >= 0 ? delay : IoCContainer.Resolve<ApplicationSettings>().Store.GPUMonitoringStartupDelay;
-
-        var cancellationTokenSource = new CancellationTokenSource();
-        _refreshCancellationTokenSource = cancellationTokenSource;
-        _ = RefreshLoopAsync(startupDelay, cancellationTokenSource);
-
-        return Task.CompletedTask;
-    }
-
-    public async Task StopAsync(bool waitForFinish = false)
-    {
-        // Read once: the loop clears the field itself when it can't start.
-        var cancellationTokenSource = _refreshCancellationTokenSource;
-        if (cancellationTokenSource is null)
-        {
-            return;
-        }
-
-        await cancellationTokenSource.CancelAsync().ConfigureAwait(false);
-
-        await _refreshGate.WaitAsync().ConfigureAwait(false);
-        _refreshGate.Release();
-
-        Interlocked.CompareExchange(ref _refreshCancellationTokenSource, null, cancellationTokenSource);
     }
 
     public async Task RestartGPUAsync()
@@ -217,9 +307,10 @@ public class GPUController
     private const int RetryAfterFailureMs = 5_000;
 
     /// <summary>
-    /// Refreshes the GPU state every <see cref="Interval"/> until stopped. A failed round is logged (and reported
-    /// once per run) and the loop carries on. If the start-up step fails, the loop ends and marks itself as not
-    /// started, so a later <see cref="StartAsync"/> can try again.
+    /// Refreshes the GPU state every <see cref="Interval"/> while something needs it (see <see cref="Hold"/> and
+    /// <see cref="GetFreshStateAsync"/>), then stops by itself. A failed round is logged (and reported once per run)
+    /// and the loop carries on. If the start-up step fails, the loop ends and marks itself as not started, so a
+    /// later hold or read can try again.
     /// </summary>
     private async Task RefreshLoopAsync(int delay, CancellationTokenSource cancellationTokenSource)
     {
@@ -232,7 +323,11 @@ public class GPUController
         catch (Exception ex)
         {
             Log.Instance.Trace($"GPU monitoring couldn't start.", ex);
-            Interlocked.CompareExchange(ref _refreshCancellationTokenSource, null, cancellationTokenSource);
+            lock (_holdersLock)
+            {
+                if (ReferenceEquals(_refreshCancellationTokenSource, cancellationTokenSource))
+                    _refreshCancellationTokenSource = null;
+            }
             return;
         }
 
@@ -274,7 +369,23 @@ public class GPUController
                     _refreshGate.Release();
                 }
 
-                var wait = failed && Interval <= 0 ? RetryAfterFailureMs : Interval;
+                // Stop once nothing needs the check (the last reader's hold ran out), or if it was stopped already.
+                CancellationTokenSource? stop;
+                lock (_holdersLock)
+                {
+                    if (!ReferenceEquals(_refreshCancellationTokenSource, cancellationTokenSource))
+                        return;
+                    stop = TakeLoopIfUnneeded();
+                }
+
+                if (stop is not null)
+                {
+                    Log.Instance.Trace($"GPU check stopped: nothing needs it.");
+                    return;
+                }
+
+                var interval = Interval;
+                var wait = failed && interval <= 0 ? RetryAfterFailureMs : interval;
                 if (wait > 0)
                 {
                     await Task.Delay(wait, token).ConfigureAwait(false);

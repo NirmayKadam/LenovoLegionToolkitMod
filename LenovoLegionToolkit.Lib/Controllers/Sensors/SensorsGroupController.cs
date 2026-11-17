@@ -491,7 +491,11 @@ public class SensorsGroupController : IDisposable
             if (scope == HardwareUpdateScope.None)
                 return;
 
-            var gpuState = await _gpuController.GetLastKnownStateAsync().ConfigureAwait(false);
+            // Only GPU updates of an NVIDIA dGPU need its state (to leave it alone while asleep or idle); each such
+            // read keeps the GPU check running for a while. Other GPUs don't use the NVIDIA check.
+            var gpuState = Includes(scope, HardwareUpdateScope.Gpu) && _gpuProvider.DgpuHardware?.HardwareType == HardwareType.GpuNvidia
+                ? await _gpuController.GetFreshStateAsync(this).ConfigureAwait(false)
+                : GPUState.Unknown;
             var dgpuEjectInProgress = IsDgpuEjectInProgress();
             bool gpuInactive = IsGpuInActive(gpuState) || dgpuEjectInProgress;
 

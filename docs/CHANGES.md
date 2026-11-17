@@ -285,3 +285,34 @@ Tests: `Tests/Controllers/GPURefreshLoopTests.cs` (new), `Tests/UI/GameSafeModeT
 - `GameSafeModeTests.Switching_FromSeveralPlacesAtOnce_…`: passes the new error-report argument and disposes the monitor (whose check now starts with the setting); same assertions.
 - `SkinPaletteTests.Neon_GlowFollowsTheOptions`: `SkinOptions` has a fourth argument (`RetroGlow`); same assertions.
 - `SkinPaletteTests.Retro_EveryPhosphor_IsReadable`: `Assert.NotNull` on the colors before use (was a null-forgiving `!`); stricter, not weaker.
+
+### Round 2 follow-up: the GPU check runs only while something needs it (2026-11-17)
+
+The discrete-GPU check (every 5 s: NVIDIA's API and the list of processes on the dGPU) kept running in the tray once anything had started it.
+- Every sensor read started it, and nothing stopped it.
+- The dashboard card stopped it only when "use dGPU for game detection" was off.
+- Game detection never stopped it.
+
+`LenovoLegionToolkit.Lib/Controllers/GPUController.cs` now tracks who needs it:
+- **Holders:** `Hold`/`Release`, used by the dGPU card while visible, the dGPU window while open (it relied on others before) and game detection while it runs.
+- **Readers:** `GetFreshStateAsync`, used by the two sensor paths. Each read keeps the check running for three rounds (at least 15 s). If the check wasn't running, the read refreshes first, so the sensors never act on an old state and query a sleeping dGPU.
+- **Stopping:** the loop stops when the last holder lets go or the last reader's time runs out. It starts again when needed, and a hold arriving during the stop decision is never lost.
+- **Interval setting:** the "GPU monitoring interval" setting is read every round. Before, starting the check overwrote it with 5 s.
+- **Removed:** `StartAsync`/`StopAsync`/`GetLastKnownStateAsync`.
+
+Callers:
+- `WPF/Controls/Dashboard/DiscreteGPUControl.xaml.cs`;
+- `WPF/Windows/Dashboard/DiscreteGPUManagementWindow.xaml.cs`;
+- `Lib/AutoListeners/GameAutoListener.cs`;
+- `Lib/Controllers/Sensors/AbstractSensorsController.cs`;
+- `Lib/Controllers/Sensors/SensorsGroupController.cs`: only for GPU updates of an NVIDIA dGPU.
+
+**Behaviour change:** a locked GPU P-state is re-applied when the dGPU wakes only while the check runs. `DgpuAwakeManager` still applies it when it keeps the dGPU awake, and no P-state is locked on the test laptop.
+
+Tests: `Tests/Controllers/GPURefreshLoopTests.cs`, 6 new.
+- All 6 were run against a stand-in with the old behaviour (release does nothing; a read starts the check and returns the last state), and all 6 failed.
+- The read-refreshes-first test needed a start-up delay above 0 to fail: with 0, the old loop's first round happened to run synchronously.
+- 589 tests, all passing. Not verified on the laptop yet.
+
+#### Tests changed on purpose
+- `GPURefreshLoopTests`: the three Round 2 loop tests call `Hold`/`Release` instead of `StartAsync`/`StopAsync`; same assertions.

@@ -241,10 +241,8 @@ public abstract class AbstractSensorsController(GPUController gpuController) : I
             return GPUInfo.Empty;
         }
 
-        if (gpuController.IsSupported())
-            await gpuController.StartAsync().ConfigureAwait(false);
-
-        if (await gpuController.GetLastKnownStateAsync().ConfigureAwait(false) is GPUState.PoweredOff)
+        // A fresh state (each read keeps the GPU check running for a while), so a sleeping dGPU isn't queried.
+        if (gpuController.IsSupported() && await gpuController.GetFreshStateAsync(this).ConfigureAwait(false) is GPUState.PoweredOff)
             return GPUInfo.Empty;
 
         try

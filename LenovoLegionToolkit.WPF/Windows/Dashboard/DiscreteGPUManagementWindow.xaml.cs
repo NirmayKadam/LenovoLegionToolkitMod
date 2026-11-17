@@ -85,6 +85,8 @@ public partial class DiscreteGPUManagementWindow : BaseWindow
 
     private void DiscreteGPUManagementWindow_Loaded(object sender, RoutedEventArgs e)
     {
+        // The GPU check runs while this window is open; it lets go when closed.
+        _gpuController.Hold(this);
         _ = RefreshAppListAsync();
     }
 
@@ -206,8 +208,7 @@ public partial class DiscreteGPUManagementWindow : BaseWindow
 
         var seconds = (int)e.NewValue;
         _intervalText.Text = string.Format(Resource.Seconds, seconds);
-        _settings.Store.GPUMonitoringInterval = seconds * 1000;
-        _gpuController.Interval = _settings.Store.GPUMonitoringInterval;
+        _settings.Store.GPUMonitoringInterval = seconds * 1000; // the GPU check reads it every round
         _settings.SynchronizeStore();
     }
 
@@ -303,6 +304,7 @@ public partial class DiscreteGPUManagementWindow : BaseWindow
     protected override void OnClosed(EventArgs e)
     {
         _gpuController.Refreshed -= GpuController_Refreshed;
+        _gpuController.Release(this);
         base.OnClosed(e);
     }
 

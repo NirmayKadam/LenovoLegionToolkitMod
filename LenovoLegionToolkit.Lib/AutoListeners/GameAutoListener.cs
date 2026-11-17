@@ -177,7 +177,8 @@ public class GameAutoListener : AbstractAutoListener<GameAutoListener.ChangedEve
 
         if (_settings.Store.GameDetection.UseDiscreteGPU)
         {
-            await _gpuController.StartAsync().ConfigureAwait(false);
+            // The GPU check runs while game detection uses it; released in StopAsync.
+            _gpuController.Hold(this);
             _gpuController.Refreshed += GpuController_Refreshed;
 
             try
@@ -250,6 +251,7 @@ public class GameAutoListener : AbstractAutoListener<GameAutoListener.ChangedEve
         await _effectiveGameModeDetector.StopAsync().ConfigureAwait(false);
 
         _gpuController.Refreshed -= GpuController_Refreshed;
+        _gpuController.Release(this);
 
         lock (Lock)
         {
