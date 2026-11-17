@@ -119,6 +119,27 @@
                 </StackPanel>
             </Border>
 
+            <!--  Back to the firmware's own curve, for the selected mode or every mode.  -->
+            <custom:CardControl x:Name="_resetCard" Margin="0,0,0,8" Icon="ArrowReset24">
+                <custom:CardControl.Header>
+                    <controls:CardHeaderControl
+                        Title="{x:Static resources:Resource.FanCurvesWindow_Reset_Title}"
+                        Subtitle="{x:Static resources:Resource.FanCurvesWindow_Reset_Message}"
+                        HelpKey="Help_FanCurves_Reset" />
+                </custom:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <wpfui:Button
+                        Margin="0,0,8,0"
+                        Appearance="Secondary"
+                        Click="ResetOneButton_Click"
+                        Content="{x:Static resources:Resource.FanCurvesWindow_Reset_One}" />
+                    <wpfui:Button
+                        Appearance="Secondary"
+                        Click="ResetAllButton_Click"
+                        Content="{x:Static resources:Resource.FanCurvesWindow_Reset_All}" />
+                </StackPanel>
+            </custom:CardControl>
+
             <!--  What is happening now, and what the last action came to.  -->
             <Grid Margin="0,0,0,8">
                 <Grid.ColumnDefinitions>

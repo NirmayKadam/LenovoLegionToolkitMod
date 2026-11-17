@@ -98,6 +98,25 @@ public enum FanCurveApplyResult
     Failed,
 }
 
+/// <summary>What going back to the firmware's fan curve did.</summary>
+public enum FanCurveResetResult
+{
+    /// <summary>No curve was saved for that mode (or any mode): nothing changed.</summary>
+    NothingToReset,
+
+    /// <summary>The curve was removed. It wasn't in use right now, so nothing else was needed.</summary>
+    Removed,
+
+    /// <summary>The curve was removed and the power mode re-applied, so the firmware's curve is in use now.</summary>
+    RemovedAndReapplied,
+
+    /// <summary>
+    /// The curve was removed, but re-applying the power mode failed: the fans keep the removed curve until the next
+    /// mode change, which brings the firmware's curve.
+    /// </summary>
+    RemovedReapplyFailed,
+}
+
 /// <summary>What the user-started test came to.</summary>
 /// <param name="Result">Whether the firmware kept the test curve (<see cref="FanCurveApplyResult.Applied"/>) or put its own back (<see cref="FanCurveApplyResult.Rejected"/>), or why there's no answer.</param>
 /// <param name="NeedsModeReapply">
@@ -273,6 +292,64 @@ public class FanProfileController
             return Report(mode, FanCurveApplyResult.Invalid, ofSavedCurve: false);
 
         return await ApplyAndWatchAsync(mode, curve, superseder, ofSavedCurve: false).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Goes back to the firmware's own curve for <paramref name="mode"/>, or for every mode when null: removes the
+    /// saved curve(s) and, if the laptop is in an affected mode whose curve was in use, stops any pending re-check
+    /// (so the removed curve is never written again) and re-applies the power mode through
+    /// <paramref name="reapplyMode"/>, which makes the firmware load its curve. No fan table is written here.
+    /// </summary>
+    public async Task<FanCurveResetResult> ResetToFirmwareAsync(PowerModeState? mode, Func<PowerModeState, Task> reapplyMode)
+    {
+        PowerModeState[] affected = mode is { } only
+            ? settings.Store.Curves.ContainsKey(only) ? [only] : []
+            : [.. settings.Store.Curves.Keys];
+
+        if (affected.Length == 0)
+            return FanCurveResetResult.NothingToReset;
+
+        PowerModeState? current;
+        try
+        {
+            current = await currentMode().ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Couldn't read the power mode while resetting fan curves.", ex);
+            current = null;
+        }
+
+        // Whether the fans are on one of these curves right now (the feature on, the firmware keeping curves).
+        var inUseNow = current is { } active && affected.Contains(active) && EffectiveCurve(active) is not null;
+
+        foreach (var removed in affected)
+        {
+            settings.Store.Curves.Remove(removed);
+            _lastOutcome.TryRemove(removed, out _);
+        }
+        settings.SynchronizeStore();
+        Log.Instance.Trace($"Fan curves reset to the firmware's. [modes={string.Join(",", affected)}, inUseNow={inUseNow}]");
+
+        if (current is null)
+            return FanCurveResetResult.RemovedReapplyFailed;
+
+        if (!inUseNow)
+            return FanCurveResetResult.Removed;
+
+        // Stops the background check of the removed curve before the mode change brings the firmware's.
+        await ApplyForModeAsync(current.Value).ConfigureAwait(false);
+
+        try
+        {
+            await reapplyMode(current.Value).ConfigureAwait(false);
+            return FanCurveResetResult.RemovedAndReapplied;
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Re-applying {current} after the fan curve reset failed.", ex);
+            return FanCurveResetResult.RemovedReapplyFailed;
+        }
     }
 
     /// <summary>Cancels the apply in progress (if any) and returns the token for the new one.</summary>

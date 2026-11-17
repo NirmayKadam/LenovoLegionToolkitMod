@@ -5553,4 +5553,47 @@ Logging will be enabled automatically, if you choose to continue.</value>
   <data name="Osd_GameSafeBadge_Tooltip" xml:space="preserve">
     <value>An anti-cheat service is running, so the OSD shows only readings that need no driver. Values that need the hardware-sensor driver show a dash until the game closes.</value>
   </data>
+  <data name="FanCurvesWindow_Reset_Title" xml:space="preserve">
+    <value>Firmware fan curve</value>
+  </data>
+  <data name="FanCurvesWindow_Reset_Message" xml:space="preserve">
+    <value>Go back to the curve the firmware itself uses. Custom mode keeps its preset&apos;s curve: use God Mode settings → Load defaults there.</value>
+  </data>
+  <data name="FanCurvesWindow_Reset_One" xml:space="preserve">
+    <value>Use firmware curve</value>
+  </data>
+  <data name="FanCurvesWindow_Reset_All" xml:space="preserve">
+    <value>Reset all modes</value>
+  </data>
+  <data name="FanCurvesWindow_Reset_ConfirmOne" xml:space="preserve">
+    <value>Remove your fan curve for {0} and use the firmware&apos;s own curve?
+
+If the laptop is in {0} now, the power mode is applied again so the firmware loads its curve.</value>
+  </data>
+  <data name="FanCurvesWindow_Reset_ConfirmAll" xml:space="preserve">
+    <value>Remove your fan curves for every power mode and use the firmware&apos;s own curves?
+
+If the laptop is in one of these modes now, the power mode is applied again so the firmware loads its curve.</value>
+  </data>
+  <data name="FanCurvesWindow_Reset_Nothing" xml:space="preserve">
+    <value>There is no curve of yours to remove.</value>
+  </data>
+  <data name="FanCurvesWindow_Reset_Removed" xml:space="preserve">
+    <value>Your curve is removed. The firmware&apos;s curve is used from the next time you switch to that mode.</value>
+  </data>
+  <data name="FanCurvesWindow_Reset_Reapplied" xml:space="preserve">
+    <value>Your curve is removed and the firmware&apos;s curve is in use now.</value>
+  </data>
+  <data name="FanCurvesWindow_Reset_ReapplyFailed" xml:space="preserve">
+    <value>Your curve is removed, but the power mode couldn&apos;t be applied again. The firmware&apos;s curve comes back at the next power-mode change.</value>
+  </data>
+  <data name="Help_FanCurves_Reset_What" xml:space="preserve">
+    <value>Removes your fan curve for the selected mode (or for every mode) and lets the firmware use its own. If the laptop is in that mode now, LLT applies the same power mode again so the firmware loads its curve; it doesn&apos;t write a fan table itself.</value>
+  </data>
+  <data name="Help_FanCurves_Reset_When" xml:space="preserve">
+    <value>When a curve of yours makes the laptop too loud or too warm, or to undo all fan changes at once.</value>
+  </data>
+  <data name="PowerModeDetails_UseFirmwareCurve" xml:space="preserve">
+    <value>Use firmware curve</value>
+  </data>
 </root>

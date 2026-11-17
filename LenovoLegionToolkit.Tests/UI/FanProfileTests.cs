@@ -249,6 +249,120 @@ public sealed class FanProfileTests : IDisposable
     private FanProfileController NewController(FanProfileSettings settings, IFanTableAccess access) =>
         new(settings, access, () => Task.FromResult(_laptopMode)) { RecheckDelay = TimeSpan.Zero };
 
+    // ---- Back to the firmware's curve ----
+
+    /// <summary>Re-applying the power mode is supplied by the test and recorded.</summary>
+    private readonly List<PowerModeState> _reapplied = [];
+
+    private Task Reapply(PowerModeState mode)
+    {
+        _reapplied.Add(mode);
+        return Task.CompletedTask;
+    }
+
+    [Fact]
+    public async Task Reset_OneMode_RemovesOnlyThatCurve_AndSavesIt()
+    {
+        var settings = NewSettings(true, FanCurveFirmwareSupport.Accepts, PowerModeState.Quiet, PowerModeState.Balance);
+        var controller = NewController(settings, new ScriptedFanTable());
+        _laptopMode = PowerModeState.Performance;   // neither curve is in use
+
+        var result = await controller.ResetToFirmwareAsync(PowerModeState.Quiet, Reapply);
+
+        Assert.Equal(FanCurveResetResult.Removed, result);
+        var saved = new FanProfileSettings(_dir).Store.Curves;
+        Assert.False(saved.ContainsKey(PowerModeState.Quiet));
+        Assert.True(saved.ContainsKey(PowerModeState.Balance));
+        Assert.Empty(_reapplied);                   // nothing in use changed, so no mode change
+    }
+
+    [Fact]
+    public async Task Reset_TheActiveModesCurve_ReappliesThatModeOnce_AndShowsTheFirmwareCurve()
+    {
+        var settings = NewSettings(true, FanCurveFirmwareSupport.Accepts, PowerModeState.Balance);
+        var access = new ScriptedFanTable();
+        var controller = NewController(settings, access);
+        await controller.ApplyForModeAsync(PowerModeState.Balance);
+        await controller.PendingCheck;
+        var writesBefore = access.Writes.Count;
+
+        var result = await controller.ResetToFirmwareAsync(PowerModeState.Balance, Reapply);
+
+        Assert.Equal(FanCurveResetResult.RemovedAndReapplied, result);
+        Assert.Equal([PowerModeState.Balance], _reapplied);
+        Assert.Equal(writesBefore, access.Writes.Count);   // the reset itself writes no fan table
+        Assert.Equal(FanCurveSource.Firmware, controller.CurveInUse(PowerModeState.Balance).Source);
+    }
+
+    [Fact]
+    public async Task Reset_AllModes_RemovesEveryCurve_AndReappliesOnce()
+    {
+        var settings = NewSettings(true, FanCurveFirmwareSupport.Accepts, PowerModeState.Quiet, PowerModeState.Balance, PowerModeState.Performance);
+        var controller = NewController(settings, new ScriptedFanTable());
+
+        var result = await controller.ResetToFirmwareAsync(null, Reapply);
+
+        Assert.Equal(FanCurveResetResult.RemovedAndReapplied, result);
+        Assert.Empty(new FanProfileSettings(_dir).Store.Curves);
+        Assert.Equal([PowerModeState.Balance], _reapplied);
+    }
+
+    /// <summary>
+    /// The background re-check of the curve being removed must not write it again. Its read is held open while the
+    /// reset runs; the read then says the firmware put its own curve back, which would normally cause a rewrite.
+    /// </summary>
+    [Fact]
+    public async Task Reset_WhileACheckIsPending_TheRemovedCurveIsNeverWrittenAgain()
+    {
+        var settings = NewSettings(true, FanCurveFirmwareSupport.Accepts, PowerModeState.Balance);
+        var holdRecheck = new TaskCompletionSource();
+        var access = new ScriptedFanTable { Reads = { FirmwareCurve }, BeforeRead = index => index == 0 ? holdRecheck.Task : Task.CompletedTask };
+        var controller = NewController(settings, access);
+
+        await controller.ApplyForModeAsync(PowerModeState.Balance);
+        var reset = await controller.ResetToFirmwareAsync(PowerModeState.Balance, Reapply);
+        holdRecheck.SetResult();
+        await controller.PendingCheck.WaitAsync(TimeSpan.FromSeconds(10));
+
+        Assert.Equal(FanCurveResetResult.RemovedAndReapplied, reset);
+        Assert.Single(access.Writes);
+    }
+
+    [Fact]
+    public async Task Reset_WhenReapplyingFails_SaysSo_AndTheCurveStaysRemoved()
+    {
+        var settings = NewSettings(true, FanCurveFirmwareSupport.Accepts, PowerModeState.Balance);
+        var controller = NewController(settings, new ScriptedFanTable());
+
+        var result = await controller.ResetToFirmwareAsync(PowerModeState.Balance, _ => throw new InvalidOperationException("firmware busy"));
+
+        Assert.Equal(FanCurveResetResult.RemovedReapplyFailed, result);
+        Assert.Empty(new FanProfileSettings(_dir).Store.Curves);
+    }
+
+    [Theory]
+    [InlineData(false, FanCurveFirmwareSupport.Accepts)]   // feature off: the curve wasn't in use
+    [InlineData(true, FanCurveFirmwareSupport.Rejects)]    // firmware doesn't keep curves: it wasn't in use either
+    public async Task Reset_ACurveThatWasNotInUse_ChangesNoMode(bool enabled, FanCurveFirmwareSupport support)
+    {
+        var settings = NewSettings(enabled, support, PowerModeState.Balance);
+        var controller = NewController(settings, new ScriptedFanTable());
+
+        Assert.Equal(FanCurveResetResult.Removed, await controller.ResetToFirmwareAsync(PowerModeState.Balance, Reapply));
+        Assert.Empty(_reapplied);
+    }
+
+    [Fact]
+    public async Task Reset_WithNothingSaved_ChangesNothing()
+    {
+        var settings = NewSettings(true, FanCurveFirmwareSupport.Accepts, PowerModeState.Quiet);
+        var controller = NewController(settings, new ScriptedFanTable());
+
+        Assert.Equal(FanCurveResetResult.NothingToReset, await controller.ResetToFirmwareAsync(PowerModeState.Balance, Reapply));
+        Assert.True(settings.Store.Curves.ContainsKey(PowerModeState.Quiet));
+        Assert.Empty(_reapplied);
+    }
+
     // ---- Which curve applies ----
 
     [Fact]

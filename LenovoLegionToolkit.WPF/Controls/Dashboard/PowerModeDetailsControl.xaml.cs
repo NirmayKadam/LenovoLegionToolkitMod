@@ -195,6 +195,10 @@ public partial class PowerModeDetailsControl
             _ => Resource.PowerModeDetails_FanFirmware,
         };
 
+        _useFirmwareCurveButton.Visibility = profile.FanSource is FanCurveSource.UserCurve or FanCurveSource.UserCurvePending or FanCurveSource.UserCurveNotKept
+            ? Visibility.Visible
+            : Visibility.Collapsed;
+
         _fanBars.Children.Clear();
         if (profile.FanTable is not { Length: > 0 } table)
         {
@@ -219,6 +223,36 @@ public partial class PowerModeDetailsControl
         var window = new LenovoLegionToolkit.WPF.Windows.Dashboard.FanCurvesWindow { Owner = Window.GetWindow(this) };
         window.ShowDialog();
         await RefreshAsync();
+    }
+
+    /// <summary>Asks first, then goes back to the firmware's curve for the shown mode (same path as the Fan curves window).</summary>
+    private async void UseFirmwareCurveButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (_shown is not { } shown || shown.Mode == PowerModeState.GodMode)
+            return;
+
+        var modeName = shown.Mode.GetDisplayName();
+        if (!await MessageBoxHelper.ShowAsync(this, Resource.FanCurvesWindow_Reset_Title, string.Format(Resource.FanCurvesWindow_Reset_ConfirmOne, modeName), Resource.Yes, Resource.No))
+            return;
+
+        _useFirmwareCurveButton.IsEnabled = false;
+        try
+        {
+            var result = await Task.Run(() => _fanProfileController.ResetToFirmwareAsync(shown.Mode, _feature.SetStateAsync));
+            SnackbarHelper.Show(Resource.FanCurvesWindow_Reset_Title,
+                LenovoLegionToolkit.WPF.Windows.Dashboard.FanCurvesWindow.ResetResultText(result),
+                result == FanCurveResetResult.RemovedReapplyFailed ? SnackbarType.Warning : SnackbarType.Success);
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Going back to the firmware's fan curve failed.", ex);
+            SnackbarHelper.Show(Resource.FanCurvesWindow_Reset_Title, Resource.FanCurvesWindow_Result_Failed, SnackbarType.Error);
+        }
+        finally
+        {
+            _useFirmwareCurveButton.IsEnabled = true;
+            await RefreshAsync();
+        }
     }
 
     private void ExpandButton_Click(object sender, RoutedEventArgs e)

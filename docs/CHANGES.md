@@ -316,3 +316,18 @@ Tests: `Tests/Controllers/GPURefreshLoopTests.cs`, 6 new.
 
 #### Tests changed on purpose
 - `GPURefreshLoopTests`: the three Round 2 loop tests call `Hold`/`Release` instead of `StartAsync`/`StopAsync`; same assertions.
+
+## Round 3: hardware features (2026-11-17)
+
+### 1. Use the firmware's fan curve
+- `LenovoLegionToolkit.Lib/Controllers/FanProfileController.cs`: `ResetToFirmwareAsync(mode or all)` removes your curve(s). If one of them was in use (feature on, firmware keeping curves, laptop in that mode), it stops the pending re-check, so the removed curve is never written again, and applies the same power mode again so the firmware loads its own curve. It writes no fan table itself, and says whether the mode was re-applied.
+- `LenovoLegionToolkit.WPF/Windows/Dashboard/FanCurvesWindow.xaml(.cs)`: a "Firmware fan curve" card with **Use firmware curve** (selected mode) and **Reset all modes**. Both ask first and lock the window while running. Custom mode is pointed to God Mode → Load defaults, which already existed.
+- `LenovoLegionToolkit.WPF/Controls/Dashboard/PowerModeDetailsControl.xaml(.cs)`: **Use firmware curve** next to "Fan curves…" while a curve of yours is set for the shown mode.
+- Tests (`Tests/UI/FanProfileTests.cs`, 8 new):
+  - only that mode is removed;
+  - the mode is re-applied once, and only when the curve was in use;
+  - "all" re-applies once;
+  - a pending re-check never writes the removed curve back;
+  - a failed re-apply is reported;
+  - nothing to reset changes nothing.
+- Not verified on the laptop yet.

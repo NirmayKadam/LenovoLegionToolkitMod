@@ -47,13 +47,24 @@
                     FontSize="12"
                     Foreground="{DynamicResource TextFillColorSecondaryBrush}"
                     TextWrapping="Wrap" />
-                <wpfui:Button
-                    Margin="0,0,0,6"
-                    Padding="10,4"
-                    Appearance="Secondary"
-                    Click="FanCurvesButton_Click"
-                    Content="{x:Static resources:Resource.PowerModeDetails_FanCurvesButton}"
-                    Icon="WeatherDuststorm24" />
+                <WrapPanel Margin="0,0,0,6" Orientation="Horizontal">
+                    <wpfui:Button
+                        Margin="0,0,8,0"
+                        Padding="10,4"
+                        Appearance="Secondary"
+                        Click="FanCurvesButton_Click"
+                        Content="{x:Static resources:Resource.PowerModeDetails_FanCurvesButton}"
+                        Icon="WeatherDuststorm24" />
+                    <!--  Only while a curve of yours is set for the shown mode.  -->
+                    <wpfui:Button
+                        x:Name="_useFirmwareCurveButton"
+                        Padding="10,4"
+                        Appearance="Secondary"
+                        Click="UseFirmwareCurveButton_Click"
+                        Content="{x:Static resources:Resource.PowerModeDetails_UseFirmwareCurve}"
+                        Icon="ArrowReset24"
+                        Visibility="Collapsed" />
+                </WrapPanel>
                 <UniformGrid
                     x:Name="_fanBars"
                     Height="36"

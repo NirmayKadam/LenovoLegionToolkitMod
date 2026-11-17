@@ -144,6 +144,7 @@ public partial class FanCurvesWindow
         _useCurveCheckBox.IsEnabled = enabled && HasEditor;
         _editorHost.IsEnabled = enabled;
         _fallbackPanel.IsEnabled = enabled;
+        _resetCard.IsEnabled = enabled;
         _saveButton.IsEnabled = enabled;
         _applyNowButton.IsEnabled = enabled && _applyNowButton.IsEnabled;
     }
@@ -442,6 +443,48 @@ public partial class FanCurvesWindow
             ShowResult(result, FanAction.Preview);
         });
     }
+
+    private async void ResetOneButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (SelectedMode is not { } mode)
+            return;
+
+        await ResetToFirmwareAsync(mode, string.Format(Resource.FanCurvesWindow_Reset_ConfirmOne, mode.GetDisplayName()));
+    }
+
+    private async void ResetAllButton_Click(object sender, RoutedEventArgs e) =>
+        await ResetToFirmwareAsync(null, Resource.FanCurvesWindow_Reset_ConfirmAll);
+
+    /// <summary>
+    /// Asks first, then removes the curve of <paramref name="mode"/> (every mode when null); the controller
+    /// re-applies the power mode when one of those curves was in use, so the firmware loads its own.
+    /// </summary>
+    private async Task ResetToFirmwareAsync(PowerModeState? mode, string confirmation)
+    {
+        if (_busy)
+            return;
+
+        if (!await MessageBoxHelper.ShowAsync(this, Resource.FanCurvesWindow_Reset_Title, confirmation, Resource.Yes, Resource.No))
+            return;
+
+        await RunBusyAsync(Resource.FanCurvesWindow_Status_Restoring, async () =>
+        {
+            var result = await _controller.ResetToFirmwareAsync(mode, _powerModeFeature.SetStateAsync);
+            if (mode is null || mode == _previewMode)
+                _previewMode = null;   // nothing tried with Apply now needs putting back any more
+
+            ShowMode();
+            SetStatus(ResetResultText(result), result == FanCurveResetResult.RemovedReapplyFailed ? StatusKind.Warning : StatusKind.Success);
+        });
+    }
+
+    public static string ResetResultText(FanCurveResetResult result) => result switch
+    {
+        FanCurveResetResult.NothingToReset => Resource.FanCurvesWindow_Reset_Nothing,
+        FanCurveResetResult.RemovedAndReapplied => Resource.FanCurvesWindow_Reset_Reapplied,
+        FanCurveResetResult.RemovedReapplyFailed => Resource.FanCurvesWindow_Reset_ReapplyFailed,
+        _ => Resource.FanCurvesWindow_Reset_Removed,
+    };
 
     private void ShowResult(FanCurveApplyResult result, FanAction action)
     {

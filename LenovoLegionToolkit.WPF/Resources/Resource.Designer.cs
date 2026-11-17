@@ -12247,5 +12247,122 @@ namespace LenovoLegionToolkit.WPF.Resources {
                 return ResourceManager.GetString("Osd_GameSafeBadge_Tooltip", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Firmware fan curve.
+        /// </summary>
+        public static string FanCurvesWindow_Reset_Title {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_Reset_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Go back to the curve the firmware itself uses. Custom mode keeps its preset&apos;s curve: use God Mode settings → Load defaults there..
+        /// </summary>
+        public static string FanCurvesWindow_Reset_Message {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_Reset_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use firmware curve.
+        /// </summary>
+        public static string FanCurvesWindow_Reset_One {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_Reset_One", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reset all modes.
+        /// </summary>
+        public static string FanCurvesWindow_Reset_All {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_Reset_All", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remove your fan curve for {0} and use the firmware&apos;s own curve?  If the laptop is in {0} now, the power mode is applied again so the firmware loads its curve..
+        /// </summary>
+        public static string FanCurvesWindow_Reset_ConfirmOne {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_Reset_ConfirmOne", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remove your fan curves for every power mode and use the firmware&apos;s own curves?  If the laptop is in one of these modes now, the power mode is applied again so the firmware loads its curve..
+        /// </summary>
+        public static string FanCurvesWindow_Reset_ConfirmAll {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_Reset_ConfirmAll", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There is no curve of yours to remove..
+        /// </summary>
+        public static string FanCurvesWindow_Reset_Nothing {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_Reset_Nothing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your curve is removed. The firmware&apos;s curve is used from the next time you switch to that mode..
+        /// </summary>
+        public static string FanCurvesWindow_Reset_Removed {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_Reset_Removed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your curve is removed and the firmware&apos;s curve is in use now..
+        /// </summary>
+        public static string FanCurvesWindow_Reset_Reapplied {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_Reset_Reapplied", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your curve is removed, but the power mode couldn&apos;t be applied again. The firmware&apos;s curve comes back at the next power-mode change..
+        /// </summary>
+        public static string FanCurvesWindow_Reset_ReapplyFailed {
+            get {
+                return ResourceManager.GetString("FanCurvesWindow_Reset_ReapplyFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Removes your fan curve for the selected mode (or for every mode) and lets the firmware use its own. If the laptop is in that mode now, LLT applies the same power mode again so the firmware loads its c[rest of string was truncated].
+        /// </summary>
+        public static string Help_FanCurves_Reset_What {
+            get {
+                return ResourceManager.GetString("Help_FanCurves_Reset_What", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to When a curve of yours makes the laptop too loud or too warm, or to undo all fan changes at once..
+        /// </summary>
+        public static string Help_FanCurves_Reset_When {
+            get {
+                return ResourceManager.GetString("Help_FanCurves_Reset_When", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use firmware curve.
+        /// </summary>
+        public static string PowerModeDetails_UseFirmwareCurve {
+            get {
+                return ResourceManager.GetString("PowerModeDetails_UseFirmwareCurve", resourceCulture);
+            }
+        }
     }
 }
