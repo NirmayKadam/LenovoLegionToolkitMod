@@ -42,6 +42,7 @@
             Margin="0,16,0,24"
             AutomationProperties.Name="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Text}"
             Focusable="True"
+            Effect="{DynamicResource LltTextGlowEffect}"
             FontSize="24"
             FontWeight="Medium"
             Text="{x:Static resources:Resource.SettingsPage_Title}" />

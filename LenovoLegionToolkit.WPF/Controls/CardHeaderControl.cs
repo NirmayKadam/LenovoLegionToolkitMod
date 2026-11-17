@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using CustomControls = LenovoLegionToolkit.WPF.Controls.Custom;
 using LenovoLegionToolkit.WPF.Controls.Help;
 using LenovoLegionToolkit.WPF.Resources;
+using LenovoLegionToolkit.WPF.Utils.Skins;
 using Wpf.Ui.Common;
 using Wpf.Ui.Controls;
 
@@ -244,6 +245,8 @@ public class CardHeaderControl : UserControl
             _errorGrid.Margin = new(0, 2, 0, 0);
             _successGrid.Margin = new(0, 2, 0, 0);
         }
+
+        _titleTextBlock.SetResourceReference(EffectProperty, SkinKeys.TextGlowEffect);
 
         Grid.SetColumn(_titleTextBlock, 0);
         Grid.SetColumn(_stackPanel, 0);

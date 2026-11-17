@@ -28,6 +28,7 @@
                 Grid.Row="0"
                 Margin="0,24,0,24"
                 Focusable="True"
+                Effect="{DynamicResource LltTextGlowEffect}"
                 FontSize="24"
                 FontWeight="Medium"
                 Text="{x:Static resources:Resource.PackagesPage_Title}" />

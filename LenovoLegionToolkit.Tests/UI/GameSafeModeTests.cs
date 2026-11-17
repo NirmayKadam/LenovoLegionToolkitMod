@@ -93,7 +93,7 @@ public class GameSafeModeTests
             }
             await Task.Delay(5);
             Interlocked.Decrement(ref running);
-        });
+        }, (_, _) => { });
 
         // Each call sets its own inputs first, so the calls really disagree and race each other.
         var calls = new List<Task>();
@@ -127,6 +127,108 @@ public class GameSafeModeTests
         for (var i = 1; i < switches.Count; i++)
             Assert.NotEqual(switches[i - 1], switches[i]);
         Assert.Equal(GameSafeMode.ShouldBeActive(settingOn, monitor.IsProtectedGameRunning), mode.IsActive);
+        monitor.Dispose();
+    }
+
+    // ---- The service check runs only while the setting is on ----
+
+    /// <summary>Waits up to two seconds for a condition set by a timer thread.</summary>
+    private static async Task<bool> EventuallyAsync(Func<bool> condition)
+    {
+        for (var i = 0; i < 40 && !condition(); i++)
+            await Task.Delay(50);
+        return condition();
+    }
+
+    /// <summary>
+    /// With game-safe mode turned off, nothing needs the anti-cheat check, so starting the app must not start
+    /// polling the services. The service query is supplied by the test and counts how often it is asked.
+    /// </summary>
+    [Fact]
+    public async Task Start_WithTheSettingOff_DoesNotQueryServices()
+    {
+        var queries = 0;
+        using var monitor = new AntiCheatMonitor(_ => { Interlocked.Increment(ref queries); return false; });
+        var mode = new GameSafeMode(monitor, () => false, _ => Task.CompletedTask, (_, _) => { });
+
+        mode.Start();
+        await Task.Delay(500); // the check's first run is immediate when it starts
+
+        Assert.Equal(0, Volatile.Read(ref queries));
+        Assert.False(monitor.IsRunning);
+    }
+
+    /// <summary>Turning the setting on starts the check (first run straight away); turning it off stops it.</summary>
+    [Fact]
+    public async Task RefreshAsync_StartsAndStopsTheCheck_WithTheSetting()
+    {
+        var queries = 0;
+        var settingOn = false;
+        using var monitor = new AntiCheatMonitor(_ => { Interlocked.Increment(ref queries); return false; });
+        var mode = new GameSafeMode(monitor, () => settingOn, _ => Task.CompletedTask, (_, _) => { });
+        mode.Start();
+        Assert.False(monitor.IsRunning);
+
+        settingOn = true;
+        await mode.RefreshAsync();
+        Assert.True(monitor.IsRunning);
+        Assert.True(await EventuallyAsync(() => Volatile.Read(ref queries) > 0), "the check didn't run after turning the setting on");
+
+        settingOn = false;
+        await mode.RefreshAsync();
+        Assert.False(monitor.IsRunning);
+    }
+
+    /// <summary>A "game running" seen before the check stopped must not count once it is off.</summary>
+    [Fact]
+    public void Stop_ForgetsTheLastResult_WithoutRaisingAChange()
+    {
+        using var monitor = new AntiCheatMonitor(name => name == "vgc");
+        Assert.True(monitor.Poll());
+
+        var events = 0;
+        monitor.ProtectedGameChanged += (_, _) => events++;
+        monitor.Stop();
+
+        Assert.False(monitor.IsProtectedGameRunning);
+        Assert.Empty(monitor.ActiveServices);
+        Assert.Equal(0, events);
+    }
+
+    /// <summary>
+    /// If pausing fails part-way (the switch is supplied by the test and throws), the error must not escape
+    /// (an escaped exception from a background task is lost, or ends the app from an event handler), it is
+    /// reported, and when the game ends the resume still runs, so nothing stays paused.
+    /// </summary>
+    [Fact]
+    public async Task Switch_ThatThrows_IsReported_AndTheResumeStillRunsWhenTheGameEnds()
+    {
+        var gameRunning = true;
+        using var monitor = new AntiCheatMonitor(_ => gameRunning);
+        monitor.Poll();
+
+        var switches = new List<bool>();
+        var reports = new List<Exception>();
+        var mode = new GameSafeMode(monitor, () => true, active =>
+        {
+            lock (switches)
+                switches.Add(active);
+            if (active)
+                throw new InvalidOperationException("pause failed");
+            return Task.CompletedTask;
+        }, (_, ex) => { lock (reports) reports.Add(ex); });
+
+        var error = await Record.ExceptionAsync(mode.RefreshAsync);
+        Assert.Null(error);
+        Assert.Single(reports);
+
+        gameRunning = false;
+        monitor.Poll();
+        await mode.RefreshAsync();
+
+        Assert.False(mode.IsActive);
+        lock (switches)
+            Assert.Equal([true, false], switches);
     }
 
     // ---- Macros pause ----

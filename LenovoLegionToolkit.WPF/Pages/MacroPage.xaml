@@ -16,6 +16,7 @@
         <TextBlock
             Margin="0,16,0,8"
             Focusable="True"
+            Effect="{DynamicResource LltTextGlowEffect}"
             FontSize="24"
             FontWeight="Medium"
             Text="{x:Static resources:Resource.MacroPage_Title}" />

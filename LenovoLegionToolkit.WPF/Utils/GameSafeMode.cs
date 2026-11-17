@@ -29,16 +29,18 @@ public sealed class GameSafeMode
     private readonly AntiCheatMonitor _monitor;
     private readonly Func<bool> _settingEnabled;
     private readonly Func<bool, Task> _switch;
+    private readonly Action<string, Exception> _reportError;
 
     public GameSafeMode(AntiCheatMonitor monitor, ApplicationSettings settings, SensorsGroupController sensors, MacroController macros, NativeWindowsMessageListener nativeListener)
-        : this(monitor, () => settings.Store.GameSafeMode, active => SwitchAsync(active, sensors, macros, nativeListener)) { }
+        : this(monitor, () => settings.Store.GameSafeMode, active => SwitchAsync(active, sensors, macros, nativeListener), Log.Instance.ErrorReport) { }
 
-    /// <summary>For tests: the setting and the actual pausing/resuming are supplied by the caller.</summary>
-    internal GameSafeMode(AntiCheatMonitor monitor, Func<bool> settingEnabled, Func<bool, Task> switchTo)
+    /// <summary>For tests: the setting, the actual pausing/resuming and the error report are supplied by the caller.</summary>
+    internal GameSafeMode(AntiCheatMonitor monitor, Func<bool> settingEnabled, Func<bool, Task> switchTo, Action<string, Exception> reportError)
     {
         _monitor = monitor;
         _settingEnabled = settingEnabled;
         _switch = switchTo;
+        _reportError = reportError;
         _monitor.ProtectedGameChanged += (_, _) => _ = ApplyAsync();
     }
 
@@ -51,9 +53,13 @@ public sealed class GameSafeMode
     /// <summary>Whether game-safe mode should be on, given the setting and whether a protected game runs.</summary>
     public static bool ShouldBeActive(bool settingEnabled, bool protectedGameRunning) => settingEnabled && protectedGameRunning;
 
-    public void Start() => _monitor.Start(TimeSpan.FromSeconds(5));
+    /// <summary>How often the anti-cheat services are checked while the setting is on.</summary>
+    private static readonly TimeSpan CheckInterval = TimeSpan.FromSeconds(5);
 
-    /// <summary>Re-evaluates after the setting changes.</summary>
+    /// <summary>Starts the anti-cheat check if the setting is on; otherwise nothing runs.</summary>
+    public void Start() => _ = ApplyAsync();
+
+    /// <summary>Re-evaluates after the setting changes, starting or stopping the anti-cheat check with it.</summary>
     public Task RefreshAsync() => ApplyAsync();
 
     /// <summary>One switch at a time: the service check and the Settings toggle can both ask at once.</summary>
@@ -65,16 +71,40 @@ public sealed class GameSafeMode
         try
         {
             // Read inside the lock, so whoever runs last acts on the newest setting and game state.
-            var active = ShouldBeActive(_settingEnabled(), _monitor.IsProtectedGameRunning);
+            var settingEnabled = _settingEnabled();
+
+            // The check only runs while the setting is on. Starting it runs the first check straight away on a
+            // timer thread, which calls back here with the result.
+            if (settingEnabled)
+                _monitor.Start(CheckInterval);
+            else
+                _monitor.Stop();
+
+            var active = ShouldBeActive(settingEnabled, _monitor.IsProtectedGameRunning);
             if (active == IsActive)
                 return;
 
+            // Recorded before switching, so if pausing fails part-way, the next switch still resumes everything.
             IsActive = active;
             Log.Instance.Trace($"Game-safe mode {(active ? "on" : "off")}. [services={string.Join(",", _monitor.ActiveServices)}]");
 
-            await _switch(active).ConfigureAwait(false);
+            try
+            {
+                await _switch(active).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                Log.Instance.Trace($"Game-safe mode couldn't {(active ? "pause" : "resume")} everything.", ex);
+                _reportError($"Game-safe mode couldn't {(active ? "pause" : "resume")} everything.", ex);
+            }
 
             ActiveChanged?.Invoke(this, active);
+        }
+        catch (Exception ex)
+        {
+            // Nothing may escape: this runs from the service check's timer and from the Settings toggle.
+            Log.Instance.Trace($"Game-safe mode update failed.", ex);
+            _reportError("Game-safe mode update failed.", ex);
         }
         finally
         {

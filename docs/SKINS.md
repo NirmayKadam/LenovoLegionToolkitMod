@@ -21,7 +21,7 @@ Switching style applies immediately, no restart needed. When a dark-only style i
 | Glow (0–100%) | Neon | Strength of the glow on the active navigation item, the power-mode highlight and the status strip's power tile. 0% removes the effect entirely. |
 | Phosphor (Green / Amber / White) | Retro | Screen color |
 | Scanlines (0–100%) | Retro | Darkness of the scanline pattern |
-| Phosphor glow (on/off) | Retro | A soft bloom around everything on screen (one effect on the window content) |
+| Phosphor glow (on/off) | Retro | A soft bloom on static text: page, group and card titles and the power-mode console line. Readings that change every second stay plain, so the glow costs almost nothing while they update. (Before Round 2 it was one effect on the whole window content, which was redrawn whenever anything changed.) |
 
 Glow and phosphor glow need the GPU to draw effects (render tier 2 with hardware acceleration on). Otherwise they're switched off automatically, and the settings card says so.
 

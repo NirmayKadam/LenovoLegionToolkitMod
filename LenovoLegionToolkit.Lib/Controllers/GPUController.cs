@@ -24,6 +24,27 @@ public class GPUController
 {
     private readonly AsyncLock _stateLock = new();
     private readonly SemaphoreSlim _refreshGate = new(1, 1);
+    private readonly Func<Task> _initialize;
+    private readonly Func<CancellationToken, Task> _refresh;
+    private readonly Action<string, Exception> _reportError;
+
+    public GPUController()
+    {
+        _initialize = InitializeAsync;
+        _refresh = DoRefreshAsync;
+        _reportError = Log.Instance.ErrorReport;
+    }
+
+    /// <summary>
+    /// For tests: the start-up step, the per-round refresh and the error report are supplied by the caller, since
+    /// NVIDIA's API can't be driven in a test.
+    /// </summary>
+    internal GPUController(Func<Task> initialize, Func<CancellationToken, Task> refresh, Action<string, Exception> reportError)
+    {
+        _initialize = initialize;
+        _refresh = refresh;
+        _reportError = reportError;
+    }
 
     public int Interval { get; set; } = 5000;
 
@@ -68,7 +89,7 @@ public class GPUController
         await _refreshGate.WaitAsync().ConfigureAwait(false);
         try
         {
-            await DoRefreshAsync(CancellationToken.None).ConfigureAwait(false);
+            await _refresh(CancellationToken.None).ConfigureAwait(false);
         }
         finally
         {
@@ -92,26 +113,28 @@ public class GPUController
 
         var startupDelay = delay >= 0 ? delay : IoCContainer.Resolve<ApplicationSettings>().Store.GPUMonitoringStartupDelay;
 
-        _refreshCancellationTokenSource = new CancellationTokenSource();
-        var token = _refreshCancellationTokenSource.Token;
-        _ = RefreshLoopAsync(startupDelay, token);
+        var cancellationTokenSource = new CancellationTokenSource();
+        _refreshCancellationTokenSource = cancellationTokenSource;
+        _ = RefreshLoopAsync(startupDelay, cancellationTokenSource);
 
         return Task.CompletedTask;
     }
 
     public async Task StopAsync(bool waitForFinish = false)
     {
-        if (_refreshCancellationTokenSource is null)
+        // Read once: the loop clears the field itself when it can't start.
+        var cancellationTokenSource = _refreshCancellationTokenSource;
+        if (cancellationTokenSource is null)
         {
             return;
         }
 
-        await _refreshCancellationTokenSource.CancelAsync().ConfigureAwait(false);
+        await cancellationTokenSource.CancelAsync().ConfigureAwait(false);
 
         await _refreshGate.WaitAsync().ConfigureAwait(false);
         _refreshGate.Release();
 
-        _refreshCancellationTokenSource = null;
+        Interlocked.CompareExchange(ref _refreshCancellationTokenSource, null, cancellationTokenSource);
     }
 
     public async Task RestartGPUAsync()
@@ -175,36 +198,75 @@ public class GPUController
         }
     }
 
-    private async Task RefreshLoopAsync(int delay, CancellationToken token)
+    private async Task InitializeAsync()
     {
+        Log.Instance.Trace($"Initializing NVAPI...");
+
+        NVAPI.Initialize();
+
+        Log.Instance.Trace($"Initialized NVAPI");
+
+        var settings = IoCContainer.Resolve<ApplicationSettings>();
+        if (settings.Store.LockedPStateId >= 0)
+        {
+            await ApplyPStateAsync(settings.Store.LockedPStateId).ConfigureAwait(false);
+        }
+    }
+
+    /// <summary>How long to wait after a failed round when no interval is set, so failures can't spin.</summary>
+    private const int RetryAfterFailureMs = 5_000;
+
+    /// <summary>
+    /// Refreshes the GPU state every <see cref="Interval"/> until stopped. A failed round is logged (and reported
+    /// once per run) and the loop carries on. If the start-up step fails, the loop ends and marks itself as not
+    /// started, so a later <see cref="StartAsync"/> can try again.
+    /// </summary>
+    private async Task RefreshLoopAsync(int delay, CancellationTokenSource cancellationTokenSource)
+    {
+        var token = cancellationTokenSource.Token;
+
         try
         {
-            Log.Instance.Trace($"Initializing NVAPI...");
+            await _initialize().ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"GPU monitoring couldn't start.", ex);
+            Interlocked.CompareExchange(ref _refreshCancellationTokenSource, null, cancellationTokenSource);
+            return;
+        }
 
-            NVAPI.Initialize();
-
-            Log.Instance.Trace($"Initialized NVAPI");
-
-            var settings = IoCContainer.Resolve<ApplicationSettings>();
-            if (settings.Store.LockedPStateId >= 0)
-            {
-                await ApplyPStateAsync(settings.Store.LockedPStateId).ConfigureAwait(false);
-            }
-
+        try
+        {
             await Task.Delay(delay, token).ConfigureAwait(false);
+
+            var reported = false;
 
             while (true)
             {
                 token.ThrowIfCancellationRequested();
 
+                var failed = false;
+
                 await _refreshGate.WaitAsync(token).ConfigureAwait(false);
                 try
                 {
-                    await DoRefreshAsync(token).ConfigureAwait(false);
+                    await _refresh(token).ConfigureAwait(false);
 
                     using (await _stateLock.LockAsync(token).ConfigureAwait(false))
                     {
                         Refreshed?.Invoke(this, new GPUStatus(_state, _performanceState, _processes, _sleepBlockerReason));
+                    }
+                }
+                catch (Exception ex) when (ex is not OperationCanceledException || !token.IsCancellationRequested)
+                {
+                    failed = true;
+                    Log.Instance.Trace($"GPU refresh failed; trying again next round.", ex);
+
+                    if (!reported)
+                    {
+                        reported = true;
+                        _reportError("GPU refresh failed; LLT keeps trying.", ex);
                     }
                 }
                 finally
@@ -212,18 +274,14 @@ public class GPUController
                     _refreshGate.Release();
                 }
 
-                if (Interval > 0)
+                var wait = failed && Interval <= 0 ? RetryAfterFailureMs : Interval;
+                if (wait > 0)
                 {
-                    await Task.Delay(Interval, token).ConfigureAwait(false);
+                    await Task.Delay(wait, token).ConfigureAwait(false);
                 }
             }
         }
         catch (OperationCanceledException) { }
-        catch (Exception ex)
-        {
-            Log.Instance.Trace($"Exception occurred", ex);
-            throw;
-        }
     }
 
     private async Task DoRefreshAsync(CancellationToken token)

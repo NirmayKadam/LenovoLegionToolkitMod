@@ -372,7 +372,10 @@ public partial class ITSModeFeature : IFeature<ITSMode>
         return mode.GetDisplayName();
     }
 
-    public async Task<ITSMode> GetITSModeEx()
+    public Task<ITSMode> GetITSModeEx() => Task.FromResult(ReadITSModeEx());
+
+    /// <summary>Reads the current ITS mode from the registry; any error gives <see cref="ITSMode.None"/>.</summary>
+    private ITSMode ReadITSModeEx()
     {
         try
         {

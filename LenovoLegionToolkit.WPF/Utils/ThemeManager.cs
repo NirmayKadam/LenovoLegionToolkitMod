@@ -85,7 +85,7 @@ public class ThemeManager
         return SkinPalette.Available.Contains(skin) ? skin : UiSkin.Fluent;
     }
 
-    private SkinOptions GetSkinOptions() => new(_settings.Store.NeonGlow, _settings.Store.RetroPhosphor, Motion.EffectsAllowed);
+    private SkinOptions GetSkinOptions() => new(_settings.Store.NeonGlow, _settings.Store.RetroPhosphor, Motion.EffectsAllowed, _settings.Store.RetroGlow);
 
     /// <summary>
     /// The backdrop windows should use: the user's choice, or none for skins that draw a solid background.

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Media.Effects;
 using LenovoLegionToolkit.Lib;
 
 namespace LenovoLegionToolkit.WPF.Utils.Skins;
@@ -15,6 +16,7 @@ public static class SkinKeys
     public const string NumberFontFamily = "LltNumberFontFamily";
     public const string GlowColor = "LltGlowColor";
     public const string GlowOpacity = "LltGlowOpacity";
+
     public const string ModeQuietBrush = "LltModeQuietBrush";
     public const string ModeBalanceBrush = "LltModeBalanceBrush";
     public const string ModePerformanceBrush = "LltModePerformanceBrush";
@@ -24,6 +26,14 @@ public static class SkinKeys
 
     /// <summary>Optional: the color a reading turns when it runs hot. Only skins that use it define it.</summary>
     public const string HotBrush = "LltHotBrush";
+
+    /// <summary>
+    /// Optional: the glow on static text such as titles, one shared frozen effect. Only a skin with a text glow
+    /// defines it; elsewhere the reference finds nothing and the text draws plainly. Elements take it with
+    /// <c>SetResourceReference(EffectProperty, ...)</c>. Never used on readings that change every second, since
+    /// a glowing element is redrawn with its effect each time it changes.
+    /// </summary>
+    public const string TextGlowEffect = "LltTextGlowEffect";
 
     public static readonly IReadOnlyList<string> All =
     [
@@ -157,6 +167,16 @@ public sealed class SkinPalette
     public required FontFamily NumberFontFamily { get; init; }
     public required Color GlowColor { get; init; }
     public required double GlowOpacity { get; init; }
+
+    /// <summary>
+    /// Strength of the glow on static text such as titles (see <see cref="SkinKeys.TextGlowEffect"/>), in
+    /// <see cref="GlowColor"/>. Only Retro uses it, for its phosphor glow; 0 means no text glow.
+    /// </summary>
+    public double TextGlowOpacity { get; init; }
+
+    /// <summary>Blur of the text glow: tight, so it reads as phosphor bloom rather than a halo.</summary>
+    public const double TextGlowBlurRadius = 8;
+
     public required Color ModeQuiet { get; init; }
     public required Color ModeBalance { get; init; }
     public required Color ModePerformance { get; init; }
@@ -195,10 +215,16 @@ public sealed class SkinPalette
         return skin switch
         {
             UiSkin.Neon => Neon(options),
-            UiSkin.Retro => Retro(options.Phosphor),
+            UiSkin.Retro => Retro(options.Phosphor, RetroTextGlowOpacity(options.RetroGlow, options.EffectsAllowed)),
             _ => Fluent(isDark),
         };
     }
+
+    /// <summary>
+    /// Retro's phosphor glow on static text: on when the user's setting is on and the GPU draws effects cheaply.
+    /// </summary>
+    public static double RetroTextGlowOpacity(bool retroGlow, bool effectsAllowed) =>
+        retroGlow && effectsAllowed ? 0.35 : 0;
 
     /// <summary>
     /// Glow strength for Neon: the user's 0–100 setting mapped to 0–0.9 opacity, and none at all when the
@@ -265,7 +291,9 @@ public sealed class SkinPalette
     /// A monochrome CRT terminal: one phosphor color in a bright and a dim shade on a near-black screen,
     /// square corners, a monospaced font, and selections drawn in inverse video.
     /// </summary>
-    public static SkinPalette Retro(RetroPhosphor phosphor)
+    /// <param name="phosphor">The phosphor color.</param>
+    /// <param name="textGlowOpacity">The phosphor glow on static text (see <see cref="RetroTextGlowOpacity"/>); none by default.</param>
+    public static SkinPalette Retro(RetroPhosphor phosphor, double textGlowOpacity = 0)
     {
         // Bright text, dim text, screen. Amber's dim shade is a little brighter than in the mockup so it
         // still reaches 4.5:1 on cards.
@@ -321,7 +349,8 @@ public sealed class SkinPalette
             FontFamily = font,
             NumberFontFamily = font,
             GlowColor = text,
-            GlowOpacity = 0, // Retro's glow is the whole-screen phosphor bloom, handled by the main window.
+            GlowOpacity = 0, // no glow on highlights; Retro's phosphor glow is on static text only
+            TextGlowOpacity = textGlowOpacity,
             ModeQuiet = text,
             ModeBalance = text,
             ModePerformance = text,
@@ -382,6 +411,9 @@ public sealed class SkinPalette
         if (HotColor is { } hot)
             dictionary[SkinKeys.HotBrush] = Frozen(hot);
 
+        if (CreateTextGlowEffect() is { } textGlow)
+            dictionary[SkinKeys.TextGlowEffect] = textGlow;
+
         if (Colors is null)
             return dictionary;
 
@@ -412,6 +444,24 @@ public sealed class SkinPalette
         _ => colorKey + "Brush"
     };
 
+    /// <summary>One frozen effect shared by every glowing title, or null when this palette has no text glow.</summary>
+    private DropShadowEffect? CreateTextGlowEffect()
+    {
+        if (TextGlowOpacity <= 0)
+            return null;
+
+        var effect = new DropShadowEffect
+        {
+            Color = GlowColor,
+            Opacity = TextGlowOpacity,
+            BlurRadius = TextGlowBlurRadius,
+            ShadowDepth = 0,
+            RenderingBias = RenderingBias.Performance,
+        };
+        effect.Freeze();
+        return effect;
+    }
+
     private static SolidColorBrush Frozen(Color color)
     {
         var brush = new SolidColorBrush(color);
@@ -426,7 +476,8 @@ public sealed class SkinPalette
 /// <param name="NeonGlow">Neon glow strength, 0–100.</param>
 /// <param name="Phosphor">Retro phosphor color.</param>
 /// <param name="EffectsAllowed">The GPU draws effects (render tier 2, hardware acceleration on).</param>
-public sealed record SkinOptions(int NeonGlow, RetroPhosphor Phosphor, bool EffectsAllowed)
+/// <param name="RetroGlow">Retro's phosphor glow on static text is turned on.</param>
+public sealed record SkinOptions(int NeonGlow, RetroPhosphor Phosphor, bool EffectsAllowed, bool RetroGlow)
 {
-    public static SkinOptions Default { get; } = new(60, RetroPhosphor.Green, true);
+    public static SkinOptions Default { get; } = new(60, RetroPhosphor.Green, true, true);
 }

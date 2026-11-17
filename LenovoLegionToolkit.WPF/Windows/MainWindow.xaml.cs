@@ -11,7 +11,6 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using System.Windows.Shell;
 using Microsoft.Xaml.Behaviors.Core;
@@ -244,7 +243,6 @@ public partial class MainWindow
     private IDisposable? _sweepLoop;
     private IDisposable? _rollBandLoop;
     private IDisposable? _flickerLoop;
-    private DropShadowEffect? _phosphorGlow;
     private UiSkin? _lastSkin;
     private bool _powerOnShown;
 
@@ -259,8 +257,8 @@ public partial class MainWindow
 
     /// <summary>
     /// Shows or hides the CRT layer for the Retro skin and applies its settings. Looping effects (rolling band,
-    /// flicker) only run at Full motion while the window is on screen; the phosphor glow is one effect on the
-    /// content, used only when it's turned on and the GPU draws effects.
+    /// flicker) only run at Full motion while the window is on screen. The phosphor glow is not drawn here: it is
+    /// a small effect on static titles only, from the skin (<see cref="Utils.Skins.SkinKeys.TextGlowEffect"/>).
     /// </summary>
     private void UpdateCrt()
     {
@@ -275,7 +273,6 @@ public partial class MainWindow
         if (!retro)
         {
             _crtLayer.Visibility = Visibility.Collapsed;
-            SetPhosphorGlow(null);
             return;
         }
 
@@ -306,8 +303,6 @@ public partial class MainWindow
         Storyboard.SetTargetProperty(flicker, new PropertyPath(OpacityProperty));
         _flickerLoop = Motion.RegisterLoop(_crtLayer, new Storyboard { Children = { flicker } });
 
-        SetPhosphorGlow(settings.Store.RetroGlow && Motion.EffectsAllowed ? phosphor : null);
-
         if (switchedToRetro)
             PlayPowerOn();
     }
@@ -318,28 +313,6 @@ public partial class MainWindow
         _rollBandLoop = null;
         _flickerLoop?.Dispose();
         _flickerLoop = null;
-    }
-
-    private void SetPhosphorGlow(Color? color)
-    {
-        if (color is null)
-        {
-            if (_phosphorGlow is not null && ReferenceEquals(_contentGrid.Effect, _phosphorGlow))
-                _contentGrid.Effect = null;
-            _phosphorGlow = null;
-            return;
-        }
-
-        _phosphorGlow = new DropShadowEffect
-        {
-            Color = color.Value,
-            BlurRadius = 10,
-            ShadowDepth = 0,
-            Opacity = 0.35,
-            RenderingBias = RenderingBias.Performance,
-        };
-        _phosphorGlow.Freeze();
-        _contentGrid.Effect = _phosphorGlow;
     }
 
     /// <summary>

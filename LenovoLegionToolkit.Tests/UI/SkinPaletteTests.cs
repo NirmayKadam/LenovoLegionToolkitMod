@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Effects;
 using LenovoLegionToolkit.Lib;
 using LenovoLegionToolkit.WPF.Extensions;
 using LenovoLegionToolkit.WPF.Utils.Skins;
@@ -236,9 +238,9 @@ public class SkinPaletteTests
     {
         StaRunner.Run(() =>
         {
-            Assert.Equal(0, SkinPalette.Neon(new SkinOptions(0, RetroPhosphor.Green, true)).GlowOpacity);
-            Assert.Equal(0, SkinPalette.Neon(new SkinOptions(100, RetroPhosphor.Green, false)).GlowOpacity);
-            Assert.Equal(0.9, SkinPalette.Neon(new SkinOptions(100, RetroPhosphor.Green, true)).GlowOpacity, 6);
+            Assert.Equal(0, SkinPalette.Neon(new SkinOptions(0, RetroPhosphor.Green, true, true)).GlowOpacity);
+            Assert.Equal(0, SkinPalette.Neon(new SkinOptions(100, RetroPhosphor.Green, false, true)).GlowOpacity);
+            Assert.Equal(0.9, SkinPalette.Neon(new SkinOptions(100, RetroPhosphor.Green, true, true)).GlowOpacity, 6);
         });
     }
 
@@ -297,7 +299,8 @@ public class SkinPaletteTests
         StaRunner.Run(() =>
         {
             var retro = SkinPalette.Retro(phosphor);
-            AssertReadable($"Retro {phosphor}", retro.Colors!);
+            Assert.NotNull(retro.Colors);
+            AssertReadable($"Retro {phosphor}", retro.Colors);
 
             // Text on popups and menus (the most-lit glass) too.
             var menu = retro.Colors.SolidBackgroundQuarternary;
@@ -332,6 +335,71 @@ public class SkinPaletteTests
             Assert.Equal(new CornerRadius(0), retro.Colors!.ControlCornerRadius);
             Assert.Equal(new CornerRadius(0), retro.Colors.PopupCornerRadius);
             Assert.Equal(0, retro.GlowOpacity);
+        });
+    }
+
+    // ---- Retro text glow ----
+
+    [Theory]
+    [InlineData(true, true, 0.35)]
+    [InlineData(false, true, 0.0)]    // the user turned it off
+    [InlineData(true, false, 0.0)]    // no GPU effects: no glow at all
+    [InlineData(false, false, 0.0)]
+    public void RetroTextGlowOpacity_NeedsTheSettingAndGpuEffects(bool retroGlow, bool effectsAllowed, double expected) =>
+        Assert.Equal(expected, SkinPalette.RetroTextGlowOpacity(retroGlow, effectsAllowed), 6);
+
+    /// <summary>
+    /// Only Retro, with the glow on and GPU effects, puts a text-glow effect in its resources: one frozen effect
+    /// in the phosphor color, shared by every title. Every other case defines no such key, so titles draw plainly.
+    /// </summary>
+    [Theory]
+    [MemberData(nameof(AvailableSkins))]
+    public void TextGlowEffect_OnlyForRetroWithGlowAndGpuEffects(UiSkin skin, bool isDark)
+    {
+        StaRunner.Run(() =>
+        {
+            foreach (var (retroGlow, effects) in new[] { (true, true), (false, true), (true, false) })
+            {
+                var palette = SkinPalette.For(skin, isDark, SkinOptions.Default with { RetroGlow = retroGlow, EffectsAllowed = effects });
+                var dictionary = palette.ToResourceDictionary();
+
+                if (skin == UiSkin.Retro && retroGlow && effects)
+                {
+                    var effect = Assert.IsType<DropShadowEffect>(dictionary[SkinKeys.TextGlowEffect]);
+                    Assert.True(effect.IsFrozen);
+                    Assert.Equal(palette.Colors!.TextPrimary, effect.Color);
+                    Assert.Equal(0.35, effect.Opacity, 6);
+                    Assert.Equal(0, effect.ShadowDepth);
+                }
+                else
+                {
+                    Assert.False(dictionary.Contains(SkinKeys.TextGlowEffect), $"{skin}, glow={retroGlow}, effects={effects}");
+                }
+            }
+        });
+    }
+
+    /// <summary>
+    /// A real title TextBlock takes its effect from the skin's resources the way the app's titles do
+    /// (a dynamic resource reference), and loses it again when the resources change to a skin without the glow.
+    /// </summary>
+    [Fact]
+    public void Title_FollowsTheSkinsTextGlow()
+    {
+        StaRunner.Run(() =>
+        {
+            var title = new TextBlock { Text = "Power" };
+            var host = new Border { Child = title };
+            title.SetResourceReference(UIElement.EffectProperty, SkinKeys.TextGlowEffect);
+
+            host.Resources = SkinPalette.For(UiSkin.Retro, true, SkinOptions.Default).ToResourceDictionary();
+            Assert.IsType<DropShadowEffect>(title.Effect);
+
+            host.Resources = SkinPalette.For(UiSkin.Retro, true, SkinOptions.Default with { RetroGlow = false }).ToResourceDictionary();
+            Assert.Null(title.Effect);
+
+            host.Resources = SkinPalette.For(UiSkin.Fluent, true, SkinOptions.Default).ToResourceDictionary();
+            Assert.Null(title.Effect);
         });
     }
 

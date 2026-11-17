@@ -28,7 +28,7 @@ public class ITSModeListener(
             return;
         }
 
-        MessagingCenter.Subscribe<DriverKeyPressedMessage>(this, OnFnQKeyPressedAsync);
+        MessagingCenter.Subscribe<DriverKeyPressedMessage>(this, OnFnQKeyPressed);
         Log.Instance.Trace($"ITSModeListener started, listening for driver keys.");
     }
 
@@ -38,15 +38,23 @@ public class ITSModeListener(
         return Task.CompletedTask;
     }
 
-    private async void OnFnQKeyPressedAsync(DriverKeyPressedMessage message)
+    private void OnFnQKeyPressed(DriverKeyPressedMessage message)
     {
         if (message.Key != DriverKey.FnQ)
         {
             return;
         }
 
-        Log.Instance.Trace($"ITSModeListener detected Fn+Q, requesting toggle.");
-        MessagingCenter.Publish(new ITSModeToggleRequestMessage());
+        try
+        {
+            Log.Instance.Trace($"ITSModeListener detected Fn+Q, requesting toggle.");
+            MessagingCenter.Publish(new ITSModeToggleRequestMessage());
+        }
+        catch (Exception ex)
+        {
+            // A failing subscriber must not reach the driver-key listener that called this.
+            Log.Instance.Trace($"Fn+Q toggle request failed.", ex);
+        }
     }
 
     public Task NotifyAsync(ITSMode value)

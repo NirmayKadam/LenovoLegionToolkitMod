@@ -110,6 +110,7 @@
             Visibility="Collapsed">
             <TextBlock
                 x:Name="_consoleText"
+                Effect="{DynamicResource LltTextGlowEffect}"
                 FontFamily="{DynamicResource LltNumberFontFamily}"
                 Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
             <TextBlock

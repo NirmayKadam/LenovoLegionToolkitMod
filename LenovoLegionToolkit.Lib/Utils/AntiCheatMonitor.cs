@@ -28,6 +28,16 @@ public sealed class AntiCheatMonitor : IDisposable
 
     public IReadOnlyList<string> ActiveServices { get; private set; } = [];
 
+    /// <summary>True while the periodic check runs.</summary>
+    public bool IsRunning
+    {
+        get
+        {
+            lock (_lock)
+                return _timer is not null;
+        }
+    }
+
     /// <summary>Raised on a change, with the new state. Raised on a background thread.</summary>
     public event EventHandler<bool>? ProtectedGameChanged;
 
@@ -43,25 +53,45 @@ public sealed class AntiCheatMonitor : IDisposable
         }
     }
 
+    /// <summary>
+    /// Stops the periodic check and forgets its last result (without raising <see cref="ProtectedGameChanged"/>),
+    /// so a game seen before can't count while nothing is checking.
+    /// </summary>
     public void Stop()
     {
         lock (_lock)
         {
             _timer?.Dispose();
             _timer = null;
+            _committed = ++_issued; // a check still running from before Stop won't write its result
+            IsProtectedGameRunning = false;
+            ActiveServices = [];
         }
     }
+
+    // Each check takes a number before asking the services and writes its result only if no later check (or
+    // Stop) has written already, so checks that overlap can't put an older answer back.
+    private long _issued;
+    private long _committed;
 
     /// <summary>Checks the services once; raises <see cref="ProtectedGameChanged"/> if the state changed.</summary>
     public bool Poll()
     {
+        long ticket;
+        lock (_lock)
+            ticket = ++_issued;
+
+        // The service queries run outside the lock: nothing waits on them except this check.
+        var active = WatchedServices.Where(SafeIsRunning).ToArray();
+        var state = active.Length > 0;
         bool changed;
-        bool state;
 
         lock (_lock)
         {
-            var active = WatchedServices.Where(SafeIsRunning).ToArray();
-            state = active.Length > 0;
+            if (ticket < _committed)
+                return state;
+
+            _committed = ticket;
             changed = state != IsProtectedGameRunning;
             IsProtectedGameRunning = state;
             ActiveServices = active;

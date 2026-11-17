@@ -29,15 +29,10 @@ public class SensorsControllerV0(GPUController gpuController) : AbstractSensorsC
         }
     }
 
-    protected override async Task<int> GetCpuCurrentTemperatureAsync()
-    {
-        return -1;
-    }
+    // This sensor interface reports no temperatures: -1 is the "missing" value shown as "—".
+    protected override Task<int> GetCpuCurrentTemperatureAsync() => Task.FromResult(-1);
 
-    protected override async Task<int> GetGpuCurrentTemperatureAsync()
-    {
-        return -1;
-    }
+    protected override Task<int> GetGpuCurrentTemperatureAsync() => Task.FromResult(-1);
 
     protected override Task<int> GetCpuCurrentFanSpeedAsync() => WMI.LenovoOtherMethod.GetFeatureValueAsync(CapabilityID.CpuCurrentFanSpeed);
 

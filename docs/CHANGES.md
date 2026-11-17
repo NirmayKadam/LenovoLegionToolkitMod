@@ -4,7 +4,7 @@ This file is the modification notice required by GPL-3.0 section 5(a).
 
 - **Original work:** Lenovo Legion Toolkit v2.36.0.0, © Bartosz Cichecki, Kaguya, Dr. Skinner and contributors, licensed under GPL-3.0. Source: https://github.com/LenovoLegionToolkit-Team/LenovoLegionToolkit/releases/tag/v2.36.0.0
 - **Modified by:** Nirmay Kadam
-- **Date of modifications:** 2026-11-07 (bug and security fixes); 2026-11-08 (UI styles, animations, status strip)
+- **Date of modifications:** 2026-11-07 (bug and security fixes); 2026-11-08 (UI styles, animations, status strip); 2026-11-13 to 2026-11-17 (features, safety, performance and stability rounds)
 - **License of this modified version:** GPL-3.0 (see [LICENSE](../LICENSE))
 
 What changed and why: [BUG-FIXES.md](BUG-FIXES.md), [SECURITY.md](SECURITY.md) and [SKINS.md](SKINS.md).
@@ -271,3 +271,17 @@ Still open: the rendering thread with the dashboard open in the Retro style (23�
 3. **Crash reports with logging off.** `LenovoLegionToolkit.Lib/Utils/Log.cs`, `LenovoLegionToolkit.WPF/App.xaml.cs`: unhandled errors (background, UI, tasks; a closing error always) write `error_*.txt` to `%LOCALAPPDATA%\LenovoLegionToolkit\log` even with trace logging off. The same error is written once a minute at most; the newest 20 reports are kept. Nothing is sent anywhere. Tests showed the missing limit and repeat check failing first.
 
 Tests: `Tests/AutoListeners/ProcessSetTests.cs`, `Tests/System/BootLogoStepTests.cs`, `Tests/Utils/ErrorReportTests.cs`. Not verified on the laptop yet.
+
+## Round 2: performance (2026-11-17)
+
+1. **Retro phosphor glow on static text only.** `LenovoLegionToolkit.WPF/Windows/MainWindow.xaml.cs`: the glow was one `DropShadowEffect` on the whole window content, re-rendered whenever anything under it changed (sensor values, the CRT flicker and roll band). Removed. `LenovoLegionToolkit.WPF/Utils/Skins/SkinPalette.cs`: Retro with the glow on and GPU effects defines `LltTextGlowEffect`, one frozen effect (phosphor color, blur 8, 0.35) shared by every title; other skins don't define it, so titles draw plainly. Used by page titles (`Pages/*.xaml`), dashboard group titles (`Controls/Dashboard/DashboardGroupControl.cs`), card titles (`Controls/CardHeaderControl.cs`) and the power-mode console line (`Controls/Dashboard/PowerModeSelectorControl.xaml`); never on live readings. `SkinOptions` carries the `RetroGlow` setting (`Utils/ThemeManager.cs`).
+2. **Anti-cheat check only while game-safe mode is on.** `LenovoLegionToolkit.WPF/Utils/GameSafeMode.cs`: the 5 s service check starts with the setting and stops when it's turned off (it ran at every start before). A failure while pausing or resuming is logged and reported instead of escaping a background task; the switch back still runs. `LenovoLegionToolkit.Lib/Utils/AntiCheatMonitor.cs`: `IsRunning`; `Stop` forgets the last result; the service queries no longer run inside the lock, and an older overlapping check can't overwrite a newer result.
+3. **GPU check loop no longer dies silently.** `LenovoLegionToolkit.Lib/Controllers/GPUController.cs`: one failed round ended the loop for good while `IsStarted` stayed true (and the dGPU card stopped updating). Now a failed round is logged (an error report once per run) and the loop carries on; a failed start-up (no NVIDIA driver) ends the loop and clears `IsStarted`, so a later start can try again.
+4. **0 compiler warnings** (was 14). `CS1998` in `SensorsControllerV0`, `PrecisionTouchpadLockFeature`, `ITSModeFeature.GetITSModeEx`, `ITSModeListener`, `App.InitAutomationLocalization`, `LampArrayRGBKeyboardPage.IsSupportedAsync`, `GodModeSettingsWindow.FanFullSpeedToggle_Click`, `RGBKeyboardBacklightControl.SynchroniseZonesMenuItem_Click`: no `async` without an `await`; errors still arrive through the returned task where they did before. `ITSModeListener`'s Fn+Q handler now catches a failing subscriber. `CS8602` in `SkinPaletteTests`: an explicit `Assert.NotNull`.
+
+Tests: `Tests/Controllers/GPURefreshLoopTests.cs` (new), `Tests/UI/GameSafeModeTests.cs` and `Tests/UI/SkinPaletteTests.cs` (new cases). The 7 new game-safe and GPU tests were run against the old behaviour first and failed for the expected reasons. 583 tests, all passing. Not verified on the laptop yet.
+
+### Tests changed on purpose
+- `GameSafeModeTests.Switching_FromSeveralPlacesAtOnce_…`: passes the new error-report argument and disposes the monitor (whose check now starts with the setting); same assertions.
+- `SkinPaletteTests.Neon_GlowFollowsTheOptions`: `SkinOptions` has a fourth argument (`RetroGlow`); same assertions.
+- `SkinPaletteTests.Retro_EveryPhosphor_IsReadable`: `Assert.NotNull` on the colors before use (was a null-forgiving `!`); stricter, not weaker.

@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Automation;
 using System.Windows.Controls;
 using LenovoLegionToolkit.WPF.Extensions;
+using LenovoLegionToolkit.WPF.Utils.Skins;
 
 namespace LenovoLegionToolkit.WPF.Controls.Dashboard;
 
@@ -40,6 +41,7 @@ public class DashboardGroupControl : UserControl
                 Margin = new(0, 16, 0, 24)
             };
             AutomationProperties.SetName(textBlock, textBlock.Text);
+            textBlock.SetResourceReference(EffectProperty, SkinKeys.TextGlowEffect);
             stackPanel.Children.Add(textBlock);
 
             var controlsTasks = _dashboardGroup.Items.Select(i => i.GetControlAsync());

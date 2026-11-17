@@ -538,7 +538,7 @@ public partial class GodModeSettingsWindow
         }
     }
 
-    private async void FanFullSpeedToggle_Click(object sender, RoutedEventArgs e)
+    private void FanFullSpeedToggle_Click(object sender, RoutedEventArgs e)
     {
         bool enabled = _fanFullSpeedToggle.IsChecked ?? false;
         _fanCurveCardControl.IsEnabled = !enabled;
