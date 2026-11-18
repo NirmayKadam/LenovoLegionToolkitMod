@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Threading;
@@ -14,8 +15,19 @@ using Xunit;
 
 namespace LenovoLegionToolkit.Tests.UI;
 
-public class GameSafeModeTests
+public sealed class GameSafeModeTests : IDisposable
 {
+    /// <summary>Macro settings live here (never created unless something saves), not in the real settings folder.</summary>
+    private readonly string _settingsDir = Path.Combine(Path.GetTempPath(), "llt-gamesafe-tests-" + Guid.NewGuid().ToString("N"));
+
+    public void Dispose()
+    {
+        if (Directory.Exists(_settingsDir))
+            Directory.Delete(_settingsDir, true);
+    }
+
+    private MacroSettings FreshMacroSettings() => new(_settingsDir);
+
     // ---- Detecting a protected game (from service status only) ----
 
     [Fact]
@@ -264,7 +276,7 @@ public class GameSafeModeTests
     [Fact]
     public void Macros_SuspendAndResume_TrackTheirState()
     {
-        var controller = new MacroController(new MacroSettings());
+        var controller = new MacroController(FreshMacroSettings());
         var changes = 0;
         controller.StateChanged += (_, _) => changes++;
 
@@ -290,7 +302,7 @@ public class GameSafeModeTests
         var uiThread = Environment.CurrentManagedThreadId;
         var installedOn = new List<int>();
 
-        var controller = new MacroController(new MacroSettings()) { HookInstalledOnThread = installedOn.Add };
+        var controller = new MacroController(FreshMacroSettings()) { HookInstalledOnThread = installedOn.Add };
         try
         {
             controller.Start();

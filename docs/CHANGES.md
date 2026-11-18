@@ -467,3 +467,13 @@ New strings are in English only (`Resource.resx`). Other languages show them in 
 - `SettingsBackupWindow` didn't list `fan_profiles.json` (per-mode fan curves), `game_profiles.json` or `amd_oc.json` (AMD overclocking), so a backup lost them. They are now included.
 - `game_profile_session.json` is left out on purpose: restoring an old session note could put back services or app priorities from another time.
 - Test: `Tests/Settings/SettingsBackupCoverageTests.cs` checks every settings file named in the settings classes' sources. It **failed before the fix**, naming exactly those three files.
+
+## Round 6: CI (2026-11-18)
+- `.github/workflows/ci.yml` (new): on every push and pull request to `main`, and on demand.
+  - It runs on `windows-latest` with .NET 9.
+  - It restores each project (not the `.sln`, because of its `.wapproj`), builds the app and `llt` with warnings as errors, runs every test, and uploads the results.
+  - It has read-only permissions and no secrets or signing. The actions are pinned to commit SHAs like the upstream workflows.
+  - The upstream `build.yml` / release workflows run on `master` and are untouched.
+- `Tests/Performance/StartupBudgetTests.cs` (new): a budget for building the app's container from its four real modules, with start-up components skipped. A marker component proves nothing starts. The budgets are 10 ms and 2 MB, against 1.0 ms and 0.62 MB measured locally. It is not a measure of real app start-up; the test says so.
+- `MacroSettings` got a test-folder constructor. The two game-safe macro tests now use a temporary folder instead of the real settings folder. Before, on an elevated CI machine they could create `UserData\<SID>` next to the test files, and locally they read your real `macro.json`. The assertions are unchanged.
+- Not run on GitHub yet when committed; the first run's result is reported separately.

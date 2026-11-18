@@ -40,7 +40,12 @@ This signing flow is the upstream project's process. It has not been re-tested e
 
 ## CI
 
-`.github/workflows/build.yml`:
+`.github/workflows/ci.yml` (this fork, runs on `main`):
+- **Every push and pull request to `main`**, and on demand. It runs on `windows-latest` with .NET 9.
+- **Steps:** restore each project (never the `.sln`, whose `.wapproj` the dotnet CLI can't build), build the app and `llt` with warnings as errors, then run every test. The test results are uploaded as the `test-results` artifact, also when a step fails.
+- **No signing, no secrets, no installer.** Warnings are errors only in CI, so a new SDK warning can't stop a local `make.bat`.
+
+`.github/workflows/build.yml` (upstream, runs on `master`; it doesn't run for this fork's `main`):
 - **Pushes and manual runs** restore the signing key from secrets and build a signed installer.
 - **Pull requests** never receive secrets and build unsigned (`make_action.bat raw` with `LLT_UNSIGNED_BUILD=1`).
 - All actions are pinned to full commit SHAs, with the version in a comment.

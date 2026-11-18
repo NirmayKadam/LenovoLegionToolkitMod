@@ -2,13 +2,15 @@
 
 ## Automated tests
 
-The `LenovoLegionToolkit.Tests` project (xUnit) has **706 tests**. Run them with:
+The `LenovoLegionToolkit.Tests` project (xUnit) has **708 tests**. Run them with:
 
 ```powershell
 dotnet test LenovoLegionToolkit.Tests\LenovoLegionToolkit.Tests.csproj -c Release
 ```
 
-They need Windows (they use real Windows APIs) but no Legion hardware and no administrator rights.
+They need Windows (they use real Windows APIs) but no Legion hardware and no administrator rights. CI (`.github/workflows/ci.yml`) runs them on every push to `main`, after building with warnings as errors.
+
+**Budget test** (`Performance/StartupBudgetTests.cs`): it builds the app's container from its four real modules, with start-up components skipped so no listener, driver or UI manager starts (a marker component proves that), and resolves a few plain singletons. Budgets: 10 ms and 2 MB, against 1.0 ms and 0.62 MB measured on the LOQ on 2026-11-18. It catches a change that makes this part of start-up much heavier. It does **not** measure the app's real start-up, which is mostly WMI, driver and UI work that needs the laptop.
 
 | Area | Folder | What is covered |
 |---|---|---|
