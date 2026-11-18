@@ -477,3 +477,7 @@ New strings are in English only (`Resource.resx`). Other languages show them in 
 - `Tests/Performance/StartupBudgetTests.cs` (new): a budget for building the app's container from its four real modules, with start-up components skipped. A marker component proves nothing starts. The budgets are 10 ms and 2 MB, against 1.0 ms and 0.62 MB measured locally. It is not a measure of real app start-up; the test says so.
 - `MacroSettings` got a test-folder constructor. The two game-safe macro tests now use a temporary folder instead of the real settings folder. Before, on an elevated CI machine they could create `UserData\<SID>` next to the test files, and locally they read your real `macro.json`. The assertions are unchanged.
 - Not run on GitHub yet when committed; the first run's result is reported separately.
+
+### Fix found by the first CI run
+- **The repository couldn't be built from a fresh clone.** `.gitignore`'s NuGet rule `**/[Pp]ackages/*` also matched the app's own `LenovoLegionToolkit.WPF/Controls/Packages/PackageControl.xaml(.cs)` (the Packages page's list item). Those two files were never committed, so every clone failed with "the namespace 'Packages' does not exist".
+- An exception for that folder was added to `.gitignore`, and the two files are now committed. No other source file was being ignored (checked across the whole tree, outside build output).
