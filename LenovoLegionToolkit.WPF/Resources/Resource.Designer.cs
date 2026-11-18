@@ -13129,5 +13129,32 @@ namespace LenovoLegionToolkit.WPF.Resources {
                 return ResourceManager.GetString("GameProfiles_AppAlreadyListed", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MSI Afterburner is running, so LLT leaves the GPU clocks to it. Your values here are kept and used when Afterburner isn&apos;t running..
+        /// </summary>
+        public static string GpuOverclock_AfterburnerRunning {
+            get {
+                return ResourceManager.GetString("GpuOverclock_AfterburnerRunning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Saved. Not applied while MSI Afterburner is running..
+        /// </summary>
+        public static string GpuOverclock_SkippedForAfterburner {
+            get {
+                return ResourceManager.GetString("GpuOverclock_SkippedForAfterburner", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MSI Afterburner is running, so LLT doesn&apos;t change the P-state now. Your choice is kept..
+        /// </summary>
+        public static string DiscreteGPUControl_PStateAfterburner {
+            get {
+                return ResourceManager.GetString("DiscreteGPUControl_PStateAfterburner", resourceCulture);
+            }
+        }
     }
 }

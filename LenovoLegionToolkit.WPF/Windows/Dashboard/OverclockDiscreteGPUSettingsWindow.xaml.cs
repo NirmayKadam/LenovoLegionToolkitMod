@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Input;
 using LenovoLegionToolkit.Lib;
 using LenovoLegionToolkit.Lib.Controllers;
+using LenovoLegionToolkit.Lib.Utils;
 using LenovoLegionToolkit.WPF.Resources;
 using LenovoLegionToolkit.WPF.Utils;
 
@@ -16,6 +17,8 @@ public partial class OverclockDiscreteGPUSettingsWindow
     public OverclockDiscreteGPUSettingsWindow()
     {
         InitializeComponent();
+
+        _afterburnerNote.Visibility = AfterburnerDetector.IsRunning() ? Visibility.Visible : Visibility.Collapsed;
 
         var (enabled, info) = _gpuOverclockController.GetState();
 
@@ -131,6 +134,7 @@ public partial class OverclockDiscreteGPUSettingsWindow
             GPUOverclockApplyResult.AppliedWithoutVoltageLock => (Resource.OverclockDiscreteGPUSettingsWindow_VoltageLockSkipped, SnackbarType.Warning),
             GPUOverclockApplyResult.Failed => (Resource.OverclockDiscreteGPUSettingsWindow_ApplyFailed, SnackbarType.Error),
             GPUOverclockApplyResult.DisabledAfterInterruptedApply => (Resource.OverclockDiscreteGPUControl_DisabledAfterCrash, SnackbarType.Warning),
+            GPUOverclockApplyResult.SkippedForAfterburner => (Resource.GpuOverclock_SkippedForAfterburner, SnackbarType.Info),
             _ => (Resource.OverclockDiscreteGPUSettingsWindow_NotApplied, SnackbarType.Info),
         };
 

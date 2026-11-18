@@ -87,6 +87,9 @@ public partial class DiscreteGPUManagementWindow : BaseWindow
     {
         // The GPU check runs while this window is open; it lets go when closed.
         _gpuController.Hold(this);
+
+        // While MSI Afterburner runs, the P-state lock is saved but not sent (Afterburner manages the clocks).
+        _pStateHeader.Warning = AfterburnerDetector.IsRunning() ? Resource.DiscreteGPUControl_PStateAfterburner : string.Empty;
         _ = RefreshAppListAsync();
     }
 

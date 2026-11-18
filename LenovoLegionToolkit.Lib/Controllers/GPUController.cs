@@ -30,6 +30,7 @@ public class GPUController
     private readonly Func<int> _interval;
     private readonly Func<int> _startupDelay;
     private readonly TimeSpan? _readerHold;
+    private readonly Func<bool> _isAfterburnerRunning;
 
     public GPUController()
     {
@@ -38,13 +39,15 @@ public class GPUController
         _reportError = Log.Instance.ErrorReport;
         _interval = () => IoCContainer.Resolve<ApplicationSettings>().Store.GPUMonitoringInterval;
         _startupDelay = () => IoCContainer.Resolve<ApplicationSettings>().Store.GPUMonitoringStartupDelay;
+        _isAfterburnerRunning = AfterburnerDetector.IsRunning;
     }
 
     /// <summary>
     /// For tests: the start-up step, the per-round refresh and the error report are supplied by the caller, since
-    /// NVIDIA's API can't be driven in a test; so are the timings, so a test runs in milliseconds.
+    /// NVIDIA's API can't be driven in a test; so are the timings, so a test runs in milliseconds, and whether MSI
+    /// Afterburner runs (not running when not given).
     /// </summary>
-    internal GPUController(Func<Task> initialize, Func<CancellationToken, Task> refresh, Action<string, Exception> reportError, Func<int> interval, int startupDelayMs, TimeSpan readerHold)
+    internal GPUController(Func<Task> initialize, Func<CancellationToken, Task> refresh, Action<string, Exception> reportError, Func<int> interval, int startupDelayMs, TimeSpan readerHold, Func<bool>? isAfterburnerRunning = null)
     {
         _initialize = initialize;
         _refresh = refresh;
@@ -52,6 +55,7 @@ public class GPUController
         _interval = interval;
         _startupDelay = () => startupDelayMs;
         _readerHold = readerHold;
+        _isAfterburnerRunning = isAfterburnerRunning ?? (() => false);
     }
 
     /// <summary>Time between rounds: the "GPU monitoring interval" setting, read every round.</summary>
@@ -660,8 +664,18 @@ public class GPUController
         return await ApplyPStateAsync(pStateId).ConfigureAwait(false);
     }
 
+    /// <summary>
+    /// Locks the GPU to a P-state (or back to dynamic for a negative id). Not while MSI Afterburner runs: it manages
+    /// the clocks then, and the saved choice is applied at the next start or dGPU wake when it doesn't run.
+    /// </summary>
     public Task<bool> ApplyPStateAsync(int pStateId)
     {
+        if (_isAfterburnerRunning())
+        {
+            Log.Instance.Trace($"MSI Afterburner is running; not changing the GPU P-state. [pState={pStateId}]");
+            return Task.FromResult(false);
+        }
+
         try
         {
             var gpu = NVAPI.GetGPU();

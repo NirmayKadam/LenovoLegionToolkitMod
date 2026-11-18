@@ -5856,4 +5856,13 @@ When the game ends, LLT puts the apps&apos; priority and the services back. It n
   <data name="GameProfiles_AppAlreadyListed" xml:space="preserve">
     <value>{0} is already in one of this game&apos;s lists.</value>
   </data>
+  <data name="GpuOverclock_AfterburnerRunning" xml:space="preserve">
+    <value>MSI Afterburner is running, so LLT leaves the GPU clocks to it. Your values here are kept and used when Afterburner isn&apos;t running.</value>
+  </data>
+  <data name="GpuOverclock_SkippedForAfterburner" xml:space="preserve">
+    <value>Saved. Not applied while MSI Afterburner is running.</value>
+  </data>
+  <data name="DiscreteGPUControl_PStateAfterburner" xml:space="preserve">
+    <value>MSI Afterburner is running, so LLT doesn&apos;t change the P-state now. Your choice is kept.</value>
+  </data>
 </root>

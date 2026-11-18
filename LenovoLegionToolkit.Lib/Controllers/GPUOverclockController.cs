@@ -32,6 +32,9 @@ public enum GPUOverclockApplyResult
 
     /// <summary>The previous run's apply was never confirmed, so the overclock was switched off instead.</summary>
     DisabledAfterInterruptedApply,
+
+    /// <summary>Nothing was sent because MSI Afterburner is running and manages the GPU clocks. The settings are kept.</summary>
+    SkippedForAfterburner,
 }
 
 public class GPUOverclockController
@@ -41,7 +44,7 @@ public class GPUOverclockController
     private readonly VantageDisabler _vantageDisabler;
     private readonly LegionSpaceDisabler _legionSpaceDisabler;
     private readonly LegionZoneDisabler _legionZoneDisabler;
-    private readonly NativeWindowsMessageListener _nativeWindowsMessageListener;
+    private readonly Func<bool> _isAfterburnerRunning;
 
     public event EventHandler? Changed;
 
@@ -51,14 +54,25 @@ public class GPUOverclockController
         LegionSpaceDisabler legionSpaceDisabler,
         LegionZoneDisabler legionZoneDisabler,
         NativeWindowsMessageListener nativeWindowsMessageListener)
+        : this(settings, guard, vantageDisabler, legionSpaceDisabler, legionZoneDisabler, AfterburnerDetector.IsRunning)
+    {
+        nativeWindowsMessageListener.Changed += NativeWindowsMessageListenerOnChanged;
+    }
+
+    /// <summary>For tests: whether MSI Afterburner runs is supplied by the caller; display changes aren't listened to.</summary>
+    internal GPUOverclockController(GPUOverclockSettings settings,
+        OverclockApplyGuard guard,
+        VantageDisabler vantageDisabler,
+        LegionSpaceDisabler legionSpaceDisabler,
+        LegionZoneDisabler legionZoneDisabler,
+        Func<bool> isAfterburnerRunning)
     {
         _settings = settings;
         _guard = guard;
         _vantageDisabler = vantageDisabler;
         _legionSpaceDisabler = legionSpaceDisabler;
         _legionZoneDisabler = legionZoneDisabler;
-        _nativeWindowsMessageListener = nativeWindowsMessageListener;
-        _nativeWindowsMessageListener.Changed += NativeWindowsMessageListenerOnChanged;
+        _isAfterburnerRunning = isAfterburnerRunning;
     }
 
     public async Task<bool> IsSupportedAsync()
@@ -162,6 +176,16 @@ public class GPUOverclockController
         {
             Changed?.Invoke(this, EventArgs.Empty);
             return GPUOverclockApplyResult.DisabledAfterInterruptedApply;
+        }
+
+        // MSI Afterburner manages the clocks while it runs: LLT sends nothing, not even the zero offsets of
+        // "switch off", which would undo Afterburner's own settings. The saved values stay for later.
+        if (_isAfterburnerRunning())
+        {
+            Log.Instance.Trace($"MSI Afterburner is running; not sending the GPU overclock. [force={force}]");
+
+            Changed?.Invoke(this, EventArgs.Empty);
+            return GPUOverclockApplyResult.SkippedForAfterburner;
         }
 
         if (await _vantageDisabler.GetStatusAsync().ConfigureAwait(false) == SoftwareStatus.Enabled)

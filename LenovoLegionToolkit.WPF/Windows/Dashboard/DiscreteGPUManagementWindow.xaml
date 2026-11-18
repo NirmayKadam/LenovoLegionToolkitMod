@@ -194,6 +194,7 @@
                         <custom:CardControl Margin="0,0,0,8" Icon="Flash24">
                             <custom:CardControl.Header>
                                 <controls:CardHeaderControl
+                                    x:Name="_pStateHeader"
                                     Title="{x:Static resources:Resource.DiscreteGPUControl_PStateLockTitle}" HelpKey="Help_DiscreteGpu_PState"
                                     Subtitle="{x:Static resources:Resource.DiscreteGPUControl_PStateLockDescription}"
                                     Info="{x:Static resources:Resource.DiscreteGPUControl_PStateLockInfo}" />

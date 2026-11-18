@@ -92,7 +92,9 @@ public class OverclockDiscreteGPUControl : AbstractRefreshingControl
 
         // Stays until the user turns the overclock on again.
         var disabledForSafety = _controller.WasDisabledAfterInterruptedApply;
-        _cardHeaderControl.Warning = disabledForSafety ? Resource.OverclockDiscreteGPUControl_DisabledAfterCrash : string.Empty;
+        _cardHeaderControl.Warning = disabledForSafety
+            ? Resource.OverclockDiscreteGPUControl_DisabledAfterCrash
+            : AfterburnerDetector.IsRunning() ? Resource.GpuOverclock_AfterburnerRunning : string.Empty;
 
         if (disabledForSafety && !_safetyNoticeShown)
         {
