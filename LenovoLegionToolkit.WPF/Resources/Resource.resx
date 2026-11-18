@@ -5865,4 +5865,7 @@ When the game ends, LLT puts the apps&apos; priority and the services back. It n
   <data name="DiscreteGPUControl_PStateAfterburner" xml:space="preserve">
     <value>MSI Afterburner is running, so LLT doesn&apos;t change the P-state now. Your choice is kept.</value>
   </data>
+  <data name="OsdSettings_FrameTimeGraph_Tooltip" xml:space="preserve">
+    <value>Each frame&apos;s time over the last 5 seconds. Frames that take more than twice the usual time (stutters) are drawn in the critical colour. Starts a few seconds after a game begins drawing; nothing is drawn before real frames arrive.</value>
+  </data>
 </root>

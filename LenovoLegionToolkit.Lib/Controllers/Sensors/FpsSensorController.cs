@@ -38,6 +38,12 @@ namespace LenovoLegionToolkit.Lib.Controllers.Sensors
 
         public event EventHandler<FpsData>? FpsDataUpdated;
 
+        /// <summary>
+        /// Each frame's time over the last few seconds, for the OSD's frame-time graph. PresentMon reports every
+        /// frame (after a warm-up of about 500 frames); cleared when the measured game changes or measuring stops.
+        /// </summary>
+        public FrameTimeHistory FrameTimes { get; } = new();
+
         public void InitializeBlacklist()
         {
             var systemProcesses = new[]
@@ -205,6 +211,7 @@ namespace LenovoLegionToolkit.Lib.Controllers.Sensors
             {
                 _currentProcessTokenSource = new CancellationTokenSource();
                 _currentMonitoredProcess = process;
+                FrameTimes.Clear();   // another game's frames don't belong in this one's graph
 
                 var request = new FpsRequest((uint)process.Id);
                 var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(
@@ -271,6 +278,7 @@ namespace LenovoLegionToolkit.Lib.Controllers.Sensors
                     }
                 }
 
+                FrameTimes.Clear();
                 FpsDataUpdated?.Invoke(this, GetCurrentFpsData());
             }
             catch (Exception ex)
@@ -281,6 +289,9 @@ namespace LenovoLegionToolkit.Lib.Controllers.Sensors
 
         private void OnFpsDataReceived(FpsResult result)
         {
+            // PresentMon calls this once per frame with that frame's time.
+            FrameTimes.Add(result.FrameTime);
+
             var fpsData = new FpsData
             {
                 Fps = $"{result.Fps:0}",

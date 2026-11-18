@@ -1904,5 +1904,14 @@ namespace LenovoLegionToolkit.Lib.Resources {
                 return ResourceManager.GetString("UiSkin_Retro", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Frame-time graph.
+        /// </summary>
+        public static string OsdItem_FrameTimeGraph {
+            get {
+                return ResourceManager.GetString("OsdItem_FrameTimeGraph", resourceCulture);
+            }
+        }
     }
 }

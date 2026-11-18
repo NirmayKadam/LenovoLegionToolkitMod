@@ -21,6 +21,7 @@ public partial class OsdPanelWindow : OsdWindowBase
             { OsdItem.Fps, _fps },
             { OsdItem.LowFps, _lowFps },
             { OsdItem.FrameTime, _frameTime },
+            { OsdItem.FrameTimeGraph, _frameTimeGraph },
 
             // CPU
             { OsdItem.CpuFrequency, _cpuFrequency },
@@ -57,7 +58,7 @@ public partial class OsdPanelWindow : OsdWindowBase
         _measurementGroups = new()
         {
             // Game
-            { _fpsGroup, ([OsdItem.Fps, OsdItem.LowFps, OsdItem.FrameTime], _separatorFps) },
+            { _fpsGroup, ([OsdItem.Fps, OsdItem.LowFps, OsdItem.FrameTime, OsdItem.FrameTimeGraph], _separatorFps) },
 
             // CPU
             { _cpuGroup, ([OsdItem.CpuFrequency, OsdItem.CpuPCoreFrequency, OsdItem.CpuECoreFrequency, OsdItem.CpuUtilization, OsdItem.CpuTemperature, OsdItem.CpuPower, OsdItem.CpuVoltage, OsdItem.CpuFan], null) },
@@ -155,6 +156,8 @@ public partial class OsdPanelWindow : OsdWindowBase
     {
         var visibility = visible ? Visibility.Visible : Visibility.Collapsed;
 
+        // The graph has no label of its own; its parent is the FPS group, whose header must stay.
+        if (element is FrameTimeGraph) return;
         if (element.Parent is not Panel panel) return;
 
         foreach (var child in System.Linq.Enumerable.OfType<TextBlock>(panel.Children))

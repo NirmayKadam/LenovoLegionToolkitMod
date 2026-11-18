@@ -175,7 +175,7 @@ public partial class OsdSettingsWindow
         var groups = new List<OsdItemGroup>
         {
             new OsdItemGroup { Header = Resource.Osd_Game, Items =
-                [OsdItem.Fps, OsdItem.LowFps, OsdItem.FrameTime]
+                [OsdItem.Fps, OsdItem.LowFps, OsdItem.FrameTime, OsdItem.FrameTimeGraph]
             },
             new OsdItemGroup { Header = Resource.Osd_Cpu, Items =
                 [
@@ -252,6 +252,8 @@ public partial class OsdSettingsWindow
                     Tag = item,
                     IsChecked = activeItems.Contains(item)
                 };
+                if (item == OsdItem.FrameTimeGraph)
+                    checkBox.ToolTip = Resource.OsdSettings_FrameTimeGraph_Tooltip;
                 checkBox.Checked += CheckBox_CheckedOrUnchecked;
                 checkBox.Unchecked += CheckBox_CheckedOrUnchecked;
 

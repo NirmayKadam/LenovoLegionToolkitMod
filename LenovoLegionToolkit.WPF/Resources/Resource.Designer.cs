@@ -13156,5 +13156,14 @@ namespace LenovoLegionToolkit.WPF.Resources {
                 return ResourceManager.GetString("DiscreteGPUControl_PStateAfterburner", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Each frame&apos;s time over the last 5 seconds. Frames that take more than twice the usual time (stutters) are drawn in the critical colour. Starts a few seconds after a game begins drawing; nothing i[rest of string was truncated].
+        /// </summary>
+        public static string OsdSettings_FrameTimeGraph_Tooltip {
+            get {
+                return ResourceManager.GetString("OsdSettings_FrameTimeGraph_Tooltip", resourceCulture);
+            }
+        }
     }
 }

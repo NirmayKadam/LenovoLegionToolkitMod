@@ -413,3 +413,14 @@ Tests: `Tests/Controllers/GPURefreshLoopTests.cs`, 6 new.
 - Tests: `Tests/Controllers/GPUOverclockAfterburnerTests.cs`.
   - The overclock tests failed before the fix by going on towards the driver; the P-state tests were written with the fix, since running them on the old code would have changed the real GPU's P-state.
 - Not verified on the laptop yet. The ITS card is only for laptops with Lenovo's Intelligent Thermal Solution (IdeaPad, ThinkBook, Yoga, Slim and similar). The LOQ 15IRH8 uses power modes and has no ITS service. The Customize Dashboard list shows every card for every laptop.
+
+### 2. OSD frame-time graph
+- A new OSD item, **Frame-time graph** (Game group, off by default, with hover help). It shows each frame of the last 5 seconds, oldest on the left; frames over twice the median (stutters) are drawn in the OSD's critical colour, with a faint line at the median. The scale is 33.3 ms (30 fps) up to 1.2 × the longest frame, capped at 100 ms.
+- **Where the frames come from:** the FPS measurement already in use (PresentMon over ETW, no driver), whose callback fires once per frame after a warm-up of about 500 frames. Nothing is drawn before real frames arrive, and nothing is invented.
+- `LenovoLegionToolkit.Lib/Controllers/Sensors/FrameTimeHistory.cs` (new): the last 5 s of frame times (at most 3000), thread-safe, ignoring values ≤ 0 or > 1000 ms (pauses). `FpsSensorController` adds each frame and clears it when the measured game changes or measuring stops.
+- `LenovoLegionToolkit.WPF/Windows/Osd/FrameTimeGraphLayout.cs` (new, pure): where each frame is drawn, the scale, the median and the stutter flags.
+- `LenovoLegionToolkit.WPF/Windows/Osd/FrameTimeGraph.cs` (new): draws the layout with one frozen geometry. It reads the history at most 30 times a second, **only while it is visible** (OSD shown and the item on); errors are logged and the OSD keeps running.
+- Panel style: a 40 px high row at the bottom of the FPS group. Bar style: an 80 × 16 sparkline after the frame time. Turning the graph on also starts FPS measuring, like the other Game items.
+- `OsdItem.FrameTimeGraph` is appended at the end of the enum, so saved item lists keep their meaning.
+- Tests: `Tests/UI/FrameTimeGraphTests.cs` (14; written for the new code, so there was no old behaviour to fail).
+- Not verified on the laptop yet.

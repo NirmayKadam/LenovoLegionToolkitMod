@@ -79,6 +79,8 @@ public abstract class OsdWindowBase : Window
     protected Dictionary<OsdItem, FrameworkElement> _itemsMap = [];
     protected Dictionary<FrameworkElement, (List<OsdItem> Items, FrameworkElement? Separator)> _measurementGroups = [];
 
+    private FrameTimeGraph? FrameTimeGraphElement => _itemsMap.GetValueOrDefault(OsdItem.FrameTimeGraph) as FrameTimeGraph;
+
     #endregion
 
     #region Initialization
@@ -103,6 +105,9 @@ public abstract class OsdWindowBase : Window
         SubscribeEvents();
         _fpsController.FpsDataUpdated += OnFpsDataUpdated;
         _gameSafeMode.ActiveChanged += OnGameSafeModeChanged;
+
+        if (FrameTimeGraphElement is { } graph)
+            graph.History = _fpsController.FrameTimes;
 
         ApplyAppearanceSettings();
         UpdateMeasurementControlsVisibility();
@@ -420,6 +425,8 @@ public abstract class OsdWindowBase : Window
         _warningBrush = (Brush)converter.ConvertFromString(_OsdSettings.Store.WarningColor)!;
         _criticalBrush = (Brush)converter.ConvertFromString(_OsdSettings.Store.CriticalColor)!;
 
+        FrameTimeGraphElement?.SetBrushes(_valueBrush, _criticalBrush);
+
         this.SetClickThrough(_OsdSettings.Store.IsLocked);
 
         if (!SavedPositionX.HasValue || !SavedPositionY.HasValue)
@@ -623,7 +630,8 @@ public abstract class OsdWindowBase : Window
     private bool ShouldMonitorFps() =>
         _activeItems.Contains(OsdItem.Fps) ||
         _activeItems.Contains(OsdItem.LowFps) ||
-        _activeItems.Contains(OsdItem.FrameTime);
+        _activeItems.Contains(OsdItem.FrameTime) ||
+        _activeItems.Contains(OsdItem.FrameTimeGraph);
 
     private async Task StartFpsMonitoringAsync()
     {

@@ -88,6 +88,12 @@
                         x:Name="_frameTime"
                         Style="{DynamicResource TextBlockStyle}"
                         Text="-" />
+                    <fg:FrameTimeGraph
+                        x:Name="_frameTimeGraph"
+                        Width="80"
+                        Height="16"
+                        Margin="0,0,8,0"
+                        VerticalAlignment="Center" />
                 </StackPanel>
 
                 <Rectangle

@@ -613,6 +613,9 @@ public enum OsdItem
     PchTemperature,
     [Display(ResourceType = typeof(Resource), Name = "OsdItem_Fan")]
     PchFan,
+    // === Game (added later; appended so saved item lists keep their meaning) ===
+    [Display(ResourceType = typeof(Resource), Name = "OsdItem_FrameTimeGraph")]
+    FrameTimeGraph,
 }
 
 public enum OverDriveState

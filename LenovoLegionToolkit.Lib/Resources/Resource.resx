@@ -750,4 +750,7 @@
   <data name="UiSkin_Retro" xml:space="preserve">
     <value>Retro CRT</value>
   </data>
+  <data name="OsdItem_FrameTimeGraph" xml:space="preserve">
+    <value>Frame-time graph</value>
+  </data>
 </root>

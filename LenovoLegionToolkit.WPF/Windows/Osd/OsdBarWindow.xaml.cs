@@ -22,6 +22,7 @@ public partial class OsdBarWindow : OsdWindowBase
             { OsdItem.Fps, _fps },
             { OsdItem.LowFps, _lowFps },
             { OsdItem.FrameTime, _frameTime },
+            { OsdItem.FrameTimeGraph, _frameTimeGraph },
 
             // CPU
             { OsdItem.CpuFrequency, _cpuFrequency },
@@ -58,7 +59,7 @@ public partial class OsdBarWindow : OsdWindowBase
         _measurementGroups = new()
         {
             // Game
-            { _fpsGroup, ([OsdItem.Fps, OsdItem.LowFps, OsdItem.FrameTime], _separatorFps) },
+            { _fpsGroup, ([OsdItem.Fps, OsdItem.LowFps, OsdItem.FrameTime, OsdItem.FrameTimeGraph], _separatorFps) },
 
             // CPU
             { _cpuGroup, ([OsdItem.CpuFrequency, OsdItem.CpuPCoreFrequency, OsdItem.CpuECoreFrequency, OsdItem.CpuUtilization, OsdItem.CpuTemperature, OsdItem.CpuPower, OsdItem.CpuVoltage, OsdItem.CpuFan], _separatorCpu) },
