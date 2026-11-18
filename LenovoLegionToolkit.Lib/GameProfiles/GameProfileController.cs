@@ -31,8 +31,6 @@ public class GameProfileController
     public static readonly TimeSpan CloseTimeout = TimeSpan.FromSeconds(10);
     public static readonly TimeSpan ServiceTimeout = TimeSpan.FromSeconds(20);
 
-    private static readonly string WindowsFolder = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
-    private const string LltProcessName = "Lenovo Legion Toolkit";
 
     private readonly GameProfileSettings _settings;
     private readonly GameProfileSessionSettings _session;
@@ -267,17 +265,18 @@ public class GameProfileController
         public int Eased, Closed, LeftOpen, Paused, Problems;
     }
 
-    /// <summary>Never the game itself, nor LLT.</summary>
+    /// <summary>Never the game itself, nor LLT or Windows' own shell and system processes (<see cref="AppRules"/>).</summary>
     private static bool IsOffLimits(string app, GameProfile profile) =>
-        IsGame(app, profile.ExeName) || string.Equals(app, LltProcessName, StringComparison.OrdinalIgnoreCase);
+        IsGame(app, profile.ExeName) || AppRules.IsProtectedName(app);
 
     /// <summary>Only apps in the user's own session, outside the Windows folder.</summary>
-    private static bool IsUserApp(AppProcess app) =>
-        app.SessionId != 0 && app.Path is { } path && !path.StartsWith(WindowsFolder, StringComparison.OrdinalIgnoreCase);
+    private static bool IsUserApp(AppProcess app) => app.SessionId != 0 && AppRules.IsAllowedPath(app.Path);
 
     private void EaseApps(GameProfile profile, Counts counts)
     {
-        foreach (var exe in profile.EfficiencyApps.Distinct(StringComparer.OrdinalIgnoreCase))
+        // An app also listed to close is only closed: easing it first would be pointless.
+        foreach (var exe in profile.EfficiencyApps.Distinct(StringComparer.OrdinalIgnoreCase)
+                     .Where(e => !profile.CloseApps.Contains(e, StringComparer.OrdinalIgnoreCase)))
         {
             if (IsOffLimits(exe, profile))
             {

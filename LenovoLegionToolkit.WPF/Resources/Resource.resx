@@ -5847,4 +5847,13 @@ When the game ends, LLT puts the apps&apos; priority and the services back. It n
   <data name="Help_Notifications_GameProfile_What" xml:space="preserve">
     <value>A notification when a game&apos;s profile starts and when it ends, saying what was changed and put back.</value>
   </data>
+  <data name="GameProfiles_NotTouched" xml:space="preserve">
+    <value>LLT won&apos;t touch this: it is part of Windows (or LLT itself). Remove it from the list.</value>
+  </data>
+  <data name="GameProfiles_AppNotAllowed" xml:space="preserve">
+    <value>{0} can&apos;t be added: it is part of Windows, LLT itself, or the game.</value>
+  </data>
+  <data name="GameProfiles_AppAlreadyListed" xml:space="preserve">
+    <value>{0} is already in one of this game&apos;s lists.</value>
+  </data>
 </root>

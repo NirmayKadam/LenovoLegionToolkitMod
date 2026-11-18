@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.ServiceProcess;
+using LenovoLegionToolkit.Lib.Extensions;
 using LenovoLegionToolkit.Lib.Utils;
 
 namespace LenovoLegionToolkit.Lib.GameProfiles;
@@ -11,21 +12,21 @@ namespace LenovoLegionToolkit.Lib.GameProfiles;
 public static class GameProfileCatalog
 {
     /// <summary>
-    /// File names (no ".exe") of running apps that have a window in the user's session, from the process list
-    /// and the window list: no process is opened. LLT itself isn't offered.
+    /// File names (no ".exe") of running apps with a window in the user's session that a game profile may touch
+    /// (<see cref="AppRules.FilterApps"/>). Windows' own apps, LLT and the names in <paramref name="excludeNames"/>
+    /// (profiled games, apps already listed) are dropped by name first; only the remaining apps are opened, for
+    /// "query limited information", to drop those in the Windows folder.
     /// </summary>
-    public static IReadOnlyList<string> RunningApps()
+    public static IReadOnlyList<string> RunningApps(IEnumerable<string> excludeNames)
     {
         var processes = Process.GetProcesses();
         try
         {
-            return processes
-                .Where(p => SafeHasWindow(p))
-                .Select(p => p.ProcessName)
-                .Where(n => !string.Equals(n, "Lenovo Legion Toolkit", StringComparison.OrdinalIgnoreCase))
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .OrderBy(n => n, StringComparer.OrdinalIgnoreCase)
-                .ToList();
+            var windowed = processes.Where(SafeHasWindow).ToList();
+            return AppRules.FilterApps(
+                windowed.Select(p => p.ProcessName),
+                excludeNames,
+                name => windowed.Where(p => string.Equals(p.ProcessName, name, StringComparison.OrdinalIgnoreCase)).Select(p => p.GetFileName()).FirstOrDefault(path => path is not null));
         }
         finally
         {

@@ -75,9 +75,9 @@ public partial class GameProfilesWindow
             _enabledToggle.IsChecked = profile.Enabled;
             _forceGameSafeToggle.IsChecked = profile.ForceGameSafe;
 
-            FillChips(_easeList, profile.EfficiencyApps, profile);
-            FillChips(_closeList, profile.CloseApps, profile);
-            FillChips(_serviceList, profile.PauseServices, profile);
+            FillChips(_easeList, profile.EfficiencyApps, AppRules.IsProtectedName);
+            FillChips(_closeList, profile.CloseApps, AppRules.IsProtectedName);
+            FillChips(_serviceList, profile.PauseServices, name => ServiceRules.Protected.Contains(name));
         }
         finally
         {
@@ -85,8 +85,11 @@ public partial class GameProfilesWindow
         }
     }
 
-    /// <summary>One removable chip per listed app or service.</summary>
-    private void FillChips(WrapPanel panel, List<string> items, GameProfile profile)
+    /// <summary>
+    /// One removable chip per listed app or service. Entries LLT will never act on (<paramref name="isOffLimits"/>,
+    /// e.g. Windows' own apps added before the picker left them out) are shown in the caution colour and say so.
+    /// </summary>
+    private void FillChips(WrapPanel panel, List<string> items, Func<string, bool> isOffLimits)
     {
         panel.Children.Clear();
         foreach (var item in items.ToList())
@@ -107,8 +110,13 @@ public partial class GameProfilesWindow
                 ShowSelected();
             };
 
+            var offLimits = isOffLimits(item);
+            var label = new TextBlock { Text = item, VerticalAlignment = VerticalAlignment.Center };
+            if (offLimits)
+                label.SetResourceReference(TextBlock.ForegroundProperty, "SystemFillColorCautionBrush");
+
             var chip = new StackPanel { Orientation = Orientation.Horizontal };
-            chip.Children.Add(new TextBlock { Text = item, VerticalAlignment = VerticalAlignment.Center });
+            chip.Children.Add(label);
             chip.Children.Add(remove);
 
             var border = new Border
@@ -117,8 +125,9 @@ public partial class GameProfilesWindow
                 Padding = new Thickness(10, 2, 2, 2),
                 BorderThickness = new Thickness(1),
                 Child = chip,
+                ToolTip = offLimits ? Resource.GameProfiles_NotTouched : null,
             };
-            border.SetResourceReference(Border.BorderBrushProperty, "CardStrokeColorDefaultBrush");
+            border.SetResourceReference(Border.BorderBrushProperty, offLimits ? "SystemFillColorCautionBrush" : "CardStrokeColorDefaultBrush");
             border.SetResourceReference(Border.CornerRadiusProperty, "ControlCornerRadius");
             panel.Children.Add(border);
         }
@@ -229,16 +238,24 @@ public partial class GameProfilesWindow
 
     private async void AddCloseButton_Click(object sender, RoutedEventArgs e) => await ShowAppMenuAsync(_addCloseButton, p => p.CloseApps);
 
-    /// <summary>Running apps with a window (never the game itself), plus "Browse…" for an app that isn't running.</summary>
+    /// <summary>
+    /// Running apps with a window that a profile may touch (never a profiled game, Windows' own apps, or an app
+    /// already in either list), plus "Browse…" for an app that isn't running.
+    /// </summary>
     private async Task ShowAppMenuAsync(Button anchor, Func<GameProfile, List<string>> listOf)
     {
         if (Selected is not { } profile)
             return;
 
+        var exclude = _settings.Store.Profiles.Select(p => p.ExeName)
+            .Concat(profile.EfficiencyApps)
+            .Concat(profile.CloseApps)
+            .ToList();
+
         IReadOnlyList<string> apps;
         try
         {
-            apps = await Task.Run(GameProfileCatalog.RunningApps);
+            apps = await Task.Run(() => GameProfileCatalog.RunningApps(exclude));
         }
         catch (Exception ex)
         {
@@ -253,24 +270,36 @@ public partial class GameProfilesWindow
         browse.Click += async (_, _) =>
         {
             var dialog = new OpenFileDialog { Filter = $"{Resource.GameProfiles_ExeFilter}|*.exe", CheckFileExists = true };
-            if (dialog.ShowDialog(this) == true)
-                await AddAppAsync(profile, list, Path.GetFileNameWithoutExtension(dialog.FileName));
+            if (dialog.ShowDialog(this) != true)
+                return;
+
+            var app = Path.GetFileNameWithoutExtension(dialog.FileName);
+            if (AppRules.IsProtectedName(app) || !AppRules.IsAllowedPath(dialog.FileName) || GameProfileController.IsGame(app, profile.ExeName))
+            {
+                await MessageBoxHelper.ShowAsync(this, Resource.GameProfiles_Title, string.Format(Resource.GameProfiles_AppNotAllowed, app), Resource.OK);
+                return;
+            }
+
+            if (profile.EfficiencyApps.Concat(profile.CloseApps).Contains(app, StringComparer.OrdinalIgnoreCase))
+            {
+                await MessageBoxHelper.ShowAsync(this, Resource.GameProfiles_Title, string.Format(Resource.GameProfiles_AppAlreadyListed, app), Resource.OK);
+                return;
+            }
+
+            await AddItemAsync(profile, list, app);
         };
         menu.Items.Add(browse);
         menu.Items.Add(new Separator());
 
-        foreach (var app in apps.Where(a => !GameProfileController.IsGame(a, profile.ExeName) && !list.Contains(a, StringComparer.OrdinalIgnoreCase)))
+        foreach (var app in apps)
         {
             var item = new MenuItem { Header = app };
-            item.Click += async (_, _) => await AddAppAsync(profile, list, app);
+            item.Click += async (_, _) => await AddItemAsync(profile, list, app);
             menu.Items.Add(item);
         }
 
         menu.IsOpen = true;
     }
-
-    private Task AddAppAsync(GameProfile profile, List<string> list, string app) =>
-        GameProfileController.IsGame(app, profile.ExeName) ? Task.CompletedTask : AddItemAsync(profile, list, app);
 
     /// <summary>Running services; the ones LLT won't pause are shown greyed with the reason.</summary>
     private async void AddServiceButton_Click(object sender, RoutedEventArgs e)

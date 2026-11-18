@@ -390,4 +390,13 @@ Tests: `Tests/Controllers/GPURefreshLoopTests.cs`, 6 new.
 ### Fix after the first laptop check (2026-11-18)
 - **Game profiles → Open… crashed** with "Requested value 'Leaf24' was not found": WPF-UI 2.1.0 has no `Leaf24` icon. `GameProfilesWindow.xaml` now uses `LeafOne24`.
 - XAML icon names are only looked up when a window opens, so the build and tests didn't catch it. The new `Tests/UI/XamlIconTests.cs` checks every literal `Icon`/`Symbol` name in the XAML against WPF-UI's list; it failed on exactly this name before the fix.
+- **The app picker offered Windows' own apps.** Your profile showed `explorer` and `StartMenuExperienceHost`; LLT would have refused them at game start, but they shouldn't be offered.
+  - New `LenovoLegionToolkit.Lib/GameProfiles/AppRules.cs`: Windows' shell and system process names, plus LLT itself, are never eased or closed, whatever their path; nothing in the Windows folder is either.
+  - `GameProfileCatalog.RunningApps` drops those names, profiled games and apps already listed **before** opening anything, then drops Windows-folder apps.
+  - "Browse…" refuses them with a message.
+  - Entries already saved show in the caution colour with "LLT won't touch this".
+- **An app listed both to ease and to close** is now only closed, not eased first.
+- Tests:
+  - two new `GameProfileControllerTests` (shell apps by name, an app in both lists), both failing before the fix;
+  - `Tests/GameProfiles/AppRulesTests.cs` (names, Windows-folder paths, and that a game's name is never looked up).
 - **ITS mode not on the dashboard:** expected. The ITS card is only for laptops with Lenovo's Intelligent Thermal Solution (IdeaPad, ThinkBook, Yoga, Slim and similar). The LOQ 15IRH8 uses power modes and has no ITS service. The Customize Dashboard list shows every card for every laptop.

@@ -13102,5 +13102,32 @@ namespace LenovoLegionToolkit.WPF.Resources {
                 return ResourceManager.GetString("Help_Notifications_GameProfile_What", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to LLT won&apos;t touch this: it is part of Windows (or LLT itself). Remove it from the list..
+        /// </summary>
+        public static string GameProfiles_NotTouched {
+            get {
+                return ResourceManager.GetString("GameProfiles_NotTouched", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} can&apos;t be added: it is part of Windows, LLT itself, or the game..
+        /// </summary>
+        public static string GameProfiles_AppNotAllowed {
+            get {
+                return ResourceManager.GetString("GameProfiles_AppNotAllowed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} is already in one of this game&apos;s lists..
+        /// </summary>
+        public static string GameProfiles_AppAlreadyListed {
+            get {
+                return ResourceManager.GetString("GameProfiles_AppAlreadyListed", resourceCulture);
+            }
+        }
     }
 }

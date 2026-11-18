@@ -198,6 +198,44 @@ public sealed class GameProfileControllerTests : IDisposable
         Assert.Equal(3, events.Single().Problems);
     }
 
+    /// <summary>Windows' own shell processes are never eased or closed, even if one is reported outside the Windows folder.</summary>
+    [Fact]
+    public async Task WindowsShellApps_AreNeverTouched_WhateverTheirPath()
+    {
+        var system = new ScriptedSystem();
+        system.AddApp(300, "explorer");                   // the scripted path is a user folder
+        system.AddApp(301, "StartMenuExperienceHost");
+        var (controller, _, _) = Create(system, Profile(p =>
+        {
+            p.EfficiencyApps = ["explorer"];
+            p.CloseApps = ["StartMenuExperienceHost"];
+        }));
+
+        await controller.ProcessStartedAsync("game", GamePid);
+
+        Assert.Empty(system.Calls);
+        Assert.DoesNotContain(300, system.TouchedPids);
+        Assert.DoesNotContain(301, system.TouchedPids);
+    }
+
+    /// <summary>An app listed both to ease and to close is only closed: easing it first would be pointless.</summary>
+    [Fact]
+    public async Task AnAppInBothLists_IsClosed_NotEasedFirst()
+    {
+        var system = new ScriptedSystem();
+        system.AddApp(100, "comet");
+        var (controller, session, _) = Create(system, Profile(p =>
+        {
+            p.EfficiencyApps = ["comet"];
+            p.CloseApps = ["COMET"];
+        }));
+
+        await controller.ProcessStartedAsync("game", GamePid);
+
+        Assert.Equal(["close comet"], system.Calls);
+        Assert.Empty(session.Store.EasedApps);
+    }
+
     [Fact]
     public async Task AnAppAlreadyInEfficiencyMode_KeepsIt_AndOnlyItsPriorityIsPutBack()
     {
