@@ -32,7 +32,7 @@ public partial class SafetyReportWindow
         _statusText.Text = string.Empty;
         try
         {
-            var inputs = await Task.Run(SafetyReportCollector.Collect);
+            var inputs = await Task.Run(SafetyReportCollector.CollectAsync);
             _rows = SafetyReport.Build(inputs);
             _generated = DateTime.Now;
             ShowRows();

@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using LenovoLegionToolkit.Lib;
 using LenovoLegionToolkit.Lib.Controllers;
+using LenovoLegionToolkit.Lib.Extensions;
 using LenovoLegionToolkit.Lib.Settings;
 using LenovoLegionToolkit.WPF.Resources;
 using LenovoLegionToolkit.WPF.Utils;
@@ -25,7 +26,11 @@ public class SafetyReportTests
         new PluginInfo(ProgramFolderProtected: true, Loaded: 0, LegacyFilesFound: 0),
         AutorunState.Enabled,
         CliEnabled: false,
-        new SensorsInfo(Enabled: false, PawnIOState.NotInstalled));
+        new SensorsInfo(Enabled: false, PawnIOState.NotInstalled),
+        new PowerModeInfo(Supported: true, PowerModeState.Balance),
+        new SettingsFilesInfo([new SettingsFile("settings.json", 2048, Now.AddDays(-3))], Now));
+
+    private static readonly DateTime Now = new(2026, 11, 18, 18, 0, 0, DateTimeKind.Utc);
 
     private static SafetyRow Row(SafetyInputs inputs, string item) => SafetyReport.Build(inputs).Single(r => r.Item == item);
 
@@ -39,7 +44,76 @@ public class SafetyReportTests
     public void EverySection_IsPresent_InTheOrderOfSafetyMd()
     {
         var sections = SafetyReport.Build(Calm()).Select(r => r.Section).Distinct();
-        Assert.Equal([SafetySection.Protections, SafetySection.InEffect, SafetySection.AppSecurity], sections);
+        Assert.Equal([SafetySection.Protections, SafetySection.InEffect, SafetySection.AppSecurity, SafetySection.SettingsFiles], sections);
+    }
+
+    // ---- Power mode ----
+
+    [Fact]
+    public void ThePowerMode_IsTheFirstRowOfWhatIsInEffect()
+    {
+        var first = SafetyReport.Build(Calm()).First(r => r.Section == SafetySection.InEffect);
+
+        Assert.Equal(Resource.SafetyReport_PowerMode, first.Item);
+        Assert.Equal(PowerModeState.Balance.GetDisplayName(), first.State);
+    }
+
+    [Fact]
+    public void InCustomMode_ThePresetSaysItIsInUse()
+    {
+        var preset = new GodModeSettings.GodModeSettingsStore.Preset { Name = "Gaming" };
+        var custom = Calm() with { GodMode = new GodModeInfo(preset), PowerMode = new PowerModeInfo(true, PowerModeState.GodMode) };
+        var balance = Calm() with { GodMode = new GodModeInfo(preset) };
+
+        Assert.Equal(string.Format(Resource.SafetyReport_GodMode_InUse, "Gaming"), Row(custom, Resource.SafetyReport_GodMode).State);
+        Assert.Equal(string.Format(Resource.SafetyReport_GodMode_Preset, "Gaming"), Row(balance, Resource.SafetyReport_GodMode).State);
+    }
+
+    [Fact]
+    public void APowerModeThatCouldNotBeRead_OrIsNotAvailable_SaysWhich()
+    {
+        Assert.Equal(Resource.SafetyReport_Unknown, Row(Calm() with { PowerMode = null }, Resource.SafetyReport_PowerMode).State);
+        Assert.Equal(Resource.SafetyReport_PowerMode_NotAvailable, Row(Calm() with { PowerMode = new PowerModeInfo(false, null) }, Resource.SafetyReport_PowerMode).State);
+    }
+
+    // ---- Settings files ----
+
+    private static SafetyInputs WithFiles(params SettingsFile[] files) => Calm() with { SettingsFiles = new SettingsFilesInfo(files, Now) };
+
+    [Fact]
+    public void EverySettingsFile_IsListed_WithItsSize()
+    {
+        var rows = SafetyReport.Build(WithFiles(new("godmode.json", 512, Now.AddHours(-1)), new("lang", 2, Now.AddDays(-30))))
+            .Where(r => r.Section == SafetySection.SettingsFiles)
+            .ToArray();
+
+        Assert.Equal(["godmode.json", "lang"], rows.Select(r => r.Item));
+        Assert.StartsWith("512 B", rows[0].State);
+        Assert.DoesNotContain(rows, r => r.Attention);
+    }
+
+    [Theory]
+    [InlineData("godmode_backup_20261118120000000.json", 0)]   // LLT found godmode.json unreadable and kept this copy
+    [InlineData("fake_mi.json", 0)]                              // fake machine information in use
+    [InlineData("settings.json.0a1b2c.tmp", 48)]                 // left over from an interrupted save, 2 days ago
+    public void FilesWorthALook_AreFlagged(string name, int hoursOld)
+    {
+        var row = SafetyReport.Build(WithFiles(new SettingsFile(name, 100, Now.AddHours(-hoursOld - 1)))).Single(r => r.Item == name);
+        Assert.True(row.Attention);
+    }
+
+    [Fact]
+    public void AFreshTemporaryFile_IsNotFlagged_ItMayBeASaveInProgress()
+    {
+        var row = SafetyReport.Build(WithFiles(new SettingsFile("osd.json.0a1b2c.tmp", 100, Now.AddMinutes(-1)))).Single(r => r.Item == "osd.json.0a1b2c.tmp");
+        Assert.False(row.Attention);
+    }
+
+    [Fact]
+    public void SettingsFilesThatCouldNotBeListed_SaySo()
+    {
+        var row = SafetyReport.Build(Calm() with { SettingsFiles = null }).Single(r => r.Section == SafetySection.SettingsFiles);
+        Assert.Equal(Resource.SafetyReport_Unknown, row.State);
     }
 
     [Fact]

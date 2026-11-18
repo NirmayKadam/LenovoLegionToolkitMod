@@ -1,8 +1,10 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using LenovoLegionToolkit.Lib;
 using LenovoLegionToolkit.Lib.Controllers;
+using LenovoLegionToolkit.Lib.Features;
 using LenovoLegionToolkit.Lib.GameProfiles;
 using LenovoLegionToolkit.Lib.Settings;
 using LenovoLegionToolkit.Lib.System;
@@ -13,14 +15,19 @@ namespace LenovoLegionToolkit.WPF.Utils;
 
 /// <summary>
 /// Gathers what the safety report shows from settings, in-memory state, the process list, the registry, Task
-/// Scheduler and the settings folder's permissions. It calls no hardware driver and changes nothing. In particular
+/// Scheduler, the settings folder's permissions and file list (names, sizes, dates; no contents), and one
+/// read-only Lenovo WMI query for the power mode. It calls no hardware driver and changes nothing. In particular
 /// it avoids GPUOverclockController.GetState() (its first call in a run can write settings),
 /// GodModeController.GetActivePresetAsync() (it can save a default preset) and the sensors' IsSupportedAsync() (it
 /// starts the driver). Each part is read on its own; one that fails is logged and shown as unknown.
 /// </summary>
 public static class SafetyReportCollector
 {
-    public static SafetyInputs Collect() => new(
+    public static async Task<SafetyInputs> CollectAsync()
+    {
+        var powerMode = await ReadPowerModeAsync().ConfigureAwait(false);
+
+        return new(
         Read("game-safe mode", () => new GameSafeInfo(
             IoCContainer.Resolve<ApplicationSettings>().Store.GameSafeMode,
             IoCContainer.Resolve<GameSafeMode>().IsActive,
@@ -83,7 +90,39 @@ public static class SafetyReportCollector
 
         ReadValue("CLI", () => IoCContainer.Resolve<IntegrationsSettings>().Store.CLI),
 
-        Read("hardware sensors", () => new SensorsInfo(IoCContainer.Resolve<ApplicationSettings>().Store.EnableHardwareSensors, PawnIOHelper.GetPawnIOState())));
+        Read("hardware sensors", () => new SensorsInfo(IoCContainer.Resolve<ApplicationSettings>().Store.EnableHardwareSensors, PawnIOHelper.GetPawnIOState())),
+
+        powerMode,
+
+        Read("settings files", () =>
+        {
+            var files = new DirectoryInfo(Folders.Settings).GetFiles()
+                .Select(f => new SettingsFile(f.Name, f.Length, f.LastWriteTimeUtc))
+                .ToArray();
+            return new SettingsFilesInfo(files, DateTime.UtcNow);
+        }));
+    }
+
+    /// <summary>
+    /// The current power mode: one read-only query of the Lenovo WMI interface, the same one the dashboard makes
+    /// (game-safe mode allows it). Null when it couldn't be read.
+    /// </summary>
+    private static async Task<PowerModeInfo?> ReadPowerModeAsync()
+    {
+        try
+        {
+            var feature = IoCContainer.Resolve<PowerModeFeature>();
+            if (!await feature.IsSupportedAsync().ConfigureAwait(false))
+                return new PowerModeInfo(false, null);
+
+            return new PowerModeInfo(true, await feature.GetStateAsync().ConfigureAwait(false));
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Safety report: couldn't read the power mode.", ex);
+            return null;
+        }
+    }
 
     private static T? Read<T>(string what, Func<T> read) where T : class
     {

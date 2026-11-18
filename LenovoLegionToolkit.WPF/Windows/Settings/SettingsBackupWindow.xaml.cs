@@ -9,6 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
+using LenovoLegionToolkit.Lib;
 using LenovoLegionToolkit.Lib.Automation.Utils;
 using LenovoLegionToolkit.Lib.Settings;
 using LenovoLegionToolkit.Lib.Utils;
@@ -138,7 +139,9 @@ public partial class SettingsBackupWindow
                 var destPath = Path.Combine(destDir, item.FileName);
                 File.Copy(item.FullPath, destPath, true);
             }
-            
+
+            await WriteManifestAsync(destDir);
+
             await SnackbarHelper.ShowAsync(Resource.SettingsBackupWindow_Title, Resource.SettingsBackupWindow_BackupSuccess, SnackbarType.Success);
         }
         catch (Exception ex)
@@ -146,6 +149,55 @@ public partial class SettingsBackupWindow
             Log.Instance.Trace($"Backup failed", ex);
              await SnackbarHelper.ShowAsync(Resource.SettingsBackupWindow_Title, ex.Message, SnackbarType.Error);
         }
+    }
+
+    /// <summary>
+    /// Notes which LLT and laptop model made the backup. A backup without the note still restores; failing to
+    /// write it is logged and doesn't fail the backup.
+    /// </summary>
+    private static async Task WriteManifestAsync(string folder)
+    {
+        try
+        {
+            var mi = await Compatibility.GetMachineInformationAsync();
+            var version = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? string.Empty;
+            BackupManifest.Write(folder, new BackupManifest(version, mi.MachineType ?? string.Empty, mi.Model ?? string.Empty, DateTime.UtcNow));
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Couldn't write the backup note.", ex);
+        }
+    }
+
+    /// <summary>
+    /// When the backup was made on another laptop model, says so and asks. True to go on. A backup without a note
+    /// (made before notes existed) goes on without asking.
+    /// </summary>
+    private async Task<bool> ConfirmOtherModelAsync(string folder)
+    {
+        var manifest = BackupManifest.Read(folder);
+        if (manifest is null)
+            return true;
+
+        MachineInformation mi;
+        try
+        {
+            mi = await Compatibility.GetMachineInformationAsync();
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Couldn't read this laptop's model for the backup check.", ex);
+            return true;
+        }
+
+        if (!BackupManifest.IsFromAnotherModel(manifest, mi.MachineType, mi.Model))
+            return true;
+
+        return await MessageBoxHelper.ShowAsync(this,
+            Resource.SettingsBackupWindow_OtherModel_Title,
+            string.Format(Resource.SettingsBackupWindow_OtherModel_Message, manifest.Model, manifest.MachineType, mi.Model, mi.MachineType),
+            Resource.SettingsBackupWindow_Risk_Continue,
+            Resource.Cancel);
     }
 
     private static string BuildRiskMessage(BackupInspector.Result risks)
@@ -199,6 +251,9 @@ public partial class SettingsBackupWindow
         try
         {
             var sourceDir = dialog.SelectedPath;
+
+            if (!await ConfirmOtherModelAsync(sourceDir))
+                return;
 
             // A shared backup can make the elevated app run programs, type keystrokes or change startup
             // options. Show what's inside and let the user decide before anything is copied.

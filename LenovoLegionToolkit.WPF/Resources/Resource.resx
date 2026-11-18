@@ -5968,7 +5968,7 @@ When the game ends, LLT puts the apps&apos; priority and the services back. It n
     <value>Safety report</value>
   </data>
   <data name="SafetyReport_Message" xml:space="preserve">
-    <value>What LLT is changing on this laptop right now, and which protections are on. Read-only: nothing here changes anything, and no hardware driver is called.</value>
+    <value>What LLT is changing on this laptop right now, and which protections are on. Read-only: nothing here changes anything. It reads LLT's own settings and state, and asks the Lenovo WMI interface once for the current power mode; no hardware driver (PawnIO, NVIDIA) is called.</value>
   </data>
   <data name="SafetyReport_Refresh" xml:space="preserve">
     <value>Refresh</value>
@@ -6178,12 +6178,45 @@ When the game ends, LLT puts the apps&apos; priority and the services back. It n
     <value>Lists, read-only, what LLT is changing now (GPU overclock, Custom mode, fan curves, game profile) and which protections are on (game-safe mode, the GPU crash guard, the protected settings folder, plugins).</value>
   </data>
   <data name="Help_Settings_SafetyReport_When" xml:space="preserve">
-    <value>To check what LLT does to the laptop, or to paste into a bug report with Copy as text. Opening it changes nothing and calls no hardware driver.</value>
+    <value>To check what LLT does to the laptop, or to paste into a bug report with Copy as text. Opening it changes nothing; it calls no hardware driver and only reads the power mode through Lenovo WMI.</value>
   </data>
   <data name="AboutPage_SafetyReport" xml:space="preserve">
     <value>Safety report</value>
   </data>
   <data name="SafetyReport_CopyFailed" xml:space="preserve">
     <value>Couldn&apos;t copy: the clipboard is in use by another app. Try again.</value>
+  </data>
+  <data name="SettingsBackupWindow_OtherModel_Title" xml:space="preserve">
+    <value>Backup from another laptop model</value>
+  </data>
+  <data name="SettingsBackupWindow_OtherModel_Message" xml:space="preserve">
+    <value>This backup was made on {0} ({1}); this laptop is {2} ({3}). Custom mode limits and fan curves may not fit this laptop. LLT still checks every value against this laptop&apos;s own ranges before sending it.</value>
+  </data>
+  <data name="SafetyReport_PowerMode" xml:space="preserve">
+    <value>Power mode</value>
+  </data>
+  <data name="SafetyReport_PowerMode_NotAvailable" xml:space="preserve">
+    <value>Not available on this laptop</value>
+  </data>
+  <data name="SafetyReport_GodMode_InUse" xml:space="preserve">
+    <value>{0}: in use now</value>
+  </data>
+  <data name="SafetyReport_Section_SettingsFiles" xml:space="preserve">
+    <value>Settings files</value>
+  </data>
+  <data name="SafetyReport_File_Size" xml:space="preserve">
+    <value>{0}, changed {1}</value>
+  </data>
+  <data name="SafetyReport_File_Backup" xml:space="preserve">
+    <value>{0}, changed {1}. LLT found this settings file unreadable and kept this copy</value>
+  </data>
+  <data name="SafetyReport_File_StaleTemp" xml:space="preserve">
+    <value>{0}, changed {1}. Left over from a save that was interrupted (crash or power loss)</value>
+  </data>
+  <data name="SafetyReport_File_FakeMachine" xml:space="preserve">
+    <value>{0}, changed {1}. Fake machine information is in use: LLT treats this laptop as the model described in this file</value>
+  </data>
+  <data name="SafetyReport_Files_None" xml:space="preserve">
+    <value>No files</value>
   </data>
 </root>

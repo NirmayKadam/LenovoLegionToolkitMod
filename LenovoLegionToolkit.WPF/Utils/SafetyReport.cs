@@ -15,6 +15,7 @@ public enum SafetySection
     Protections,
     InEffect,
     AppSecurity,
+    SettingsFiles,
 }
 
 /// <summary>One line of the report. <see cref="Attention"/> marks something worth a look (shown in the caution colour).</summary>
@@ -36,6 +37,14 @@ public sealed record PluginInfo(bool ProgramFolderProtected, int Loaded, int Leg
 
 public sealed record SensorsInfo(bool Enabled, PawnIOState PawnIO);
 
+/// <summary>The power mode now; <see cref="Supported"/> is false on laptops without Lenovo power modes.</summary>
+public sealed record PowerModeInfo(bool Supported, PowerModeState? Current);
+
+/// <summary>One file in the settings folder: name, size and when it last changed (no contents).</summary>
+public sealed record SettingsFile(string Name, long Size, DateTime LastWriteUtc);
+
+public sealed record SettingsFilesInfo(IReadOnlyList<SettingsFile> Files, DateTime NowUtc);
+
 /// <summary>
 /// What the report is built from. Each part is read on its own; null means it couldn't be read, and the report
 /// says so instead of guessing.
@@ -50,7 +59,9 @@ public sealed record SafetyInputs(
     PluginInfo? Plugins,
     AutorunState? Autostart,
     bool? CliEnabled,
-    SensorsInfo? Sensors);
+    SensorsInfo? Sensors,
+    PowerModeInfo? PowerMode,
+    SettingsFilesInfo? SettingsFiles);
 
 /// <summary>
 /// The in-app safety report: what LLT is changing on this laptop now and which protections are on, in the order
@@ -67,8 +78,9 @@ public static class SafetyReport
         rows.Add(CrashGuardRow(inputs.Gpu));
 
         // ---- In effect now ----
+        rows.Add(PowerModeRow(inputs.PowerMode));
         rows.Add(GpuOverclockRow(inputs.Gpu));
-        rows.AddRange(GodModeRows(inputs.GodMode));
+        rows.AddRange(GodModeRows(inputs.GodMode, inputs.PowerMode?.Current == PowerModeState.GodMode));
         rows.AddRange(FanCurveRows(inputs.FanCurves));
         rows.Add(GameProfileRow(inputs.GameProfile));
 
@@ -83,6 +95,9 @@ public static class SafetyReport
             null => Resource.SafetyReport_Unknown,
         }));
         rows.Add(SensorsRow(inputs.Sensors));
+
+        // ---- Settings files ----
+        rows.AddRange(SettingsFileRows(inputs.SettingsFiles));
 
         return rows;
     }
@@ -108,6 +123,7 @@ public static class SafetyReport
     {
         SafetySection.Protections => Resource.SafetyReport_Section_Protections,
         SafetySection.InEffect => Resource.SafetyReport_Section_InEffect,
+        SafetySection.SettingsFiles => Resource.SafetyReport_Section_SettingsFiles,
         _ => Resource.SafetyReport_Section_AppSecurity,
     };
 
@@ -167,7 +183,55 @@ public static class SafetyReport
         return new(section, Resource.SafetyReport_GpuOverclock, string.Join(", ", parts));
     }
 
-    private static IEnumerable<SafetyRow> GodModeRows(GodModeInfo? info)
+    private static SafetyRow PowerModeRow(PowerModeInfo? info)
+    {
+        const SafetySection section = SafetySection.InEffect;
+        return info switch
+        {
+            null or { Supported: true, Current: null } => new(section, Resource.SafetyReport_PowerMode, Resource.SafetyReport_Unknown),
+            { Supported: false } => new(section, Resource.SafetyReport_PowerMode, Resource.SafetyReport_PowerMode_NotAvailable),
+            { Current: { } mode } => new(section, Resource.SafetyReport_PowerMode, mode.GetDisplayName()),
+        };
+    }
+
+    private static IEnumerable<SafetyRow> SettingsFileRows(SettingsFilesInfo? info)
+    {
+        const SafetySection section = SafetySection.SettingsFiles;
+        if (info is null)
+        {
+            yield return new(section, Resource.SafetyReport_Section_SettingsFiles, Resource.SafetyReport_Unknown);
+            yield break;
+        }
+
+        if (info.Files.Count == 0)
+        {
+            yield return new(section, Resource.SafetyReport_Section_SettingsFiles, Resource.SafetyReport_Files_None);
+            yield break;
+        }
+
+        foreach (var file in info.Files.OrderBy(f => f.Name, StringComparer.OrdinalIgnoreCase))
+        {
+            var size = FormatSize(file.Size);
+            var changed = file.LastWriteUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm");
+            var name = file.Name;
+
+            if (name.Equals("fake_mi.json", StringComparison.OrdinalIgnoreCase))
+                yield return new(section, name, string.Format(Resource.SafetyReport_File_FakeMachine, size, changed), Attention: true);
+            else if (name.Contains("_backup_", StringComparison.OrdinalIgnoreCase) && name.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+                yield return new(section, name, string.Format(Resource.SafetyReport_File_Backup, size, changed), Attention: true);
+            else if (name.EndsWith(".tmp", StringComparison.OrdinalIgnoreCase) && info.NowUtc - file.LastWriteUtc > StaleTempAge)
+                yield return new(section, name, string.Format(Resource.SafetyReport_File_StaleTemp, size, changed), Attention: true);
+            else
+                yield return new(section, name, string.Format(Resource.SafetyReport_File_Size, size, changed));
+        }
+    }
+
+    /// <summary>A temporary file this old is left over from an interrupted save (newer ones may be a save in progress).</summary>
+    private static readonly TimeSpan StaleTempAge = TimeSpan.FromDays(1);
+
+    private static string FormatSize(long bytes) => bytes < 1024 ? $"{bytes} B" : $"{bytes / 1024.0:0.#} KB";
+
+    private static IEnumerable<SafetyRow> GodModeRows(GodModeInfo? info, bool inUseNow)
     {
         const SafetySection section = SafetySection.InEffect;
         if (info is null)
@@ -182,7 +246,9 @@ public static class SafetyReport
             yield break;
         }
 
-        yield return new(section, Resource.SafetyReport_GodMode, string.Format(Resource.SafetyReport_GodMode_Preset, preset.Name));
+        yield return new(section, Resource.SafetyReport_GodMode, inUseNow
+            ? string.Format(Resource.SafetyReport_GodMode_InUse, preset.Name)
+            : string.Format(Resource.SafetyReport_GodMode_Preset, preset.Name));
 
         var values = new List<string>();
         void Add(StepperValue? value, string format)

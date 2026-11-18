@@ -13464,7 +13464,7 @@ namespace LenovoLegionToolkit.WPF.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to What LLT is changing on this laptop right now, and which protections are on. Read-only: nothing here changes anything, and no hardware driver is called..
+        ///   Looks up a localized string similar to What LLT is changing on this laptop right now, and which protections are on. Read-only: nothing here changes anything. It reads LLT's own settings and state, and asks the Lenovo WMI interface once for the current power mode; no hardware driver (PawnIO, NVIDIA) is called..
         /// </summary>
         public static string SafetyReport_Message {
             get {
@@ -14094,7 +14094,7 @@ namespace LenovoLegionToolkit.WPF.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to To check what LLT does to the laptop, or to paste into a bug report with Copy as text. Opening it changes nothing and calls no hardware driver..
+        ///   Looks up a localized string similar to To check what LLT does to the laptop, or to paste into a bug report with Copy as text. Opening it changes nothing; it calls no hardware driver and only reads the power mode through Lenovo WMI..
         /// </summary>
         public static string Help_Settings_SafetyReport_When {
             get {
@@ -14117,6 +14117,105 @@ namespace LenovoLegionToolkit.WPF.Resources {
         public static string SafetyReport_CopyFailed {
             get {
                 return ResourceManager.GetString("SafetyReport_CopyFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Backup from another laptop model.
+        /// </summary>
+        public static string SettingsBackupWindow_OtherModel_Title {
+            get {
+                return ResourceManager.GetString("SettingsBackupWindow_OtherModel_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This backup was made on {0} ({1}); this laptop is {2} ({3}). Custom mode limits and fan curves may not fit this laptop. LLT still checks every value against this laptop&apos;s own ranges before sendin[rest of string was truncated].
+        /// </summary>
+        public static string SettingsBackupWindow_OtherModel_Message {
+            get {
+                return ResourceManager.GetString("SettingsBackupWindow_OtherModel_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Power mode.
+        /// </summary>
+        public static string SafetyReport_PowerMode {
+            get {
+                return ResourceManager.GetString("SafetyReport_PowerMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not available on this laptop.
+        /// </summary>
+        public static string SafetyReport_PowerMode_NotAvailable {
+            get {
+                return ResourceManager.GetString("SafetyReport_PowerMode_NotAvailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: in use now.
+        /// </summary>
+        public static string SafetyReport_GodMode_InUse {
+            get {
+                return ResourceManager.GetString("SafetyReport_GodMode_InUse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Settings files.
+        /// </summary>
+        public static string SafetyReport_Section_SettingsFiles {
+            get {
+                return ResourceManager.GetString("SafetyReport_Section_SettingsFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}, changed {1}.
+        /// </summary>
+        public static string SafetyReport_File_Size {
+            get {
+                return ResourceManager.GetString("SafetyReport_File_Size", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}, changed {1}. LLT found this settings file unreadable and kept this copy.
+        /// </summary>
+        public static string SafetyReport_File_Backup {
+            get {
+                return ResourceManager.GetString("SafetyReport_File_Backup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}, changed {1}. Left over from a save that was interrupted (crash or power loss).
+        /// </summary>
+        public static string SafetyReport_File_StaleTemp {
+            get {
+                return ResourceManager.GetString("SafetyReport_File_StaleTemp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}, changed {1}. Fake machine information is in use: LLT treats this laptop as the model described in this file.
+        /// </summary>
+        public static string SafetyReport_File_FakeMachine {
+            get {
+                return ResourceManager.GetString("SafetyReport_File_FakeMachine", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No files.
+        /// </summary>
+        public static string SafetyReport_Files_None {
+            get {
+                return ResourceManager.GetString("SafetyReport_Files_None", resourceCulture);
             }
         }
     }

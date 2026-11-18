@@ -512,3 +512,29 @@ New strings are in English only (`Resource.resx`). Other languages show them in 
 
   The lines were then put back.
 - Not verified on the laptop yet. Custom mode should behave exactly as before.
+
+## Round 8: safety report extras, backup laptop model (2026-11-18)
+- **Power mode in the safety report:**
+  - It is the first row of "In effect now", read with one read-only Lenovo WMI query, the same one the dashboard makes; game-safe mode allows it.
+  - Laptops without Lenovo power modes show "Not available"; a failed read shows "Couldn't read this".
+  - The Custom mode preset says "in use now" while Custom mode is on.
+  - The report's message and hover help now describe that query.
+- **Settings files in the safety report:**
+  - A new section lists every file in the settings folder with its size and when it changed. Only names, sizes and dates are read, never contents.
+  - **Flagged:**
+    - `*_backup_*.json`: LLT found that settings file unreadable and kept a copy;
+    - a `.tmp` file more than a day old: left over from an interrupted save;
+    - `fake_mi.json`: fake machine information in use.
+  - `SafetyReportCollector.CollectAsync` replaces `Collect`.
+- **Backup laptop model:**
+  - `LenovoLegionToolkit.Lib/Utils/BackupManifest.cs` (new): `backup_info.json` holds the LLT version, machine type, model name and time made. There is no serial number.
+  - **Saving:** the Settings backup writes it next to the copied files. If it can't be written, that is logged and the backup still succeeds.
+  - **Restoring:** a backup from another model warns first, naming both models, with Continue or Cancel. Only then does the existing "what's inside" check run.
+    - The machine type decides; the model name is used only when a type is missing.
+    - An old backup without the note restores as before.
+    - The note is never copied into the settings folder.
+- Tests:
+  - `Tests/Settings/BackupManifestTests.cs` (new): write/read, no serial number, missing or unreadable note, the model comparison, never restored.
+  - `Tests/UI/SafetyReportTests.cs` additions: power mode row, "in use now", not available or unreadable, file list and sizes, flags, a fresh `.tmp` not flagged, an unreadable file list.
+- **Test changed on purpose:** `SafetyReportTests.EverySection_IsPresent_InTheOrderOfSafetyMd` now expects four sections, because the "Settings files" section is new.
+- Not verified on the laptop yet.

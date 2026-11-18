@@ -2,7 +2,9 @@
 
 This page lists every kind of change Lenovo Legion Toolkit (LLT) can make to the laptop's firmware, GPU and boot files, whether it survives a restart, what limits the value, and how to get back.
 
-To see the current state of these rows on your laptop, open **Safety report** (Settings → App behaviour, or the About page). It is read-only, changes nothing and calls no hardware driver. **Copy as text** gives a version to paste into a bug report.
+To see the current state of these rows on your laptop, open **Safety report** (Settings → App behaviour, or the About page). It is read-only and changes nothing. It reads LLT's own settings and state and the settings folder's file list (names, sizes, dates), and makes one read-only Lenovo WMI query for the current power mode, the same one the dashboard makes. It calls no hardware driver (PawnIO, NVIDIA). **Copy as text** gives a version to paste into a bug report.
+
+Settings backups now include `backup_info.json`: the LLT version and laptop model (machine type and name; no serial number) that made them. Restoring a backup made on another model warns first. LLT checks every Custom mode and fan value against this laptop's own ranges anyway.
 
 It was written by reading the code (2026-11-13). **Whether the firmware forgets a value on restart has not been checked on a laptop yet**; rows that depend on that say "expected".
 
