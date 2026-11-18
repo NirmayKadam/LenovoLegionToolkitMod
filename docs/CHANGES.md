@@ -386,3 +386,8 @@ Tests: `Tests/Controllers/GPURefreshLoopTests.cs`, 6 new.
 
   These are new features, so no old bug was shown failing first.
 - Not verified on the laptop yet.
+
+### Fix after the first laptop check (2026-11-18)
+- **Game profiles → Open… crashed** with "Requested value 'Leaf24' was not found": WPF-UI 2.1.0 has no `Leaf24` icon. `GameProfilesWindow.xaml` now uses `LeafOne24`.
+- XAML icon names are only looked up when a window opens, so the build and tests didn't catch it. The new `Tests/UI/XamlIconTests.cs` checks every literal `Icon`/`Symbol` name in the XAML against WPF-UI's list; it failed on exactly this name before the fix.
+- **ITS mode not on the dashboard:** expected. The ITS card is only for laptops with Lenovo's Intelligent Thermal Solution (IdeaPad, ThinkBook, Yoga, Slim and similar). The LOQ 15IRH8 uses power modes and has no ITS service. The Customize Dashboard list shows every card for every laptop.

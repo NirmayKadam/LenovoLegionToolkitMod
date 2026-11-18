@@ -111,7 +111,7 @@
                                 Click="ForceGameSafeToggle_Click" />
                         </custom:CardControl>
 
-                        <custom:CardControl Margin="0,0,0,8" Icon="Leaf24">
+                        <custom:CardControl Margin="0,0,0,8" Icon="LeafOne24">
                             <custom:CardControl.Header>
                                 <controls:CardHeaderControl
                                     Title="{x:Static resources:Resource.GameProfiles_Ease_Title}"
