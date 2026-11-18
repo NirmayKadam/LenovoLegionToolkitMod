@@ -22,13 +22,25 @@ namespace LenovoLegionToolkit.Lib.Controllers.GodMode;
 /// </summary>
 public class FanTableNotKeptException(string message) : Exception(message);
 
-public class GodModeController(
-    GodModeSettings settings,
-    VantageDisabler vantageDisabler,
-    LegionZoneDisabler legionZoneDisabler,
-    LegionSpaceDisabler legionSpaceDisabler)
-    : IGodModeController
+public class GodModeController : IGodModeController
 {
+    private readonly GodModeSettings settings;
+    private readonly IGodModeFirmware firmware;
+
+    public GodModeController(
+        GodModeSettings settings,
+        VantageDisabler vantageDisabler,
+        LegionZoneDisabler legionZoneDisabler,
+        LegionSpaceDisabler legionSpaceDisabler)
+        : this(settings, new WmiGodModeFirmware(vantageDisabler, legionZoneDisabler, legionSpaceDisabler)) { }
+
+    /// <summary>Takes the laptop side directly, so tests can script it and record what is sent.</summary>
+    internal GodModeController(GodModeSettings settings, IGodModeFirmware firmware)
+    {
+        this.settings = settings;
+        this.firmware = firmware;
+    }
+
     private const uint CAPABILITY_ID_MASK = 0xFFFF00FF;
     private const int BIOS_OC_MODE_ENABLED = 3;
 
@@ -200,7 +212,7 @@ public class GodModeController(
 
     private async Task ApplyStateLegacyAsync()
     {
-        if (await legionZoneDisabler.GetStatusAsync().ConfigureAwait(false) == SoftwareStatus.Enabled)
+        if (await firmware.GetLegionZoneStatusAsync().ConfigureAwait(false) == SoftwareStatus.Enabled)
         {
             Log.Instance.Trace($"Can't correctly apply state when Legion Zone is running.");
             return;
@@ -330,7 +342,7 @@ public class GodModeController(
     {
         var mi = await GetMachineInformationAsync().ConfigureAwait(false);
 
-        if (await vantageDisabler.GetStatusAsync().ConfigureAwait(false) == SoftwareStatus.Enabled)
+        if (await firmware.GetVantageStatusAsync().ConfigureAwait(false) == SoftwareStatus.Enabled)
         {
             Log.Instance.Trace($"Can't correctly apply state when Vantage is running.");
             return;
@@ -340,14 +352,14 @@ public class GodModeController(
         {
             if (mi.SmartFanVersion >= 8)
             {
-                if (await legionSpaceDisabler.GetStatusAsync().ConfigureAwait(false) == SoftwareStatus.Enabled)
+                if (await firmware.GetLegionSpaceStatusAsync().ConfigureAwait(false) == SoftwareStatus.Enabled)
                 {
                     Log.Instance.Trace($"Can't correctly apply state when Legion Space is running.");
                     return;
                 }
             }
 
-            if (await legionZoneDisabler.GetStatusAsync().ConfigureAwait(false) == SoftwareStatus.Enabled)
+            if (await firmware.GetLegionZoneStatusAsync().ConfigureAwait(false) == SoftwareStatus.Enabled)
             {
                 Log.Instance.Trace($"Can't correctly apply state when Legion Zone is running.");
                 return;
@@ -488,7 +500,7 @@ public class GodModeController(
             try
             {
                 Log.Instance.Trace($"Waiting for power mode set successfully...");
-                await Task.Delay(TimeSpan.FromMilliseconds(500)).ConfigureAwait(false);
+                await firmware.DelayAsync(TimeSpan.FromMilliseconds(500)).ConfigureAwait(false);
 
                 Log.Instance.Trace($"Applying Fan Table {fanTable}...");
                 if (!await IsValidFanTableAsync(fanTable).ConfigureAwait(false))
@@ -513,29 +525,29 @@ public class GodModeController(
 
         if (isOcEnabled && preset.EnableOverclocking == true)
         {
-            await WMI.LenovoOtherMethod.SetFeatureValueAsync((uint)CapabilityID.CPUOverclockingEnable, 1).ConfigureAwait(false);
+            await firmware.SetFeatureValueAsync((uint)CapabilityID.CPUOverclockingEnable, 1).ConfigureAwait(false);
 
             // Each value is held to its fixed range here too, not only in the window, so a hand-edited settings
             // file can't send something outside it.
             if (preset.PrecisionBoostOverdriveScaler is { } pboScaler)
             {
                 Log.Instance.Trace($"Applying PrecisionBoostOverdriveScaler: {pboScaler}...");
-                await WMI.LenovoCpuMethod.CPUSetOCDataAsync(17, (uint)CPUOverclockingID.PrecisionBoostOverdriveScaler, Math.Clamp(pboScaler.Value, 0, AMD_PBO_SCALER_MAX)).ConfigureAwait(false);
+                await firmware.SetCpuOcDataAsync(17, (uint)CPUOverclockingID.PrecisionBoostOverdriveScaler, Math.Clamp(pboScaler.Value, 0, AMD_PBO_SCALER_MAX)).ConfigureAwait(false);
             }
             if (preset.PrecisionBoostOverdriveBoostFrequency is { } pboFreq)
             {
                 Log.Instance.Trace($"Applying PrecisionBoostOverdriveBoostFrequency: {pboFreq}...");
-                await WMI.LenovoCpuMethod.CPUSetOCDataAsync(17, (uint)CPUOverclockingID.PrecisionBoostOverdriveBoostFrequency, Math.Clamp(pboFreq.Value, 0, AMD_PBO_BOOST_MAX)).ConfigureAwait(false);
+                await firmware.SetCpuOcDataAsync(17, (uint)CPUOverclockingID.PrecisionBoostOverdriveBoostFrequency, Math.Clamp(pboFreq.Value, 0, AMD_PBO_BOOST_MAX)).ConfigureAwait(false);
             }
             if (preset.AllCoreCurveOptimizer is { } coreCurve && preset.EnableAllCoreCurveOptimizer == true)
             {
                 Log.Instance.Trace($"Applying AllCoreCurveOptimizer: {coreCurve}...");
-                await WMI.LenovoCpuMethod.CPUSetOCDataAsync(17, (uint)CPUOverclockingID.AllCoreCurveOptimizer, Math.Clamp(coreCurve.Value, 0, AMD_CURVE_OPTIMIZER_MAX)).ConfigureAwait(false);
+                await firmware.SetCpuOcDataAsync(17, (uint)CPUOverclockingID.AllCoreCurveOptimizer, Math.Clamp(coreCurve.Value, 0, AMD_CURVE_OPTIMIZER_MAX)).ConfigureAwait(false);
             }
         }
         else if (isOcEnabled && preset.EnableOverclocking == false)
         {
-            await WMI.LenovoOtherMethod.SetFeatureValueAsync((uint)CapabilityID.CPUOverclockingEnable, 0).ConfigureAwait(false);
+            await firmware.SetFeatureValueAsync((uint)CapabilityID.CPUOverclockingEnable, 0).ConfigureAwait(false);
             Log.Instance.Trace($"Overclocking is disabled.");
         }
     }
@@ -590,7 +602,7 @@ public class GodModeController(
 
         if (config.UseCapabilityDataForDefaults)
         {
-            var allCapabilityData = await WMI.LenovoCapabilityData01.ReadAsync().ConfigureAwait(false);
+            var allCapabilityData = await firmware.ReadCapabilityDataAsync().ConfigureAwait(false);
             allCapabilityData = allCapabilityData.ToArray();
 
             var knownIds = config.Capabilities
@@ -601,7 +613,7 @@ public class GodModeController(
                 .Where(d => knownIds.Contains((uint)d.Id))
                 .ToArray();
 
-            var allDiscreteData = await WMI.LenovoDiscreteData.ReadAsync().ConfigureAwait(false);
+            var allDiscreteData = await firmware.ReadDiscreteDataAsync().ConfigureAwait(false);
             allDiscreteData = allDiscreteData.ToArray();
 
             var discreteData = allDiscreteData
@@ -689,7 +701,7 @@ public class GodModeController(
         {
             try
             {
-                var ocMode = await WMI.LenovoOtherMethod.GetFeatureValueAsync((uint)CapabilityID.CPUOverclockingEnable).ConfigureAwait(false);
+                var ocMode = await firmware.GetFeatureValueAsync((uint)CapabilityID.CPUOverclockingEnable).ConfigureAwait(false);
                 enableOverclocking = ocMode == 1;
             }
             catch { /* Ignore */ }
@@ -793,7 +805,8 @@ public class GodModeController(
     /// The active preset with every value put through the firmware's own range, steps and default: the same rule
     /// the God Mode window shows (<see cref="CreateStepperValue"/>). This is what gets sent to the firmware, so a
     /// hand-edited settings file, a backup from another model or a range changed by a BIOS update can't push a
-    /// value past what the firmware allows. A value whose range can't be read comes back empty and isn't sent.
+    /// value past what the firmware allows. A value whose range can't be read comes back empty: the saved value
+    /// isn't sent, and the apply sends the firmware's own Performance (or Extreme) default for it instead.
     /// </summary>
     private async Task<GodModePreset?> GetRangeCheckedPresetAsync(Guid presetId)
     {
@@ -810,12 +823,13 @@ public class GodModeController(
         }
         catch (Exception ex)
         {
-            // Nothing is sent rather than unchecked values; the fan step still runs.
-            Log.Instance.Trace($"Couldn't read the firmware's ranges; no limits will be sent.", ex);
+            // The saved values aren't sent unchecked. The apply sends the firmware's own Performance (or Extreme)
+            // default for each setting instead, which is in range by definition; the fan step still runs.
+            Log.Instance.Trace($"Couldn't read the firmware's ranges; the firmware's own mode defaults are sent instead of the saved values.", ex);
             return null;
         }
 
-        Log.Instance.Trace($"Preset {presetId} couldn't be range-checked; no limits will be sent.");
+        Log.Instance.Trace($"Preset {presetId} couldn't be range-checked; the firmware's own mode defaults are sent instead of the saved values.");
         return null;
     }
 
@@ -922,7 +936,7 @@ public class GodModeController(
             try
             {
                 Log.Instance.Trace($"Resetting PCF power target offset for power mode {state}...");
-                await ResetTotalProcessingPowerTargetOffsetAsync().ConfigureAwait(false);
+                await firmware.ResetGpuPowerTargetOffsetAsync().ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -1027,7 +1041,7 @@ public class GodModeController(
         {
             Log.Instance.Trace($"Getting defaults in other power modes...");
             var result = new Dictionary<PowerModeState, GodModeDefaults>();
-            var allCapabilityData = await WMI.LenovoCapabilityData01.ReadAsync().ConfigureAwait(false);
+            var allCapabilityData = await firmware.ReadCapabilityDataAsync().ConfigureAwait(false);
             allCapabilityData = allCapabilityData.ToArray();
 
             var powerModes = new List<PowerModeState> { PowerModeState.Quiet, PowerModeState.Balance, PowerModeState.Performance };
@@ -1088,15 +1102,15 @@ public class GodModeController(
             try
             {
                 var fanTableBytes = fanTable.GetBytes();
-                await WMI.LenovoFanMethod.FanSetTableAsync(fanTableBytes).ConfigureAwait(false);
-                await Task.Delay(delayMs).ConfigureAwait(false);
+                await firmware.SetFanTableAsync(fanTableBytes).ConfigureAwait(false);
+                await firmware.DelayAsync(TimeSpan.FromMilliseconds(delayMs)).ConfigureAwait(false);
 
-                var readBack1 = await WMI.LenovoFanMethod.FanGetTableAsync(1, 1).ConfigureAwait(false);
+                var readBack1 = await firmware.GetFanTableAsync(1, 1).ConfigureAwait(false);
                 bool firstMatch = readBack1.Length == 10 && readBack1.Select(b => (ushort)b).SequenceEqual(expected);
                 Log.Instance.Trace($"Fan table verify attempt {attempt}, read 1: {(firstMatch ? "OK" : "Mismatch")}");
 
-                await Task.Delay(delayMs).ConfigureAwait(false);
-                var readBack2 = await WMI.LenovoFanMethod.FanGetTableAsync(1, 1).ConfigureAwait(false);
+                await firmware.DelayAsync(TimeSpan.FromMilliseconds(delayMs)).ConfigureAwait(false);
+                var readBack2 = await firmware.GetFanTableAsync(1, 1).ConfigureAwait(false);
                 bool secondMatch = readBack2.Length == 10 && readBack2.Select(b => (ushort)b).SequenceEqual(expected);
                 Log.Instance.Trace($"Fan table verify attempt {attempt}, read 2: {(secondMatch ? "OK" : "Mismatch")}");
 
@@ -1143,7 +1157,7 @@ public class GodModeController(
         };
     }
 
-    private static async Task<FanTableData[]?> TryGetFanTableDataAsync(GodModePlatformConfiguration config)
+    private async Task<FanTableData[]?> TryGetFanTableDataAsync(GodModePlatformConfiguration config)
     {
         if (config.Platform is not (GodModePlatform.Legion or GodModePlatform.NonGaming))
         {
@@ -1188,11 +1202,11 @@ public class GodModeController(
         return fanTableData;
     }
 
-    private static async Task<FanTableData[]?> GetFanTableDataLegionAsync(PowerModeState powerModeState = PowerModeState.GodMode)
+    private async Task<FanTableData[]?> GetFanTableDataLegionAsync(PowerModeState powerModeState = PowerModeState.GodMode)
     {
         Log.Instance.Trace($"Reading fan table data...");
-        var data = await WMI.LenovoFanTableData.ReadAsync().ConfigureAwait(false);
-        var mi = await Compatibility.GetMachineInformationAsync().ConfigureAwait(false);
+        var data = await firmware.ReadFanTableDataAsync().ConfigureAwait(false);
+        var mi = await GetMachineInformationAsync().ConfigureAwait(false);
 
         var fanTableData = data
             .Where(d => d.mode == (int)powerModeState + 1)
@@ -1271,13 +1285,13 @@ public class GodModeController(
 
     #region Fan Full Speed
 
-    private static async Task<bool?> GetFanFullSpeedAsync(GodModePlatformConfiguration config)
+    private async Task<bool?> GetFanFullSpeedAsync(GodModePlatformConfiguration config)
     {
         try
         {
             var fanFullSpeedCap = config.Capabilities.FirstOrDefault(c => c.PropertyName == nameof(GodModePreset.FanFullSpeed));
             if (fanFullSpeedCap == null)
-                return await WMI.LenovoFanMethod.FanGetFullSpeedAsync().ConfigureAwait(false);
+                return await firmware.GetFanFullSpeedAsync().ConfigureAwait(false);
             var value = await GetValueAsync(fanFullSpeedCap.RawId, config.CapabilityIdMask).ConfigureAwait(false);
             return value != 0;
         }
@@ -1288,14 +1302,14 @@ public class GodModeController(
         }
     }
 
-    private static async Task SetFanFullSpeedAsync(GodModePlatformConfiguration config, bool enabled)
+    private async Task SetFanFullSpeedAsync(GodModePlatformConfiguration config, bool enabled)
     {
         try
         {
             var fanFullSpeedCap = config.Capabilities.FirstOrDefault(c => c.PropertyName == nameof(GodModePreset.FanFullSpeed));
             if (fanFullSpeedCap == null)
             {
-                await WMI.LenovoFanMethod.FanSetFullSpeedAsync(enabled ? 1 : 0).ConfigureAwait(false);
+                await firmware.SetFanFullSpeedAsync(enabled ? 1 : 0).ConfigureAwait(false);
             }
             else
             {
@@ -1312,16 +1326,16 @@ public class GodModeController(
 
     #region Capability R/W Helpers
 
-    private static Task<int> GetValueAsync(uint rawId, uint mask)
+    private Task<int> GetValueAsync(uint rawId, uint mask)
     {
         var idRaw = rawId & mask;
-        return WMI.LenovoOtherMethod.GetFeatureValueAsync(idRaw);
+        return firmware.GetFeatureValueAsync(idRaw);
     }
 
-    private static Task SetValueAsync(uint rawId, int value, uint mask)
+    private Task SetValueAsync(uint rawId, int value, uint mask)
     {
         var idRaw = rawId & mask;
-        return WMI.LenovoOtherMethod.SetFeatureValueAsync(idRaw, value);
+        return firmware.SetFeatureValueAsync(idRaw, value);
     }
 
     private static bool IsNvApiCapability(GodModeCapabilityEntry capability)
@@ -1329,14 +1343,14 @@ public class GodModeController(
         return capability.CapabilityId.GetType() == typeof(NvApiCapabilityID);
     }
 
-    private static Task<int> GetCapabilityValueAsync(GodModeCapabilityEntry capability, uint mask) =>
+    private Task<int> GetCapabilityValueAsync(GodModeCapabilityEntry capability, uint mask) =>
         IsNvApiCapability(capability)
-            ? GetPcfTotalProcessingPowerTargetOffsetAsync()
+            ? firmware.GetGpuPowerTargetOffsetAsync()
             : GetValueAsync(capability.RawId, mask);
 
-    private static Task SetCapabilityValueAsync(GodModeCapabilityEntry capability, int value, uint mask) =>
+    private Task SetCapabilityValueAsync(GodModeCapabilityEntry capability, int value, uint mask) =>
         IsNvApiCapability(capability)
-            ? SetPcfTotalProcessingPowerTargetOffsetAsync(value)
+            ? firmware.SetGpuPowerTargetOffsetAsync(value)
             : SetValueAsync(capability.RawId, value, mask);
 
     private static StepperValue CreateCapabilityStepperValue(GodModeCapabilityEntry capability, int value)
@@ -1350,15 +1364,7 @@ public class GodModeController(
         return new StepperValue(closestValue, 0, 0, 0, capability.Steps, capability.DefaultValue);
     }
 
-    private static Task<int> GetPcfTotalProcessingPowerTargetOffsetAsync() => Task.Run(() =>
-    {
-        using var controller = new PcfPowerController();
-        var offsetInWatts = CalculatePcfTotalProcessingPowerTargetOffsetInWatts(controller.GetPowerValues());
-        Log.Instance.Trace($"Read GPU TPP target offset through NVAPI PCF. [offset={offsetInWatts}W]");
-        return offsetInWatts;
-    });
-
-    private static int CalculatePcfTotalProcessingPowerTargetOffsetInWatts(PcfPowerValues values)
+    internal static int CalculatePcfTotalProcessingPowerTargetOffsetInWatts(PcfPowerValues values)
     {
         var targetInMilliwatts = values.ACTargetTPPLimitInMilliwatts;
         var baselineInMilliwatts = values.ACDefaultGPULimitInMilliwatts;
@@ -1370,22 +1376,6 @@ public class GodModeController(
 
         return checked((int)(((long)targetInMilliwatts - baselineInMilliwatts) / 1000));
     }
-
-    private static Task SetPcfTotalProcessingPowerTargetOffsetAsync(int offsetInWatts) => Task.Run(() =>
-    {
-        using var controller = new PcfPowerController();
-        Log.Instance.Trace($"Writing GPU TPP target offset through NVAPI PCF. [offset={offsetInWatts}W]");
-        var values = controller.GetPowerValues();
-        var targetInMilliwatts = checked((uint)(values.ACDefaultGPULimitInMilliwatts + offsetInWatts * 1000));
-        controller.SetPowerField(PcfPowerFields.ACTargetTPPLimit, targetInMilliwatts);
-    });
-
-    private static Task ResetTotalProcessingPowerTargetOffsetAsync() => Task.Run(() =>
-    {
-        using var controller = new PcfPowerController();
-        Log.Instance.Trace($"Resetting GPU TPP target offset through NVAPI PCF.");
-        controller.ResetPowerField(PcfPowerFields.ACTargetTPPLimit);
-    });
 
     private static CapabilityID AdjustCapabilityIdForPowerMode(CapabilityID id, PowerModeState powerMode)
     {
@@ -1556,12 +1546,7 @@ public class GodModeController(
     protected async Task RaisePresetChanged(Guid presetId)
     {
         var (_, preset) = await GetActivePresetAsync().ConfigureAwait(false);
-        try
-        {
-            var feature = IoCContainer.Resolve<PowerModeFeature>();
-            await feature.EnsureCorrectWindowsPowerSettingsAreSetAsync(preset).ConfigureAwait(false);
-        }
-        catch { /* feature may not be available in all contexts */ }
+        await firmware.EnsureWindowsPowerSettingsAsync(preset).ConfigureAwait(false);
         PresetChanged?.Invoke(this, presetId);
     }
 
@@ -1591,7 +1576,7 @@ public class GodModeController(
     {
         if (_mi.HasValue)
             return _mi.Value;
-        _mi = await Compatibility.GetMachineInformationAsync().ConfigureAwait(false);
+        _mi = await firmware.GetMachineInformationAsync().ConfigureAwait(false);
         return _mi.Value;
     }
 
@@ -1661,11 +1646,11 @@ public class GodModeController(
 
     #region OC Helpers
 
-    private static async Task<bool> IsBiosOcEnabledAsync()
+    private async Task<bool> IsBiosOcEnabledAsync()
     {
         try
         {
-            var result = await WMI.LenovoGameZoneData.GetBIOSOCMode().ConfigureAwait(false);
+            var result = await firmware.GetBiosOcModeAsync().ConfigureAwait(false);
             return result == BIOS_OC_MODE_ENABLED;
         }
         catch (ManagementException)

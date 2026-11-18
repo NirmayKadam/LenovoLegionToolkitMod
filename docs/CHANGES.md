@@ -481,3 +481,34 @@ New strings are in English only (`Resource.resx`). Other languages show them in 
 ### Fix found by the first CI run
 - **The repository couldn't be built from a fresh clone.** `.gitignore`'s NuGet rule `**/[Pp]ackages/*` also matched the app's own `LenovoLegionToolkit.WPF/Controls/Packages/PackageControl.xaml(.cs)` (the Packages page's list item). Those two files were never committed, so every clone failed with "the namespace 'Packages' does not exist".
 - An exception for that folder was added to `.gitignore`, and the two files are now committed. No other source file was being ignored (checked across the whole tree, outside build output).
+- With the fix, CI is green: the build and all 708 tests pass on GitHub's Windows runner.
+
+## Round 7: Custom mode (God Mode) test seam (2026-11-18)
+- `LenovoLegionToolkit.Lib/Controllers/GodMode/IGodModeFirmware.cs` (new, internal): everything `GodModeController` reads from or sends to the laptop on the data-driven path (current Legion/LOQ and non-gaming models), the fan steps and AMD overclocking.
+  - That covers machine info, the Vantage/Legion Zone/Legion Space checks, capability and fan-table data, feature values, the NVIDIA power-target offset, fan full speed and fan table, BIOS OC mode and CPU OC data, the Windows power-settings step, and the delays.
+  - `WmiGodModeFirmware` forwards each call unchanged to the same WMI / NVAPI / Windows calls as before.
+- `GodModeController`:
+  - The public constructor (used by the app) builds `WmiGodModeFirmware`, and an internal constructor takes the interface.
+  - The order of the writes, the error handling and the exception filters are unchanged.
+  - The legacy path for older models isn't routed through it; it is untouched apart from the Legion Zone check.
+- **Wording fixed, behaviour kept (your choice):** when the firmware's ranges can't be read, the saved values aren't sent, and the firmware's own Performance (or Extreme) default for each setting is sent instead. The code comment and log said "no limits will be sent", which was wrong. They and `docs/SAFETY.md` now say what happens.
+- Tests: `Tests/Controllers/GodModeApplyTests.cs` (19), against a scripted laptop and real `godmode.json` files in a temporary folder.
+  - **Blocking:** Vantage, Legion Zone or Legion Space (Smart Fan ≥ 8) running blocks the apply.
+  - **Values:**
+    - in-range values are sent as-is, masked, in order;
+    - out-of-range values get the firmware default;
+    - offsets only narrow the range;
+    - an unsaved value gets the Performance default;
+    - the fallback when ranges can't be read.
+  - **Non-gaming models:** an unsaved value isn't sent, cTGP is sent as an offset, and no fan table is written.
+  - **Failures:** a CPU limit failure stops the later limits but the fan step still runs, then the error is raised. A GPU failure is skipped.
+  - **Fan:** a curve the firmware doesn't keep is tried 3 times. A kept curve is written once.
+  - **AMD:** the overclock values are clamped, and nothing is sent without BIOS OC.
+  - **Ranges cache:** read once until forgotten.
+- **Honesty check:** this refactor had no old bug to fail first. Instead, three lines were broken one at a time, and each time exactly the matching test failed:
+  - removing the Vantage check failed the Vantage test;
+  - removing the AMD clamp failed the clamp test;
+  - removing the cTGP offset failed the non-gaming test.
+
+  The lines were then put back.
+- Not verified on the laptop yet. Custom mode should behave exactly as before.
