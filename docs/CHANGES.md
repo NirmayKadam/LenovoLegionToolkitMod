@@ -424,3 +424,18 @@ Tests: `Tests/Controllers/GPURefreshLoopTests.cs`, 6 new.
 - `OsdItem.FrameTimeGraph` is appended at the end of the enum, so saved item lists keep their meaning.
 - Tests: `Tests/UI/FrameTimeGraphTests.cs` (14; written for the new code, so there was no old behaviour to fail).
 - Not verified on the laptop yet.
+
+## Round 5: usability (2026-11-18)
+
+New strings are in English only (`Resource.resx`). Other languages show them in English, the standard fallback, like the rest of this fork's strings.
+
+### 1. Undo within 30 seconds (God Mode and fan curves)
+- `LenovoLegionToolkit.Lib/Utils/UndoSlot.cs` (new): the one change that can be undone right now. A newer change replaces it; it expires after 30 s; an undo runs once; a failed or partial undo is reported, never thrown. It is in memory only.
+- `AbstractSettings.CloneStore()` / `RestoreStore()`: an exact deep copy of a settings store, through the same JSON it is saved with, and putting it back.
+- `LenovoLegionToolkit.Lib/Controllers/GodMode/GodModeUndo.cs` (new): taken before a Save. Undo puts the earlier presets back and, only while the laptop is still in Custom mode, sends them again, or goes back to the earlier mode if the Save had switched to Custom. `GodModeSettings` got a test folder constructor.
+- `FanProfileController.Snapshot()` / `RestoreAsync()`: the on/off switch and every curve (copied). Undo touches only the current mode, and only if its curve changed. It writes the earlier curve, or re-applies the mode to bring the firmware's curve back.
+- `LenovoLegionToolkit.WPF/Controls/UndoBarControl.xaml(.cs)` (new): "… · Undo (23 s)", then the result. It is in the main window, the God Mode, Fan curves and Power mode profiles windows, so the window in front always has one (God Mode and Fan curves are modal). The timer runs only while there is something to show.
+- **Offered after:** God Mode Save and Save & close; fan-curve Save; Use firmware curve (Fan curves window, Power mode profiles, dashboard details card); Reset all modes. Test now and Apply now already put the earlier table back, so they get none. The Fn+Q-loop choice saved by the God Mode window isn't part of the undo.
+- On the dashboard card, the reset result now shows on the undo bar instead of a snackbar, so the two don't cover each other.
+- Tests: `Tests/UI/UndoSlotTests.cs`, `Tests/Controllers/GodModeUndoTests.cs` (over a real `godmode.json`), and the undo section of `Tests/UI/FanProfileTests.cs`. These are new features, so there was no old behaviour to fail.
+- Not verified on the laptop yet.

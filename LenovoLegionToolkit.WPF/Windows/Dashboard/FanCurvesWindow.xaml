@@ -140,6 +140,8 @@
                 </StackPanel>
             </custom:CardControl>
 
+            <controls:UndoBarControl x:Name="_undoBar" Margin="0,0,0,8" />
+
             <!--  What is happening now, and what the last action came to.  -->
             <Grid Margin="0,0,0,8">
                 <Grid.ColumnDefinitions>

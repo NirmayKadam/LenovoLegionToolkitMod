@@ -5,8 +5,15 @@ using static LenovoLegionToolkit.Lib.Settings.GodModeSettings;
 namespace LenovoLegionToolkit.Lib.Settings;
 
 
-public class GodModeSettings() : AbstractSettings<GodModeSettingsStore>("godmode.json")
+public class GodModeSettings : AbstractSettings<GodModeSettingsStore>
 {
+    private const string FILE_NAME = "godmode.json";
+
+    public GodModeSettings() : base(FILE_NAME) { }
+
+    /// <summary>Keeps the file in <paramref name="folder"/>, so tests never touch the real settings.</summary>
+    internal GodModeSettings(string folder) : base(FILE_NAME, folder) { }
+
     public class GodModeSettingsStore
     {
         public record Preset

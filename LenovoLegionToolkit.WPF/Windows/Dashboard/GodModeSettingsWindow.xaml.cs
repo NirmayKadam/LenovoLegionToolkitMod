@@ -29,6 +29,8 @@ public partial class GodModeSettingsWindow
     private readonly VantageDisabler _vantageDisabler = IoCContainer.Resolve<VantageDisabler>();
     private readonly LegionSpaceDisabler _legionSpaceDisabler = IoCContainer.Resolve<LegionSpaceDisabler>();
     private readonly LegionZoneDisabler _legionZoneDisabler = IoCContainer.Resolve<LegionZoneDisabler>();
+    private readonly GodModeSettings _godModeSettings = IoCContainer.Resolve<GodModeSettings>();
+    private readonly UndoSlot _undoSlot = IoCContainer.Resolve<UndoSlot>();
 
     private Control? FanControl;
 
@@ -180,12 +182,22 @@ public partial class GodModeSettingsWindow
             };
 
             var mi = await Compatibility.GetMachineInformationAsync();
-            if (mi.Properties.GodModePlatform != GodModePlatform.NonGaming && await _powerModeFeature.GetStateAsync() != PowerModeState.GodMode)
+            PowerModeState? switchFrom = null;
+            if (mi.Properties.GodModePlatform != GodModePlatform.NonGaming && await _powerModeFeature.GetStateAsync() is var modeBefore && modeBefore != PowerModeState.GodMode)
+            {
+                switchFrom = modeBefore;
+            }
+
+            // Taken before anything changes, so Undo can put back exactly what was saved (and the mode, if this switches it).
+            var undo = GodModeUndo.Capture(_godModeSettings, switchFrom, _powerModeFeature, _godModeController);
+
+            if (switchFrom is not null)
             {
                 await _powerModeFeature.SetStateAsync(PowerModeState.GodMode);
             }
 
             await _godModeController.SetStateAsync(newState);
+            _undoSlot.Offer(Resource.Undo_GodModeSaved, () => UndoSaveAsync(undo));
             await _godModeController.ApplyStateAsync();
 
             if (_fnqTabItem.Visibility == Visibility.Visible)
@@ -201,6 +213,15 @@ public partial class GodModeSettingsWindow
             await _snackBar.ShowAsync(Resource.GodModeSettingsWindow_Error_Apply_Title, ex.Message);
             return false;
         }
+    }
+
+    /// <summary>Undo of a Save: the earlier settings back (and sent again in Custom mode); this window, if still open, shows them.</summary>
+    private async Task<bool> UndoSaveAsync(GodModeUndo undo)
+    {
+        var allApplied = await undo.RestoreAsync();
+        if (IsLoaded)
+            await RefreshAsync();
+        return allApplied;
     }
 
     private async Task SetStateAsync(GodModeState state)

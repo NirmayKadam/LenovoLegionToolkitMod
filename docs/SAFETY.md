@@ -39,6 +39,17 @@ These are sent to the running firmware or GPU driver. LLT applies them again whe
 | GPU power target offset (PCF) | Firmware-reported range, as for God Mode | Switch power mode; LLT resets it |
 | AMD Precision Boost Overdrive / Curve Optimizer (AMD models only, and only when BIOS overclocking is enabled) | Fixed ranges (scaler 0–7, boost 0–200 MHz, curve 0–20), checked every time they are applied | Turn overclocking off in the God Mode preset |
 
+### Undo within 30 seconds
+
+After a God Mode (Custom mode) Save, a fan-curve Save, or **Use firmware curve** / **Reset all modes**, an **Undo (30 s)** bar appears in that window and in the main window. Undo:
+
+- puts back exactly what was saved before (the same file contents) and saves it at once;
+- for God Mode: if the laptop is still in Custom mode, sends the earlier preset again. If that Save had switched the laptop to Custom, it goes back to the earlier mode instead;
+- for fan curves: only the mode the laptop is in is touched, and only if its curve changed. The earlier curve is written and checked, or the mode is applied again to bring the firmware's curve back;
+- leaves a power-mode change made since (Fn+Q) alone.
+
+Nothing is read back from the firmware: "the earlier values" are the earlier saved values, sent again. Undo is kept in memory only. After 30 seconds, a newer change, or a restart, the new values simply stay. If the settings were put back but the laptop couldn't be set to them right then, the bar says so and the values are used at the next mode change.
+
 ## Changes a game profile makes to other software
 
 Only while a profiled game runs, and only to apps and services you listed. LLT recognises the game from the names Windows reports and from the process list, and never opens, reads or changes the game's process. Every change is written to `game_profile_session.json` **before** it is made.

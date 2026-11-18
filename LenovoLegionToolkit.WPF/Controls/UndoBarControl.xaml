@@ -1,0 +1,38 @@
+<UserControl
+    x:Class="LenovoLegionToolkit.WPF.Controls.UndoBarControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:wpfui="http://schemas.lepo.co/wpfui/2022/xaml"
+    Visibility="Collapsed">
+
+    <Border
+        Padding="12,8"
+        Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+        BorderBrush="{DynamicResource DividerStrokeColorDefaultBrush}"
+        BorderThickness="1"
+        CornerRadius="{DynamicResource ControlCornerRadius}">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock
+                x:Name="_text"
+                Grid.Column="0"
+                VerticalAlignment="Center"
+                AutomationProperties.LiveSetting="Polite"
+                Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                TextWrapping="Wrap" />
+
+            <wpfui:Button
+                x:Name="_undoButton"
+                Grid.Column="1"
+                MinWidth="110"
+                Margin="12,0,0,0"
+                VerticalAlignment="Center"
+                Appearance="Secondary"
+                Click="UndoButton_Click" />
+        </Grid>
+    </Border>
+</UserControl>

@@ -35,6 +35,7 @@ public partial class PowerModeDetailsControl
     private readonly GPUOverclockController _gpuOverclockController = IoCContainer.Resolve<GPUOverclockController>();
     private readonly FanProfileController _fanProfileController = IoCContainer.Resolve<FanProfileController>();
     private readonly ApplicationSettings _settings = IoCContainer.Resolve<ApplicationSettings>();
+    private readonly UndoSlot _undoSlot = IoCContainer.Resolve<UndoSlot>();
     private readonly ThrottleLastDispatcher _throttle = new(TimeSpan.FromMilliseconds(400), nameof(PowerModeDetailsControl));
 
     private PowerModeProfile? _shown;
@@ -245,10 +246,15 @@ public partial class PowerModeDetailsControl
         _useFirmwareCurveButton.IsEnabled = false;
         try
         {
+            var before = _fanProfileController.Snapshot();
             var result = await Task.Run(() => _fanProfileController.ResetToFirmwareAsync(shown.Mode, _feature.SetStateAsync));
-            SnackbarHelper.Show(Resource.FanCurvesWindow_Reset_Title,
-                LenovoLegionToolkit.WPF.Windows.Dashboard.FanCurvesWindow.ResetResultText(result),
-                result == FanCurveResetResult.RemovedReapplyFailed ? SnackbarType.Warning : SnackbarType.Success);
+            var resultText = LenovoLegionToolkit.WPF.Windows.Dashboard.FanCurvesWindow.ResetResultText(result);
+
+            // The result goes on the undo bar (same place as a snackbar), so the two don't cover each other.
+            if (result == FanCurveResetResult.NothingToReset)
+                SnackbarHelper.Show(Resource.FanCurvesWindow_Reset_Title, resultText, SnackbarType.Success);
+            else
+                _undoSlot.Offer(resultText, () => UndoResetAsync(before));
         }
         catch (Exception ex)
         {
@@ -260,6 +266,14 @@ public partial class PowerModeDetailsControl
             _useFirmwareCurveButton.IsEnabled = true;
             await RefreshAsync();
         }
+    }
+
+    /// <summary>Undo of "Use firmware curve": the curves from before it, applied to the mode the laptop is in.</summary>
+    private async Task<bool> UndoResetAsync(FanCurvesSnapshot before)
+    {
+        var allApplied = await _fanProfileController.RestoreAsync(before, _feature.SetStateAsync);
+        await RefreshAsync();
+        return allApplied;
     }
 
     private void ExpandButton_Click(object sender, RoutedEventArgs e)

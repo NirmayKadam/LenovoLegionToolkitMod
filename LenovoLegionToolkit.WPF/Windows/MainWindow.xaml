@@ -2,6 +2,7 @@
     x:Class="LenovoLegionToolkit.WPF.Windows.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="clr-namespace:LenovoLegionToolkit.WPF.Controls"
     xmlns:custom="clr-namespace:LenovoLegionToolkit.WPF.Controls.Custom"
     xmlns:local="clr-namespace:LenovoLegionToolkit.WPF.Windows"
     xmlns:pages="clr-namespace:LenovoLegionToolkit.WPF.Pages"
@@ -192,6 +193,14 @@
                 CornerRadius="4">
                 <Frame Name="_rootFrame" Margin="24,0,0,0" />
             </Border>
+
+            <!--  The God Mode or fan-curve change that can still be undone (e.g. after Save and close).  -->
+            <controls:UndoBarControl
+                Grid.Column="1"
+                MaxWidth="560"
+                Margin="0,0,12,28"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Bottom" />
 
             <wpfui:Snackbar
                 x:Name="_snackbar"

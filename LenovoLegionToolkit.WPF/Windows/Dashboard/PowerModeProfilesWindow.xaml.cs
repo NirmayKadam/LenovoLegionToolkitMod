@@ -33,6 +33,7 @@ public partial class PowerModeProfilesWindow
     private readonly FanProfileSettings _fanSettings = IoCContainer.Resolve<FanProfileSettings>();
     private readonly WindowsPowerPlanController _windowsPowerPlanController = IoCContainer.Resolve<WindowsPowerPlanController>();
     private readonly ApplicationSettings _settings = IoCContainer.Resolve<ApplicationSettings>();
+    private readonly UndoSlot _undoSlot = IoCContainer.Resolve<UndoSlot>();
 
     /// <summary>The mode the laptop was in at the last refresh.</summary>
     private PowerModeState? _activeMode;
@@ -172,10 +173,25 @@ public partial class PowerModeProfilesWindow
 
         await RunBusyAsync(Resource.FanCurvesWindow_Status_Restoring, async () =>
         {
+            var before = _fanProfileController.Snapshot();
             var result = await Task.Run(() => _fanProfileController.ResetToFirmwareAsync(mode, _powerModeFeature.SetStateAsync));
+            if (result != FanCurveResetResult.NothingToReset)
+                _undoSlot.Offer(Resource.Undo_FanCurvesReset, () => UndoResetAsync(before, mode));
             await RefreshAsync(mode);
             _statusText.Text = FanCurvesWindow.ResetResultText(result);
         });
+    }
+
+    /// <summary>Undo of "Use firmware curve": the curves from before it, applied to the mode the laptop is in.</summary>
+    private async Task<bool> UndoResetAsync(FanCurvesSnapshot before, PowerModeState shown)
+    {
+        var allApplied = await _fanProfileController.RestoreAsync(before, _powerModeFeature.SetStateAsync);
+        if (IsLoaded)
+        {
+            _statusText.Text = string.Empty;
+            await RefreshAsync(shown);
+        }
+        return allApplied;
     }
 
     private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -224,6 +240,7 @@ public partial class PowerModeProfilesWindow
     private async Task RunBusyAsync(string status, Func<Task> action)
     {
         _busy = true;
+        _undoBar.IsEnabled = false;
         UpdateApplyNow();
         _statusText.Text = status;
         try
@@ -238,6 +255,7 @@ public partial class PowerModeProfilesWindow
         finally
         {
             _busy = false;
+            _undoBar.IsEnabled = true;
             UpdateApplyNow();
         }
     }

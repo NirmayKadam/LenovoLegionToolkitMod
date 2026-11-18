@@ -70,6 +70,21 @@ public abstract class AbstractSettings<T> where T : class, new()
         _store = null;
     }
 
+    /// <summary>
+    /// A deep copy of the store, made through the same JSON it is saved as, so nothing (not even a nested
+    /// dictionary) is shared with the live one. Used to put the settings back later (undo).
+    /// </summary>
+    public T CloneStore() =>
+        JsonConvert.DeserializeObject<T>(JsonConvert.SerializeObject(Store, JsonSerializerSettings), JsonSerializerSettings)
+        ?? throw new InvalidOperationException($"Couldn't copy {_fileName}.");
+
+    /// <summary>Makes <paramref name="store"/> (from <see cref="CloneStore"/>) the live store again and saves it.</summary>
+    public void RestoreStore(T store)
+    {
+        Store = store;
+        SynchronizeStore();
+    }
+
     public virtual T? LoadStore()
     {
         T? store = null;

@@ -5868,4 +5868,25 @@ When the game ends, LLT puts the apps&apos; priority and the services back. It n
   <data name="OsdSettings_FrameTimeGraph_Tooltip" xml:space="preserve">
     <value>Each frame&apos;s time over the last 5 seconds. Frames that take more than twice the usual time (stutters) are drawn in the critical colour. Starts a few seconds after a game begins drawing; nothing is drawn before real frames arrive.</value>
   </data>
+  <data name="Undo_Button" xml:space="preserve">
+    <value>Undo ({0} s)</value>
+  </data>
+  <data name="Undo_Running" xml:space="preserve">
+    <value>Putting the earlier values back…</value>
+  </data>
+  <data name="Undo_Done" xml:space="preserve">
+    <value>The earlier values are back.</value>
+  </data>
+  <data name="Undo_NotAllApplied" xml:space="preserve">
+    <value>The earlier values are saved again, but the laptop couldn&apos;t be set to them right now (see the log). They are used at the next power-mode change.</value>
+  </data>
+  <data name="Undo_GodModeSaved" xml:space="preserve">
+    <value>Custom mode settings saved.</value>
+  </data>
+  <data name="Undo_FanCurveSaved" xml:space="preserve">
+    <value>Fan curve saved.</value>
+  </data>
+  <data name="Undo_FanCurvesReset" xml:space="preserve">
+    <value>Fan curves set back to the firmware&apos;s.</value>
+  </data>
 </root>

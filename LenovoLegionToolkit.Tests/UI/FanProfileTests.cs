@@ -363,6 +363,121 @@ public sealed class FanProfileTests : IDisposable
         Assert.Empty(_reapplied);
     }
 
+    // ---- Undo (put the curves back) ----
+
+    private static readonly ushort[] OtherCurve = [2, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+    [Fact]
+    public async Task Undo_ASaveOnTheActiveMode_SavesAndWritesTheEarlierCurve()
+    {
+        var settings = NewSettings(true, FanCurveFirmwareSupport.Accepts, PowerModeState.Balance);
+        var access = new ScriptedFanTable();
+        var controller = NewController(settings, access);
+        var before = controller.Snapshot();
+
+        settings.Store.Curves[PowerModeState.Balance] = OtherCurve;   // what Save did
+        settings.SynchronizeStore();
+
+        Assert.True(await controller.RestoreAsync(before, Reapply));
+        await controller.PendingCheck;
+
+        Assert.Equal(Curve, access.Writes[0]);
+        Assert.Equal(Curve, new FanProfileSettings(_dir).Store.Curves[PowerModeState.Balance]);   // saved too
+        Assert.Empty(_reapplied);
+    }
+
+    [Fact]
+    public async Task Undo_AChangeToAnotherMode_SavesIt_ButWritesNothing()
+    {
+        var settings = NewSettings(true, FanCurveFirmwareSupport.Accepts, PowerModeState.Quiet);
+        var access = new ScriptedFanTable();
+        var controller = NewController(settings, access);   // the laptop is in Balance
+        var before = controller.Snapshot();
+
+        settings.Store.Curves[PowerModeState.Quiet] = OtherCurve;
+
+        Assert.True(await controller.RestoreAsync(before, Reapply));
+        Assert.Equal(Curve, new FanProfileSettings(_dir).Store.Curves[PowerModeState.Quiet]);
+        Assert.Empty(access.Writes);
+        Assert.Empty(_reapplied);
+    }
+
+    [Fact]
+    public async Task Undo_ACurveAddedToTheActiveMode_BringsTheFirmwareCurveBack_ByReapplyingTheMode()
+    {
+        var settings = NewSettings(true, FanCurveFirmwareSupport.Accepts);
+        var access = new ScriptedFanTable();
+        var controller = NewController(settings, access);
+        var before = controller.Snapshot();
+
+        settings.Store.Curves[PowerModeState.Balance] = Curve;   // Save added a curve for the active mode
+
+        Assert.True(await controller.RestoreAsync(before, Reapply));
+        Assert.False(settings.Store.Curves.ContainsKey(PowerModeState.Balance));
+        Assert.Equal([PowerModeState.Balance], _reapplied);
+        Assert.Empty(access.Writes);
+    }
+
+    [Fact]
+    public async Task Undo_AResetOfEveryMode_PutsEveryCurveBack_AndWritesTheActiveOne()
+    {
+        var settings = NewSettings(true, FanCurveFirmwareSupport.Accepts, PowerModeState.Quiet, PowerModeState.Balance);
+        var access = new ScriptedFanTable();
+        var controller = NewController(settings, access);
+        var before = controller.Snapshot();
+        await controller.ResetToFirmwareAsync(null, Reapply);
+        _reapplied.Clear();
+
+        Assert.True(await controller.RestoreAsync(before, Reapply));
+        await controller.PendingCheck;
+
+        Assert.Equal([PowerModeState.Quiet, PowerModeState.Balance], new FanProfileSettings(_dir).Store.Curves.Keys.Order());
+        Assert.Equal(Curve, access.Writes[^1]);
+        Assert.Empty(_reapplied);
+    }
+
+    [Fact]
+    public async Task Undo_TheSnapshotIsACopy_LaterEditsDontChangeWhatIsPutBack()
+    {
+        var settings = NewSettings(true, FanCurveFirmwareSupport.Accepts);
+        settings.Store.Curves[PowerModeState.Quiet] = [.. Curve];   // its own array, so the edit below stays in this test
+        var controller = NewController(settings, new ScriptedFanTable());
+        var before = controller.Snapshot();
+
+        settings.Store.Curves[PowerModeState.Quiet][0] = 9;   // an edit in place must not reach the snapshot
+
+        await controller.RestoreAsync(before, Reapply);
+        Assert.Equal(Curve, settings.Store.Curves[PowerModeState.Quiet]);
+    }
+
+    [Fact]
+    public async Task Undo_CurveNotKeptByTheFirmware_SaysSo_AndTheSettingsAreStillBack()
+    {
+        var settings = NewSettings(true, FanCurveFirmwareSupport.Unknown, PowerModeState.Balance);
+        var access = new ScriptedFanTable { WriteOutcome = FanTableWriteOutcome.NotKept, Reads = { FirmwareCurve } };
+        var controller = NewController(settings, access);
+        var before = controller.Snapshot();
+        settings.Store.Curves[PowerModeState.Balance] = OtherCurve;
+
+        Assert.False(await controller.RestoreAsync(before, Reapply));
+        Assert.Equal(Curve, new FanProfileSettings(_dir).Store.Curves[PowerModeState.Balance]);
+    }
+
+    [Fact]
+    public async Task Undo_WhenTheModeCannotBeRead_PutsTheSettingsBack_AndWritesNothing()
+    {
+        var settings = NewSettings(true, FanCurveFirmwareSupport.Accepts, PowerModeState.Balance);
+        var access = new ScriptedFanTable();
+        var controller = new FanProfileController(settings, access, () => throw new InvalidOperationException("no answer")) { RecheckDelay = TimeSpan.Zero };
+        var before = controller.Snapshot();
+        settings.Store.Curves[PowerModeState.Balance] = OtherCurve;
+
+        Assert.False(await controller.RestoreAsync(before, Reapply));
+        Assert.Equal(Curve, new FanProfileSettings(_dir).Store.Curves[PowerModeState.Balance]);
+        Assert.Empty(access.Writes);
+        Assert.Empty(_reapplied);
+    }
+
     // ---- Which curve applies ----
 
     [Fact]

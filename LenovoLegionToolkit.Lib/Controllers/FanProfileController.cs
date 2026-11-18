@@ -125,6 +125,9 @@ public enum FanCurveResetResult
 /// </param>
 public sealed record FanCurveProbeResult(FanCurveApplyResult Result, bool NeedsModeReapply);
 
+/// <summary>The fan-curve settings at one moment (see <see cref="FanProfileController.Snapshot"/>).</summary>
+public sealed record FanCurvesSnapshot(bool Enabled, IReadOnlyDictionary<PowerModeState, ushort[]> Curves);
+
 /// <summary>
 /// Applies the user's fan curve for each built-in power mode, right after every mode change (Fn+Q, the
 /// dashboard, automations). Lenovo firmware usually loads its own curve on a mode change and may only honour
@@ -349,6 +352,71 @@ public class FanProfileController
         {
             Log.Instance.Trace($"Re-applying {current} after the fan curve reset failed.", ex);
             return FanCurveResetResult.RemovedReapplyFailed;
+        }
+    }
+
+    /// <summary>A copy of the on/off switch and every saved curve (arrays copied), to put back with <see cref="RestoreAsync"/>.</summary>
+    public FanCurvesSnapshot Snapshot() =>
+        new(settings.Store.Enabled, settings.Store.Curves.ToDictionary(c => c.Key, c => c.Value.ToArray()));
+
+    /// <summary>
+    /// Undo: puts the switch and the curves from <paramref name="snapshot"/> back (saved at once). Then only the
+    /// mode the laptop is in is touched, and only if its curve changed: the restored curve is applied, or, when the
+    /// curve that was in use goes away, the power mode is re-applied through <paramref name="reapplyMode"/> so the
+    /// firmware loads its own. True when the fans are on what's restored (or nothing needed changing); false when
+    /// the curve wasn't kept or the mode couldn't be read or re-applied (the settings are back either way).
+    /// </summary>
+    public async Task<bool> RestoreAsync(FanCurvesSnapshot snapshot, Func<PowerModeState, Task> reapplyMode)
+    {
+        PowerModeState? current;
+        try
+        {
+            current = await currentMode().ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Couldn't read the power mode while putting fan curves back.", ex);
+            current = null;
+        }
+
+        var curveBefore = current is { } mode ? CurveFor(settings.Store, mode) : null;
+        var inUseBefore = current is { } active && EffectiveCurve(active) is not null;
+
+        var changedModes = settings.Store.Curves.Keys.Concat(snapshot.Curves.Keys).Distinct()
+            .Where(m => !(settings.Store.Curves.TryGetValue(m, out var now) && snapshot.Curves.TryGetValue(m, out var then) && now.SequenceEqual(then)))
+            .ToArray();
+
+        settings.Store.Enabled = snapshot.Enabled;
+        settings.Store.Curves = snapshot.Curves.ToDictionary(c => c.Key, c => c.Value.ToArray());
+        settings.SynchronizeStore();
+        foreach (var changed in changedModes)
+            _lastOutcome.TryRemove(changed, out _);
+        Log.Instance.Trace($"Fan curves put back. [enabled={snapshot.Enabled}, changed={string.Join(",", changedModes)}]");
+
+        if (current is not { } laptopMode)
+            return false;
+
+        var curveAfter = CurveFor(settings.Store, laptopMode);
+        if ((curveBefore is null && curveAfter is null) || (curveBefore is not null && curveAfter is not null && curveBefore.SequenceEqual(curveAfter)))
+            return true;   // the fans are already on what's restored
+
+        // Applies the restored curve, or (with none) stops the background check of the one that goes away.
+        var result = await ApplyForModeAsync(laptopMode).ConfigureAwait(false);
+        if (curveAfter is not null)
+            return result is FanCurveApplyResult.Applied or FanCurveApplyResult.SkippedUnsupported or FanCurveApplyResult.Superseded;
+
+        if (!inUseBefore)
+            return true;
+
+        try
+        {
+            await reapplyMode(laptopMode).ConfigureAwait(false);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Re-applying {laptopMode} after putting fan curves back failed.", ex);
+            return false;
         }
     }
 

@@ -13165,5 +13165,68 @@ namespace LenovoLegionToolkit.WPF.Resources {
                 return ResourceManager.GetString("OsdSettings_FrameTimeGraph_Tooltip", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Undo ({0} s).
+        /// </summary>
+        public static string Undo_Button {
+            get {
+                return ResourceManager.GetString("Undo_Button", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Putting the earlier values back….
+        /// </summary>
+        public static string Undo_Running {
+            get {
+                return ResourceManager.GetString("Undo_Running", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The earlier values are back..
+        /// </summary>
+        public static string Undo_Done {
+            get {
+                return ResourceManager.GetString("Undo_Done", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The earlier values are saved again, but the laptop couldn&apos;t be set to them right now (see the log). They are used at the next power-mode change..
+        /// </summary>
+        public static string Undo_NotAllApplied {
+            get {
+                return ResourceManager.GetString("Undo_NotAllApplied", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Custom mode settings saved..
+        /// </summary>
+        public static string Undo_GodModeSaved {
+            get {
+                return ResourceManager.GetString("Undo_GodModeSaved", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fan curve saved..
+        /// </summary>
+        public static string Undo_FanCurveSaved {
+            get {
+                return ResourceManager.GetString("Undo_FanCurveSaved", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fan curves set back to the firmware&apos;s..
+        /// </summary>
+        public static string Undo_FanCurvesReset {
+            get {
+                return ResourceManager.GetString("Undo_FanCurvesReset", resourceCulture);
+            }
+        }
     }
 }

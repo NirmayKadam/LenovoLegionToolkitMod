@@ -452,6 +452,8 @@
                 </Grid>
             </wpfui:Button>
 
+            <controls:UndoBarControl Grid.Column="1" Margin="12,0" />
+
             <wpfui:Button
                 Grid.Column="2"
                 MinWidth="120"

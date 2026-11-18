@@ -71,12 +71,14 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <TextBlock
-                x:Name="_statusText"
-                VerticalAlignment="Center"
-                AutomationProperties.LiveSetting="Polite"
-                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                TextWrapping="Wrap" />
+            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                <controls:UndoBarControl x:Name="_undoBar" Margin="0,0,0,4" />
+                <TextBlock
+                    x:Name="_statusText"
+                    AutomationProperties.LiveSetting="Polite"
+                    Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                    TextWrapping="Wrap" />
+            </StackPanel>
             <wpfui:Button
                 x:Name="_applyNowButton"
                 Grid.Column="1"

@@ -29,6 +29,7 @@ public partial class FanCurvesWindow
     private readonly FanProfileController _controller = IoCContainer.Resolve<FanProfileController>();
     private readonly GodModeController _godModeController = IoCContainer.Resolve<GodModeController>();
     private readonly PowerModeFeature _powerModeFeature = IoCContainer.Resolve<PowerModeFeature>();
+    private readonly UndoSlot _undoSlot = IoCContainer.Resolve<UndoSlot>();
 
     private Control? _editor;
     private FanTableData[]? _tableData;
@@ -151,6 +152,7 @@ public partial class FanCurvesWindow
         _fallbackPanel.IsEnabled = enabled;
         _resetCard.IsEnabled = enabled;
         _saveButton.IsEnabled = enabled;
+        _undoBar.IsEnabled = enabled;
         _applyNowButton.IsEnabled = enabled && _applyNowButton.IsEnabled;
     }
 
@@ -332,6 +334,7 @@ public partial class FanCurvesWindow
         {
             var curve = EditorCurve();
             var hadCurve = _settings.Store.Curves.ContainsKey(mode);
+            var before = _controller.Snapshot();
 
             if (_useCurveCheckBox.IsChecked == true && curve is { Length: 10 })
             {
@@ -348,6 +351,7 @@ public partial class FanCurvesWindow
             }
 
             _settings.SynchronizeStore();
+            _undoSlot.Offer(Resource.Undo_FanCurveSaved, () => UndoAsync(before));
             if (_previewMode == mode)
                 _previewMode = null;   // what was tried is now what's saved, or deliberately replaced
 
@@ -474,13 +478,33 @@ public partial class FanCurvesWindow
 
         await RunBusyAsync(Resource.FanCurvesWindow_Status_Restoring, async () =>
         {
+            var before = _controller.Snapshot();
             var result = await _controller.ResetToFirmwareAsync(mode, _powerModeFeature.SetStateAsync);
+            if (result != FanCurveResetResult.NothingToReset)
+                _undoSlot.Offer(Resource.Undo_FanCurvesReset, () => UndoAsync(before));
             if (mode is null || mode == _previewMode)
                 _previewMode = null;   // nothing tried with Apply now needs putting back any more
 
             ShowMode();
             SetStatus(ResetResultText(result), result == FanCurveResetResult.RemovedReapplyFailed ? StatusKind.Warning : StatusKind.Success);
         });
+    }
+
+    /// <summary>
+    /// Undo of a Save or a reset: the curves (and the on/off switch) from before it, applied to the mode the
+    /// laptop is in; this window, if still open, shows them.
+    /// </summary>
+    private async Task<bool> UndoAsync(FanCurvesSnapshot before)
+    {
+        var allApplied = await _controller.RestoreAsync(before, _powerModeFeature.SetStateAsync);
+        if (IsLoaded)
+        {
+            _enabledToggle.IsChecked = _settings.Store.Enabled;
+            ShowMode();
+            SetStatus(string.Empty, StatusKind.Neutral);
+            await UpdateApplyNowAsync();
+        }
+        return allApplied;
     }
 
     public static string ResetResultText(FanCurveResetResult result) => result switch
