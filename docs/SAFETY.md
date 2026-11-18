@@ -2,6 +2,8 @@
 
 This page lists every kind of change Lenovo Legion Toolkit (LLT) can make to the laptop's firmware, GPU and boot files, whether it survives a restart, what limits the value, and how to get back.
 
+To see the current state of these rows on your laptop, open **Safety report** (Settings → App behaviour, or the About page). It is read-only, changes nothing and calls no hardware driver. **Copy as text** gives a version to paste into a bug report.
+
 It was written by reading the code (2026-11-13). **Whether the firmware forgets a value on restart has not been checked on a laptop yet**; rows that depend on that say "expected".
 
 ## What LLT can and cannot promise

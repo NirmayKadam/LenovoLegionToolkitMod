@@ -75,6 +75,9 @@ public partial class AboutPage
         }
     }
  
+    private void OpenSafetyReport_Click(object sender, RoutedEventArgs e) =>
+        new LenovoLegionToolkit.WPF.Windows.Settings.SafetyReportWindow { Owner = Window.GetWindow(this) }.ShowDialog();
+
     private void Hyperlink_Click(object sender, RoutedEventArgs e)
     {
         if (e.Source is Hyperlink { Tag: string uriString })

@@ -337,10 +337,33 @@ public partial class App
             }
 
             await ShowLegacyPluginNoticeIfNeededAsync();
+            ShowTourIfNeeded();
         }
 
         DebugUIManager.Start();
         await Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// The first-run tour, once (for new installs and after the update that added it). Marked as shown before it
+    /// opens, so a crash while it's open can't bring it back at every start.
+    /// </summary>
+    private static void ShowTourIfNeeded()
+    {
+        try
+        {
+            var settings = IoCContainer.Resolve<ApplicationSettings>();
+            if (!TourSteps.ShouldShowAtStart(settings.Store.TourShown, AppFlags.Instance.Minimized))
+                return;
+
+            settings.Store.TourShown = true;
+            settings.SynchronizeStore();
+            TourWindow.Open(Current.MainWindow!);
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Failed to show the tour.", ex);
+        }
     }
 
     private static async Task ShowLegacyPluginNoticeIfNeededAsync()

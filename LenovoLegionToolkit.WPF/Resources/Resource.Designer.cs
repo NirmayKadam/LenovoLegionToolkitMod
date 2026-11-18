@@ -13228,5 +13228,896 @@ namespace LenovoLegionToolkit.WPF.Resources {
                 return ResourceManager.GetString("Undo_FanCurvesReset", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Quick tour.
+        /// </summary>
+        public static string Tour_Title {
+            get {
+                return ResourceManager.GetString("Tour_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Step {0} of {1}.
+        /// </summary>
+        public static string Tour_StepOf {
+            get {
+                return ResourceManager.GetString("Tour_StepOf", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Show me.
+        /// </summary>
+        public static string Tour_ShowMe {
+            get {
+                return ResourceManager.GetString("Tour_ShowMe", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Skip tour.
+        /// </summary>
+        public static string Tour_Skip {
+            get {
+                return ResourceManager.GetString("Tour_Skip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Back.
+        /// </summary>
+        public static string Tour_Back {
+            get {
+                return ResourceManager.GetString("Tour_Back", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Next.
+        /// </summary>
+        public static string Tour_Next {
+            get {
+                return ResourceManager.GetString("Tour_Next", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Finish.
+        /// </summary>
+        public static string Tour_Finish {
+            get {
+                return ResourceManager.GetString("Tour_Finish", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Power modes and Fn+Q.
+        /// </summary>
+        public static string Tour_PowerModes_Title {
+            get {
+                return ResourceManager.GetString("Tour_PowerModes_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fn+Q, or the Power mode card on the dashboard, switches between Quiet, Balance, Performance and Custom. The power-mode details card shows what the mode sets (power and temperature limits, fan curve, c[rest of string was truncated].
+        /// </summary>
+        public static string Tour_PowerModes_Text {
+            get {
+                return ResourceManager.GetString("Tour_PowerModes_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The dashboard.
+        /// </summary>
+        public static string Tour_Dashboard_Title {
+            get {
+                return ResourceManager.GetString("Tour_Dashboard_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Each card controls one feature of your laptop. Point at a card&apos;s title to see what it does, when to use it and any risk. Customize dashboard hides, shows and reorders the cards..
+        /// </summary>
+        public static string Tour_Dashboard_Text {
+            get {
+                return ResourceManager.GetString("Tour_Dashboard_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Custom mode (God Mode).
+        /// </summary>
+        public static string Tour_GodMode_Title {
+            get {
+                return ResourceManager.GetString("Tour_GodMode_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Custom mode uses your own CPU and GPU power limits, temperature limits and fan curve, always inside the range the firmware allows. Open it with the settings button on the Power mode card. After Save, [rest of string was truncated].
+        /// </summary>
+        public static string Tour_GodMode_Text {
+            get {
+                return ResourceManager.GetString("Tour_GodMode_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A fan curve for each power mode.
+        /// </summary>
+        public static string Tour_FanCurves_Title {
+            get {
+                return ResourceManager.GetString("Tour_FanCurves_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Settings → Power → Fan curves sets your own curve for the built-in modes. Test now checks once whether this laptop&apos;s firmware keeps a custom curve; Use firmware curve goes back to Lenovo&apos;s. [rest of string was truncated].
+        /// </summary>
+        public static string Tour_FanCurves_Text {
+            get {
+                return ResourceManager.GetString("Tour_FanCurves_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to On-screen display.
+        /// </summary>
+        public static string Tour_Osd_Title {
+            get {
+                return ResourceManager.GetString("Tour_Osd_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to With Hardware sensors on, the On-screen display (Settings → App behaviour) shows FPS, frame times, a frame-time graph, temperatures and more over your games. In its settings, a show/hide shortcut work[rest of string was truncated].
+        /// </summary>
+        public static string Tour_Osd_Text {
+            get {
+                return ResourceManager.GetString("Tour_Osd_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Game-safe mode and game profiles.
+        /// </summary>
+        public static string Tour_GameSafe_Title {
+            get {
+                return ResourceManager.GetString("Tour_GameSafe_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to While a game with an anti-cheat (Vanguard, Easy Anti-Cheat, BattlEye) runs, game-safe mode pauses everything that uses a hardware driver, and the OSD shows GAME-SAFE. Game profiles can ease or close a[rest of string was truncated].
+        /// </summary>
+        public static string Tour_GameSafe_Text {
+            get {
+                return ResourceManager.GetString("Tour_GameSafe_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Settings and safety.
+        /// </summary>
+        public static string Tour_Settings_Title {
+            get {
+                return ResourceManager.GetString("Tour_Settings_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Settings has everything else, by category. App behaviour → Safety report lists what LLT is changing on this laptop right now and which protections are on. This tour can be opened again there too..
+        /// </summary>
+        public static string Tour_Settings_Text {
+            get {
+                return ResourceManager.GetString("Tour_Settings_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Quick tour.
+        /// </summary>
+        public static string SettingsPage_Tour_Title {
+            get {
+                return ResourceManager.GetString("SettingsPage_Tour_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A short walk through the main features. Shown once after installing; open it again here..
+        /// </summary>
+        public static string SettingsPage_Tour_Message {
+            get {
+                return ResourceManager.GetString("SettingsPage_Tour_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Opens the quick tour: seven short steps about power modes, the dashboard, Custom mode, fan curves, the OSD, game-safe mode and Settings, each with a Show me button that opens the page..
+        /// </summary>
+        public static string Help_Settings_Tour_What {
+            get {
+                return ResourceManager.GetString("Help_Settings_Tour_What", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to When you want a reminder of where things are. It changes nothing on the laptop..
+        /// </summary>
+        public static string Help_Settings_Tour_When {
+            get {
+                return ResourceManager.GetString("Help_Settings_Tour_When", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Safety report.
+        /// </summary>
+        public static string SafetyReport_Title {
+            get {
+                return ResourceManager.GetString("SafetyReport_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to What LLT is changing on this laptop right now, and which protections are on. Read-only: nothing here changes anything, and no hardware driver is called..
+        /// </summary>
+        public static string SafetyReport_Message {
+            get {
+                return ResourceManager.GetString("SafetyReport_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Refresh.
+        /// </summary>
+        public static string SafetyReport_Refresh {
+            get {
+                return ResourceManager.GetString("SafetyReport_Refresh", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Copy as text.
+        /// </summary>
+        public static string SafetyReport_Copy {
+            get {
+                return ResourceManager.GetString("SafetyReport_Copy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Copied to the clipboard..
+        /// </summary>
+        public static string SafetyReport_Copied {
+            get {
+                return ResourceManager.GetString("SafetyReport_Copied", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Protections.
+        /// </summary>
+        public static string SafetyReport_Section_Protections {
+            get {
+                return ResourceManager.GetString("SafetyReport_Section_Protections", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to In effect now.
+        /// </summary>
+        public static string SafetyReport_Section_InEffect {
+            get {
+                return ResourceManager.GetString("SafetyReport_Section_InEffect", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to App security.
+        /// </summary>
+        public static string SafetyReport_Section_AppSecurity {
+            get {
+                return ResourceManager.GetString("SafetyReport_Section_AppSecurity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Couldn&apos;t read this (see the log).
+        /// </summary>
+        public static string SafetyReport_Unknown {
+            get {
+                return ResourceManager.GetString("SafetyReport_Unknown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to On.
+        /// </summary>
+        public static string SafetyReport_On {
+            get {
+                return ResourceManager.GetString("SafetyReport_On", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Off.
+        /// </summary>
+        public static string SafetyReport_Off {
+            get {
+                return ResourceManager.GetString("SafetyReport_Off", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Game-safe mode.
+        /// </summary>
+        public static string SafetyReport_GameSafe {
+            get {
+                return ResourceManager.GetString("SafetyReport_GameSafe", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to On now: anti-cheat running ({0}). Features that use a hardware driver are paused..
+        /// </summary>
+        public static string SafetyReport_GameSafe_Active {
+            get {
+                return ResourceManager.GetString("SafetyReport_GameSafe_Active", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to On now: the running game&apos;s profile asks for it. Features that use a hardware driver are paused..
+        /// </summary>
+        public static string SafetyReport_GameSafe_ActiveProfile {
+            get {
+                return ResourceManager.GetString("SafetyReport_GameSafe_ActiveProfile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ready: turns on when an anti-cheat starts.
+        /// </summary>
+        public static string SafetyReport_GameSafe_Ready {
+            get {
+                return ResourceManager.GetString("SafetyReport_GameSafe_Ready", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Off in Settings (only a game profile can turn it on).
+        /// </summary>
+        public static string SafetyReport_GameSafe_Off {
+            get {
+                return ResourceManager.GetString("SafetyReport_GameSafe_Off", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to GPU overclock crash guard.
+        /// </summary>
+        public static string SafetyReport_CrashGuard {
+            get {
+                return ResourceManager.GetString("SafetyReport_CrashGuard", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Turned the GPU overclock off: its last apply never finished. Your values are kept; lower them before turning it on again..
+        /// </summary>
+        public static string SafetyReport_CrashGuard_Disabled {
+            get {
+                return ResourceManager.GetString("SafetyReport_CrashGuard_Disabled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Watching the last apply (cleared after 60 s without a crash).
+        /// </summary>
+        public static string SafetyReport_CrashGuard_Pending {
+            get {
+                return ResourceManager.GetString("SafetyReport_CrashGuard_Pending", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nothing pending.
+        /// </summary>
+        public static string SafetyReport_CrashGuard_Clear {
+            get {
+                return ResourceManager.GetString("SafetyReport_CrashGuard_Clear", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to GPU overclock.
+        /// </summary>
+        public static string SafetyReport_GpuOverclock {
+            get {
+                return ResourceManager.GetString("SafetyReport_GpuOverclock", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MSI Afterburner is running: LLT sends nothing to the GPU clocks (your values are kept).
+        /// </summary>
+        public static string SafetyReport_GpuOverclock_Afterburner {
+            get {
+                return ResourceManager.GetString("SafetyReport_GpuOverclock_Afterburner", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to core {0} MHz.
+        /// </summary>
+        public static string SafetyReport_GpuOverclock_Core {
+            get {
+                return ResourceManager.GetString("SafetyReport_GpuOverclock_Core", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to memory {0} MHz.
+        /// </summary>
+        public static string SafetyReport_GpuOverclock_Memory {
+            get {
+                return ResourceManager.GetString("SafetyReport_GpuOverclock_Memory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to voltage locked at {0} mV.
+        /// </summary>
+        public static string SafetyReport_GpuOverclock_VoltageLock {
+            get {
+                return ResourceManager.GetString("SafetyReport_GpuOverclock_VoltageLock", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to voltage capped at {0} mV.
+        /// </summary>
+        public static string SafetyReport_GpuOverclock_VoltageCap {
+            get {
+                return ResourceManager.GetString("SafetyReport_GpuOverclock_VoltageCap", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Custom mode preset.
+        /// </summary>
+        public static string SafetyReport_GodMode {
+            get {
+                return ResourceManager.GetString("SafetyReport_GodMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to None saved yet.
+        /// </summary>
+        public static string SafetyReport_GodMode_None {
+            get {
+                return ResourceManager.GetString("SafetyReport_GodMode_None", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} (sent to the firmware only while Custom mode is on).
+        /// </summary>
+        public static string SafetyReport_GodMode_Preset {
+            get {
+                return ResourceManager.GetString("SafetyReport_GodMode_Preset", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Custom mode values.
+        /// </summary>
+        public static string SafetyReport_GodMode_Values {
+            get {
+                return ResourceManager.GetString("SafetyReport_GodMode_Values", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CPU long-term {0} W.
+        /// </summary>
+        public static string SafetyReport_GodMode_CpuLongTerm {
+            get {
+                return ResourceManager.GetString("SafetyReport_GodMode_CpuLongTerm", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CPU short-term {0} W.
+        /// </summary>
+        public static string SafetyReport_GodMode_CpuShortTerm {
+            get {
+                return ResourceManager.GetString("SafetyReport_GodMode_CpuShortTerm", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CPU limit {0} °C.
+        /// </summary>
+        public static string SafetyReport_GodMode_CpuTemperature {
+            get {
+                return ResourceManager.GetString("SafetyReport_GodMode_CpuTemperature", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to GPU TGP {0} W.
+        /// </summary>
+        public static string SafetyReport_GodMode_GpuTgp {
+            get {
+                return ResourceManager.GetString("SafetyReport_GodMode_GpuTgp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to GPU boost {0} W.
+        /// </summary>
+        public static string SafetyReport_GodMode_GpuBoost {
+            get {
+                return ResourceManager.GetString("SafetyReport_GodMode_GpuBoost", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to GPU limit {0} °C.
+        /// </summary>
+        public static string SafetyReport_GodMode_GpuTemperature {
+            get {
+                return ResourceManager.GetString("SafetyReport_GodMode_GpuTemperature", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to own fan curve.
+        /// </summary>
+        public static string SafetyReport_GodMode_FanCurve {
+            get {
+                return ResourceManager.GetString("SafetyReport_GodMode_FanCurve", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to fans at full speed.
+        /// </summary>
+        public static string SafetyReport_GodMode_FanFullSpeed {
+            get {
+                return ResourceManager.GetString("SafetyReport_GodMode_FanFullSpeed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Per-mode fan curves.
+        /// </summary>
+        public static string SafetyReport_FanCurves {
+            get {
+                return ResourceManager.GetString("SafetyReport_FanCurves", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Off: the firmware&apos;s own curves are used.
+        /// </summary>
+        public static string SafetyReport_FanCurves_Firmware {
+            get {
+                return ResourceManager.GetString("SafetyReport_FanCurves_Firmware", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to On; this laptop keeps custom curves (tested).
+        /// </summary>
+        public static string SafetyReport_FanCurves_Accepts {
+            get {
+                return ResourceManager.GetString("SafetyReport_FanCurves_Accepts", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to On, but this laptop puts its own curve back (tested), so the firmware&apos;s curves are used.
+        /// </summary>
+        public static string SafetyReport_FanCurves_Rejects {
+            get {
+                return ResourceManager.GetString("SafetyReport_FanCurves_Rejects", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to On; not tested yet whether this laptop keeps custom curves.
+        /// </summary>
+        public static string SafetyReport_FanCurves_NotTested {
+            get {
+                return ResourceManager.GetString("SafetyReport_FanCurves_NotTested", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fan curve: {0}.
+        /// </summary>
+        public static string SafetyReport_FanCurve_Mode {
+            get {
+                return ResourceManager.GetString("SafetyReport_FanCurve_Mode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your curve, in use.
+        /// </summary>
+        public static string SafetyReport_FanCurve_InUse {
+            get {
+                return ResourceManager.GetString("SafetyReport_FanCurve_InUse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your curve, written at the next change to this mode.
+        /// </summary>
+        public static string SafetyReport_FanCurve_Pending {
+            get {
+                return ResourceManager.GetString("SafetyReport_FanCurve_Pending", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your curve wasn&apos;t kept by the firmware; its own curve is in use.
+        /// </summary>
+        public static string SafetyReport_FanCurve_NotKept {
+            get {
+                return ResourceManager.GetString("SafetyReport_FanCurve_NotKept", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The firmware&apos;s curve.
+        /// </summary>
+        public static string SafetyReport_FanCurve_FirmwareInstead {
+            get {
+                return ResourceManager.GetString("SafetyReport_FanCurve_FirmwareInstead", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Game profile.
+        /// </summary>
+        public static string SafetyReport_GameProfile {
+            get {
+                return ResourceManager.GetString("SafetyReport_GameProfile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to None active.
+        /// </summary>
+        public static string SafetyReport_GameProfile_None {
+            get {
+                return ResourceManager.GetString("SafetyReport_GameProfile_None", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to eased: {0}.
+        /// </summary>
+        public static string SafetyReport_GameProfile_Eased {
+            get {
+                return ResourceManager.GetString("SafetyReport_GameProfile_Eased", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to paused services: {0}.
+        /// </summary>
+        public static string SafetyReport_GameProfile_Paused {
+            get {
+                return ResourceManager.GetString("SafetyReport_GameProfile_Paused", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Settings folder.
+        /// </summary>
+        public static string SafetyReport_SettingsFolder {
+            get {
+                return ResourceManager.GetString("SafetyReport_SettingsFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: only administrators can change it.
+        /// </summary>
+        public static string SafetyReport_SettingsFolder_Protected {
+            get {
+                return ResourceManager.GetString("SafetyReport_SettingsFolder_Protected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: the protected folder (its permissions couldn&apos;t be checked just now).
+        /// </summary>
+        public static string SafetyReport_SettingsFolder_ProtectedUnchecked {
+            get {
+                return ResourceManager.GetString("SafetyReport_SettingsFolder_ProtectedUnchecked", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: programs without administrator rights can change these settings (portable copy, or LLT not running as administrator).
+        /// </summary>
+        public static string SafetyReport_SettingsFolder_Open {
+            get {
+                return ResourceManager.GetString("SafetyReport_SettingsFolder_Open", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Plugins.
+        /// </summary>
+        public static string SafetyReport_Plugins {
+            get {
+                return ResourceManager.GetString("SafetyReport_Plugins", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} loaded, only from the protected program folder.
+        /// </summary>
+        public static string SafetyReport_Plugins_Loaded {
+            get {
+                return ResourceManager.GetString("SafetyReport_Plugins_Loaded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to None loaded: the program folder isn&apos;t protected.
+        /// </summary>
+        public static string SafetyReport_Plugins_Blocked {
+            get {
+                return ResourceManager.GetString("SafetyReport_Plugins_Blocked", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Old plugin files.
+        /// </summary>
+        public static string SafetyReport_Plugins_Legacy {
+            get {
+                return ResourceManager.GetString("SafetyReport_Plugins_Legacy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} found in the old per-user folder; not loaded.
+        /// </summary>
+        public static string SafetyReport_Plugins_LegacyFound {
+            get {
+                return ResourceManager.GetString("SafetyReport_Plugins_LegacyFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Start with Windows.
+        /// </summary>
+        public static string SafetyReport_Autostart {
+            get {
+                return ResourceManager.GetString("SafetyReport_Autostart", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Command-line access (CLI).
+        /// </summary>
+        public static string SafetyReport_Cli {
+            get {
+                return ResourceManager.GetString("SafetyReport_Cli", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hardware sensors driver.
+        /// </summary>
+        public static string SafetyReport_Sensors {
+            get {
+                return ResourceManager.GetString("SafetyReport_Sensors", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to On; PawnIO {0}.
+        /// </summary>
+        public static string SafetyReport_Sensors_On {
+            get {
+                return ResourceManager.GetString("SafetyReport_Sensors_On", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to installed.
+        /// </summary>
+        public static string SafetyReport_PawnIO_Installed {
+            get {
+                return ResourceManager.GetString("SafetyReport_PawnIO_Installed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to needs an update.
+        /// </summary>
+        public static string SafetyReport_PawnIO_Update {
+            get {
+                return ResourceManager.GetString("SafetyReport_PawnIO_Update", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to installed, its service not running.
+        /// </summary>
+        public static string SafetyReport_PawnIO_NotRunning {
+            get {
+                return ResourceManager.GetString("SafetyReport_PawnIO_NotRunning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to not installed.
+        /// </summary>
+        public static string SafetyReport_PawnIO_NotInstalled {
+            get {
+                return ResourceManager.GetString("SafetyReport_PawnIO_NotInstalled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to What LLT is changing on this laptop right now, and which protections are on..
+        /// </summary>
+        public static string SettingsPage_SafetyReport_Message {
+            get {
+                return ResourceManager.GetString("SettingsPage_SafetyReport_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lists, read-only, what LLT is changing now (GPU overclock, Custom mode, fan curves, game profile) and which protections are on (game-safe mode, the GPU crash guard, the protected settings folder, plug[rest of string was truncated].
+        /// </summary>
+        public static string Help_Settings_SafetyReport_What {
+            get {
+                return ResourceManager.GetString("Help_Settings_SafetyReport_What", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to To check what LLT does to the laptop, or to paste into a bug report with Copy as text. Opening it changes nothing and calls no hardware driver..
+        /// </summary>
+        public static string Help_Settings_SafetyReport_When {
+            get {
+                return ResourceManager.GetString("Help_Settings_SafetyReport_When", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Safety report.
+        /// </summary>
+        public static string AboutPage_SafetyReport {
+            get {
+                return ResourceManager.GetString("AboutPage_SafetyReport", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Couldn&apos;t copy: the clipboard is in use by another app. Try again..
+        /// </summary>
+        public static string SafetyReport_CopyFailed {
+            get {
+                return ResourceManager.GetString("SafetyReport_CopyFailed", resourceCulture);
+            }
+        }
     }
 }

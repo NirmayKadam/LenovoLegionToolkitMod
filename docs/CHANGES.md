@@ -439,3 +439,31 @@ New strings are in English only (`Resource.resx`). Other languages show them in 
 - On the dashboard card, the reset result now shows on the undo bar instead of a snackbar, so the two don't cover each other.
 - Tests: `Tests/UI/UndoSlotTests.cs`, `Tests/Controllers/GodModeUndoTests.cs` (over a real `godmode.json`), and the undo section of `Tests/UI/FanProfileTests.cs`. These are new features, so there was no old behaviour to fail.
 - Not verified on the laptop yet.
+
+### 2. First-run tour
+- `LenovoLegionToolkit.WPF/Windows/Utils/TourWindow.xaml(.cs)` (new): 7 steps covering power modes and Fn+Q, the dashboard, Custom mode, fan curves, the OSD, game-safe mode and game profiles, and Settings with the safety report. It has Back / Next / Skip, and each step has **Show me**, which opens the page. It doesn't block the main window, and only one can be open.
+- `LenovoLegionToolkit.WPF/Utils/TourSteps.cs` (new): the steps, and the rule for when the tour opens by itself.
+- `MainWindow.NavigateTo(pageTag, settingsTab)`: opens a page (and a Settings category). It returns false when this laptop doesn't have the page, and **Show me** is then hidden.
+- **When it opens:** once, on a normal start (not a tray or autostart start), right after the plugin notice. This includes after this update. `ApplicationSettings.TourShown` is saved when the tour opens, so a crash can't make it come back at every start.
+- **Settings → App behaviour → Quick tour** opens it again (with hover help).
+- Tests: `Tests/UI/TourTests.cs`. They check that every step has its text, that every step's page and Settings category exist in the real `MainWindow.xaml` and `SettingsPage` sources, and the show-once rule.
+
+### 3. Safety report
+- `LenovoLegionToolkit.WPF/Utils/SafetyReport.cs` (new, pure): rows in three sections, in the order of `docs/SAFETY.md`.
+  - **Protections:** game-safe mode and which anti-cheat, the GPU crash guard.
+  - **In effect now:** GPU overclock (or "MSI Afterburner is running"), the Custom mode preset and its saved values, per-mode fan curves and whether each is in use, the active game profile and what it eased or paused.
+  - **App security:** settings folder protection, plugins and old plugin files, autostart, CLI, the hardware-sensor driver and PawnIO.
+  - Rows that need a look are shown in the caution colour: the overclock turned off after a crash, a settings folder others can write to, old plugin files, a curve the firmware didn't keep.
+  - `ToText()` gives the plain text for Copy.
+  - It lives in WPF rather than Lib, because its text uses the app's strings.
+- `LenovoLegionToolkit.WPF/Utils/SafetyReportCollector.cs` (new): reads only settings, in-memory state, the process list, the registry, Task Scheduler and the settings folder's permissions.
+  - It calls no hardware driver and changes nothing.
+  - It deliberately avoids three calls that have side effects: `GPUOverclockController.GetState()` (can write settings), `GodModeController.GetActivePresetAsync()` (can save) and the sensors' `IsSupportedAsync()` (starts the driver).
+  - Each part is read on its own, and one that fails shows "Couldn't read this".
+- `LenovoLegionToolkit.WPF/Windows/Settings/SafetyReportWindow.xaml(.cs)` (new): it is read off the UI thread, and has Refresh and Copy as text. It opens from Settings → App behaviour (with hover help) and from the About page.
+- Tests: `Tests/UI/SafetyReportTests.cs` checks what each state says, what is flagged, "couldn't read" instead of a guess, and the text format.
+
+### 4. Fix: settings backup missed three files
+- `SettingsBackupWindow` didn't list `fan_profiles.json` (per-mode fan curves), `game_profiles.json` or `amd_oc.json` (AMD overclocking), so a backup lost them. They are now included.
+- `game_profile_session.json` is left out on purpose: restoring an old session note could put back services or app priorities from another time.
+- Test: `Tests/Settings/SettingsBackupCoverageTests.cs` checks every settings file named in the settings classes' sources. It **failed before the fix**, naming exactly those three files.

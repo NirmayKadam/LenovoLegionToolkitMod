@@ -160,6 +160,15 @@ public partial class SettingsAppBehaviorControl
         UpdateGameSafeModeStatus();
     }
 
+    private void SafetyReportCard_Click(object sender, RoutedEventArgs e) =>
+        new SafetyReportWindow { Owner = Window.GetWindow(this) }.ShowDialog();
+
+    private void TourCard_Click(object sender, RoutedEventArgs e)
+    {
+        if (Window.GetWindow(this) is { } owner)
+            TourWindow.Open(owner);
+    }
+
     /// <summary>Shows whether game-safe mode is on right now, and which anti-cheat triggered it.</summary>
     private void UpdateGameSafeModeStatus()
     {

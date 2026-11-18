@@ -66,6 +66,9 @@ public class ApplicationSettings : AbstractSettings<ApplicationSettingsStore>
         public int HelpTooltipDelayMs { get; set; } = 400;
         public bool GameSafeMode { get; set; } = true;
         public bool PowerModeDetailsExpanded { get; set; } = true;
+
+        /// <summary>The first-run tour has been shown (false for new installs and for settings from before it existed).</summary>
+        public bool TourShown { get; set; }
     }
     public class GameDetectionSettings
     {

@@ -102,6 +102,24 @@
                         Click="HelpTooltipsToggle_Click" />
                 </StackPanel>
             </custom:CardControl>
+            <custom:CardAction
+                Margin="0,0,0,8"
+                Click="SafetyReportCard_Click"
+                Icon="ShieldCheckmark24">
+                <controls:CardHeaderControl
+                    Title="{x:Static resources:Resource.SafetyReport_Title}"
+                    HelpKey="Help_Settings_SafetyReport"
+                    Subtitle="{x:Static resources:Resource.SettingsPage_SafetyReport_Message}" />
+            </custom:CardAction>
+            <custom:CardAction
+                Margin="0,0,0,8"
+                Click="TourCard_Click"
+                Icon="Map24">
+                <controls:CardHeaderControl
+                    Title="{x:Static resources:Resource.SettingsPage_Tour_Title}"
+                    HelpKey="Help_Settings_Tour"
+                    Subtitle="{x:Static resources:Resource.SettingsPage_Tour_Message}" />
+            </custom:CardAction>
             <custom:CardControl Margin="0,0,0,8" Icon="ArrowMinimize24">
                 <custom:CardControl.Header>
                     <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_MinimizeToTray_Title}" HelpKey="Help_Settings_MinimizeToTray" Subtitle="{x:Static resources:Resource.SettingsPage_MinimizeToTray_Message}" />

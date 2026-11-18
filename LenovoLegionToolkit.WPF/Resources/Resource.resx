@@ -5889,4 +5889,301 @@ When the game ends, LLT puts the apps&apos; priority and the services back. It n
   <data name="Undo_FanCurvesReset" xml:space="preserve">
     <value>Fan curves set back to the firmware&apos;s.</value>
   </data>
+  <data name="Tour_Title" xml:space="preserve">
+    <value>Quick tour</value>
+  </data>
+  <data name="Tour_StepOf" xml:space="preserve">
+    <value>Step {0} of {1}</value>
+  </data>
+  <data name="Tour_ShowMe" xml:space="preserve">
+    <value>Show me</value>
+  </data>
+  <data name="Tour_Skip" xml:space="preserve">
+    <value>Skip tour</value>
+  </data>
+  <data name="Tour_Back" xml:space="preserve">
+    <value>Back</value>
+  </data>
+  <data name="Tour_Next" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="Tour_Finish" xml:space="preserve">
+    <value>Finish</value>
+  </data>
+  <data name="Tour_PowerModes_Title" xml:space="preserve">
+    <value>Power modes and Fn+Q</value>
+  </data>
+  <data name="Tour_PowerModes_Text" xml:space="preserve">
+    <value>Fn+Q, or the Power mode card on the dashboard, switches between Quiet, Balance, Performance and Custom. The power-mode details card shows what the mode sets (power and temperature limits, fan curve, clock offsets) and what changed from the previous mode.</value>
+  </data>
+  <data name="Tour_Dashboard_Title" xml:space="preserve">
+    <value>The dashboard</value>
+  </data>
+  <data name="Tour_Dashboard_Text" xml:space="preserve">
+    <value>Each card controls one feature of your laptop. Point at a card&apos;s title to see what it does, when to use it and any risk. Customize dashboard hides, shows and reorders the cards.</value>
+  </data>
+  <data name="Tour_GodMode_Title" xml:space="preserve">
+    <value>Custom mode (God Mode)</value>
+  </data>
+  <data name="Tour_GodMode_Text" xml:space="preserve">
+    <value>Custom mode uses your own CPU and GPU power limits, temperature limits and fan curve, always inside the range the firmware allows. Open it with the settings button on the Power mode card. After Save, an Undo button stays for 30 seconds.</value>
+  </data>
+  <data name="Tour_FanCurves_Title" xml:space="preserve">
+    <value>A fan curve for each power mode</value>
+  </data>
+  <data name="Tour_FanCurves_Text" xml:space="preserve">
+    <value>Settings → Power → Fan curves sets your own curve for the built-in modes. Test now checks once whether this laptop&apos;s firmware keeps a custom curve; Use firmware curve goes back to Lenovo&apos;s. A Save or a reset can be undone for 30 seconds.</value>
+  </data>
+  <data name="Tour_Osd_Title" xml:space="preserve">
+    <value>On-screen display</value>
+  </data>
+  <data name="Tour_Osd_Text" xml:space="preserve">
+    <value>With Hardware sensors on, the On-screen display (Settings → App behaviour) shows FPS, frame times, a frame-time graph, temperatures and more over your games. In its settings, a show/hide shortcut works even in a full-screen game.</value>
+  </data>
+  <data name="Tour_GameSafe_Title" xml:space="preserve">
+    <value>Game-safe mode and game profiles</value>
+  </data>
+  <data name="Tour_GameSafe_Text" xml:space="preserve">
+    <value>While a game with an anti-cheat (Vanguard, Easy Anti-Cheat, BattlEye) runs, game-safe mode pauses everything that uses a hardware driver, and the OSD shows GAME-SAFE. Game profiles can ease or close apps and pause services you list while a game runs, and put them back after.</value>
+  </data>
+  <data name="Tour_Settings_Title" xml:space="preserve">
+    <value>Settings and safety</value>
+  </data>
+  <data name="Tour_Settings_Text" xml:space="preserve">
+    <value>Settings has everything else, by category. App behaviour → Safety report lists what LLT is changing on this laptop right now and which protections are on. This tour can be opened again there too.</value>
+  </data>
+  <data name="SettingsPage_Tour_Title" xml:space="preserve">
+    <value>Quick tour</value>
+  </data>
+  <data name="SettingsPage_Tour_Message" xml:space="preserve">
+    <value>A short walk through the main features. Shown once after installing; open it again here.</value>
+  </data>
+  <data name="Help_Settings_Tour_What" xml:space="preserve">
+    <value>Opens the quick tour: seven short steps about power modes, the dashboard, Custom mode, fan curves, the OSD, game-safe mode and Settings, each with a Show me button that opens the page.</value>
+  </data>
+  <data name="Help_Settings_Tour_When" xml:space="preserve">
+    <value>When you want a reminder of where things are. It changes nothing on the laptop.</value>
+  </data>
+  <data name="SafetyReport_Title" xml:space="preserve">
+    <value>Safety report</value>
+  </data>
+  <data name="SafetyReport_Message" xml:space="preserve">
+    <value>What LLT is changing on this laptop right now, and which protections are on. Read-only: nothing here changes anything, and no hardware driver is called.</value>
+  </data>
+  <data name="SafetyReport_Refresh" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="SafetyReport_Copy" xml:space="preserve">
+    <value>Copy as text</value>
+  </data>
+  <data name="SafetyReport_Copied" xml:space="preserve">
+    <value>Copied to the clipboard.</value>
+  </data>
+  <data name="SafetyReport_Section_Protections" xml:space="preserve">
+    <value>Protections</value>
+  </data>
+  <data name="SafetyReport_Section_InEffect" xml:space="preserve">
+    <value>In effect now</value>
+  </data>
+  <data name="SafetyReport_Section_AppSecurity" xml:space="preserve">
+    <value>App security</value>
+  </data>
+  <data name="SafetyReport_Unknown" xml:space="preserve">
+    <value>Couldn&apos;t read this (see the log)</value>
+  </data>
+  <data name="SafetyReport_On" xml:space="preserve">
+    <value>On</value>
+  </data>
+  <data name="SafetyReport_Off" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="SafetyReport_GameSafe" xml:space="preserve">
+    <value>Game-safe mode</value>
+  </data>
+  <data name="SafetyReport_GameSafe_Active" xml:space="preserve">
+    <value>On now: anti-cheat running ({0}). Features that use a hardware driver are paused.</value>
+  </data>
+  <data name="SafetyReport_GameSafe_ActiveProfile" xml:space="preserve">
+    <value>On now: the running game&apos;s profile asks for it. Features that use a hardware driver are paused.</value>
+  </data>
+  <data name="SafetyReport_GameSafe_Ready" xml:space="preserve">
+    <value>Ready: turns on when an anti-cheat starts</value>
+  </data>
+  <data name="SafetyReport_GameSafe_Off" xml:space="preserve">
+    <value>Off in Settings (only a game profile can turn it on)</value>
+  </data>
+  <data name="SafetyReport_CrashGuard" xml:space="preserve">
+    <value>GPU overclock crash guard</value>
+  </data>
+  <data name="SafetyReport_CrashGuard_Disabled" xml:space="preserve">
+    <value>Turned the GPU overclock off: its last apply never finished. Your values are kept; lower them before turning it on again.</value>
+  </data>
+  <data name="SafetyReport_CrashGuard_Pending" xml:space="preserve">
+    <value>Watching the last apply (cleared after 60 s without a crash)</value>
+  </data>
+  <data name="SafetyReport_CrashGuard_Clear" xml:space="preserve">
+    <value>Nothing pending</value>
+  </data>
+  <data name="SafetyReport_GpuOverclock" xml:space="preserve">
+    <value>GPU overclock</value>
+  </data>
+  <data name="SafetyReport_GpuOverclock_Afterburner" xml:space="preserve">
+    <value>MSI Afterburner is running: LLT sends nothing to the GPU clocks (your values are kept)</value>
+  </data>
+  <data name="SafetyReport_GpuOverclock_Core" xml:space="preserve">
+    <value>core {0} MHz</value>
+  </data>
+  <data name="SafetyReport_GpuOverclock_Memory" xml:space="preserve">
+    <value>memory {0} MHz</value>
+  </data>
+  <data name="SafetyReport_GpuOverclock_VoltageLock" xml:space="preserve">
+    <value>voltage locked at {0} mV</value>
+  </data>
+  <data name="SafetyReport_GpuOverclock_VoltageCap" xml:space="preserve">
+    <value>voltage capped at {0} mV</value>
+  </data>
+  <data name="SafetyReport_GodMode" xml:space="preserve">
+    <value>Custom mode preset</value>
+  </data>
+  <data name="SafetyReport_GodMode_None" xml:space="preserve">
+    <value>None saved yet</value>
+  </data>
+  <data name="SafetyReport_GodMode_Preset" xml:space="preserve">
+    <value>{0} (sent to the firmware only while Custom mode is on)</value>
+  </data>
+  <data name="SafetyReport_GodMode_Values" xml:space="preserve">
+    <value>Custom mode values</value>
+  </data>
+  <data name="SafetyReport_GodMode_CpuLongTerm" xml:space="preserve">
+    <value>CPU long-term {0} W</value>
+  </data>
+  <data name="SafetyReport_GodMode_CpuShortTerm" xml:space="preserve">
+    <value>CPU short-term {0} W</value>
+  </data>
+  <data name="SafetyReport_GodMode_CpuTemperature" xml:space="preserve">
+    <value>CPU limit {0} °C</value>
+  </data>
+  <data name="SafetyReport_GodMode_GpuTgp" xml:space="preserve">
+    <value>GPU TGP {0} W</value>
+  </data>
+  <data name="SafetyReport_GodMode_GpuBoost" xml:space="preserve">
+    <value>GPU boost {0} W</value>
+  </data>
+  <data name="SafetyReport_GodMode_GpuTemperature" xml:space="preserve">
+    <value>GPU limit {0} °C</value>
+  </data>
+  <data name="SafetyReport_GodMode_FanCurve" xml:space="preserve">
+    <value>own fan curve</value>
+  </data>
+  <data name="SafetyReport_GodMode_FanFullSpeed" xml:space="preserve">
+    <value>fans at full speed</value>
+  </data>
+  <data name="SafetyReport_FanCurves" xml:space="preserve">
+    <value>Per-mode fan curves</value>
+  </data>
+  <data name="SafetyReport_FanCurves_Firmware" xml:space="preserve">
+    <value>Off: the firmware&apos;s own curves are used</value>
+  </data>
+  <data name="SafetyReport_FanCurves_Accepts" xml:space="preserve">
+    <value>On; this laptop keeps custom curves (tested)</value>
+  </data>
+  <data name="SafetyReport_FanCurves_Rejects" xml:space="preserve">
+    <value>On, but this laptop puts its own curve back (tested), so the firmware&apos;s curves are used</value>
+  </data>
+  <data name="SafetyReport_FanCurves_NotTested" xml:space="preserve">
+    <value>On; not tested yet whether this laptop keeps custom curves</value>
+  </data>
+  <data name="SafetyReport_FanCurve_Mode" xml:space="preserve">
+    <value>Fan curve: {0}</value>
+  </data>
+  <data name="SafetyReport_FanCurve_InUse" xml:space="preserve">
+    <value>Your curve, in use</value>
+  </data>
+  <data name="SafetyReport_FanCurve_Pending" xml:space="preserve">
+    <value>Your curve, written at the next change to this mode</value>
+  </data>
+  <data name="SafetyReport_FanCurve_NotKept" xml:space="preserve">
+    <value>Your curve wasn&apos;t kept by the firmware; its own curve is in use</value>
+  </data>
+  <data name="SafetyReport_FanCurve_FirmwareInstead" xml:space="preserve">
+    <value>The firmware&apos;s curve</value>
+  </data>
+  <data name="SafetyReport_GameProfile" xml:space="preserve">
+    <value>Game profile</value>
+  </data>
+  <data name="SafetyReport_GameProfile_None" xml:space="preserve">
+    <value>None active</value>
+  </data>
+  <data name="SafetyReport_GameProfile_Eased" xml:space="preserve">
+    <value>eased: {0}</value>
+  </data>
+  <data name="SafetyReport_GameProfile_Paused" xml:space="preserve">
+    <value>paused services: {0}</value>
+  </data>
+  <data name="SafetyReport_SettingsFolder" xml:space="preserve">
+    <value>Settings folder</value>
+  </data>
+  <data name="SafetyReport_SettingsFolder_Protected" xml:space="preserve">
+    <value>{0}: only administrators can change it</value>
+  </data>
+  <data name="SafetyReport_SettingsFolder_ProtectedUnchecked" xml:space="preserve">
+    <value>{0}: the protected folder (its permissions couldn&apos;t be checked just now)</value>
+  </data>
+  <data name="SafetyReport_SettingsFolder_Open" xml:space="preserve">
+    <value>{0}: programs without administrator rights can change these settings (portable copy, or LLT not running as administrator)</value>
+  </data>
+  <data name="SafetyReport_Plugins" xml:space="preserve">
+    <value>Plugins</value>
+  </data>
+  <data name="SafetyReport_Plugins_Loaded" xml:space="preserve">
+    <value>{0} loaded, only from the protected program folder</value>
+  </data>
+  <data name="SafetyReport_Plugins_Blocked" xml:space="preserve">
+    <value>None loaded: the program folder isn&apos;t protected</value>
+  </data>
+  <data name="SafetyReport_Plugins_Legacy" xml:space="preserve">
+    <value>Old plugin files</value>
+  </data>
+  <data name="SafetyReport_Plugins_LegacyFound" xml:space="preserve">
+    <value>{0} found in the old per-user folder; not loaded</value>
+  </data>
+  <data name="SafetyReport_Autostart" xml:space="preserve">
+    <value>Start with Windows</value>
+  </data>
+  <data name="SafetyReport_Cli" xml:space="preserve">
+    <value>Command-line access (CLI)</value>
+  </data>
+  <data name="SafetyReport_Sensors" xml:space="preserve">
+    <value>Hardware sensors driver</value>
+  </data>
+  <data name="SafetyReport_Sensors_On" xml:space="preserve">
+    <value>On; PawnIO {0}</value>
+  </data>
+  <data name="SafetyReport_PawnIO_Installed" xml:space="preserve">
+    <value>installed</value>
+  </data>
+  <data name="SafetyReport_PawnIO_Update" xml:space="preserve">
+    <value>needs an update</value>
+  </data>
+  <data name="SafetyReport_PawnIO_NotRunning" xml:space="preserve">
+    <value>installed, its service not running</value>
+  </data>
+  <data name="SafetyReport_PawnIO_NotInstalled" xml:space="preserve">
+    <value>not installed</value>
+  </data>
+  <data name="SettingsPage_SafetyReport_Message" xml:space="preserve">
+    <value>What LLT is changing on this laptop right now, and which protections are on.</value>
+  </data>
+  <data name="Help_Settings_SafetyReport_What" xml:space="preserve">
+    <value>Lists, read-only, what LLT is changing now (GPU overclock, Custom mode, fan curves, game profile) and which protections are on (game-safe mode, the GPU crash guard, the protected settings folder, plugins).</value>
+  </data>
+  <data name="Help_Settings_SafetyReport_When" xml:space="preserve">
+    <value>To check what LLT does to the laptop, or to paste into a bug report with Copy as text. Opening it changes nothing and calls no hardware driver.</value>
+  </data>
+  <data name="AboutPage_SafetyReport" xml:space="preserve">
+    <value>Safety report</value>
+  </data>
+  <data name="SafetyReport_CopyFailed" xml:space="preserve">
+    <value>Couldn&apos;t copy: the clipboard is in use by another app. Try again.</value>
+  </data>
 </root>

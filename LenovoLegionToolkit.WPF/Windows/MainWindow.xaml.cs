@@ -815,6 +815,26 @@ public partial class MainWindow
         SetVisual();
     }
 
+    /// <summary>
+    /// Opens the page with <paramref name="pageTag"/> and, for Settings, the category <paramref name="settingsTab"/>.
+    /// False when this laptop doesn't have that page (some pages are removed at start).
+    /// </summary>
+    public bool NavigateTo(string pageTag, string? settingsTab = null)
+    {
+        var exists = _navigationStore.Items.Concat(_navigationStore.Footer)
+            .OfType<CustomNavigationItem>()
+            .Any(item => item.PageTag == pageTag);
+        if (!exists)
+            return false;
+
+        if (settingsTab is not null)
+            SettingsPage.PendingTabKey = settingsTab;
+        _navigationStore.Navigate(pageTag);
+        if (settingsTab is not null)
+            SettingsPage.Instance?.ApplyPendingTab();
+        return true;
+    }
+
     private void SoftwareIndicator_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
         SettingsPage.PendingTabKey = "SoftwareControl";

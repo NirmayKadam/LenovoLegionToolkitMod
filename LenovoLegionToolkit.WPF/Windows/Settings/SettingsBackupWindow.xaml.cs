@@ -25,14 +25,15 @@ namespace LenovoLegionToolkit.WPF.Windows.Settings;
 
 public partial class SettingsBackupWindow
 {
-    private static readonly string[] KnownSettingsFiles = 
+    /// <summary>The files a backup can include (internal for the test that checks every settings file is here).</summary>
+    internal static readonly string[] KnownSettingsFiles =
     {
         "sensor_dashboard.json", "dashboard.json", "hardware_sensors.json", 
         "automation.json", "macro.json", "settings.json", "balancemode.json", 
         "godmode.json", "gpu_oc.json", "integrations.json", 
         "itsmode_settings.json", "lamp_array.json", "package_downloader.json", 
         "update_settings.json", "notification_settings.json", "special_key.json", "sunrise_sunset.json", "spectrum_keyboard.json", 
-        "rgb_keyboard.json", "osd.json", "args.txt", "lang"
+        "rgb_keyboard.json", "osd.json", "fan_profiles.json", "game_profiles.json", "amd_oc.json", "args.txt", "lang"
     };
 
     private readonly ObservableCollection<BackupItem> _items = new();
