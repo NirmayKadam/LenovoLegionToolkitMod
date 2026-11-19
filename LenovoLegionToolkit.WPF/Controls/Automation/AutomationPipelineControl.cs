@@ -173,19 +173,49 @@ public class AutomationPipelineControl : UserControl
         OnChanged?.Invoke(this, EventArgs.Empty);
     }
 
-    private void RefreshValidationWarnings()
-    {
-        var pipeline = CreateAutomationPipeline();
-        var warnings = pipeline.GetValidationWarnings().ToList();
+    /// <summary>
+    /// All automations on the page as currently edited; used to expand quick actions and find loops.
+    /// Null means this automation is checked on its own.
+    /// </summary>
+    public Func<IReadOnlyList<AutomationPipeline>>? AllPipelines { get; set; }
 
-        if (warnings.Count > 0)
+    public void RefreshValidationWarnings()
+    {
+        try
         {
-            _validationWarningTextBlock.Text = string.Join("\n", warnings);
-            _validationWarningTextBlock.Visibility = Visibility.Visible;
+            var pipeline = CreateAutomationPipeline();
+            var supported = _supportedAutomationSteps.Select(s => s.GetType()).ToHashSet();
+            var warnings = pipeline
+                .GetValidationWarnings(AllPipelines?.Invoke(), t => t == typeof(QuickActionAutomationStep) || supported.Contains(t))
+                .ToList();
+
+            if (warnings.Count > 0)
+            {
+                _validationWarningTextBlock.Text = string.Join("\n", warnings);
+                _validationWarningTextBlock.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                _validationWarningTextBlock.Visibility = Visibility.Collapsed;
+            }
         }
-        else
+        catch (Exception ex)
         {
+            Log.Instance.Trace($"Failed to refresh automation warnings.", ex);
             _validationWarningTextBlock.Visibility = Visibility.Collapsed;
+        }
+    }
+
+    private string? WhyStepCannotBeAdded(AbstractAutomationStepControl stepControl)
+    {
+        try
+        {
+            return CreateAutomationPipeline().WhyStepCannotBeAdded(stepControl.StepType, AllPipelines?.Invoke());
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Failed to check whether a step can be added.", ex);
+            return null;
         }
     }
 
@@ -253,7 +283,7 @@ public class AutomationPipelineControl : UserControl
                 foreach (var step in _supportedAutomationSteps)
                     stepControls.Add(await GenerateStepControlAsync(step));
 
-                var window = new AddAutomationStepWindow(stepControls, AddStep, _totalAutomationStepsCount) { Owner = Window.GetWindow(this) };
+                var window = new AddAutomationStepWindow(stepControls, AddStep, _totalAutomationStepsCount, WhyStepCannotBeAdded) { Owner = Window.GetWindow(this) };
                 window.ShowDialog();
             };
 

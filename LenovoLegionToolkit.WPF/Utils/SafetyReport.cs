@@ -62,7 +62,11 @@ public sealed record SafetyInputs(
     SensorsInfo? Sensors,
     PowerModeInfo? PowerMode,
     SettingsFilesInfo? SettingsFiles,
-    BackgroundServicesInfo? BackgroundServices);
+    BackgroundServicesInfo? BackgroundServices,
+    RunStepsInfo? RunSteps = null);
+
+/// <summary>Programs that automation Run steps start (as administrator) and that other programs could replace, or that have no folder.</summary>
+public sealed record RunStepsInfo(IReadOnlyList<string> AtRisk);
 
 /// <summary>Whether services are kept stopped during normal use, and which ones LLT has stopped now.</summary>
 public sealed record BackgroundServicesInfo(bool Enabled, IReadOnlyList<string> StoppedByLlt);
@@ -100,6 +104,7 @@ public static class SafetyReport
             null => Resource.SafetyReport_Unknown,
         }));
         rows.Add(SensorsRow(inputs.Sensors));
+        rows.Add(RunStepsRow(inputs.RunSteps));
 
         // ---- Settings files ----
         rows.AddRange(SettingsFileRows(inputs.SettingsFiles));
@@ -234,7 +239,7 @@ public static class SafetyReport
             var name = file.Name;
 
             if (name.Equals("fake_mi.json", StringComparison.OrdinalIgnoreCase))
-                yield return new(section, name, string.Format(Resource.SafetyReport_File_FakeMachine, size, changed), Attention: true);
+                yield return new(section, name, string.Format(FakeMachineFileMessage, size, changed), Attention: true);
             else if (name.Contains("_backup_", StringComparison.OrdinalIgnoreCase) && name.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
                 yield return new(section, name, string.Format(Resource.SafetyReport_File_Backup, size, changed), Attention: true);
             else if (name.EndsWith(".tmp", StringComparison.OrdinalIgnoreCase) && info.NowUtc - file.LastWriteUtc > StaleTempAge)
@@ -243,6 +248,13 @@ public static class SafetyReport
                 yield return new(section, name, string.Format(Resource.SafetyReport_File_Size, size, changed));
         }
     }
+
+#if DEBUG
+    private static string FakeMachineFileMessage => Resource.SafetyReport_File_FakeMachine;
+#else
+    /// <summary>Release builds never read fake_mi.json (see Compatibility).</summary>
+    private static string FakeMachineFileMessage => Resource.SafetyReport_File_FakeMachineIgnored;
+#endif
 
     /// <summary>A temporary file this old is left over from an interrupted save (newer ones may be a save in progress).</summary>
     private static readonly TimeSpan StaleTempAge = TimeSpan.FromDays(1);
@@ -392,6 +404,18 @@ public static class SafetyReport
             _ => Resource.SafetyReport_PawnIO_NotInstalled,
         };
         return new(section, Resource.SafetyReport_Sensors, string.Format(Resource.SafetyReport_Sensors_On, pawnIO));
+    }
+
+    private static SafetyRow RunStepsRow(RunStepsInfo? info)
+    {
+        const SafetySection section = SafetySection.AppSecurity;
+        return info switch
+        {
+            null => new(section, Resource.SafetyReport_RunSteps, Resource.SafetyReport_Unknown),
+            { AtRisk.Count: 0 } => new(section, Resource.SafetyReport_RunSteps, Resource.SafetyReport_RunSteps_None),
+            _ => new(section, Resource.SafetyReport_RunSteps,
+                string.Format(Resource.SafetyReport_RunSteps_AtRisk, info.AtRisk.Count, string.Join(", ", info.AtRisk)), Attention: true),
+        };
     }
 
     private static string Signed(int value) => value > 0 ? $"+{value}" : $"{value}";

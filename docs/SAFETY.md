@@ -2,6 +2,8 @@
 
 This page lists every kind of change Lenovo Legion Toolkit (LLT) can make to the laptop's firmware, GPU and boot files, whether it survives a restart, what limits the value, and how to get back.
 
+LLT's updater only checks this fork's GitHub releases and opens the release page. It never downloads or installs anything.
+
 To see the current state of these rows on your laptop, open **Safety report** (Settings → App behaviour, or the About page). It is read-only and changes nothing. It reads LLT's own settings and state and the settings folder's file list (names, sizes, dates), and makes one read-only Lenovo WMI query for the current power mode, the same one the dashboard makes. It calls no hardware driver (PawnIO, NVIDIA). **Copy as text** gives a version to paste into a bug report.
 
 Settings backups now include `backup_info.json`: the LLT version and laptop model (machine type and name; no serial number) that made them. Restoring a backup made on another model warns first. LLT checks every Custom mode and fan value against this laptop's own ranges anyway.
@@ -80,6 +82,27 @@ Only while a profiled game runs, and only to apps and services you listed. LLT r
 | Change | What limits it | How it is undone |
 |---|---|---|
 | Stopping the services of the presets you choose (telemetry, SysMain, Search indexing, unused extras, Xbox) while LLT runs | The same rules as game profiles: the protected list (62 services), drivers, services that can't stop and services others depend on are never stopped. Each stop is written to `background_services_session.json` first. **Windows' own service settings (startup type) are never changed** | Started again when LLT exits, when a preset is unticked or the feature turned off ("Start them all again"), and at LLT's next start if it was ended. A service something else stopped, or a game profile paused, is never started by it. Without LLT: a restart starts them as usual |
+
+## Automations
+
+Automations change the same settings as the rest of LLT, with the same limits. What LLT adds around them:
+
+- **Steps that can't work are shown.** Each automation lists the problem steps by number:
+  - steps that do nothing (AI Engine outside Balance mode, a power mode the laptop is already in);
+  - steps a later step overrides;
+  - steps after **Close app**, which never run;
+  - steps this laptop doesn't support.
+
+  **Add step** greys out the steps that can't work in that automation and gives the reason. A listed step still runs as before. The one exception: a step this laptop doesn't support is now skipped instead of failing at every run.
+- **Loops are stopped.**
+  - When you edit automations that can start each other (for example `Performance → set Quiet` with `Quiet → set Performance`), each one shows the loop.
+  - While running: if power mode or Custom preset changes made by automations start the same automation more than 3 times within 60 s, LLT pauses it and shows a notification. It stays paused until you save your automations again or restart LLT.
+  - Changes you make yourself (Fn+Q) never count.
+  - Quick actions that run each other no longer crash LLT.
+- **Run steps start their program as administrator**, because LLT runs elevated.
+  - LLT warns when the program or its folder can be changed by programs that aren't elevated, when no folder is given, or when the program is missing. The warning appears on the step, under the automation and in the safety report.
+  - The program still runs: you chose warn only.
+  - **Limit:** only the program itself is checked, not a script named in its arguments (`cmd /c script.bat`).
 
 ## If a GPU overclock makes the laptop unstable
 

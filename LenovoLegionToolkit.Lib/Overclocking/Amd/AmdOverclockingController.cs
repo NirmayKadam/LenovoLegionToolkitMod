@@ -155,7 +155,7 @@ public sealed class AmdOverclockingController : IDisposable
     public void SaveShutdownInfo(ShutdownInfo info)
     {
         var isAmd = _machineInformation?.Properties.IsAmdDevice
-            ?? Compatibility.GetMachineInformationAsync().Result.Properties.IsAmdDevice;
+            ?? Compatibility.GetMachineInformation().Properties.IsAmdDevice;
 
         if (!isAmd && !AppFlags.Instance.Debug)
         {

@@ -937,14 +937,6 @@ public enum SpectrumLayout
     FullAlternative
 }
 
-public enum StatusCode
-{
-    Update = 0,
-    NoUpdate = 1,
-    ForceUpdate = 2,
-    Null = 255,
-}
-
 public enum TemperatureUnit
 {
     C,
@@ -1079,14 +1071,6 @@ public enum UpdateCheckStatus
     Success,
     RateLimitReached,
     Error
-}
-
-public enum UpdateMethod
-{
-    [Display(ResourceType = typeof(Resource), Name = "UpdateMethod_GitHub")]
-    GitHub,
-    [Display(ResourceType = typeof(Resource), Name = "UpdateMethod_Server")]
-    Server,
 }
 
 public enum WhiteKeyboardBacklightState

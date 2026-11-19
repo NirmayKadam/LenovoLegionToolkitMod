@@ -206,7 +206,10 @@ public class PowerListener(IMainThreadDispatcher mainThreadDispatcher) : NativeW
             if (result == 0 && guid != Guid.Empty)
                 return guid;
         }
-        catch { }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Could not read the Windows power mode for AC.", ex);
+        }
 
         try
         {
@@ -230,7 +233,10 @@ public class PowerListener(IMainThreadDispatcher mainThreadDispatcher) : NativeW
             if (result == 0 && guid != Guid.Empty)
                 return guid;
         }
-        catch { }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Could not read the Windows power mode for battery.", ex);
+        }
 
         try
         {

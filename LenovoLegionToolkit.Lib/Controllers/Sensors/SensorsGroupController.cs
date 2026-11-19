@@ -447,7 +447,11 @@ public class SensorsGroupController : IDisposable
             {
                 NVAPI.Initialize();
             }
-            catch { }
+            catch (Exception ex)
+            {
+                // Without NVAPI the NVIDIA sensors stay empty; the others still work.
+                Log.Instance.Trace($"NVAPI could not be initialized for sensors.", ex);
+            }
 
             _needRefreshGpuHardware = true;
         }

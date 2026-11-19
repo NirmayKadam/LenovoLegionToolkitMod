@@ -61,7 +61,7 @@ public partial class KeyboardBacklightPage
             var result = await ShowDynamicLightingWarningDialogAsync();
             if (result.ShouldDisable)
             {
-                DisableDynamicLightingViaRegistry();
+                DisableDynamicLighting();
             }
 
             if (result.DontShowAgain)
@@ -110,23 +110,17 @@ public partial class KeyboardBacklightPage
         });
     }
 
-    private void DisableDynamicLightingViaRegistry()
+    /// <summary>Turns off Windows Dynamic Lighting for this user with one registry write (no child process to wait for).</summary>
+    private static void DisableDynamicLighting()
     {
         try
         {
-            var processStartInfo = new ProcessStartInfo
-            {
-                FileName = "reg.exe",
-                Arguments = @$"add ""HKEY_CURRENT_USER\{REGISTRY_PATH}"" /v {REGISTRY_VALUE} /t REG_DWORD /d 0 /f",
-                WindowStyle = ProcessWindowStyle.Hidden,
-                CreateNoWindow = true
-            };
-
-            Process.Start(processStartInfo)?.WaitForExit();
+            using var key = Registry.CurrentUser.CreateSubKey(REGISTRY_PATH);
+            key.SetValue(REGISTRY_VALUE, 0, RegistryValueKind.DWord);
         }
         catch (Exception ex)
         {
-            Log.Instance.Trace($"Failed to load keyboard backlight control", ex);
+            Log.Instance.Trace($"Failed to turn off Windows Dynamic Lighting.", ex);
         }
     }
 

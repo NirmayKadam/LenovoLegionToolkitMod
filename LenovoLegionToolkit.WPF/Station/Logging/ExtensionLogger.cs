@@ -31,7 +31,8 @@ public sealed class ExtensionLogger : IExtensionLogger
         }
         catch
         {
-            try { File.Delete(_logPath); } catch { }
+            try { File.Delete(_logPath); }
+            catch (Exception ex) { Log.Instance.Trace($"Could not delete the plugin log {_logPath}.", ex); }
         }
     }
 

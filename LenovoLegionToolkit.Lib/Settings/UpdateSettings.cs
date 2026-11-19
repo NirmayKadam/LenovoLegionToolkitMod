@@ -10,14 +10,12 @@ public class UpdateSettings() : AbstractSettings<UpdateSettingsStore>("update_se
         public DateTime? LastUpdateCheckDateTime { get; set; }
         public UpdateCheckFrequency UpdateCheckFrequency { get; set; }
         public UpdateChannel UpdateChannel { get; set; }
-        public UpdateMethod UpdateMethod { get; set; }
     }
 
     protected override UpdateSettingsStore Default => new()
     {
         LastUpdateCheckDateTime = null,
         UpdateCheckFrequency = UpdateCheckFrequency.PerDay,
-        UpdateChannel = UpdateChannel.Stable,
-        UpdateMethod = UpdateMethod.GitHub
+        UpdateChannel = UpdateChannel.Stable
     };
 }

@@ -3356,12 +3356,6 @@ If disabled, this app will handle Fn shortcuts.</value>
   <data name="SettingsPage_UpdateCheckFrequency_Title" xml:space="preserve">
     <value>Update Frequency</value>
   </data>
-  <data name="SettingsPage_UpdateMethod_Message" xml:space="preserve">
-    <value>Choose how updates are downloaded and installed.</value>
-  </data>
-  <data name="SettingsPage_UpdateMethod_Title" xml:space="preserve">
-    <value>Update Method</value>
-  </data>
   <data name="SettingsPage_UseNewSensorDashboard_Message" xml:space="preserve">
     <value>Use new sensor dashboard instead of the old one.</value>
   </data>
@@ -3752,15 +3746,6 @@ Logging will be enabled automatically, if you choose to continue.</value>
   </data>
   <data name="UnsupportedWindow_Vendor" xml:space="preserve">
     <value>Vendor</value>
-  </data>
-  <data name="Update" xml:space="preserve">
-    <value>Update</value>
-  </data>
-  <data name="UpdateWindow_DownloadError_Title" xml:space="preserve">
-    <value>Update download failed</value>
-  </data>
-  <data name="UpdateWindow_SecurityError_Title" xml:space="preserve">
-    <value>Failed to verify update</value>
   </data>
   <data name="UpdateWindow_Title" xml:space="preserve">
     <value>Update available</value>
@@ -4649,9 +4634,6 @@ Logging will be enabled automatically, if you choose to continue.</value>
   </data>
   <data name="Help_Settings_UpdateFrequency_What" xml:space="preserve">
     <value>How often LLT looks for a new version in the background.</value>
-  </data>
-  <data name="Help_Settings_UpdateMethod_What" xml:space="preserve">
-    <value>How a new version is downloaded and installed once one is found.</value>
   </data>
   <data name="Help_SpecialKeys_HiddenKey_What" xml:space="preserve">
     <value>A key you hid from the list. It keeps its action. Right-click to show it again.</value>
@@ -6350,5 +6332,20 @@ When the game ends, LLT puts the apps&apos; priority and the services back. It n
   </data>
   <data name="GameProfiles_PresetNothingToAdd" xml:space="preserve">
     <value>Nothing to add: the preset&apos;s services are already listed, not on this PC, or can&apos;t be paused.</value>
+  </data>
+  <data name="SafetyReport_File_FakeMachineIgnored" xml:space="preserve">
+    <value>{0}, changed {1}. Fake machine information file: this build ignores it (only test builds read it). Delete it if you didn&apos;t put it there</value>
+  </data>
+  <data name="SafetyReport_RunSteps" xml:space="preserve">
+    <value>Automation Run steps</value>
+  </data>
+  <data name="SafetyReport_RunSteps_None" xml:space="preserve">
+    <value>None starts a program that other programs could replace</value>
+  </data>
+  <data name="SafetyReport_RunSteps_AtRisk" xml:space="preserve">
+    <value>{0} start a program, as administrator, that other programs could replace or that has no folder: {1}</value>
+  </data>
+  <data name="UpdateWindow_OpenReleasePage" xml:space="preserve">
+    <value>Open release page</value>
   </data>
 </root>

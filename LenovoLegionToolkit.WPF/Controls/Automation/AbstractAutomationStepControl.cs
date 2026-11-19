@@ -22,6 +22,9 @@ public abstract class AbstractAutomationStepControl : UserControl
 {
     protected IAutomationStep AutomationStep { get; }
 
+    /// <summary>The kind of step this control edits.</summary>
+    public Type StepType => AutomationStep.GetType();
+
     private readonly CardControl _cardControl = new()
     {
         Margin = new(0, 0, 0, 8),

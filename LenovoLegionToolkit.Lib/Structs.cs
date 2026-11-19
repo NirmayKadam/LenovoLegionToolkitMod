@@ -1258,11 +1258,8 @@ public readonly struct Update(Release release)
     public string Description { get; } = release.Body;
     public DateTimeOffset Date { get; } = release.PublishedAt ?? release.CreatedAt;
 
-    public string? Url { get; } = release.Assets
-        .Where(ra => ra.Name.StartsWith("LenovoLegionToolkitSetup", StringComparison.InvariantCultureIgnoreCase) &&
-                     ra.Name.EndsWith(".exe", StringComparison.InvariantCultureIgnoreCase))
-        .Select(ra => ra.BrowserDownloadUrl)
-        .FirstOrDefault();
+    /// <summary>The release's GitHub page, as GitHub reports it. Open it through UpdateChecker.ReleasePageOrDefault.</summary>
+    public string? ReleasePage { get; } = release.HtmlUrl;
 
     #region Equality
 
@@ -1331,47 +1328,6 @@ public struct PluginDiscoveryInfo(IExtensionProvider provider, string typeName, 
     public required string TypeName { get; init; } = typeName;
     public string? Capability { get; set; } = capability;
     public string[] Dependencies { get; set; } = dependencies ?? [];
-}
-
-public struct ProjectEntry()
-{
-    public bool MaintenanceMode { get; set; } = false;
-    public string ProjectName { get; set; } = string.Empty;
-    public string ProjectCurrentVersion { get; set; } = string.Empty;
-    public string ProjectVersion { get; set; } = string.Empty;
-    public bool ProjectForceUpdate { get; set; } = false;
-    public string DownloadUrl { get; set; } = string.Empty;
-
-    public bool IsValid()
-    {
-        return !string.IsNullOrWhiteSpace(ProjectName) &&
-               !string.IsNullOrWhiteSpace(ProjectCurrentVersion) &&
-               !string.IsNullOrWhiteSpace(ProjectVersion);
-    }
-}
-
-public struct ProjectInfo
-{
-    public ProjectInfo()
-    {
-    }
-
-    public string ProjectName { get; set; } = string.Empty;
-    public string ProjectExeName { get; set; } = string.Empty;
-    public string ProjectAuthor { get; set; } = string.Empty;
-    public string ProjectCurrentVersion { get; set; } = string.Empty;
-    public string ProjectCurrentExePath { get; set; } = string.Empty;
-    public string ProjectNewExePath { get; set; } = string.Empty;
-    public string ProjectNewVersion { get; set; } = string.Empty;
-}
-
-public struct UpdateFromServer(ProjectInfo projectInfo, string patchNote)
-{
-    public Version Version { get; set; } = Version.Parse(projectInfo.ProjectNewVersion);
-    public string Title { get; set; } = "LenovoLegionToolkit Updates available.";
-    public string Description { get; set; } = patchNote;
-    public DateTimeOffset Date { get; set; } = DateTimeOffset.Now;
-    public string? Url = projectInfo.ProjectNewExePath;
 }
 
 public sealed record HardwareSensorSnapshot

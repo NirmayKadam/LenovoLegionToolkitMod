@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.ServiceProcess;
 using System.Threading.Tasks;
 using LenovoLegionToolkit.Lib;
 using LenovoLegionToolkit.Lib.Settings;
@@ -132,31 +133,20 @@ public static class PawnIOHelper
         return IsPawnIOServiceRunning() ? PawnIOState.Installed : PawnIOState.ServiceNotRunning;
     }
 
+    /// <summary>
+    /// Asks the service manager directly (no sc.exe to start and wait for, no text to parse, which also differs
+    /// between Windows languages). A missing service or any error means not running.
+    /// </summary>
     public static bool IsPawnIOServiceRunning()
     {
         try
         {
-            var startInfo = new ProcessStartInfo("sc.exe", "query PawnIO")
-            {
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                CreateNoWindow = true
-            };
-
-            using var process = Process.Start(startInfo);
-            if (process is null)
-            {
-                return false;
-            }
-
-            var output = process.StandardOutput.ReadToEnd();
-            process.WaitForExit();
-
-            return output.Contains("RUNNING", StringComparison.OrdinalIgnoreCase);
+            using var service = new ServiceController("PawnIO");
+            return service.Status == ServiceControllerStatus.Running;
         }
-        catch
+        catch (Exception ex) when (ex is InvalidOperationException or global::System.ComponentModel.Win32Exception)
         {
+            Log.Instance.Trace($"PawnIO service not found or not readable.", ex);
             return false;
         }
     }

@@ -9,6 +9,8 @@ using LenovoLegionToolkit.Lib.Automation.Pipeline.Triggers;
 using LenovoLegionToolkit.Lib.Automation.Utils;
 using LenovoLegionToolkit.Lib.Controllers.GodMode;
 using LenovoLegionToolkit.Lib.Listeners;
+using LenovoLegionToolkit.Lib.Messaging;
+using LenovoLegionToolkit.Lib.Messaging.Messages;
 using LenovoLegionToolkit.Lib.Utils;
 using NeoSmart.AsyncLock;
 
@@ -32,6 +34,7 @@ public class AutomationProcessor(
     private readonly AsyncLock _ioLock = new();
     private readonly AsyncLock _runLock = new();
     private readonly Lock _ctsLock = new();
+    private readonly AutomationLoopGuard _loopGuard = new();
 
     private List<AutomationPipeline> _pipelines = [];
 
@@ -90,6 +93,9 @@ public class AutomationProcessor(
 
             settings.Store.Pipelines = pipelines;
             settings.SynchronizeStore();
+
+            // Saving again resumes automations paused for restarting themselves.
+            _loopGuard.ResumeAll();
 
             RaisePipelinesChanged();
 
@@ -153,7 +159,7 @@ public class AutomationProcessor(
                 }
 
                 var otherPipelines = pipelines.Where(p => p.Id != pipeline.Id).ToList();
-                await pipeline.DeepCopy().RunAsync(otherPipelines).ConfigureAwait(false);
+                await RunTrackedAsync(pipeline.DeepCopy(), otherPipelines, CancellationToken.None).ConfigureAwait(false);
 
                 Log.Instance.Trace($"Pipeline run finished successfully.");
             }
@@ -178,12 +184,12 @@ public class AutomationProcessor(
         await RunNowAsync(pipeline).ConfigureAwait(false);
     }
 
-    private async Task RunAsync(IAutomationEvent automationEvent)
+    private async Task RunAsync(IAutomationEvent automationEvent, bool selfCaused)
     {
-        await Task.Run(() => RunCoreAsync(automationEvent)).ConfigureAwait(false);
+        await Task.Run(() => RunCoreAsync(automationEvent, selfCaused)).ConfigureAwait(false);
     }
 
-    private async Task RunCoreAsync(IAutomationEvent automationEvent)
+    private async Task RunCoreAsync(IAutomationEvent automationEvent, bool selfCaused)
     {
         Log.Instance.Trace($"Run pending...");
 
@@ -217,7 +223,7 @@ public class AutomationProcessor(
 
             try
             {
-                await RunPipelinesAsync(automationEvent, pipelines, cts.Token).ConfigureAwait(false);
+                await RunPipelinesAsync(automationEvent, selfCaused, pipelines, cts.Token).ConfigureAwait(false);
             }
             finally
             {
@@ -232,7 +238,7 @@ public class AutomationProcessor(
         }
     }
 
-    private static async Task RunPipelinesAsync(IAutomationEvent automationEvent, List<AutomationPipeline> pipelines, CancellationToken ct)
+    private async Task RunPipelinesAsync(IAutomationEvent automationEvent, bool selfCaused, List<AutomationPipeline> pipelines, CancellationToken ct)
     {
         foreach (var pipeline in pipelines)
         {
@@ -258,10 +264,24 @@ public class AutomationProcessor(
                     continue;
                 }
 
+                if (_loopGuard.IsPaused(pipeline.Id))
+                {
+                    Log.Instance.Trace($"Pipeline paused for restarting itself. Skipped. [name={pipeline.Name}, trigger={pipeline.Trigger}]");
+                    continue;
+                }
+
+                if (selfCaused && _loopGuard.RecordSelfCausedStart(pipeline.Id))
+                {
+                    Log.Instance.Trace($"Pipeline keeps restarting itself. Paused. [name={pipeline.Name}, trigger={pipeline.Trigger}]");
+                    MessagingCenter.Publish(new NotificationMessage(NotificationType.AutomationNotification,
+                        string.Format(Resources.Resource.AutomationRule_Paused, pipeline.Name ?? pipeline.Trigger?.DisplayName ?? string.Empty)));
+                    continue;
+                }
+
                 Log.Instance.Trace($"Running pipeline... [name={pipeline.Name}, trigger={pipeline.Trigger}, steps.Count={pipeline.Steps.Count}]");
 
                 var otherPipelines = pipelines.Where(p => p.Id != pipeline.Id).ToList();
-                await pipeline.RunAsync(otherPipelines, ct).ConfigureAwait(false);
+                await RunTrackedAsync(pipeline, otherPipelines, ct).ConfigureAwait(false);
 
                 if (ct.IsCancellationRequested)
                 {
@@ -289,6 +309,24 @@ public class AutomationProcessor(
         }
 
         Log.Instance.Trace($"Run finished successfully.");
+    }
+
+    /// <summary>Runs a pipeline, telling the loop guard while one that can change the power mode or preset runs.</summary>
+    private async Task RunTrackedAsync(AutomationPipeline pipeline, List<AutomationPipeline> otherPipelines, CancellationToken ct)
+    {
+        var causing = AutomationLoopGuard.CanCauseEvents(pipeline.GetAllSteps(otherPipelines));
+        if (causing)
+            _loopGuard.RunStarted();
+
+        try
+        {
+            await pipeline.RunAsync(otherPipelines, ct).ConfigureAwait(false);
+        }
+        finally
+        {
+            if (causing)
+                _loopGuard.RunFinished();
+        }
     }
 
     #endregion
@@ -376,6 +414,9 @@ public class AutomationProcessor(
     {
         try
         {
+            // Decided when the event arrives, not after waiting for a running automation to finish.
+            var selfCaused = _loopGuard.IsSelfCaused(e);
+
             var triggerMatches = await Task.WhenAll(_pipelines.SelectMany(p => p.AllTriggers)
                     .Select(async t => await t.IsMatchingEvent(e).ConfigureAwait(false)))
                 .ConfigureAwait(false);
@@ -387,7 +428,7 @@ public class AutomationProcessor(
 
             Log.Instance.Trace($"Processing event {e}... [type={e.GetType().Name}]");
 
-            await RunAsync(e).ConfigureAwait(false);
+            await RunAsync(e, selfCaused).ConfigureAwait(false);
         }
         catch (Exception ex)
         {

@@ -3370,12 +3370,6 @@ Click No to disable Hardware Sensor feature.</value>
   <data name="SettingsPage_UpdateCheckFrequency_Title" xml:space="preserve">
     <value>Update Frequency</value>
   </data>
-  <data name="SettingsPage_UpdateMethod_Message" xml:space="preserve">
-    <value>Choose how updates are downloaded and installed.</value>
-  </data>
-  <data name="SettingsPage_UpdateMethod_Title" xml:space="preserve">
-    <value>Update Method</value>
-  </data>
   <data name="SettingsPage_UseNewSensorDashboard_Message" xml:space="preserve">
     <value>Use new sensor dashboard instead of the old one.</value>
   </data>
@@ -3767,15 +3761,6 @@ Click No to disable Hardware Sensor feature.</value>
   </data>
   <data name="UnsupportedWindow_Vendor" xml:space="preserve">
     <value>Доставчик</value>
-  </data>
-  <data name="Update" xml:space="preserve">
-    <value>Актуализация</value>
-  </data>
-  <data name="UpdateWindow_DownloadError_Title" xml:space="preserve">
-    <value>Update download failed</value>
-  </data>
-  <data name="UpdateWindow_SecurityError_Title" xml:space="preserve">
-    <value>Failed to verify update</value>
   </data>
   <data name="UpdateWindow_Title" xml:space="preserve">
     <value>Налична е актуализация</value>

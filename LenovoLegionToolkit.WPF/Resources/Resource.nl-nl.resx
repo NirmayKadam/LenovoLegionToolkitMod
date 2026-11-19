@@ -3371,12 +3371,6 @@ Een herstart wordt aanbevolen na het wijzigen van deze optie.</value>
   <data name="SettingsPage_UpdateCheckFrequency_Title" xml:space="preserve">
     <value>Update frequentie</value>
   </data>
-  <data name="SettingsPage_UpdateMethod_Message" xml:space="preserve">
-    <value>Kies hoe updates worden gedownload en geïnstalleerd.</value>
-  </data>
-  <data name="SettingsPage_UpdateMethod_Title" xml:space="preserve">
-    <value>Update methode</value>
-  </data>
   <data name="SettingsPage_UseNewSensorDashboard_Message" xml:space="preserve">
     <value>Gebruik het nieuwe sensordashboard in plaats van het oude.</value>
   </data>
@@ -3767,15 +3761,6 @@ Logboekregistratie wordt automatisch ingeschakeld als u ervoor kiest om door te 
   </data>
   <data name="UnsupportedWindow_Vendor" xml:space="preserve">
     <value>Leverancier</value>
-  </data>
-  <data name="Update" xml:space="preserve">
-    <value>Bijwerken</value>
-  </data>
-  <data name="UpdateWindow_DownloadError_Title" xml:space="preserve">
-    <value>Downloaden van update mislukt</value>
-  </data>
-  <data name="UpdateWindow_SecurityError_Title" xml:space="preserve">
-    <value>Update verifiëren mislukt</value>
   </data>
   <data name="UpdateWindow_Title" xml:space="preserve">
     <value>Update beschikbaar</value>

@@ -41,22 +41,6 @@
                     Visibility="Hidden" />
             </custom:CardControl>
             <custom:CardControl
-                x:Name="_updateMethodCard"
-                Margin="0,0,0,8"
-                Icon="ArrowSort24">
-                <custom:CardControl.Header>
-                    <controls:CardHeaderControl Title="{x:Static resources:Resource.SettingsPage_UpdateMethod_Title}" HelpKey="Help_Settings_UpdateMethod" Subtitle="{x:Static resources:Resource.SettingsPage_UpdateMethod_Message}" />
-                </custom:CardControl.Header>
-                <ComboBox
-                    x:Name="_updateMethodComboBox"
-                    MinWidth="160"
-                    Margin="0,0,0,8"
-                    AutomationProperties.Name="{x:Static resources:Resource.SettingsPage_UpdateMethod_Title}"
-                    MaxDropDownHeight="Auto"
-                    SelectionChanged="UpdateMethodComboBox_SelectionChanged"
-                    Visibility="Hidden" />
-            </custom:CardControl>
-            <custom:CardControl
                 x:Name="_updateCheckFrequencyCard"
                 Margin="0,0,0,8"
                 Icon="Clock24">

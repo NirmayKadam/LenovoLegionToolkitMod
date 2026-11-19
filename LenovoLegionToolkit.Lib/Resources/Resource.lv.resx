@@ -661,12 +661,6 @@
   <data name="UpdateChannel_Test" xml:space="preserve">
     <value>Test</value>
   </data>
-  <data name="UpdateChecker_Security_Invalid" xml:space="preserve">
-    <value>The downloaded update is not signed by the trusted server certificate {0}</value>
-  </data>
-  <data name="UpdateChecker_Security_Thumbprint" xml:space="preserve">
-    <value>Invalid signature thumbprint {0}</value>
-  </data>
   <data name="UpdateCheckFrequency_Never" xml:space="preserve">
     <value>Never</value>
   </data>
@@ -687,12 +681,6 @@
   </data>
   <data name="UpdateCheckFrequency_PerWeek" xml:space="preserve">
     <value>Weekly</value>
-  </data>
-  <data name="UpdateMethod_GitHub" xml:space="preserve">
-    <value>GitHub</value>
-  </data>
-  <data name="UpdateMethod_Server" xml:space="preserve">
-    <value>Server</value>
   </data>
   <data name="WhiteKeyboardBacklightState_High" xml:space="preserve">
     <value>Augsts</value>

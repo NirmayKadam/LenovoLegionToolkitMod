@@ -5,7 +5,9 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using LenovoLegionToolkit.Lib.Automation.Utils;
 using LenovoLegionToolkit.Lib.System;
+using LenovoLegionToolkit.Lib.Utils;
 using Newtonsoft.Json;
 
 namespace LenovoLegionToolkit.Lib.Automation.Steps;
@@ -33,6 +35,11 @@ public class RunAutomationStep(string? scriptPath, string? scriptArguments, bool
 
         if (CheckInstance && IsAlreadyRunning(ScriptPath))
             return;
+
+        // Warn only, as chosen: the program still runs.
+        var target = RunTargetCheck.Check(ScriptPath);
+        if (target.Problem != RunTargetProblem.None)
+            Log.Instance.Trace($"Run step warning: {target.Problem}. LLT runs this as administrator. [path={target.Path}]");
 
         var (_, output) = await CMD.RunAsync(ScriptPath,
             ScriptArguments ?? string.Empty,

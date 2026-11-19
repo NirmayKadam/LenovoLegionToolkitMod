@@ -17,13 +17,17 @@ public partial class AddAutomationStepWindow
 {
     private readonly List<AbstractAutomationStepControl> _controls;
     private readonly Action<AbstractAutomationStepControl> _addStepControl;
+    private readonly Func<AbstractAutomationStepControl, string?>? _whyNotAddable;
     private readonly HashSet<AbstractAutomationStepControl> _selectedSteps = [];
     private bool _multiSelect;
 
-    public AddAutomationStepWindow(List<AbstractAutomationStepControl> controls, Action<AbstractAutomationStepControl> addStepControl, int totalAvailableStepsCount)
+    /// <param name="whyNotAddable">The reason a step can't usefully be added to this automation, or null when it can. Such steps are shown greyed out with the reason.</param>
+    public AddAutomationStepWindow(List<AbstractAutomationStepControl> controls, Action<AbstractAutomationStepControl> addStepControl, int totalAvailableStepsCount,
+        Func<AbstractAutomationStepControl, string?>? whyNotAddable = null)
     {
         _controls = controls;
         _addStepControl = addStepControl;
+        _whyNotAddable = whyNotAddable;
 
         InitializeComponent();
 
@@ -138,16 +142,27 @@ public partial class AddAutomationStepWindow
             accessory = new SymbolIcon { Symbol = SymbolRegular.ChevronRight24 };
         }
 
+        var reason = _whyNotAddable?.Invoke(stepControl);
+
+        var header = new CardHeaderControl
+        {
+            Title = stepControl.Title,
+            HelpKey = stepControl.HelpKey,
+            Accessory = accessory
+        };
+
+        if (reason is not null)
+        {
+            header.Warning = reason;
+            accessory.IsEnabled = false;
+        }
+
         var control = new CardControl
         {
             Icon = stepControl.Icon,
-            Header = new CardHeaderControl
-            {
-                Title = stepControl.Title,
-                HelpKey = stepControl.HelpKey,
-                Accessory = accessory
-            },
+            Header = header,
             Margin = new(0, 8, 0, 0),
+            IsEnabled = reason is null,
         };
 
         control.Click += (_, _) =>

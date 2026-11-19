@@ -3368,12 +3368,6 @@ Il riavvio è consigliabile dopo aver cambiato questa impostazione.</value>
   <data name="SettingsPage_UpdateCheckFrequency_Title" xml:space="preserve">
     <value>Aggiorna Frequenza</value>
   </data>
-  <data name="SettingsPage_UpdateMethod_Message" xml:space="preserve">
-    <value>Scegli come gli aggiornamenti vengono scaricati e installati.</value>
-  </data>
-  <data name="SettingsPage_UpdateMethod_Title" xml:space="preserve">
-    <value>Metodo Di Aggiornamento</value>
-  </data>
   <data name="SettingsPage_UseNewSensorDashboard_Message" xml:space="preserve">
     <value>Usa il nuovo cruscotto del sensore invece di quello vecchio.</value>
   </data>
@@ -3765,15 +3759,6 @@ Il logging verrà abilitato automaticamente, se scegli di continuare.</value>
   </data>
   <data name="UnsupportedWindow_Vendor" xml:space="preserve">
     <value>Produttore</value>
-  </data>
-  <data name="Update" xml:space="preserve">
-    <value>Aggiornamento</value>
-  </data>
-  <data name="UpdateWindow_DownloadError_Title" xml:space="preserve">
-    <value>Download dell'aggiornamento non riuscito</value>
-  </data>
-  <data name="UpdateWindow_SecurityError_Title" xml:space="preserve">
-    <value>Impossibile verificare l'aggiornamento</value>
   </data>
   <data name="UpdateWindow_Title" xml:space="preserve">
     <value>Aggiornamento disponibile</value>

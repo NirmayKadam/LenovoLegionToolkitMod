@@ -251,4 +251,52 @@
   <data name="WiFiDisconnectedAutomationPipelineTrigger_DisplayName" xml:space="preserve">
     <value>When Wi-Fi is disconnected</value>
   </data>
+  <data name="AutomationRule_StepIssue" xml:space="preserve">
+    <value>Step {0} ({1}): {2}</value>
+  </data>
+  <data name="AutomationRule_AIEngineNotBalance" xml:space="preserve">
+    <value>AI Engine only runs in Balance mode, so here this step only changes the setting.</value>
+  </data>
+  <data name="AutomationRule_AfterCloseApp" xml:space="preserve">
+    <value>Never runs: a Close app step before it ends LLT.</value>
+  </data>
+  <data name="AutomationRule_Overridden" xml:space="preserve">
+    <value>Has no lasting effect: step {0} sets the same thing later.</value>
+  </data>
+  <data name="AutomationRule_AlreadyInMode" xml:space="preserve">
+    <value>Does nothing: the laptop is already in this power mode when this automation starts.</value>
+  </data>
+  <data name="AutomationRule_SwitchesAway" xml:space="preserve">
+    <value>Switches away from the power mode that started this automation.</value>
+  </data>
+  <data name="AutomationRule_PresetNeedsCustom" xml:space="preserve">
+    <value>The preset is chosen now, but it only takes effect when Custom mode is on.</value>
+  </data>
+  <data name="AutomationRule_NotSupported" xml:space="preserve">
+    <value>Not available on this laptop, so this step is skipped.</value>
+  </data>
+  <data name="AutomationRule_QuickActionCycle" xml:space="preserve">
+    <value>Refers back to a quick action that is already running it, so its steps are not repeated.</value>
+  </data>
+  <data name="AutomationRule_Loop" xml:space="preserve">
+    <value>Warning: these automations can start each other in an endless loop: {0}. LLT pauses an automation that keeps restarting itself.</value>
+  </data>
+  <data name="AutomationRule_AddBlocked_CloseApp" xml:space="preserve">
+    <value>This automation ends with Close app, so steps added after it would never run.</value>
+  </data>
+  <data name="AutomationRule_AddBlocked_AIEngine" xml:space="preserve">
+    <value>AI Engine only runs in Balance mode, and this automation runs in {0}. Add it to a Balance automation instead.</value>
+  </data>
+  <data name="AutomationRule_Paused" xml:space="preserve">
+    <value>Automation &quot;{0}&quot; kept restarting itself and was paused. Save your automations again or restart LLT to resume it.</value>
+  </data>
+  <data name="RunTarget_Replaceable" xml:space="preserve">
+    <value>LLT runs this program as administrator, and other programs on this PC can replace it or add files next to it (folder: {0}). Only the program itself is checked, not files named in its arguments.</value>
+  </data>
+  <data name="RunTarget_BareName" xml:space="preserve">
+    <value>No folder given. LLT runs it as administrator and looks it up in folders that other programs may be able to change. Use the full path.</value>
+  </data>
+  <data name="RunTarget_NotFound" xml:space="preserve">
+    <value>Program not found: {0}.</value>
+  </data>
 </root>

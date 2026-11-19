@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,8 +38,14 @@ public class SunriseSunset(SunriseSunsetSettings settings, HttpClientFactory htt
             using var httpClient = httpClientFactory.Create();
             var responseJson = await httpClient.GetStringAsync("http://ip-api.com/json?fields=lat,lon", token).ConfigureAwait(false);
             var responseJsonNode = JsonNode.Parse(responseJson);
-            if (responseJsonNode is not null && double.TryParse(responseJsonNode["lat"]?.ToString(), out var lat) && double.TryParse(responseJsonNode["lon"]?.ToString(), out var lon))
+            // The answer comes over plain HTTP (the service has no free HTTPS), so only real coordinates are used.
+            if (responseJsonNode is not null
+                && double.TryParse(responseJsonNode["lat"]?.ToString(), NumberStyles.Float, CultureInfo.InvariantCulture, out var lat)
+                && double.TryParse(responseJsonNode["lon"]?.ToString(), NumberStyles.Float, CultureInfo.InvariantCulture, out var lon)
+                && IsValidCoordinate(lat, lon))
                 return new Coordinate(lat, lon, DateTime.Today);
+
+            Log.Instance.Trace($"Geolocation answer had no valid coordinates.");
         }
         catch (Exception ex)
         {
@@ -47,6 +54,9 @@ public class SunriseSunset(SunriseSunsetSettings settings, HttpClientFactory htt
 
         return null;
     }
+
+    internal static bool IsValidCoordinate(double lat, double lon) =>
+        double.IsFinite(lat) && double.IsFinite(lon) && lat is >= -90 and <= 90 && lon is >= -180 and <= 180;
 
     private static (Time?, Time?) CalculateSunriseSunset(Coordinate coordinate)
     {

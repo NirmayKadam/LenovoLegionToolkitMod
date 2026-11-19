@@ -3370,12 +3370,6 @@ Click No to disable Hardware Sensor feature.</value>
   <data name="SettingsPage_UpdateCheckFrequency_Title" xml:space="preserve">
     <value>Update Frequency</value>
   </data>
-  <data name="SettingsPage_UpdateMethod_Message" xml:space="preserve">
-    <value>選擇如何下載和安裝更新。</value>
-  </data>
-  <data name="SettingsPage_UpdateMethod_Title" xml:space="preserve">
-    <value>更新途徑</value>
-  </data>
   <data name="SettingsPage_UseNewSensorDashboard_Message" xml:space="preserve">
     <value>使用新的傳感器儀錶板而不是舊的。</value>
   </data>
@@ -3766,15 +3760,6 @@ Click No to disable Hardware Sensor feature.</value>
   </data>
   <data name="UnsupportedWindow_Vendor" xml:space="preserve">
     <value>製造商</value>
-  </data>
-  <data name="Update" xml:space="preserve">
-    <value>更新</value>
-  </data>
-  <data name="UpdateWindow_DownloadError_Title" xml:space="preserve">
-    <value>無法更新下載</value>
-  </data>
-  <data name="UpdateWindow_SecurityError_Title" xml:space="preserve">
-    <value>無法驗證更新</value>
   </data>
   <data name="UpdateWindow_Title" xml:space="preserve">
     <value>已有可供使用的更新</value>

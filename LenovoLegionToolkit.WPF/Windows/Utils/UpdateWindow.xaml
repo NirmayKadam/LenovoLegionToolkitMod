@@ -12,7 +12,6 @@
     MinHeight="600"
     MaxWidth="800"
     MaxHeight="600"
-    Closing="UpdateWindow_Closing"
     ExtendsContentIntoTitleBar="True"
     FlowDirection="{x:Static utils:LocalizationHelper.Direction}"
     Loaded="UpdateWindow_Loaded"
@@ -151,38 +150,19 @@
                     VerticalAlignment="Top"
                     Focusable="True" />
 
-                <ProgressBar
-                    x:Name="_downloadProgressBar"
-                    Grid.Row="2"
-                    Height="4"
-                    Margin="0,24,0,24"
-                    IsIndeterminate="True"
-                    Maximum="1"
-                    Minimum="0"
-                    Visibility="Hidden" />
-
                 <StackPanel Grid.Row="3" Margin="0,0,0,16">
                     <wpfui:Button
-                        x:Name="_downloadButton"
-                        Width="180"
+                        x:Name="_openReleaseButton"
+                        MinWidth="180"
                         Height="36"
+                        Margin="0,24,0,0"
                         HorizontalAlignment="Center"
                         Appearance="Primary"
-                        Click="DownloadButton_Click"
-                        Content="{x:Static resources:Resource.Update}"
+                        Click="OpenReleaseButton_Click"
+                        Content="{x:Static resources:Resource.UpdateWindow_OpenReleasePage}"
                         FontSize="14"
                         FontWeight="SemiBold"
                         IsEnabled="False" />
-
-                    <wpfui:Button
-                        x:Name="_cancelDownloadButton"
-                        Width="180"
-                        Height="36"
-                        HorizontalAlignment="Center"
-                        Click="CancelDownloadButton_Click"
-                        Content="{x:Static resources:Resource.Cancel}"
-                        IsEnabled="False"
-                        Visibility="Collapsed" />
                 </StackPanel>
             </Grid>
         </Grid>

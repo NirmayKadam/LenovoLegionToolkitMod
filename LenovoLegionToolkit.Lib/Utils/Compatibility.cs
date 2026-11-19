@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using LenovoLegionToolkit.Lib.Controllers.GodMode;
 using LenovoLegionToolkit.Lib.Controllers.Sensors;
@@ -35,7 +36,9 @@ public static partial class Compatibility
     private static partial Regex IsAmdDeviceRegex();
 
     private static readonly string[] ALLOWED_VENDORS = ["LENOVO", "MOTOROLA"];
+#if DEBUG
     private static readonly string FakeMachineInformationPath = Path.Combine(Folders.Settings, "fake_mi.json");
+#endif
     public static bool FakeMachineInformationMode { get; private set; } = false;
 
     private static readonly string[] AllowedModelsPrefix = [
@@ -146,8 +149,11 @@ public static partial class Compatibility
         ("Motobook", LegionSeries.Motorola)
     ];
 
+    private static readonly SemaphoreSlim MachineInformationLock = new(1, 1);
     private static MachineInformation? _machineInformation;
+#if DEBUG
     private static FakeMachineInformation? _fakeMachineInformation;
+#endif
 
     public static Task<bool> CheckBasicCompatibilityAsync() => WMI.LenovoGameZoneData.ExistsAsync();
 
@@ -169,8 +175,13 @@ public static partial class Compatibility
         return (isCompatible, mi);
     }
 
+    /// <summary>
+    /// Test builds only: fake_mi.json in the settings folder makes LLT describe itself as another model. Release
+    /// builds never read it, so a stray file can't make LLT treat this laptop as something it isn't.
+    /// </summary>
     private static async Task EnsureFakeMachineInformationLoadedAsync()
     {
+#if DEBUG
         if (FakeMachineInformationMode)
         {
             return;
@@ -182,17 +193,51 @@ public static partial class Compatibility
             _fakeMachineInformation = JsonConvert.DeserializeObject<FakeMachineInformation>(jsonString);
             FakeMachineInformationMode = true;
         }
+#else
+        await Task.CompletedTask.ConfigureAwait(false);
+#endif
     }
 
     public static Task<FakeMachineInformation?> GetFakeMachineInformationAsync()
     {
+#if DEBUG
         return Task.FromResult(_fakeMachineInformation);
+#else
+        return Task.FromResult<FakeMachineInformation?>(null);
+#endif
     }
 
     public static async Task<MachineInformation> GetMachineInformationAsync()
     {
-        if (_machineInformation != null) return _machineInformation.Value;
+        if (_machineInformation is { } cached)
+            return cached;
 
+        // One scan at a time: callers that arrive during the first scan wait for it instead of starting their own.
+        await MachineInformationLock.WaitAsync().ConfigureAwait(false);
+        try
+        {
+            if (_machineInformation is { } loaded)
+                return loaded;
+
+            _machineInformation = await ReadMachineInformationAsync().ConfigureAwait(false);
+            return _machineInformation.Value;
+        }
+        finally
+        {
+            MachineInformationLock.Release();
+        }
+    }
+
+    /// <summary>
+    /// The machine information, for code that can't await (constructors, static properties). LLT loads it while
+    /// starting, before any window opens, so this normally returns at once. Called earlier, it loads it on a worker
+    /// thread, so it never waits on the caller's own thread and can't deadlock it.
+    /// </summary>
+    public static MachineInformation GetMachineInformation() =>
+        _machineInformation ?? Task.Run(GetMachineInformationAsync).GetAwaiter().GetResult();
+
+    private static async Task<MachineInformation> ReadMachineInformationAsync()
+    {
         var (vendor, machineType, model, serialNumber) = await GetModelDataAsync().ConfigureAwait(false);
         var generation = GetMachineGeneration(model);
         var legionSeries = GetLegionSeries(model, machineType);
@@ -236,8 +281,7 @@ public static partial class Compatibility
             }
         };
 
-        _machineInformation = machineInformation;
-        return _machineInformation.Value;
+        return machineInformation;
     }
 
 

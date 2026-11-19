@@ -3372,12 +3372,6 @@ Click No to disable Hardware Sensor feature.</value>
   <data name="SettingsPage_UpdateCheckFrequency_Title" xml:space="preserve">
     <value>Συχνότητα Ενημέρωσης</value>
   </data>
-  <data name="SettingsPage_UpdateMethod_Message" xml:space="preserve">
-    <value>Επιλέξτε τον τρόπο λήψης και εγκατάστασης των ενημερώσεων.</value>
-  </data>
-  <data name="SettingsPage_UpdateMethod_Title" xml:space="preserve">
-    <value>Μέθοδος Ενημέρωσης</value>
-  </data>
   <data name="SettingsPage_UseNewSensorDashboard_Message" xml:space="preserve">
     <value>Χρήση νέου πίνακα ελέγχου του αισθητήρα αντί του παλιού.</value>
   </data>
@@ -3769,15 +3763,6 @@ Click No to disable Hardware Sensor feature.</value>
   </data>
   <data name="UnsupportedWindow_Vendor" xml:space="preserve">
     <value>Προμηθευτής</value>
-  </data>
-  <data name="Update" xml:space="preserve">
-    <value>Ενημέρωση</value>
-  </data>
-  <data name="UpdateWindow_DownloadError_Title" xml:space="preserve">
-    <value>Η λήψη της ενημέρωσης απέτυχε</value>
-  </data>
-  <data name="UpdateWindow_SecurityError_Title" xml:space="preserve">
-    <value>Αποτυχία επαλήθευσης ενημέρωσης</value>
   </data>
   <data name="UpdateWindow_Title" xml:space="preserve">
     <value>Διαθέσιμη ενημέρωση</value>

@@ -106,7 +106,10 @@ public partial class ExcludeProcessesWindow
                             continue;
                         }
                     }
-                    catch { }
+                    catch (Exception ex) when (ex is InvalidOperationException or global::System.ComponentModel.Win32Exception)
+                    {
+                        // The process ended or can't be read (a system process): not listed.
+                    }
                     p.Dispose();
                 }
 
@@ -126,7 +129,10 @@ public partial class ExcludeProcessesWindow
                             {
                                 path = p.GetFileName();
                             }
-                            catch { }
+                            catch (Exception ex) when (ex is InvalidOperationException or global::System.ComponentModel.Win32Exception)
+                            {
+                                // The process ended or can't be read: the next process of this group is tried.
+                            }
                         }
                         p.Dispose();
                     }

@@ -9687,24 +9687,6 @@ namespace LenovoLegionToolkit.WPF.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Choose how updates are downloaded and installed..
-        /// </summary>
-        public static string SettingsPage_UpdateMethod_Message {
-            get {
-                return ResourceManager.GetString("SettingsPage_UpdateMethod_Message", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Update Method.
-        /// </summary>
-        public static string SettingsPage_UpdateMethod_Title {
-            get {
-                return ResourceManager.GetString("SettingsPage_UpdateMethod_Title", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Use new sensor dashboard instead of the old one..
         /// </summary>
         public static string SettingsPage_UseNewSensorDashboard_Message {
@@ -10850,33 +10832,6 @@ namespace LenovoLegionToolkit.WPF.Resources {
         public static string UnsupportedWindow_Vendor {
             get {
                 return ResourceManager.GetString("UnsupportedWindow_Vendor", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Update.
-        /// </summary>
-        public static string Update {
-            get {
-                return ResourceManager.GetString("Update", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Update download failed.
-        /// </summary>
-        public static string UpdateWindow_DownloadError_Title {
-            get {
-                return ResourceManager.GetString("UpdateWindow_DownloadError_Title", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Failed to verify update.
-        /// </summary>
-        public static string UpdateWindow_SecurityError_Title {
-            get {
-                return ResourceManager.GetString("UpdateWindow_SecurityError_Title", resourceCulture);
             }
         }
         
@@ -14612,6 +14567,51 @@ namespace LenovoLegionToolkit.WPF.Resources {
         public static string GameProfiles_PresetNothingToAdd {
             get {
                 return ResourceManager.GetString("GameProfiles_PresetNothingToAdd", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}, changed {1}. Fake machine information file: this build ignores it (only test builds read it). Delete it if you didn&apos;t put it there.
+        /// </summary>
+        public static string SafetyReport_File_FakeMachineIgnored {
+            get {
+                return ResourceManager.GetString("SafetyReport_File_FakeMachineIgnored", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Automation Run steps.
+        /// </summary>
+        public static string SafetyReport_RunSteps {
+            get {
+                return ResourceManager.GetString("SafetyReport_RunSteps", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to None starts a program that other programs could replace.
+        /// </summary>
+        public static string SafetyReport_RunSteps_None {
+            get {
+                return ResourceManager.GetString("SafetyReport_RunSteps_None", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} start a program, as administrator, that other programs could replace or that has no folder: {1}.
+        /// </summary>
+        public static string SafetyReport_RunSteps_AtRisk {
+            get {
+                return ResourceManager.GetString("SafetyReport_RunSteps_AtRisk", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open release page.
+        /// </summary>
+        public static string UpdateWindow_OpenReleasePage {
+            get {
+                return ResourceManager.GetString("UpdateWindow_OpenReleasePage", resourceCulture);
             }
         }
     }

@@ -3370,12 +3370,6 @@ Restart is recommended after changing this option.</value>
   <data name="SettingsPage_UpdateCheckFrequency_Title" xml:space="preserve">
     <value>تردد التحديث</value>
   </data>
-  <data name="SettingsPage_UpdateMethod_Message" xml:space="preserve">
-    <value>اختر كيفية تنزيل التحديثات وتثبيتها.</value>
-  </data>
-  <data name="SettingsPage_UpdateMethod_Title" xml:space="preserve">
-    <value>طريقة التحديث</value>
-  </data>
   <data name="SettingsPage_UseNewSensorDashboard_Message" xml:space="preserve">
     <value>استخدام لوحة تحكم مستشعر جديدة بدلاً من لوحة التحكم القديمة. </value>
   </data>
@@ -3767,15 +3761,6 @@ Restart is recommended after changing this option.</value>
   </data>
   <data name="UnsupportedWindow_Vendor" xml:space="preserve">
     <value>المورد</value>
-  </data>
-  <data name="Update" xml:space="preserve">
-    <value>تحديث</value>
-  </data>
-  <data name="UpdateWindow_DownloadError_Title" xml:space="preserve">
-    <value>فشل تنزيل التحديث</value>
-  </data>
-  <data name="UpdateWindow_SecurityError_Title" xml:space="preserve">
-    <value>فشل التحقق من التحديث</value>
   </data>
   <data name="UpdateWindow_Title" xml:space="preserve">
     <value>التحديث متوفر</value>

@@ -3371,12 +3371,6 @@ Click No to disable Hardware Sensor feature.</value>
   <data name="SettingsPage_UpdateCheckFrequency_Title" xml:space="preserve">
     <value>Частота обновления</value>
   </data>
-  <data name="SettingsPage_UpdateMethod_Message" xml:space="preserve">
-    <value>Выберите, как обновления загружены и установлены.</value>
-  </data>
-  <data name="SettingsPage_UpdateMethod_Title" xml:space="preserve">
-    <value>Метод обновления</value>
-  </data>
   <data name="SettingsPage_UseNewSensorDashboard_Message" xml:space="preserve">
     <value>Использовать новую панель сенсора вместо старой панели.</value>
   </data>
@@ -3768,15 +3762,6 @@ Click No to disable Hardware Sensor feature.</value>
   </data>
   <data name="UnsupportedWindow_Vendor" xml:space="preserve">
     <value>Поставщик</value>
-  </data>
-  <data name="Update" xml:space="preserve">
-    <value>Обновить</value>
-  </data>
-  <data name="UpdateWindow_DownloadError_Title" xml:space="preserve">
-    <value>Не удалось загрузить обновление</value>
-  </data>
-  <data name="UpdateWindow_SecurityError_Title" xml:space="preserve">
-    <value>Не удалось проверить обновление</value>
   </data>
   <data name="UpdateWindow_Title" xml:space="preserve">
     <value>Доступно обновление</value>

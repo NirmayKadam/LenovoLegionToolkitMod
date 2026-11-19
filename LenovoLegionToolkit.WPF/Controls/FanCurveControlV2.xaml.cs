@@ -270,7 +270,7 @@ public partial class FanCurveControlV2
         {
             SetResourceReference(StyleProperty, typeof(ToolTip));
 
-            var mi = Compatibility.GetMachineInformationAsync().Result;
+            var mi = Compatibility.GetMachineInformation();
             if (mi.Properties.IsAmdDevice)
             {
                 _chipsetDescription = _motherboardDescription;

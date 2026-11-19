@@ -29,7 +29,8 @@ public class SafetyReportTests
         new SensorsInfo(Enabled: false, PawnIOState.NotInstalled),
         new PowerModeInfo(Supported: true, PowerModeState.Balance),
         new SettingsFilesInfo([new SettingsFile("settings.json", 2048, Now.AddDays(-3))], Now),
-        new BackgroundServicesInfo(Enabled: false, StoppedByLlt: []));
+        new BackgroundServicesInfo(Enabled: false, StoppedByLlt: []),
+        new RunStepsInfo([]));
 
     private static readonly DateTime Now = new(2026, 11, 18, 18, 0, 0, DateTimeKind.Utc);
 
@@ -247,5 +248,25 @@ public class SafetyReportTests
         Assert.Contains(Resource.SafetyReport_Section_AppSecurity, text);
         Assert.All(rows, r => Assert.Contains($"{r.Item}: {r.State}", text));
         Assert.Contains($"! {Resource.SafetyReport_Plugins_Legacy}:", text);
+    }
+
+    // ---- Automation Run steps ----
+
+    [Fact]
+    public void RunSteps_WithReplaceablePrograms_AreFlagged_WithTheirPaths()
+    {
+        var inputs = Calm() with { RunSteps = new RunStepsInfo([@"C:\MSI Afterburner\MSIAfterburner.exe", "tool.exe"]) };
+        var row = Row(inputs, Resource.SafetyReport_RunSteps);
+
+        Assert.True(row.Attention);
+        Assert.Contains(@"C:\MSI Afterburner\MSIAfterburner.exe", row.State);
+        Assert.Contains("tool.exe", row.State);
+    }
+
+    [Fact]
+    public void RunSteps_NoneAtRisk_OrUnreadable()
+    {
+        Assert.Equal(Resource.SafetyReport_RunSteps_None, Row(Calm(), Resource.SafetyReport_RunSteps).State);
+        Assert.Equal(Resource.SafetyReport_Unknown, Row(Calm() with { RunSteps = null }, Resource.SafetyReport_RunSteps).State);
     }
 }

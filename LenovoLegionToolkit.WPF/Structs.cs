@@ -96,7 +96,7 @@ public readonly struct DashboardGroup(DashboardGroupType type, string? customNam
 
     private static DashboardGroup[] GetDefaultGroups()
     {
-        var mi = Compatibility.GetMachineInformationAsync().Result;
+        var mi = Compatibility.GetMachineInformation();
         var groups = new List<DashboardGroup>
         {
             new(DashboardGroupType.Power, null,

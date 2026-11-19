@@ -3,6 +3,8 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using LenovoLegionToolkit.Lib;
+using LenovoLegionToolkit.Lib.Automation.Steps;
+using LenovoLegionToolkit.Lib.Automation.Utils;
 using LenovoLegionToolkit.Lib.Controllers;
 using LenovoLegionToolkit.Lib.Features;
 using LenovoLegionToolkit.Lib.GameProfiles;
@@ -104,7 +106,15 @@ public static class SafetyReportCollector
 
         Read("background services", () => new BackgroundServicesInfo(
             IoCContainer.Resolve<BackgroundServicesSettings>().Store.Enabled,
-            [.. IoCContainer.Resolve<BackgroundServicesSessionSettings>().Store.StoppedServices])));
+            [.. IoCContainer.Resolve<BackgroundServicesSessionSettings>().Store.StoppedServices])),
+
+        Read("automation Run steps", () => new RunStepsInfo(
+            [.. IoCContainer.Resolve<AutomationSettings>().Store.Pipelines
+                .SelectMany(p => p.Steps)
+                .OfType<RunAutomationStep>()
+                .Where(s => RunTargetCheck.Check(s.ScriptPath).Problem is RunTargetProblem.Replaceable or RunTargetProblem.BareName)
+                .Select(s => s.ScriptPath!.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)])));
     }
 
     /// <summary>

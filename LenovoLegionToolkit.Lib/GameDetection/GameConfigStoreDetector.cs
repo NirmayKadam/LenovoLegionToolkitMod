@@ -75,7 +75,11 @@ internal class GameConfigStoreDetector
             {
                 exePath = Path.GetFullPath(exePath);
             }
-            catch { }
+            catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException)
+            {
+                // Kept as Windows stored it; it is only compared by name.
+                Log.Instance.Trace($"Game path not normalised: {exePath}", ex);
+            }
 
             result.Add(ProcessInfo.FromPath(exePath));
         }

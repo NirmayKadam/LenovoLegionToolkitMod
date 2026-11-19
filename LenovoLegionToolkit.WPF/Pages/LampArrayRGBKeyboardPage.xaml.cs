@@ -100,7 +100,10 @@ public partial class LampArrayRGBKeyboardPage : UiPage
 
             await _controller.StartAsync();
         }
-        catch { }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Failed to start the LampArray keyboard page.", ex);
+        }
 
         await Dispatcher.InvokeAsync(() =>
         {
@@ -386,7 +389,10 @@ public partial class LampArrayRGBKeyboardPage : UiPage
                     }
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Log.Instance.Trace($"Failed to update the LampArray key selection.", ex);
+            }
         }
 
         UpdateEffectSelectionUI();

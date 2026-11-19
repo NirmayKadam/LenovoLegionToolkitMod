@@ -36,15 +36,12 @@ public partial class SettingsUpdateControl
             _checkUpdatesCard.Visibility = Visibility.Collapsed;
             _updateCheckFrequencyCard.Visibility = Visibility.Collapsed;
             _updateChannelCard.Visibility = Visibility.Collapsed;
-            _updateMethodCard.Visibility = Visibility.Collapsed;
         }
         else
         {
             _checkUpdatesButton.Visibility = Visibility.Visible;
             _updateCheckFrequencyComboBox.Visibility = Visibility.Visible;
             _updateCheckFrequencyComboBox.SetItems(Enum.GetValues<UpdateCheckFrequency>(), _updateSettings.Store.UpdateCheckFrequency, t => t.GetDisplayName());
-            _updateMethodComboBox.Visibility = Visibility.Visible;
-            _updateMethodComboBox.SetItems(Enum.GetValues<UpdateMethod>(), _updateSettings.Store.UpdateMethod, t => t.GetDisplayName());
             _updateChannelComboBox.Visibility = Visibility.Visible;
             var channels = Enum.GetValues<UpdateChannel>()
                 .Where(c => c != UpdateChannel.Test);
@@ -77,18 +74,6 @@ public partial class SettingsUpdateControl
             return;
 
         _updateSettings.Store.UpdateChannel = updateChannel;
-        _updateSettings.SynchronizeStore();
-    }
-
-    private void UpdateMethodComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (_isRefreshing)
-            return;
-
-        if (!_updateMethodComboBox.TryGetSelectedItem(out UpdateMethod updateMethod))
-            return;
-
-        _updateSettings.Store.UpdateMethod = updateMethod;
         _updateSettings.SynchronizeStore();
     }
 

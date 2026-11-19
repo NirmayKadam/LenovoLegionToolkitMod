@@ -3372,12 +3372,6 @@ Nên khởi động lại sau khi thay đổi tùy chọn này.</value>
   <data name="SettingsPage_UpdateCheckFrequency_Title" xml:space="preserve">
     <value>Tần suất cập nhật</value>
   </data>
-  <data name="SettingsPage_UpdateMethod_Message" xml:space="preserve">
-    <value>Chọn cách tải xuống và cài đặt các bản cập nhật.</value>
-  </data>
-  <data name="SettingsPage_UpdateMethod_Title" xml:space="preserve">
-    <value>Phương thức cập nhật</value>
-  </data>
   <data name="SettingsPage_UseNewSensorDashboard_Message" xml:space="preserve">
     <value>Sử dụng bảng cảm biến mới thay thế bảng cảm biến cũ.</value>
   </data>
@@ -3768,15 +3762,6 @@ Logging sẽ được tự động bật, nếu bạn chọn tiếp tục.</valu
   </data>
   <data name="UnsupportedWindow_Vendor" xml:space="preserve">
     <value>Nhà sản xuất</value>
-  </data>
-  <data name="Update" xml:space="preserve">
-    <value>Cập nhật</value>
-  </data>
-  <data name="UpdateWindow_DownloadError_Title" xml:space="preserve">
-    <value>Thất bại khi tải xuống bản cập nhật</value>
-  </data>
-  <data name="UpdateWindow_SecurityError_Title" xml:space="preserve">
-    <value>Kiểm tra cập nhật thất bại</value>
   </data>
   <data name="UpdateWindow_Title" xml:space="preserve">
     <value>Có cập nhật mới</value>

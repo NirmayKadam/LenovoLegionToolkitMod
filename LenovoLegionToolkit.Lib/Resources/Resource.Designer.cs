@@ -1645,24 +1645,6 @@ namespace LenovoLegionToolkit.Lib.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The downloaded update is not signed by the trusted server certificate {0}.
-        /// </summary>
-        public static string UpdateChecker_Security_Invalid {
-            get {
-                return ResourceManager.GetString("UpdateChecker_Security_Invalid", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Invalid signature thumbprint {0}.
-        /// </summary>
-        public static string UpdateChecker_Security_Thumbprint {
-            get {
-                return ResourceManager.GetString("UpdateChecker_Security_Thumbprint", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Never.
         /// </summary>
         public static string UpdateCheckFrequency_Never {
@@ -1722,24 +1704,6 @@ namespace LenovoLegionToolkit.Lib.Resources {
         public static string UpdateCheckFrequency_PerWeek {
             get {
                 return ResourceManager.GetString("UpdateCheckFrequency_PerWeek", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to GitHub.
-        /// </summary>
-        public static string UpdateMethod_GitHub {
-            get {
-                return ResourceManager.GetString("UpdateMethod_GitHub", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Server.
-        /// </summary>
-        public static string UpdateMethod_Server {
-            get {
-                return ResourceManager.GetString("UpdateMethod_Server", resourceCulture);
             }
         }
         

@@ -455,5 +455,149 @@ namespace LenovoLegionToolkit.Lib.Automation.Resources {
                 return ResourceManager.GetString("WiFiDisconnectedAutomationPipelineTrigger_DisplayName", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Step {0} ({1}): {2}.
+        /// </summary>
+        public static string AutomationRule_StepIssue {
+            get {
+                return ResourceManager.GetString("AutomationRule_StepIssue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to AI Engine only runs in Balance mode, so here this step only changes the setting..
+        /// </summary>
+        public static string AutomationRule_AIEngineNotBalance {
+            get {
+                return ResourceManager.GetString("AutomationRule_AIEngineNotBalance", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Never runs: a Close app step before it ends LLT..
+        /// </summary>
+        public static string AutomationRule_AfterCloseApp {
+            get {
+                return ResourceManager.GetString("AutomationRule_AfterCloseApp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Has no lasting effect: step {0} sets the same thing later..
+        /// </summary>
+        public static string AutomationRule_Overridden {
+            get {
+                return ResourceManager.GetString("AutomationRule_Overridden", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Does nothing: the laptop is already in this power mode when this automation starts..
+        /// </summary>
+        public static string AutomationRule_AlreadyInMode {
+            get {
+                return ResourceManager.GetString("AutomationRule_AlreadyInMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Switches away from the power mode that started this automation..
+        /// </summary>
+        public static string AutomationRule_SwitchesAway {
+            get {
+                return ResourceManager.GetString("AutomationRule_SwitchesAway", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The preset is chosen now, but it only takes effect when Custom mode is on..
+        /// </summary>
+        public static string AutomationRule_PresetNeedsCustom {
+            get {
+                return ResourceManager.GetString("AutomationRule_PresetNeedsCustom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not available on this laptop, so this step is skipped..
+        /// </summary>
+        public static string AutomationRule_NotSupported {
+            get {
+                return ResourceManager.GetString("AutomationRule_NotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Refers back to a quick action that is already running it, so its steps are not repeated..
+        /// </summary>
+        public static string AutomationRule_QuickActionCycle {
+            get {
+                return ResourceManager.GetString("AutomationRule_QuickActionCycle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Warning: these automations can start each other in an endless loop: {0}. LLT pauses an automation that keeps restarting itself..
+        /// </summary>
+        public static string AutomationRule_Loop {
+            get {
+                return ResourceManager.GetString("AutomationRule_Loop", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This automation ends with Close app, so steps added after it would never run..
+        /// </summary>
+        public static string AutomationRule_AddBlocked_CloseApp {
+            get {
+                return ResourceManager.GetString("AutomationRule_AddBlocked_CloseApp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to AI Engine only runs in Balance mode, and this automation runs in {0}. Add it to a Balance automation instead..
+        /// </summary>
+        public static string AutomationRule_AddBlocked_AIEngine {
+            get {
+                return ResourceManager.GetString("AutomationRule_AddBlocked_AIEngine", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Automation &quot;{0}&quot; kept restarting itself and was paused. Save your automations again or restart LLT to resume it..
+        /// </summary>
+        public static string AutomationRule_Paused {
+            get {
+                return ResourceManager.GetString("AutomationRule_Paused", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to LLT runs this program as administrator, and other programs on this PC can replace it or add files next to it (folder: {0}). Only the program itself is checked, not files named in its arguments..
+        /// </summary>
+        public static string RunTarget_Replaceable {
+            get {
+                return ResourceManager.GetString("RunTarget_Replaceable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No folder given. LLT runs it as administrator and looks it up in folders that other programs may be able to change. Use the full path..
+        /// </summary>
+        public static string RunTarget_BareName {
+            get {
+                return ResourceManager.GetString("RunTarget_BareName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Program not found: {0}..
+        /// </summary>
+        public static string RunTarget_NotFound {
+            get {
+                return ResourceManager.GetString("RunTarget_NotFound", resourceCulture);
+            }
+        }
     }
 }

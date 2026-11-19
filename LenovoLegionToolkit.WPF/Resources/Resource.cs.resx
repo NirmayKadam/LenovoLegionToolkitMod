@@ -3370,12 +3370,6 @@ Po změně této volby je doporučen restart.</value>
   <data name="SettingsPage_UpdateCheckFrequency_Title" xml:space="preserve">
     <value>Frekvence aktualizace</value>
   </data>
-  <data name="SettingsPage_UpdateMethod_Message" xml:space="preserve">
-    <value>Zvolte, jak jsou aktualizace staženy a nainstalovány.</value>
-  </data>
-  <data name="SettingsPage_UpdateMethod_Title" xml:space="preserve">
-    <value>Způsob aktualizace</value>
-  </data>
   <data name="SettingsPage_UseNewSensorDashboard_Message" xml:space="preserve">
     <value>Používejte nový snímač namísto starého.</value>
   </data>
@@ -3767,15 +3761,6 @@ Pokud se rozhodneš pokračovat, protokolování bude automaticky povoleno.</val
   </data>
   <data name="UnsupportedWindow_Vendor" xml:space="preserve">
     <value>Dodavatel</value>
-  </data>
-  <data name="Update" xml:space="preserve">
-    <value>Aktualizovat</value>
-  </data>
-  <data name="UpdateWindow_DownloadError_Title" xml:space="preserve">
-    <value>Stahování aktualizace se nezdařilo</value>
-  </data>
-  <data name="UpdateWindow_SecurityError_Title" xml:space="preserve">
-    <value>Nepodařilo se ověřit aktualizaci</value>
   </data>
   <data name="UpdateWindow_Title" xml:space="preserve">
     <value>K dispozici je aktualizace</value>

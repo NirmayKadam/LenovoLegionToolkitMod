@@ -21,7 +21,7 @@ namespace LenovoLegionToolkit.WPF.Windows.Automation;
 
 public partial class CreateAutomationPipelineWindow
 {
-    private readonly MachineInformation machineInformation = Compatibility.GetMachineInformationAsync().Result;
+    private readonly MachineInformation machineInformation = Compatibility.GetMachineInformation();
 
     private List<IAutomationPipelineTrigger> _triggers =
     [

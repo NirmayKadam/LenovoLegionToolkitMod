@@ -61,6 +61,15 @@ public partial class StatusWindow
     private bool _anchorRight;
     private bool _anchorBottom;
 
+    /// <summary>A part of the status that couldn't be read is left out; the window closing (cancellation) isn't logged.</summary>
+    private static void LogReadFailure(string what, Exception ex)
+    {
+        if (ex is OperationCanceledException)
+            return;
+
+        Log.Instance.Trace($"Status window: could not read {what}.", ex);
+    }
+
     private void SetMachineInformation(MachineInformation info)
     {
         _machineInfo = info;
@@ -118,7 +127,10 @@ public partial class StatusWindow
             var initialData = await GetStatusWindowDataAsync(token, skipRetry: true);
             ApplyDataToUI(initialData);
         }
-        catch { }
+        catch (Exception ex)
+        {
+            LogReadFailure("the first status", ex);
+        }
     }
 
     public StatusWindow()
@@ -283,16 +295,16 @@ public partial class StatusWindow
                         mode = await _itsModeFeature.GetStateAsync().WaitAsync(token);
                     }
                 }
-                catch { /* Ignore */ }
+                catch (Exception ex) { LogReadFailure("the power mode", ex); }
             }, token),
-            Task.Run(async () => { try { if (_gpuController.IsSupported()) gpuStatus = await _gpuController.RefreshNowAsync().WaitAsync(token); } catch { } }, token),
-            Task.Run(() => { try { batteryInfo = Battery.GetBatteryInformation(); } catch { } }, token),
-            Task.Run(async () => { try { if (await _batteryFeature.IsSupportedAsync().WaitAsync(token)) batteryState = await _batteryFeature.GetStateAsync().WaitAsync(token); } catch { } }, token),
+            Task.Run(async () => { try { if (_gpuController.IsSupported()) gpuStatus = await _gpuController.RefreshNowAsync().WaitAsync(token); } catch (Exception ex) { LogReadFailure("the GPU state", ex); } }, token),
+            Task.Run(() => { try { batteryInfo = Battery.GetBatteryInformation(); } catch (Exception ex) { LogReadFailure("the battery", ex); } }, token),
+            Task.Run(async () => { try { if (await _batteryFeature.IsSupportedAsync().WaitAsync(token)) batteryState = await _batteryFeature.GetStateAsync().WaitAsync(token); } catch (Exception ex) { LogReadFailure("the battery mode", ex); } }, token),
             Task.Run(async () =>
             {
                 try
                 {
-                    if (_updateChecker.UpdateFromServer is not null || (await _updateChecker.GetUpdatesAsync().WaitAsync(token)).Length > 0)
+                    if ((await _updateChecker.GetUpdatesAsync().WaitAsync(token)).Length > 0)
                     {
                         hasUpdate = true;
                     }
@@ -301,7 +313,7 @@ public partial class StatusWindow
                         hasUpdate = await _updateChecker.CheckAsync(false).WaitAsync(token) is not null;
                     }
                 }
-                catch { }
+                catch (Exception ex) { LogReadFailure("updates", ex); }
             }, token)
         };
 

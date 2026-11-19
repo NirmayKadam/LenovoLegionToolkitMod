@@ -3372,12 +3372,6 @@ Po zmianie tego ustawienia zalecane jest ponowne uruchomienie.</value>
   <data name="SettingsPage_UpdateCheckFrequency_Title" xml:space="preserve">
     <value>Częstotliwość aktualizacji</value>
   </data>
-  <data name="SettingsPage_UpdateMethod_Message" xml:space="preserve">
-    <value>Wybierz sposób pobierania i instalowania aktualizacji.</value>
-  </data>
-  <data name="SettingsPage_UpdateMethod_Title" xml:space="preserve">
-    <value>Metoda aktualizacji</value>
-  </data>
   <data name="SettingsPage_UseNewSensorDashboard_Message" xml:space="preserve">
     <value>Użyj nowego panelu czujników zamiast starej.</value>
   </data>
@@ -3769,15 +3763,6 @@ Jeśli zdecydujesz się kontynuować, logowanie zostanie włączone automatyczni
   </data>
   <data name="UnsupportedWindow_Vendor" xml:space="preserve">
     <value>Producent</value>
-  </data>
-  <data name="Update" xml:space="preserve">
-    <value>Aktualizacja</value>
-  </data>
-  <data name="UpdateWindow_DownloadError_Title" xml:space="preserve">
-    <value>Pobieranie aktualizacji nie powiodło się</value>
-  </data>
-  <data name="UpdateWindow_SecurityError_Title" xml:space="preserve">
-    <value>Nie udało się zweryfikować aktualizacji</value>
   </data>
   <data name="UpdateWindow_Title" xml:space="preserve">
     <value>Dostępna aktualizacja</value>

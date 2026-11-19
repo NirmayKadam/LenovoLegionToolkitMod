@@ -2,7 +2,9 @@
 using System.Windows;
 using System.Windows.Automation;
 using System.Windows.Controls;
+using System.Windows.Media;
 using LenovoLegionToolkit.Lib.Automation.Steps;
+using LenovoLegionToolkit.Lib.Automation.Utils;
 using LenovoLegionToolkit.WPF.Resources;
 using Wpf.Ui.Common;
 using TextBox = Wpf.Ui.Controls.TextBox;
@@ -41,6 +43,15 @@ public class RunAutomationStepControl : AbstractAutomationStepControl<RunAutomat
     {
         Content = Resource.RunAutomationStepControl_ProcessCheckInstance,
         ToolTip = Resource.RunAutomationStepControl_ProcessCheckInstance_Description
+    };
+
+    /// <summary>Why the program might be replaced by another program; LLT still runs it (warn only).</summary>
+    private readonly TextBlock _targetWarning = new()
+    {
+        Foreground = Brushes.Orange,
+        TextWrapping = TextWrapping.Wrap,
+        Margin = new(0, 8, 0, 0),
+        Visibility = Visibility.Collapsed
     };
 
     private readonly StackPanel _stackPanel = new();
@@ -113,17 +124,24 @@ public class RunAutomationStepControl : AbstractAutomationStepControl<RunAutomat
             if (_checkBoxProcessWaitUntilFinished.IsChecked != AutomationStep.WaitUntilFinished)
                 RaiseChanged();
         };
+        _checkBoxProcessCheckInstance.Checked += (_, _) =>
+        {
+            if (_checkBoxProcessCheckInstance.IsChecked != AutomationStep.CheckInstance)
+                RaiseChanged();
+        };
         _checkBoxProcessCheckInstance.Unchecked += (_, _) =>
         {
             if (_checkBoxProcessCheckInstance.IsChecked != AutomationStep.CheckInstance)
                 RaiseChanged();
         };
+        _scriptPath.LostFocus += (_, _) => RefreshTargetWarning();
 
         _stackPanel.Children.Add(_scriptPath);
         _stackPanel.Children.Add(_scriptArguments);
         _stackPanel.Children.Add(_checkBoxProcessRunSilently);
         _stackPanel.Children.Add(_checkBoxProcessWaitUntilFinished);
         _stackPanel.Children.Add(_checkBoxProcessCheckInstance);
+        _stackPanel.Children.Add(_targetWarning);
 
         return _stackPanel;
     }
@@ -136,6 +154,15 @@ public class RunAutomationStepControl : AbstractAutomationStepControl<RunAutomat
         _scriptArguments.Text = AutomationStep.ScriptArguments ?? string.Empty;
         _checkBoxProcessRunSilently.IsChecked = AutomationStep.RunSilently;
         _checkBoxProcessWaitUntilFinished.IsChecked = AutomationStep.WaitUntilFinished;
+        _checkBoxProcessCheckInstance.IsChecked = AutomationStep.CheckInstance;
+        RefreshTargetWarning();
         return Task.CompletedTask;
+    }
+
+    private void RefreshTargetWarning()
+    {
+        var message = RunTargetCheck.Describe(RunTargetCheck.Check(_scriptPath.Text));
+        _targetWarning.Text = message ?? string.Empty;
+        _targetWarning.Visibility = message is null ? Visibility.Collapsed : Visibility.Visible;
     }
 }

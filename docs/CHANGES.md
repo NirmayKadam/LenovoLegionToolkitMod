@@ -622,3 +622,91 @@ Each failed exactly its test. Breaking the third one first showed a test that co
 **Test changed on purpose:** `SettingsBackupCoverageTests` lists `background_services_session.json` as left out of backups, with the reason.
 
 Not verified on the laptop yet.
+
+## Round 10: safe automations, a fork-only updater, code-review fixes (2026-11-19)
+
+### 1. Automations: only steps that can work
+- `Lib.Automation/Pipeline/AutomationRules.cs` (new, pure).
+  - **Inputs:** the trigger and the steps (quick actions expanded) as `StepInfo` descriptors.
+  - **It marks:**
+    - AI Engine On/Toggle where the power mode is known and isn't Balance;
+    - steps after Close app;
+    - a setting set again later (not across a delay or program, not when the later step toggles or cycles);
+    - a power mode equal to or different from the trigger's;
+    - presets outside Custom mode;
+    - unsupported steps.
+  - `WhyNotAddable` tells Add step what to grey out and why. `FindLoops` finds automations that can start each other.
+- `AutomationPipeline.cs`:
+  - quick actions are expanded with a set of those being expanded. Two quick actions that ran each other used to recurse until the stack overflowed, which ended LLT;
+  - a step this laptop doesn't support is skipped when run;
+  - `GetValidationWarnings` lists every issue by step number, plus Run step warnings and loops;
+  - `WhyStepCannotBeAdded` (new).
+- **Fixed:** the hybrid mode, GPU overclock, HDR and resolution order warnings only appeared when the automation also had a Power mode step. The test failed first.
+- **UI:**
+  - the automation page checks each automation against all the others, and again after any change;
+  - Add step disables a step that can't work and shows the reason;
+  - Run steps show their program warning.
+- **Fixed:** the Run step's "Check instance" box wasn't reloaded, and ticking it didn't mark the automation as changed.
+
+### 2. Loops
+`Lib.Automation/Utils/AutomationLoopGuard.cs` (new):
+- A power mode or Custom preset event that arrives while an automation that can change those is running, or within 3 s after it, counts as caused by an automation.
+- An automation started that way more than 3 times within 60 s is paused, with a notification, until the automations are saved again or LLT restarts. The plan said 10 s; 60 s also catches slower loops, since each mode change takes a moment.
+- `AutomationProcessor` decides "caused by an automation" when the event arrives.
+
+### 3. Run steps
+- `Lib.Automation/Utils/RunTargetCheck.cs` (new) reads permissions only. It flags:
+  - a program whose file or folder can be changed by programs that aren't elevated (Users, Authenticated Users, Everyone, INTERACTIVE or the user; also the owner);
+  - a bare name;
+  - a missing program.
+- It warns only: the step still runs, and a log line is written.
+- The safety report gets an "Automation Run steps" row.
+
+### 4. Updater: this fork only, nothing downloaded
+- `UpdateChecker` checks `NirmayKadam/LenovoLegionToolkitMod` releases. Stable and Beta come from `main` (or `master`). It only opens a release page of this fork (anything else falls back to the latest release page).
+- **Removed:**
+  - the "Server" update method and its scrambled `http://` address;
+  - the zh-Hans switch to it;
+  - the download, signature-pin and silent-install path;
+  - `UpdateMethod`, `StatusCode`, `ProjectEntry`, `ProjectInfo`, `UpdateFromServer`;
+  - the Settings "Update method" card;
+  - their strings.
+- An old `"UpdateMethod": "Server"` in `update_settings.json` still loads.
+- `UpdateWindow`: release notes, then **Open release page**.
+- **Tests removed with the feature:** `VerifiedDownloadTests` (they tested the removed download path; nothing failed). `LockedFile` and `AuthenticodeVerifier` stay, as the Lenovo package helpers use them, and so do their tests.
+
+### 5. Code-review fixes
+- `Compatibility`:
+  - `fake_mi.json` is read only in Debug builds; the safety report says a release build ignores it;
+  - the first machine-information scan runs once (a lock);
+  - `GetMachineInformation()` (new) replaces `.Result` at five places that can't await (constructors and a static property). It returns the value loaded at start-up, and otherwise loads it on a worker thread, so it can't deadlock the caller. The plan said `await`, but these places can't await.
+- `KeyboardBacklightPage`: turning off Dynamic Lighting writes the registry directly instead of starting `reg.exe` and waiting for it.
+- `PawnIOHelper.IsPawnIOServiceRunning`: `ServiceController` instead of starting `sc.exe` and parsing its text.
+- **14 silent `catch { }` blocks:**
+  - most now log what failed;
+  - the two per-process ones in the exclude-processes window catch only the expected exceptions, with a comment;
+  - the status window doesn't log a cancelled read.
+- `SunriseSunset`: coordinates are parsed culture-independently and must be in range. The lookup is plain HTTP; the service has no free HTTPS.
+
+### Tests
+**New:**
+- `AutomationRulesTests`;
+- `PipelineExpansionTests` (the quick action cycle, unsupported steps skipped, step numbers);
+- `AutomationLoopGuardTests`;
+- `RunTargetCheckTests` (real files and permissions);
+- `UpdateCheckerTests`;
+- `SunriseSunsetTests`;
+- safety report Run step rows.
+
+**871 tests**, all passing.
+
+**Honesty check:**
+- The quick action cycle can't fail first, because a stack overflow ends the test run. The cycle that recursed (A runs B; B and C run each other) was traced through the old code instead.
+- Breaking five guards one at a time made a test fail each time:
+  - the loop limit;
+  - the owner rule;
+  - the AI Engine rule;
+  - the unsupported-step skip;
+  - HTTPS-only release pages.
+
+Not verified on the laptop yet.

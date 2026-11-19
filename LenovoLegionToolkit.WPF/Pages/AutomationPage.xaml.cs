@@ -159,6 +159,10 @@ public partial class AutomationPage
 
         await Task.WhenAll(initializedTasks);
 
+        // Each automation checked itself while the others were still loading; check again with all of them.
+        foreach (var control in PipelineControls())
+            control.RefreshValidationWarnings();
+
         _loaderAutomatic.IsLoading = false;
         _loaderManual.IsLoading = false;
     }
@@ -254,7 +258,10 @@ public partial class AutomationPage
             supportedSteps = Array.FindAll(supportedSteps, s => s is not QuickActionAutomationStep);
         }
 
-        var control = new AutomationPipelineControl(pipeline, supportedSteps, _totalAutomationStepsCount);
+        var control = new AutomationPipelineControl(pipeline, supportedSteps, _totalAutomationStepsCount)
+        {
+            AllPipelines = CurrentPipelines
+        };
         control.MouseRightButtonUp += (_, e) =>
         {
             ShowPipelineContextMenu(control, stackPanel);
@@ -272,7 +279,19 @@ public partial class AutomationPage
     private void PipelinesChanged()
     {
         _saveRevertStackPanel.Visibility = Visibility.Visible;
+
+        // A change to one automation can start or end a loop with another, so every automation's warnings are refreshed.
+        foreach (var control in PipelineControls())
+            control.RefreshValidationWarnings();
     }
+
+    private IEnumerable<AutomationPipelineControl> PipelineControls() =>
+        _automaticPipelinesStackPanel.Children.OfType<AutomationPipelineControl>()
+            .Concat(_manualPipelinesStackPanel.Children.OfType<AutomationPipelineControl>());
+
+    /// <summary>All automations as currently edited. A control still loading its steps contributes its saved automation.</summary>
+    private IReadOnlyList<AutomationPipeline> CurrentPipelines() =>
+        [.. PipelineControls().Select(c => c.InitializedTask.IsCompleted ? c.CreateAutomationPipeline() : c.AutomationPipeline)];
 
     private void ShowPipelineContextMenu(AutomationPipelineControl control, Panel stackPanel)
     {

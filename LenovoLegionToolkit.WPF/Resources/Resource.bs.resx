@@ -3372,12 +3372,6 @@ Restart is recommended after changing this option.</value>
   <data name="SettingsPage_UpdateCheckFrequency_Title" xml:space="preserve">
     <value>Update Frequency</value>
   </data>
-  <data name="SettingsPage_UpdateMethod_Message" xml:space="preserve">
-    <value>Choose how updates are downloaded and installed.</value>
-  </data>
-  <data name="SettingsPage_UpdateMethod_Title" xml:space="preserve">
-    <value>Update Method</value>
-  </data>
   <data name="SettingsPage_UseNewSensorDashboard_Message" xml:space="preserve">
     <value>Use new sensor dashboard instead of the old one.</value>
   </data>
@@ -3769,15 +3763,6 @@ Logiranje će biti automatski omogućeno, ukoliko izaberete da nastavite.</value
   </data>
   <data name="UnsupportedWindow_Vendor" xml:space="preserve">
     <value>Prodavač</value>
-  </data>
-  <data name="Update" xml:space="preserve">
-    <value>Ažuriraj</value>
-  </data>
-  <data name="UpdateWindow_DownloadError_Title" xml:space="preserve">
-    <value>Update download failed</value>
-  </data>
-  <data name="UpdateWindow_SecurityError_Title" xml:space="preserve">
-    <value>Failed to verify update</value>
   </data>
   <data name="UpdateWindow_Title" xml:space="preserve">
     <value>Dostupno ažuriranje</value>

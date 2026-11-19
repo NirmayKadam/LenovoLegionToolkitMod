@@ -59,6 +59,8 @@ Files: `Lib/PackageDownloader/Detectors/Rules/ExternalDetectionRule.cs`, `Lib/Ut
 
 **Now:** `WinVerifyTrust` verifies the signature, then the existing thumbprint pin applies, for both download sources. The installer stays locked from verification until it starts. The real v2.36.0.0 installer is accepted and an unsigned one is rejected.
 
+**Later (Round 10):** the updater downloaded and silently installed **upstream's** releases, which would have replaced this fork. It also had a second update method that talked to a server over plain HTTP, with the server's address scrambled in the source. Both are gone. LLT now only checks this fork's GitHub releases and opens the release page; it downloads and installs nothing.
+
 ### 7. "Accept any certificate"
 `--proxy-allow-all-certs` turned off HTTPS certificate validation for update, driver and warranty traffic. It has been removed; old `args.txt` files still load, and the flag is ignored with a log line.
 
