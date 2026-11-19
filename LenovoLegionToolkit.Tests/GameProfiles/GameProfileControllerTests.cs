@@ -523,6 +523,8 @@ public sealed class GameProfileControllerTests : IDisposable
 
     [Theory]
     [InlineData("Spooler", null, ServiceRefusal.Protected)]
+    [InlineData("Appinfo", null, ServiceRefusal.Protected)]     // UAC prompts and "Run as administrator"; it was pausable before
+    [InlineData("appinfo", null, ServiceRefusal.Protected)]
     [InlineData("anything", null, ServiceRefusal.NotInstalled)]
     public void Rules_RefuseBeforeLookingAtTheService(string name, ServiceInfo? service, ServiceRefusal expected) =>
         Assert.Equal(expected, ServiceRules.Check(name, service));

@@ -47,6 +47,8 @@ public static class ServiceRules
         "RpcSs", "RpcEptMapper", "DcomLaunch", "LSM", "SamSs", "KeyIso", "Winmgmt", "EventLog", "PlugPlay", "Power",
         "ProfSvc", "Schedule", "UserManager", "BrokerInfrastructure", "SystemEventsBroker", "CoreMessagingRegistrar",
         "StateRepository", "TimeBrokerSvc", "CryptSvc", "gpsvc", "StorSvc", "VSS",
+        // UAC: elevation prompts and "Run as administrator"
+        "Appinfo",
         // Audio
         "Audiosrv", "AudioEndpointBuilder",
         // Network
