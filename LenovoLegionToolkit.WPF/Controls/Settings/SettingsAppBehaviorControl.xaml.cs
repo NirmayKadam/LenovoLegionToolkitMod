@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -33,6 +34,7 @@ namespace LenovoLegionToolkit.WPF.Controls.Settings;
 public partial class SettingsAppBehaviorControl
 {
     private readonly ApplicationSettings _settings = IoCContainer.Resolve<ApplicationSettings>();
+    private readonly SunriseSunsetSettings _sunriseSunsetSettings = IoCContainer.Resolve<SunriseSunsetSettings>();
     private readonly DashboardSettings _dashboardSettings = IoCContainer.Resolve<DashboardSettings>();
     private readonly AutomationProcessor _automationProcessor = IoCContainer.Resolve<AutomationProcessor>();
     private readonly OsdSettings _OsdSettings = IoCContainer.Resolve<OsdSettings>();
@@ -54,6 +56,9 @@ public partial class SettingsAppBehaviorControl
         _minimizeToTrayToggle.IsChecked = _settings.Store.MinimizeToTray;
         _helpTooltipsToggle.IsChecked = _settings.Store.ShowHelpTooltips;
         _detailedLogToggle.IsChecked = Log.Instance.IsTraceEnabled;
+        _sunLocationTextBox.Text = _sunriseSunsetSettings.Store is { Latitude: { } lat, Longitude: { } lon }
+            ? string.Create(CultureInfo.InvariantCulture, $"{lat}, {lon}")
+            : string.Empty;
         _gameSafeModeToggle.IsChecked = _settings.Store.GameSafeMode;
         UpdateGameSafeModeStatus();
         _helpTooltipDelayComboBox.SelectedIndex = _settings.Store.HelpTooltipDelayMs switch { <= 200 => 0, <= 600 => 1, _ => 2 };
@@ -184,6 +189,39 @@ public partial class SettingsAppBehaviorControl
             : monitor.ActiveServices.Count > 0
                 ? string.Format(Resource.SettingsPage_GameSafeMode_Active, string.Join(", ", monitor.ActiveServices))
                 : string.Format(Resource.SettingsPage_GameSafeMode_ActiveProfile, gameProfiles.ActiveGameName);
+    }
+
+    /// <summary>Empty clears the location (back to the lookup by IP address); anything else must be a valid "latitude, longitude".</summary>
+    private async void SunLocationSaveButton_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var text = _sunLocationTextBox.Text?.Trim();
+            if (string.IsNullOrEmpty(text))
+            {
+                _sunriseSunsetSettings.Store.Latitude = null;
+                _sunriseSunsetSettings.Store.Longitude = null;
+            }
+            else if (SunriseSunset.TryParseLocation(text, out var latitude, out var longitude))
+            {
+                _sunriseSunsetSettings.Store.Latitude = latitude;
+                _sunriseSunsetSettings.Store.Longitude = longitude;
+            }
+            else
+            {
+                await SnackbarHelper.ShowAsync(Resource.SettingsPage_SunLocation_Invalid_Title, Resource.SettingsPage_SunLocation_Invalid_Message, SnackbarType.Warning);
+                return;
+            }
+
+            // Worked out again from the new location next time it's needed.
+            _sunriseSunsetSettings.Store.LastCheckDateTime = null;
+            _sunriseSunsetSettings.SynchronizeStore();
+            await SnackbarHelper.ShowAsync(Resource.SettingsPage_SunLocation_Saved, type: SnackbarType.Success);
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Couldn't save the location for sunrise and sunset.", ex);
+        }
     }
 
     private void DetailedLogToggle_Click(object sender, RoutedEventArgs e)

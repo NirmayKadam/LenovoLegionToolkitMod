@@ -205,7 +205,7 @@ public partial class AutomationPage
             new RefreshRateAutomationStep(default),
             new ResolutionAutomationStep(default),
             new RGBKeyboardBacklightAutomationStep(default),
-            new RunAutomationStep(default, default, default, default, default),
+            new RunAutomationStep(default, default, default, default, default, runAsStandardUser: true),
             new AfterburnerProfileAutomationStep(1),
             new SpectrumKeyboardBacklightBrightnessAutomationStep(0),
             new SpectrumKeyboardBacklightProfileAutomationStep(1),

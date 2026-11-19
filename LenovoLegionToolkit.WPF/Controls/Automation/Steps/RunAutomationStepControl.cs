@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Automation;
 using System.Windows.Controls;
@@ -45,6 +45,12 @@ public class RunAutomationStepControl : AbstractAutomationStepControl<RunAutomat
         ToolTip = Resource.RunAutomationStepControl_ProcessCheckInstance_Description
     };
 
+    private readonly CheckBox _checkBoxRunAsStandardUser = new()
+    {
+        Content = Resource.RunAutomationStepControl_RunAsStandardUser,
+        ToolTip = Resource.RunAutomationStepControl_RunAsStandardUser_Description
+    };
+
     /// <summary>Why the program might be replaced by another program; LLT still runs it (warn only).</summary>
     private readonly TextBlock _targetWarning = new()
     {
@@ -69,6 +75,7 @@ public class RunAutomationStepControl : AbstractAutomationStepControl<RunAutomat
         AutomationProperties.SetName(_checkBoxProcessRunSilently, Resource.RunAutomationStepControl_ProcessRunSilently);
         AutomationProperties.SetName(_checkBoxProcessWaitUntilFinished, Resource.RunAutomationStepControl_ProcessWaitUntilFinished);
         AutomationProperties.SetName(_checkBoxProcessCheckInstance, Resource.RunAutomationStepControl_ProcessCheckInstance);
+        AutomationProperties.SetName(_checkBoxRunAsStandardUser, Resource.RunAutomationStepControl_RunAsStandardUser);
 
         SizeChanged += RunAutomationStepControl_SizeChanged;
     }
@@ -89,7 +96,8 @@ public class RunAutomationStepControl : AbstractAutomationStepControl<RunAutomat
             _scriptArguments.Text,
             _checkBoxProcessRunSilently.IsChecked ?? true,
             _checkBoxProcessWaitUntilFinished.IsChecked ?? true,
-            _checkBoxProcessCheckInstance.IsChecked ?? true);
+            _checkBoxProcessCheckInstance.IsChecked ?? true,
+            _checkBoxRunAsStandardUser.IsChecked == true);
     }
 
     protected override UIElement GetCustomControl()
@@ -134,6 +142,8 @@ public class RunAutomationStepControl : AbstractAutomationStepControl<RunAutomat
             if (_checkBoxProcessCheckInstance.IsChecked != AutomationStep.CheckInstance)
                 RaiseChanged();
         };
+        _checkBoxRunAsStandardUser.Checked += (_, _) => RunAsStandardUserChanged();
+        _checkBoxRunAsStandardUser.Unchecked += (_, _) => RunAsStandardUserChanged();
         _scriptPath.LostFocus += (_, _) => RefreshTargetWarning();
 
         _stackPanel.Children.Add(_scriptPath);
@@ -141,6 +151,7 @@ public class RunAutomationStepControl : AbstractAutomationStepControl<RunAutomat
         _stackPanel.Children.Add(_checkBoxProcessRunSilently);
         _stackPanel.Children.Add(_checkBoxProcessWaitUntilFinished);
         _stackPanel.Children.Add(_checkBoxProcessCheckInstance);
+        _stackPanel.Children.Add(_checkBoxRunAsStandardUser);
         _stackPanel.Children.Add(_targetWarning);
 
         return _stackPanel;
@@ -155,13 +166,22 @@ public class RunAutomationStepControl : AbstractAutomationStepControl<RunAutomat
         _checkBoxProcessRunSilently.IsChecked = AutomationStep.RunSilently;
         _checkBoxProcessWaitUntilFinished.IsChecked = AutomationStep.WaitUntilFinished;
         _checkBoxProcessCheckInstance.IsChecked = AutomationStep.CheckInstance;
+        _checkBoxRunAsStandardUser.IsChecked = AutomationStep.RunAsStandardUser;
         RefreshTargetWarning();
         return Task.CompletedTask;
     }
 
+    private void RunAsStandardUserChanged()
+    {
+        if (_checkBoxRunAsStandardUser.IsChecked != AutomationStep.RunAsStandardUser)
+            RaiseChanged();
+        RefreshTargetWarning();
+    }
+
+    /// <summary>The warning is about administrator rights, so it's shown only for programs started with them.</summary>
     private void RefreshTargetWarning()
     {
-        var message = RunTargetCheck.Describe(RunTargetCheck.Check(_scriptPath.Text));
+        var message = _checkBoxRunAsStandardUser.IsChecked == true ? null : RunTargetCheck.Describe(RunTargetCheck.Check(_scriptPath.Text));
         _targetWarning.Text = message ?? string.Empty;
         _targetWarning.Visibility = message is null ? Visibility.Collapsed : Visibility.Visible;
     }

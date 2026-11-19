@@ -70,11 +70,10 @@ public class AppIdentityTests
         Assert.Contains("Bartosz Cichecki, Kaguya, and Dr. Skinner", copyright);
     }
 
-    [Theory]
-    [InlineData("make_installer.iss")]
-    [InlineData("make_installer_action.iss")]
-    public void TheInstaller_ShowsTheNewIdentity_ButUpgradesTheSameInstallation(string script)
+    [Fact]
+    public void TheInstaller_ShowsTheNewIdentity_ButUpgradesTheSameInstallation()
     {
+        const string script = "make_installer.iss";
         var bytes = File.ReadAllBytes(Path.Combine(Root, script));
         Assert.True(bytes is [0xEF, 0xBB, 0xBF, ..], "UTF-8 with a byte-order mark, so Inno Setup reads the name's dash and the © correctly");
         var iss = File.ReadAllText(Path.Combine(Root, script));

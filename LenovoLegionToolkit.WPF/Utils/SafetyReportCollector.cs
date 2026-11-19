@@ -124,7 +124,7 @@ public static class SafetyReportCollector
     /// <summary>The program an automation step starts (as administrator, like LLT), if it starts one.</summary>
     private static string? ProgramStartedAsAdministrator(IAutomationStep step) => step switch
     {
-        RunAutomationStep run => run.ScriptPath,
+        RunAutomationStep { RunAsStandardUser: false } run => run.ScriptPath,
         AfterburnerProfileAutomationStep afterburner => afterburner.EffectivePath,
         _ => null
     };

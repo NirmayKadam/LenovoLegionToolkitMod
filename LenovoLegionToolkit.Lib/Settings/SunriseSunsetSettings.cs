@@ -10,5 +10,10 @@ public class SunriseSunsetSettings() : AbstractSettings<SunriseSunsetSettingsSto
         public DateTime? LastCheckDateTime { get; set; }
         public Time? Sunrise { get; set; }
         public Time? Sunset { get; set; }
+
+        /// <summary>A location the user typed in; when set, sunrise and sunset are worked out from it with no network lookup.</summary>
+        public double? Latitude { get; set; }
+
+        public double? Longitude { get; set; }
     }
 }

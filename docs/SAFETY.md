@@ -99,10 +99,14 @@ Automations change the same settings as the rest of LLT, with the same limits. W
   - While running: if power mode or Custom preset changes made by automations start the same automation more than 3 times within 60 s, LLT pauses it and shows a notification. It stays paused until you save your automations again or restart LLT.
   - Changes you make yourself (Fn+Q) never count.
   - Quick actions that run each other no longer crash LLT.
-- **Run steps start their program as administrator**, because LLT runs elevated.
+- **Run steps can start their program without administrator rights.** "Run as standard user" is on for new Run steps; steps saved before it existed keep running as administrator, so nothing that worked stops working.
+  - With it on, the program gets the same rights as when you start it yourself (those of your desktop). If Windows can't do that (for example with User Account Control off), the program **isn't started** and a notification says why. It never quietly runs as administrator instead.
+  - Its output isn't captured in this mode.
+- **Run steps with "Run as standard user" off start their program as administrator**, because LLT runs elevated.
   - LLT warns when the program or its folder can be changed by programs that aren't elevated, when no folder is given, or when the program is missing. The warning appears on the step, under the automation and in the safety report.
   - The program still runs: you chose warn only.
   - **Limit:** only the program itself is checked, not a script named in its arguments (`cmd /c script.bat`).
+- **Sunrise and sunset** times need your location. Leave Settings → App behaviour → "Location for sunrise and sunset" empty, and LLT asks ip-api.com once a day (unencrypted). Type a latitude and longitude there, and nothing is looked up online.
 - **The MSI Afterburner profile step** only ever starts the genuine program.
   - The file must be named `MSIAfterburner.exe` and validly signed by Micro-Star; otherwise it isn't started and a notification says why.
   - The file is locked from the check until it has started.

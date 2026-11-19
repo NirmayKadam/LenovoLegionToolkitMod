@@ -662,5 +662,14 @@ namespace LenovoLegionToolkit.Lib.Automation.Resources {
                 return ResourceManager.GetString("AfterburnerStep_Converted", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} wasn&apos;t started: {1} It isn&apos;t started with administrator rights instead..
+        /// </summary>
+        public static string RunStep_NotStartedAsStandardUser {
+            get {
+                return ResourceManager.GetString("RunStep_NotStartedAsStandardUser", resourceCulture);
+            }
+        }
     }
 }

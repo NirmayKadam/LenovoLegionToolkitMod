@@ -16,7 +16,10 @@ public class SunriseSunset(SunriseSunsetSettings settings, HttpClientFactory htt
         if (settings.Store.LastCheckDateTime == DateTime.Today && sunrise is not null && sunset is not null)
             return (sunrise, sunset);
 
-        var coordinate = await GetGeoLocationAsync(token).ConfigureAwait(false);
+        // A location typed in Settings is used as it is; only without one is the location looked up by IP address.
+        var coordinate = settings.Store is { Latitude: { } lat, Longitude: { } lon } && IsValidCoordinate(lat, lon)
+            ? new Coordinate(lat, lon, DateTime.Today)
+            : await GetGeoLocationAsync(token).ConfigureAwait(false);
 
         if (coordinate is null)
             return (null, null);
@@ -53,6 +56,17 @@ public class SunriseSunset(SunriseSunsetSettings settings, HttpClientFactory htt
         }
 
         return null;
+    }
+
+    /// <summary>"18.52, 73.86" (latitude, longitude; a dot as decimal point). False for anything else or impossible values.</summary>
+    public static bool TryParseLocation(string? text, out double latitude, out double longitude)
+    {
+        latitude = longitude = 0;
+        var parts = text?.Split(',', StringSplitOptions.TrimEntries);
+        return parts is { Length: 2 }
+               && double.TryParse(parts[0], NumberStyles.Float, CultureInfo.InvariantCulture, out latitude)
+               && double.TryParse(parts[1], NumberStyles.Float, CultureInfo.InvariantCulture, out longitude)
+               && IsValidCoordinate(latitude, longitude);
     }
 
     internal static bool IsValidCoordinate(double lat, double lon) =>

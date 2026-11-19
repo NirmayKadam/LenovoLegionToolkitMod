@@ -111,6 +111,23 @@
                     HelpKey="Help_Settings_BackgroundServices"
                     Subtitle="{x:Static resources:Resource.SettingsPage_BackgroundServices_Message}" />
             </custom:CardAction>
+            <custom:CardControl Margin="0,0,0,8" Icon="WeatherSunny24">
+                <custom:CardControl.Header>
+                    <controls:CardHeaderControl
+                        Title="{x:Static resources:Resource.SettingsPage_SunLocation_Title}"
+                        Subtitle="{x:Static resources:Resource.SettingsPage_SunLocation_Message}"
+                        HelpKey="Help_Settings_SunLocation" />
+                </custom:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <wpfui:TextBox
+                        x:Name="_sunLocationTextBox"
+                        MinWidth="180"
+                        Margin="0,0,12,0"
+                        AutomationProperties.Name="{x:Static resources:Resource.SettingsPage_SunLocation_Title}"
+                        PlaceholderText="{x:Static resources:Resource.SettingsPage_SunLocation_Placeholder}" />
+                    <wpfui:Button Click="SunLocationSaveButton_Click" Content="{x:Static resources:Resource.Save}" />
+                </StackPanel>
+            </custom:CardControl>
             <custom:CardControl Margin="0,0,0,8" Icon="Document24">
                 <custom:CardControl.Header>
                     <controls:CardHeaderControl

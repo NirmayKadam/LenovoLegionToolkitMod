@@ -186,7 +186,7 @@ public class AutomationPipeline
         {
             switch (entry.Step)
             {
-                case RunAutomationStep run:
+                case RunAutomationStep { RunAsStandardUser: false } run:
                 {
                     var message = RunTargetCheck.Describe(RunTargetCheck.Check(run.ScriptPath));
                     if (message is not null)

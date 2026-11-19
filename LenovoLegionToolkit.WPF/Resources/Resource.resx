@@ -6387,4 +6387,34 @@ When the game ends, LLT puts the apps&apos; priority and the services back. It n
   <data name="Osd_GPU_Limit" xml:space="preserve">
     <value>Limit</value>
   </data>
+  <data name="RunAutomationStepControl_RunAsStandardUser" xml:space="preserve">
+    <value>Run without administrator rights</value>
+  </data>
+  <data name="RunAutomationStepControl_RunAsStandardUser_Description" xml:space="preserve">
+    <value>Starts the program with your own user rights, like starting it yourself, instead of LLT&apos;s administrator rights. If that isn&apos;t possible, it isn&apos;t started at all. Its output isn&apos;t captured in this mode.</value>
+  </data>
+  <data name="SettingsPage_SunLocation_Title" xml:space="preserve">
+    <value>Location for sunrise and sunset</value>
+  </data>
+  <data name="SettingsPage_SunLocation_Message" xml:space="preserve">
+    <value>Used by sunrise and sunset automations. With a location here, nothing is looked up online.</value>
+  </data>
+  <data name="SettingsPage_SunLocation_Placeholder" xml:space="preserve">
+    <value>e.g. 18.52, 73.86</value>
+  </data>
+  <data name="SettingsPage_SunLocation_Invalid_Title" xml:space="preserve">
+    <value>Location not saved</value>
+  </data>
+  <data name="SettingsPage_SunLocation_Invalid_Message" xml:space="preserve">
+    <value>Type latitude, then longitude, separated by a comma, with a dot as decimal point (for example 18.52, 73.86).</value>
+  </data>
+  <data name="SettingsPage_SunLocation_Saved" xml:space="preserve">
+    <value>Location saved</value>
+  </data>
+  <data name="Help_Settings_SunLocation_What" xml:space="preserve">
+    <value>The place sunrise and sunset times are worked out for. Leave it empty to look the location up from your internet address, which is sent unencrypted to ip-api.com once a day when a sunrise or sunset automation needs it.</value>
+  </data>
+  <data name="Help_Settings_SunLocation_When" xml:space="preserve">
+    <value>Type your city&apos;s latitude and longitude (from any map) if you&apos;d rather nothing is looked up online, or if the lookup puts you in the wrong place.</value>
+  </data>
 </root>

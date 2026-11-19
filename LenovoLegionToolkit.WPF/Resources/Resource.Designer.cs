@@ -14738,5 +14738,95 @@ namespace LenovoLegionToolkit.WPF.Resources {
                 return ResourceManager.GetString("Osd_GPU_Limit", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Run without administrator rights.
+        /// </summary>
+        public static string RunAutomationStepControl_RunAsStandardUser {
+            get {
+                return ResourceManager.GetString("RunAutomationStepControl_RunAsStandardUser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Starts the program with your own user rights, like starting it yourself, instead of LLT&apos;s administrator rights. If that isn&apos;t possible, it isn&apos;t started at all. Its output isn&apos;t ca[rest of string was truncated].
+        /// </summary>
+        public static string RunAutomationStepControl_RunAsStandardUser_Description {
+            get {
+                return ResourceManager.GetString("RunAutomationStepControl_RunAsStandardUser_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Location for sunrise and sunset.
+        /// </summary>
+        public static string SettingsPage_SunLocation_Title {
+            get {
+                return ResourceManager.GetString("SettingsPage_SunLocation_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Used by sunrise and sunset automations. With a location here, nothing is looked up online..
+        /// </summary>
+        public static string SettingsPage_SunLocation_Message {
+            get {
+                return ResourceManager.GetString("SettingsPage_SunLocation_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to e.g. 18.52, 73.86.
+        /// </summary>
+        public static string SettingsPage_SunLocation_Placeholder {
+            get {
+                return ResourceManager.GetString("SettingsPage_SunLocation_Placeholder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Location not saved.
+        /// </summary>
+        public static string SettingsPage_SunLocation_Invalid_Title {
+            get {
+                return ResourceManager.GetString("SettingsPage_SunLocation_Invalid_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type latitude, then longitude, separated by a comma, with a dot as decimal point (for example 18.52, 73.86)..
+        /// </summary>
+        public static string SettingsPage_SunLocation_Invalid_Message {
+            get {
+                return ResourceManager.GetString("SettingsPage_SunLocation_Invalid_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Location saved.
+        /// </summary>
+        public static string SettingsPage_SunLocation_Saved {
+            get {
+                return ResourceManager.GetString("SettingsPage_SunLocation_Saved", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The place sunrise and sunset times are worked out for. Leave it empty to look the location up from your internet address, which is sent unencrypted to ip-api.com once a day when a sunrise or sunset au[rest of string was truncated].
+        /// </summary>
+        public static string Help_Settings_SunLocation_What {
+            get {
+                return ResourceManager.GetString("Help_Settings_SunLocation_What", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type your city&apos;s latitude and longitude (from any map) if you&apos;d rather nothing is looked up online, or if the lookup puts you in the wrong place..
+        /// </summary>
+        public static string Help_Settings_SunLocation_When {
+            get {
+                return ResourceManager.GetString("Help_Settings_SunLocation_When", resourceCulture);
+            }
+        }
     }
 }

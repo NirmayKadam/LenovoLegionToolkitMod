@@ -320,4 +320,7 @@
   <data name="AfterburnerStep_Converted" xml:space="preserve">
     <value>{0} Run steps that switched MSI Afterburner profiles now use the MSI Afterburner profile step, which only starts the genuine program. Your automations from before are saved in {1}.</value>
   </data>
+  <data name="RunStep_NotStartedAsStandardUser" xml:space="preserve">
+    <value>{0} wasn&apos;t started: {1} It isn&apos;t started with administrator rights instead.</value>
+  </data>
 </root>
