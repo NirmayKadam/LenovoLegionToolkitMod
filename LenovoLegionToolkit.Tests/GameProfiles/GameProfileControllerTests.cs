@@ -115,6 +115,213 @@ public sealed class GameProfileControllerTests : IDisposable
         return (new GameProfileController(settings, session, system, (_, ex) => reports.Add(ex)), session, reports);
     }
 
+    /// <summary>A controller with Game mode set up by <paramref name="gameMode"/> and Windows' known games scripted.</summary>
+    private (GameProfileController Controller, GameProfileSessionSettings Session) CreateWithGameMode(ScriptedSystem system, Action<GameProfile> gameMode, string[] knownGames, params GameProfile[] profiles)
+    {
+        var settings = new GameProfileSettings(_dir);
+        settings.Store.Profiles = [.. profiles];
+        var mode = GameProfile.NewGameMode();
+        mode.Enabled = true;
+        mode.ChangesConfirmed = true;
+        gameMode(mode);
+        settings.Store.GameMode = mode;
+        var session = new GameProfileSessionSettings(_dir);
+        var controller = new GameProfileController(settings, session, system, (_, ex) => throw ex, () => knownGames);
+        return (controller, session);
+    }
+
+    // ---- Game mode (any game) ----
+
+    private const string Valorant = "VALORANT-Win64-Shipping";
+    private const string ValorantAsReported = "VALORANT-Win64-";   // Windows' 15-character name
+
+    [Fact]
+    public async Task GameMode_AppliesToAGameWindowsKnows_ThenPutsEverythingBack()
+    {
+        var system = new ScriptedSystem();
+        system.AddApp(100, "browser");
+        system.AddService("SysMain");
+        var (controller, _) = CreateWithGameMode(system, m => { m.EfficiencyApps = ["browser"]; m.PauseServices = ["SysMain"]; }, [Valorant]);
+        await controller.RefreshAsync();
+
+        await controller.ProcessStartedAsync(ValorantAsReported, GamePid);
+
+        Assert.Equal(["set browser BelowNormal eco", "stop SysMain"], system.Calls);
+        Assert.Equal($"Game mode: {ValorantAsReported}", controller.ActiveGameName);
+
+        system.Calls.Clear();
+        await controller.ProcessStoppedAsync(ValorantAsReported, GamePid);
+
+        Assert.Equal(["start SysMain", "set browser Normal throttle 0/0"], system.Calls);
+        Assert.Null(controller.ActiveGameName);
+    }
+
+    [Fact]
+    public async Task GameMode_IgnoresProgramsThatArentKnownGames_LikeABrowserOnTheGpu()
+    {
+        var system = new ScriptedSystem();
+        system.AddService("SysMain");
+        var (controller, _) = CreateWithGameMode(system, m => m.PauseServices = ["SysMain"], [Valorant]);
+        await controller.RefreshAsync();
+
+        await controller.ProcessStartedAsync("chrome", 6000);
+        await controller.ProcessStartedAsync("Discord", 6001);
+
+        Assert.Empty(system.Calls);
+        Assert.Null(controller.ActiveGameName);
+    }
+
+    [Fact]
+    public async Task GameMode_CountsTheProgramThatTurnedWindowsGameModeOn_ButNeverWindowsOwnApps()
+    {
+        var system = new ScriptedSystem();
+        system.AddService("SysMain");
+        var (controller, _) = CreateWithGameMode(system, m => m.PauseServices = ["SysMain"], []);
+        await controller.RefreshAsync();
+
+        await controller.ProcessStartedAsync("explorer", 50, fromWindowsGameMode: true);
+        Assert.Empty(system.Calls);
+
+        await controller.ProcessStartedAsync("IndieGame", 7000, fromWindowsGameMode: true);
+        Assert.Equal(["stop SysMain"], system.Calls);
+    }
+
+    [Fact]
+    public async Task AGameWithItsOwnProfile_UsesThatProfile_NotGameMode()
+    {
+        var system = new ScriptedSystem();
+        system.AddApp(100, "browser");
+        system.AddApp(101, "chat");
+        var (controller, _) = CreateWithGameMode(system, m => m.EfficiencyApps = ["chat"], ["game"], Profile(p => p.EfficiencyApps = ["browser"]));
+        await controller.RefreshAsync();
+
+        await controller.ProcessStartedAsync("game", GamePid);
+
+        Assert.Equal(["set browser BelowNormal eco"], system.Calls);
+        Assert.Equal("My Game", controller.ActiveGameName);
+    }
+
+    [Fact]
+    public async Task GameMode_NeverTouchesTheGame_EvenWhenItIsListed()
+    {
+        var system = new ScriptedSystem();
+        system.AddApp(GamePid, Valorant);
+        var (controller, _) = CreateWithGameMode(system, m => { m.EfficiencyApps = [Valorant]; m.CloseApps = [Valorant]; }, [Valorant]);
+        await controller.RefreshAsync();
+
+        await controller.ProcessStartedAsync(ValorantAsReported, GamePid);
+        await controller.ProcessStoppedAsync(ValorantAsReported, GamePid);
+
+        Assert.DoesNotContain(GamePid, system.TouchedPids);
+        Assert.Empty(system.Calls);
+    }
+
+    [Fact]
+    public async Task GameMode_NeverTouchesAnotherProcessOfTheGame_ThatWasntSeenStarting()
+    {
+        // The game runs a second process with the same name; only the first one's start was seen.
+        var system = new ScriptedSystem();
+        system.AddApp(GamePid, Valorant);
+        system.AddApp(GamePid + 50, Valorant);
+        var (controller, _) = CreateWithGameMode(system, m => m.EfficiencyApps = [Valorant], []);
+        await controller.RefreshAsync();
+
+        await controller.ProcessStartedAsync(ValorantAsReported, GamePid, fromWindowsGameMode: true);
+
+        Assert.DoesNotContain(GamePid, system.TouchedPids);
+        Assert.DoesNotContain(GamePid + 50, system.TouchedPids);
+    }
+
+    [Fact]
+    public async Task AProgramEasedBeforeItWasRecognisedAsAGame_IsPutBackAtOnce()
+    {
+        // Another game started Game mode first; Valorant was running but not yet recognised, so it was eased.
+        var system = new ScriptedSystem();
+        system.AddApp(GamePid, Valorant);
+        var (controller, session) = CreateWithGameMode(system, m => m.EfficiencyApps = [Valorant], []);
+        await controller.RefreshAsync();
+        await controller.ProcessStartedAsync("IndieGame", 7000, fromWindowsGameMode: true);
+        Assert.Equal(ProcessPriorityClass.BelowNormal, system.Processes[GamePid].App.Priority);
+
+        await controller.ProcessStartedAsync(ValorantAsReported, GamePid, fromWindowsGameMode: true);
+
+        Assert.Equal(ProcessPriorityClass.Normal, system.Processes[GamePid].App.Priority);
+        Assert.Empty(session.Store.EasedApps);   // nothing left to put back at the end
+    }
+
+    [Fact]
+    public async Task GameMode_WithTwoGames_PutsBackOnlyAfterTheLastEnds()
+    {
+        var system = new ScriptedSystem();
+        system.AddService("SysMain");
+        var (controller, _) = CreateWithGameMode(system, m => m.PauseServices = ["SysMain"], [Valorant, "cs2"]);
+        await controller.RefreshAsync();
+
+        await controller.ProcessStartedAsync(ValorantAsReported, GamePid);
+        await controller.ProcessStartedAsync("cs2", GamePid + 1);
+        await controller.ProcessStoppedAsync(ValorantAsReported, GamePid);
+
+        Assert.DoesNotContain("start SysMain", system.Calls);   // cs2 still runs; Game mode stays
+
+        await controller.ProcessStoppedAsync("cs2", GamePid + 1);
+        Assert.Contains("start SysMain", system.Calls);
+    }
+
+    [Fact]
+    public async Task AGameAlreadyRunning_IsFoundWhenGameModeTurnsOn()
+    {
+        var system = new ScriptedSystem();
+        system.AddApp(GamePid, Valorant);
+        system.AddService("SysMain");
+        var (controller, _) = CreateWithGameMode(system, m => m.PauseServices = ["SysMain"], [Valorant]);
+
+        await controller.RefreshAsync();
+
+        Assert.Equal(["stop SysMain"], system.Calls);
+    }
+
+    [Fact]
+    public async Task AfterLltWasEndedDuringGameMode_TheNextStartPutsEverythingBack()
+    {
+        var system = new ScriptedSystem();
+        system.AddService("SysMain");
+        var (first, _) = CreateWithGameMode(system, m => m.PauseServices = ["SysMain"], [Valorant]);
+        await first.RefreshAsync();
+        await first.ProcessStartedAsync(ValorantAsReported, GamePid);   // then LLT is ended mid-game
+
+        var (next, session) = CreateWithGameMode(system, m => m.PauseServices = ["SysMain"], [Valorant]);
+        await next.RecoverAsync();
+
+        Assert.Contains("start SysMain", system.Calls);
+        Assert.Null(session.Store.ProfileId);
+    }
+
+    [Fact]
+    public async Task GameModeOff_DoesNothing()
+    {
+        var system = new ScriptedSystem();
+        system.AddService("SysMain");
+        var (controller, _) = CreateWithGameMode(system, m => { m.Enabled = false; m.PauseServices = ["SysMain"]; }, [Valorant]);
+        await controller.RefreshAsync();
+
+        await controller.ProcessStartedAsync(ValorantAsReported, GamePid);
+        await controller.ProcessStartedAsync("IndieGame", 7000, fromWindowsGameMode: true);
+
+        Assert.Empty(system.Calls);
+    }
+
+    [Fact]
+    public void GameMode_IsOffInSettingsFromBeforeItExisted()
+    {
+        Directory.CreateDirectory(_dir);
+        File.WriteAllText(Path.Combine(_dir, "game_profiles.json"), """{ "Profiles": [] }""");
+
+        var gameMode = new GameProfileSettings(_dir).Store.GameMode;
+
+        Assert.False(gameMode.Enabled);
+        Assert.True(gameMode.IsGameMode);
+    }
+
     // ---- Recognising the game ----
 
     [Theory]

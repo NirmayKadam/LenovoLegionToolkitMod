@@ -19,6 +19,10 @@ public class SettingsBackupCoverageTests
         // A game profile's note of what to put back after a game. Restoring an old one could put back
         // services or app priorities from another time.
         ["game_profile_session.json"] = "session note, not a setting",
+
+        // The services LLT stopped for normal use. Restoring an old one could start or keep stopped services
+        // from another time.
+        ["background_services_session.json"] = "session note, not a setting",
     };
 
     private static IEnumerable<string> SettingsFileNames()

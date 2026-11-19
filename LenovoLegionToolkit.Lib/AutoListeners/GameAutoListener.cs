@@ -548,6 +548,15 @@ public class GameAutoListener : AbstractAutoListener<GameAutoListener.ChangedEve
                || processName.Equals("Agent", StringComparison.OrdinalIgnoreCase);
     }
 
+    /// <summary>
+    /// Whether a started process, as Windows names it in the start event, is one of <paramref name="names"/>
+    /// (names without ".exe"). The event carries only the first 15 characters of the file name, so a long name is
+    /// compared the same way game profiles do (<see cref="GameProfiles.GameProfileController.IsGame"/>). The full
+    /// path is still checked against the known-games list afterwards.
+    /// </summary>
+    internal static bool MatchesStartedName(string reportedName, IEnumerable<string> names) =>
+        names.Any(name => GameProfiles.GameProfileController.IsGame(reportedName, name));
+
     private void InstanceStartedEventAutoAutoListener_Changed(object? sender,
         InstanceStartedEventAutoAutoListener.ChangedEventArgs e)
     {
@@ -556,10 +565,9 @@ public class GameAutoListener : AbstractAutoListener<GameAutoListener.ChangedEve
             if (e.ProcessId < 0)
                 return;
 
-            var isIncluded = _settings.Store.IncludedProcesses.Contains(e.ProcessName, StringComparer.OrdinalIgnoreCase);
+            var isIncluded = MatchesStartedName(e.ProcessName, _settings.Store.IncludedProcesses);
             var isGameConfigStore = _settings.Store.GameDetection.UseGameConfigStore &&
-                                    _detectedGamePathsCache.Any(p =>
-                                        e.ProcessName.Equals(p.Name, StringComparison.OrdinalIgnoreCase));
+                                    MatchesStartedName(e.ProcessName, _detectedGamePathsCache.Select(p => p.Name));
 
             if (!isIncluded && !isGameConfigStore)
                 return;

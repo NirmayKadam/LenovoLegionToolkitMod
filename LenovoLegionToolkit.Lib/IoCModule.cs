@@ -96,6 +96,9 @@ public class IoCModule : Module
         builder.Register<GameProfileSettings>();
         builder.Register<GameProfileSessionSettings>();
         builder.Register<GameProfiles.GameProfileController>();
+        builder.Register<BackgroundServicesSettings>();
+        builder.Register<BackgroundServicesSessionSettings>();
+        builder.Register<GameProfiles.BackgroundServicesController>();
         builder.Register<RefreshRateFeature>();
         builder.Register<ResolutionFeature>();
         builder.Register<SpeakerFeature>();

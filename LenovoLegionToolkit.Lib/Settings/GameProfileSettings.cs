@@ -20,11 +20,25 @@ public class GameProfileSettings : AbstractSettings<GameProfileSettings.GameProf
     public class GameProfileSettingsStore
     {
         public List<GameProfile> Profiles { get; set; } = [];
+
+        /// <summary>
+        /// Game mode: the same changes for any game without its own profile (games Windows knows, and the
+        /// foreground program when Windows Game Mode turns on). Off until the user turns it on.
+        /// </summary>
+        public GameProfile GameMode { get; set; } = GameProfile.NewGameMode();
     }
 }
 
 public class GameProfile
 {
+    /// <summary>The fixed id of the Game mode profile (<see cref="GameProfileSettings.GameProfileSettingsStore.GameMode"/>).</summary>
+    public static readonly Guid GameModeId = new("0b6f5a8e-3c1d-4f6a-9b2e-6a7d8c9e0f11");
+
+    public static GameProfile NewGameMode() => new() { Id = GameModeId, Name = "Game mode", Enabled = false };
+
+    [Newtonsoft.Json.JsonIgnore]
+    public bool IsGameMode => Id == GameModeId;
+
     public Guid Id { get; set; } = Guid.NewGuid();
 
     /// <summary>Shown in the list and in notifications.</summary>

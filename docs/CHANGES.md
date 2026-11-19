@@ -538,3 +538,87 @@ New strings are in English only (`Resource.resx`). Other languages show them in 
   - `Tests/UI/SafetyReportTests.cs` additions: power mode row, "in use now", not available or unreadable, file list and sizes, flags, a fresh `.tmp` not flagged, an unreadable file list.
 - **Test changed on purpose:** `SafetyReportTests.EverySection_IsPresent_InTheOrderOfSafetyMd` now expects four sections, because the "Settings files" section is new.
 - Not verified on the laptop yet.
+
+## Round 9: Game mode, better game picking, background services (2026-11-19)
+The earlier Round 9 (translations) was dropped; English stays the only language.
+
+### 1. Game mode (any game)
+- `GameProfileSettings.Store.GameMode` (new): a profile with the same choices as a per-game one, applied to any game without its own profile. It is off by default, and older settings files load with it off.
+- **What counts as a game:**
+  - a game Windows has recognised (`HKCU\System\GameConfigStore`, re-read when it changes);
+  - the program in front when Windows Game Mode turns on;
+  - a game with its own profile.
+- **What doesn't count:** "uses the NVIDIA GPU" isn't a signal here, so a browser or Discord isn't taken for a game. Windows' own apps never count.
+- `Lib/GameProfiles/WindowsGameSignals.cs` (new): the known-games list and Windows Game Mode. It runs only while Game mode is on, and the foreground program is found in the process list without being opened.
+- **`GameProfileController`:**
+  - A game with its own profile uses that profile only.
+  - Every running game's processes are off-limits, by process id and by name. This covers a second process of the game that LLT didn't see start.
+  - A program eased before it was recognised as a game is put back at once.
+  - Put-back, the session note and crash recovery are unchanged.
+- **UI:** "Game mode" is the first entry in the Game profiles list, with its own explanation. It can't be removed.
+
+### 2. Better game picking
+- "Add game" is now a menu:
+  - **Games Windows knows:** `GameProfileCatalog.KnownGames`, which leaves out LLT, Windows' own apps and games already profiled;
+  - **Running now;**
+  - **Browse….**
+- The first two give the game's own program, not its launcher (for Valorant, `VALORANT-Win64-Shipping`).
+
+### 3. Fix: long game names missed by the automation game trigger
+- `GameAutoListener` compared a started process's name exactly with the known games and your included programs. Windows cuts names to 15 characters with ".exe", so `VALORANT-Win64-Shipping` arrived as `VALORANT-Win64-` and was missed.
+- It now uses the same rule as game profiles; the full path is still checked afterwards.
+- Test `Tests/Automation/GameStartNameTests.cs` **failed first** on the cut names.
+
+### 4. Service presets
+- `Lib/GameProfiles/ServicePresets.cs` (new) has five presets:
+
+| Preset | Services | On by default |
+|---|---|---|
+| Telemetry and error reports | DiagTrack, dmwappushservice, WerSvc | yes |
+| SysMain | SysMain | yes |
+| Windows Search indexing | WSearch | no, with a warning |
+| Unused extras | MapsBroker, Fax, RetailDemo, RemoteRegistry | yes |
+| Xbox services | XblAuthManager, XblGameSave, XboxNetApiSvc, XboxGipSvc | no, with a warning |
+
+- Each preset says what it does and the honest effect: usually little or no FPS change.
+- None contains a protected service (tested), and every service still goes through `ServiceRules.Check`.
+- Game profiles and Game mode get "Add preset" in the Pause card. It adds the preset's services that are installed and may be paused.
+
+### 5. Background services (normal use)
+- **`Lib/GameProfiles/BackgroundServicesController.cs` (new):** while LLT runs, it keeps the services of the chosen presets stopped.
+  - Settings are in `background_services.json`, which is backed up.
+  - The note is `background_services_session.json`, written before each stop. It is not backed up, on purpose.
+  - It only stops and starts services; Windows' service settings are never changed.
+- **When services start again:**
+  - when LLT exits;
+  - when a preset is unticked or the feature is turned off ("Start them all again");
+  - at the next start after LLT was ended.
+
+  A service that won't start stays noted and is tried again later.
+- **Never touched:** a service something else stopped, or a game profile paused.
+- **After a game ends,** the chosen services are stopped again, in case the game session started one.
+- **UI:**
+  - Settings → App behaviour → **Background services**, with hover help, opens a window with the presets and their notes, each service's state ("running again" when Windows restarted one), Apply and "Start them all again".
+  - The safety report gets a "Background services" row.
+
+### Tests
+**New:**
+- `GameStartNameTests` (fail-first);
+- `ServicePresetsTests`;
+- `BackgroundServicesControllerTests`;
+- `KnownGamesTests`;
+- 12 Game mode tests in `GameProfileControllerTests`;
+- the safety report row.
+
+**Honesty check:** five Game mode guards were broken one at a time:
+- Windows' own apps excluded;
+- only known games count;
+- the game's other processes protected by name;
+- the put-back of a game eased too early;
+- the 15-character rule.
+
+Each failed exactly its test. Breaking the third one first showed a test that couldn't tell. Fixing that test exposed the real gap of a game eased before it was recognised, which is now put back.
+
+**Test changed on purpose:** `SettingsBackupCoverageTests` lists `background_services_session.json` as left out of backups, with the reason.
+
+Not verified on the laptop yet.

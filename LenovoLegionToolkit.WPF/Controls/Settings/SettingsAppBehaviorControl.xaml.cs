@@ -160,6 +160,9 @@ public partial class SettingsAppBehaviorControl
         UpdateGameSafeModeStatus();
     }
 
+    private void BackgroundServicesCard_Click(object sender, RoutedEventArgs e) =>
+        new BackgroundServicesWindow { Owner = Window.GetWindow(this) }.ShowDialog();
+
     private void SafetyReportCard_Click(object sender, RoutedEventArgs e) =>
         new SafetyReportWindow { Owner = Window.GetWindow(this) }.ShowDialog();
 

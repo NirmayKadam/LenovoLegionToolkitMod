@@ -14218,5 +14218,401 @@ namespace LenovoLegionToolkit.WPF.Resources {
                 return ResourceManager.GetString("SafetyReport_Files_None", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Usually little or no FPS change; this mainly cuts background disk, CPU or network activity..
+        /// </summary>
+        public static string ServicePreset_Effect {
+            get {
+                return ResourceManager.GetString("ServicePreset_Effect", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Telemetry and error reports.
+        /// </summary>
+        public static string ServicePreset_Telemetry_Title {
+            get {
+                return ResourceManager.GetString("ServicePreset_Telemetry_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Connected User Experiences and Telemetry, its WAP push helper and Windows Error Reporting. Windows sends less diagnostic data; nothing you use stops working..
+        /// </summary>
+        public static string ServicePreset_Telemetry_Note {
+            get {
+                return ResourceManager.GetString("ServicePreset_Telemetry_Note", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to SysMain (Superfetch).
+        /// </summary>
+        public static string ServicePreset_SysMain_Title {
+            get {
+                return ResourceManager.GetString("ServicePreset_SysMain_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Preloads apps you use often into memory. On an SSD the gain is small; with it stopped, apps may open a little slower the first time..
+        /// </summary>
+        public static string ServicePreset_SysMain_Note {
+            get {
+                return ResourceManager.GetString("ServicePreset_SysMain_Note", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Windows Search indexing.
+        /// </summary>
+        public static string ServicePreset_WindowsSearch_Title {
+            get {
+                return ResourceManager.GetString("ServicePreset_WindowsSearch_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Warning: searching in Start, File Explorer and Outlook becomes slow or incomplete while it&apos;s stopped. Saves disk and CPU while the index would update..
+        /// </summary>
+        public static string ServicePreset_WindowsSearch_Note {
+            get {
+                return ResourceManager.GetString("ServicePreset_WindowsSearch_Note", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unused extras.
+        /// </summary>
+        public static string ServicePreset_UnusedExtras_Title {
+            get {
+                return ResourceManager.GetString("ServicePreset_UnusedExtras_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Offline maps, Fax, Retail demo and Remote Registry. Rarely used on a personal laptop..
+        /// </summary>
+        public static string ServicePreset_UnusedExtras_Note {
+            get {
+                return ResourceManager.GetString("ServicePreset_UnusedExtras_Note", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Xbox services.
+        /// </summary>
+        public static string ServicePreset_Xbox_Title {
+            get {
+                return ResourceManager.GetString("ServicePreset_Xbox_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Warning: the Xbox app, Game Pass cloud saves, Xbox sign-in in games and Xbox controller extras stop working while these are stopped. Only for laptops that don&apos;t use them..
+        /// </summary>
+        public static string ServicePreset_Xbox_Note {
+            get {
+                return ResourceManager.GetString("ServicePreset_Xbox_Note", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Background services.
+        /// </summary>
+        public static string BackgroundServices_Title {
+            get {
+                return ResourceManager.GetString("BackgroundServices_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to LLT can keep the services below stopped while it runs, during normal use and games alike. It only stops and starts them: Windows&apos; own service settings aren&apos;t changed, so when LLT exits they [rest of string was truncated].
+        /// </summary>
+        public static string BackgroundServices_Message {
+            get {
+                return ResourceManager.GetString("BackgroundServices_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Keep the chosen services stopped while LLT runs.
+        /// </summary>
+        public static string BackgroundServices_Enabled {
+            get {
+                return ResourceManager.GetString("BackgroundServices_Enabled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Presets.
+        /// </summary>
+        public static string BackgroundServices_Presets {
+            get {
+                return ResourceManager.GetString("BackgroundServices_Presets", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Now.
+        /// </summary>
+        public static string BackgroundServices_Status {
+            get {
+                return ResourceManager.GetString("BackgroundServices_Status", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No preset chosen yet..
+        /// </summary>
+        public static string BackgroundServices_NoneChosen {
+            get {
+                return ResourceManager.GetString("BackgroundServices_NoneChosen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Apply.
+        /// </summary>
+        public static string BackgroundServices_Apply {
+            get {
+                return ResourceManager.GetString("BackgroundServices_Apply", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Start them all again.
+        /// </summary>
+        public static string BackgroundServices_RestoreAll {
+            get {
+                return ResourceManager.GetString("BackgroundServices_RestoreAll", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Turns this off and starts every service LLT stopped..
+        /// </summary>
+        public static string BackgroundServices_RestoreAll_Tooltip {
+            get {
+                return ResourceManager.GetString("BackgroundServices_RestoreAll_Tooltip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Working….
+        /// </summary>
+        public static string BackgroundServices_Working {
+            get {
+                return ResourceManager.GetString("BackgroundServices_Working", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Done..
+        /// </summary>
+        public static string BackgroundServices_Done {
+            get {
+                return ResourceManager.GetString("BackgroundServices_Done", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Something went wrong; see the log..
+        /// </summary>
+        public static string BackgroundServices_Failed {
+            get {
+                return ResourceManager.GetString("BackgroundServices_Failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Stopped by LLT.
+        /// </summary>
+        public static string BackgroundServices_State_StoppedByLlt {
+            get {
+                return ResourceManager.GetString("BackgroundServices_State_StoppedByLlt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Running again (Windows or an app started it); Apply stops it again.
+        /// </summary>
+        public static string BackgroundServices_State_RunningAgain {
+            get {
+                return ResourceManager.GetString("BackgroundServices_State_RunningAgain", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Running.
+        /// </summary>
+        public static string BackgroundServices_State_Running {
+            get {
+                return ResourceManager.GetString("BackgroundServices_State_Running", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Stopped, not by LLT (left as it is).
+        /// </summary>
+        public static string BackgroundServices_State_StoppedAlready {
+            get {
+                return ResourceManager.GetString("BackgroundServices_State_StoppedAlready", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not on this PC.
+        /// </summary>
+        public static string BackgroundServices_State_NotInstalled {
+            get {
+                return ResourceManager.GetString("BackgroundServices_State_NotInstalled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to LLT won&apos;t stop it: {0}.
+        /// </summary>
+        public static string BackgroundServices_State_Refused {
+            get {
+                return ResourceManager.GetString("BackgroundServices_State_Refused", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Keep telemetry, SysMain and other background services stopped while LLT runs..
+        /// </summary>
+        public static string SettingsPage_BackgroundServices_Message {
+            get {
+                return ResourceManager.GetString("SettingsPage_BackgroundServices_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Stops the services of the presets you choose (telemetry, SysMain, Search indexing, unused extras, Xbox) while LLT runs, and starts them again when LLT exits..
+        /// </summary>
+        public static string Help_Settings_BackgroundServices_What {
+            get {
+                return ResourceManager.GetString("Help_Settings_BackgroundServices_What", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to If you want less background disk, CPU and network activity all the time, not only during games. Expect little or no FPS change..
+        /// </summary>
+        public static string Help_Settings_BackgroundServices_When {
+            get {
+                return ResourceManager.GetString("Help_Settings_BackgroundServices_When", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Search indexing and Xbox services turn off things you may use; their notes say what. Windows&apos; service settings are never changed, so closing LLT undoes everything..
+        /// </summary>
+        public static string Help_Settings_BackgroundServices_Risk {
+            get {
+                return ResourceManager.GetString("Help_Settings_BackgroundServices_Risk", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Background services.
+        /// </summary>
+        public static string SafetyReport_BackgroundServices {
+            get {
+                return ResourceManager.GetString("SafetyReport_BackgroundServices", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Off.
+        /// </summary>
+        public static string SafetyReport_BackgroundServices_Off {
+            get {
+                return ResourceManager.GetString("SafetyReport_BackgroundServices_Off", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} stopped by LLT while it runs: {1}.
+        /// </summary>
+        public static string SafetyReport_BackgroundServices_Stopped {
+            get {
+                return ResourceManager.GetString("SafetyReport_BackgroundServices_Stopped", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to On, but nothing is stopped right now.
+        /// </summary>
+        public static string SafetyReport_BackgroundServices_NoneStopped {
+            get {
+                return ResourceManager.GetString("SafetyReport_BackgroundServices_NoneStopped", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Game mode applies to any game without its own profile: games Windows has recognised on this PC, and the program in front when Windows Game Mode turns on. A program only using the NVIDIA GPU (a browser[rest of string was truncated].
+        /// </summary>
+        public static string GameProfiles_GameMode_Explanation {
+            get {
+                return ResourceManager.GetString("GameProfiles_GameMode_Explanation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Games Windows knows.
+        /// </summary>
+        public static string GameProfiles_AddGame_Known {
+            get {
+                return ResourceManager.GetString("GameProfiles_AddGame_Known", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Windows hasn&apos;t recognised any game yet.
+        /// </summary>
+        public static string GameProfiles_AddGame_NoneKnown {
+            get {
+                return ResourceManager.GetString("GameProfiles_AddGame_NoneKnown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Running now.
+        /// </summary>
+        public static string GameProfiles_AddGame_Running {
+            get {
+                return ResourceManager.GetString("GameProfiles_AddGame_Running", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No other program with a window is running.
+        /// </summary>
+        public static string GameProfiles_AddGame_NoneRunning {
+            get {
+                return ResourceManager.GetString("GameProfiles_AddGame_NoneRunning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add preset.
+        /// </summary>
+        public static string GameProfiles_AddPreset {
+            get {
+                return ResourceManager.GetString("GameProfiles_AddPreset", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nothing to add: the preset&apos;s services are already listed, not on this PC, or can&apos;t be paused..
+        /// </summary>
+        public static string GameProfiles_PresetNothingToAdd {
+            get {
+                return ResourceManager.GetString("GameProfiles_PresetNothingToAdd", resourceCulture);
+            }
+        }
     }
 }

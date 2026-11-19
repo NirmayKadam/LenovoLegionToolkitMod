@@ -472,6 +472,8 @@ public partial class App
     {
         // Puts back what a running game's profile changed; if it takes too long, the next start does it.
         await SafeExecuteAsync<Lib.GameProfiles.GameProfileController>(c => c.EndSessionAsync().WaitAsync(TimeSpan.FromSeconds(30)));
+        // Services kept stopped while LLT runs start again; if this takes too long, the next start sorts it out.
+        await SafeExecuteAsync<Lib.GameProfiles.BackgroundServicesController>(c => c.RestoreAllAsync().WaitAsync(TimeSpan.FromSeconds(30)));
         await SafeExecuteAsync<AIController>(c => c.StopAsync());
 
         await SafeExecuteAsync<RGBKeyboardBacklightController>(async c =>
@@ -1161,11 +1163,21 @@ public partial class App
     private static void StartGameProfiles()
     {
         var controller = IoCContainer.Resolve<Lib.GameProfiles.GameProfileController>();
-        controller.Reported += (_, report) => MessagingCenter.Publish(new NotificationMessage(
-            report.Started ? NotificationType.GameProfileOn : NotificationType.GameProfileOff,
-            GameProfileText.Summary(report)));
+        var backgroundServices = IoCContainer.Resolve<Lib.GameProfiles.BackgroundServicesController>();
+
+        controller.Reported += (_, report) =>
+        {
+            MessagingCenter.Publish(new NotificationMessage(
+                report.Started ? NotificationType.GameProfileOn : NotificationType.GameProfileOff,
+                GameProfileText.Summary(report)));
+
+            // A game session starts the services it paused again; the ones kept stopped for normal use stop again.
+            if (!report.Started)
+                _ = Task.Run(backgroundServices.ApplyAsync);
+        };
 
         _ = Task.Run(controller.StartAsync);
+        _ = Task.Run(backgroundServices.ApplyAsync);
     }
 
     private void HandleOsdCommand(ToggleState command, bool notify = false)

@@ -65,6 +65,22 @@ Only while a profiled game runs, and only to apps and services you listed. LLT r
 | Closing listed apps | A normal close request (like clicking X); an app may ask to save, and one that doesn't close in 10 s is left open. LLT never ends a process | **Not reversible**: closed apps aren't reopened. The Game profiles window says so before the first use |
 | Game-safe mode for the game | The same pauses as automatic game-safe mode | Ends with the game |
 
+**Game mode** (one profile for any game without its own) makes the same changes, with the same limits and the same put-back.
+- **What counts as a game:**
+  - a game Windows has recognised on this PC;
+  - the program in front when Windows Game Mode turns on.
+- **What doesn't count:**
+  - a program that only uses the NVIDIA GPU (a browser, Discord);
+  - Windows' own apps.
+- Every running game's processes are off-limits, also ones with the same name that LLT didn't see start.
+- If a program was eased before LLT recognised it as a game, its priority is put back at once.
+
+## Background services (normal use)
+
+| Change | What limits it | How it is undone |
+|---|---|---|
+| Stopping the services of the presets you choose (telemetry, SysMain, Search indexing, unused extras, Xbox) while LLT runs | The same rules as game profiles: the protected list (62 services), drivers, services that can't stop and services others depend on are never stopped. Each stop is written to `background_services_session.json` first. **Windows' own service settings (startup type) are never changed** | Started again when LLT exits, when a preset is unticked or the feature turned off ("Start them all again"), and at LLT's next start if it was ended. A service something else stopped, or a game profile paused, is never started by it. Without LLT: a restart starts them as usual |
+
 ## If a GPU overclock makes the laptop unstable
 
 - Before LLT applies GPU values that have not yet proven stable, it notes that an apply is in progress. After 60 seconds without a crash the note is removed.

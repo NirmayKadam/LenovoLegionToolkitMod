@@ -41,9 +41,10 @@ public partial class GameProfilesWindow
 
     private void Controller_Reported(object? sender, GameProfileReport e) => Dispatcher.InvokeAsync(ShowStatus);
 
+    /// <summary>Game mode (any game) first, then the per-game profiles.</summary>
     private void Refresh(Guid? select)
     {
-        var profiles = _settings.Store.Profiles.ToList();
+        var profiles = _settings.Store.Profiles.Prepend(_settings.Store.GameMode).ToList();
         _gamesList.ItemsSource = profiles;
         _gamesList.SelectedItem = profiles.FirstOrDefault(p => p.Id == select) ?? profiles.FirstOrDefault();
         ShowSelected();
@@ -65,13 +66,14 @@ public partial class GameProfilesWindow
         try
         {
             var profile = Selected;
-            _removeGameButton.IsEnabled = profile is not null;
+            _removeGameButton.IsEnabled = profile is { IsGameMode: false };
             _noGameText.Visibility = profile is null ? Visibility.Visible : Visibility.Collapsed;
             _profilePanel.Visibility = profile is null ? Visibility.Collapsed : Visibility.Visible;
             if (profile is null)
                 return;
 
-            _gamePathText.Text = profile.ExePath ?? $"{profile.ExeName}.exe";
+            _gamePathText.Text = profile.IsGameMode ? Resource.GameProfiles_GameMode_Explanation : profile.ExePath ?? $"{profile.ExeName}.exe";
+            _gamePathText.TextWrapping = profile.IsGameMode ? TextWrapping.Wrap : TextWrapping.NoWrap;
             _enabledToggle.IsChecked = profile.Enabled;
             _forceGameSafeToggle.IsChecked = profile.ForceGameSafe;
 
@@ -159,20 +161,73 @@ public partial class GameProfilesWindow
 
     private void GamesList_SelectionChanged(object sender, SelectionChangedEventArgs e) => ShowSelected();
 
-    private void AddGameButton_Click(object sender, RoutedEventArgs e)
+    /// <summary>
+    /// "Add game": the games Windows has recognised on this PC, programs running now, or Browse… The first two give
+    /// the game's own program (not its launcher) without browsing.
+    /// </summary>
+    private async void AddGameButton_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new OpenFileDialog { Filter = $"{Resource.GameProfiles_ExeFilter}|*.exe", CheckFileExists = true };
-        if (dialog.ShowDialog(this) != true)
-            return;
+        var profiled = _settings.Store.Profiles.Select(p => p.ExeName).ToList();
 
-        var exeName = Path.GetFileNameWithoutExtension(dialog.FileName);
-        if (string.Equals(exeName, "Lenovo Legion Toolkit", StringComparison.OrdinalIgnoreCase))
+        IReadOnlyList<(string Name, string Path)> known;
+        IReadOnlyList<string> running;
+        try
+        {
+            known = await Task.Run(() => GameProfileCatalog.KnownGames(profiled));
+            running = await Task.Run(() => GameProfileCatalog.RunningApps(profiled));
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Couldn't list games.", ex);
+            known = [];
+            running = [];
+        }
+
+        var menu = new ContextMenu { PlacementTarget = sender as UIElement, MaxHeight = 480 };
+
+        var knownMenu = new MenuItem { Header = Resource.GameProfiles_AddGame_Known };
+        foreach (var (name, path) in known)
+        {
+            var item = new MenuItem { Header = name, ToolTip = path };
+            item.Click += (_, _) => AddGame(name, path);
+            knownMenu.Items.Add(item);
+        }
+        if (known.Count == 0)
+            knownMenu.Items.Add(new MenuItem { Header = Resource.GameProfiles_AddGame_NoneKnown, IsEnabled = false });
+        menu.Items.Add(knownMenu);
+
+        var runningMenu = new MenuItem { Header = Resource.GameProfiles_AddGame_Running };
+        foreach (var name in running)
+        {
+            var item = new MenuItem { Header = name };
+            item.Click += (_, _) => AddGame(name, null);
+            runningMenu.Items.Add(item);
+        }
+        if (running.Count == 0)
+            runningMenu.Items.Add(new MenuItem { Header = Resource.GameProfiles_AddGame_NoneRunning, IsEnabled = false });
+        menu.Items.Add(runningMenu);
+
+        var browse = new MenuItem { Header = Resource.GameProfiles_Browse };
+        browse.Click += (_, _) =>
+        {
+            var dialog = new OpenFileDialog { Filter = $"{Resource.GameProfiles_ExeFilter}|*.exe", CheckFileExists = true };
+            if (dialog.ShowDialog(this) == true)
+                AddGame(Path.GetFileNameWithoutExtension(dialog.FileName), dialog.FileName);
+        };
+        menu.Items.Add(browse);
+
+        menu.IsOpen = true;
+    }
+
+    private void AddGame(string exeName, string? path)
+    {
+        if (string.Equals(exeName, AppRules.LltProcessName, StringComparison.OrdinalIgnoreCase) || AppRules.IsProtectedName(exeName))
             return;
 
         var existing = _settings.Store.Profiles.FirstOrDefault(p => string.Equals(p.ExeName, exeName, StringComparison.OrdinalIgnoreCase));
         if (existing is null)
         {
-            existing = new GameProfile { Name = exeName, ExeName = exeName, ExePath = dialog.FileName };
+            existing = new GameProfile { Name = exeName, ExeName = exeName, ExePath = path };
             _settings.Store.Profiles.Add(existing);
             Save();
         }
@@ -182,7 +237,7 @@ public partial class GameProfilesWindow
 
     private async void RemoveGameButton_Click(object sender, RoutedEventArgs e)
     {
-        if (Selected is not { } profile)
+        if (Selected is not { IsGameMode: false } profile)
             return;
 
         if (!await MessageBoxHelper.ShowAsync(this, Resource.GameProfiles_RemoveGame, string.Format(Resource.GameProfiles_RemoveGame_Confirm, profile.Name), Resource.Yes, Resource.No))
@@ -319,6 +374,22 @@ public partial class GameProfilesWindow
         }
 
         var menu = new ContextMenu { PlacementTarget = _addServiceButton, MaxHeight = 420 };
+
+        var presets = new MenuItem { Header = Resource.GameProfiles_AddPreset };
+        foreach (var preset in ServicePresets.All)
+        {
+            var title = Resource.ResourceManager.GetString($"ServicePreset_{preset.Id}_Title") ?? preset.Id;
+            var item = new MenuItem
+            {
+                Header = title,
+                ToolTip = $"{Resource.ResourceManager.GetString($"ServicePreset_{preset.Id}_Note")} ({string.Join(", ", preset.Services)})",
+            };
+            item.Click += async (_, _) => await AddPresetAsync(profile, preset);
+            presets.Items.Add(item);
+        }
+        menu.Items.Add(presets);
+        menu.Items.Add(new Separator());
+
         foreach (var service in services.Where(s => !profile.PauseServices.Contains(s.Name, StringComparer.OrdinalIgnoreCase)))
         {
             var refusal = ServiceRules.CheckForList(service.Name, service);
@@ -333,10 +404,46 @@ public partial class GameProfilesWindow
             menu.Items.Add(item);
         }
 
-        if (menu.Items.Count == 0)
+        if (menu.Items.Count == 2)
             menu.Items.Add(new MenuItem { Header = Resource.GameProfiles_NoServices, IsEnabled = false });
 
         menu.IsOpen = true;
+    }
+
+    /// <summary>
+    /// Adds a preset's services in one go: the ones installed here that LLT may stop (also when not running now),
+    /// and not already listed. Asks first, like any other change, when the profile is on.
+    /// </summary>
+    private async Task AddPresetAsync(GameProfile profile, ServicePreset preset)
+    {
+        IReadOnlyDictionary<string, ServiceInfo?> found;
+        try
+        {
+            found = await Task.Run(() => GameProfileCatalog.ReadServices(preset.Services));
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Couldn't read the preset's services.", ex);
+            return;
+        }
+
+        var toAdd = preset.Services
+            .Where(name => !profile.PauseServices.Contains(name, StringComparer.OrdinalIgnoreCase))
+            .Where(name => found.GetValueOrDefault(name) is { } info && ServiceRules.CheckForList(name, info) is null)
+            .ToList();
+
+        if (toAdd.Count == 0)
+        {
+            _statusText.Text = Resource.GameProfiles_PresetNothingToAdd;
+            return;
+        }
+
+        if (profile.Enabled && !await ConfirmChangesAsync(profile, profile.EfficiencyApps.Count, profile.CloseApps.Count, profile.PauseServices.Count + toAdd.Count))
+            return;
+
+        profile.PauseServices.AddRange(toAdd);
+        Save();
+        ShowSelected();
     }
 
     private void CloseButton_Click(object sender, RoutedEventArgs e) => Close();

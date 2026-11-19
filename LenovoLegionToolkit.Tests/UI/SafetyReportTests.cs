@@ -28,7 +28,8 @@ public class SafetyReportTests
         CliEnabled: false,
         new SensorsInfo(Enabled: false, PawnIOState.NotInstalled),
         new PowerModeInfo(Supported: true, PowerModeState.Balance),
-        new SettingsFilesInfo([new SettingsFile("settings.json", 2048, Now.AddDays(-3))], Now));
+        new SettingsFilesInfo([new SettingsFile("settings.json", 2048, Now.AddDays(-3))], Now),
+        new BackgroundServicesInfo(Enabled: false, StoppedByLlt: []));
 
     private static readonly DateTime Now = new(2026, 11, 18, 18, 0, 0, DateTimeKind.Utc);
 
@@ -45,6 +46,20 @@ public class SafetyReportTests
     {
         var sections = SafetyReport.Build(Calm()).Select(r => r.Section).Distinct();
         Assert.Equal([SafetySection.Protections, SafetySection.InEffect, SafetySection.AppSecurity, SafetySection.SettingsFiles], sections);
+    }
+
+    // ---- Background services ----
+
+    [Fact]
+    public void BackgroundServices_SayWhatLltStopped_OrThatNothingIs()
+    {
+        var stopped = Calm() with { BackgroundServices = new BackgroundServicesInfo(true, ["SysMain", "DiagTrack"]) };
+        var state = Row(stopped, Resource.SafetyReport_BackgroundServices).State;
+        Assert.Contains("SysMain", state);
+        Assert.Contains("DiagTrack", state);
+
+        Assert.Equal(Resource.SafetyReport_BackgroundServices_NoneStopped, Row(Calm() with { BackgroundServices = new BackgroundServicesInfo(true, []) }, Resource.SafetyReport_BackgroundServices).State);
+        Assert.Equal(Resource.SafetyReport_BackgroundServices_Off, Row(Calm(), Resource.SafetyReport_BackgroundServices).State);
     }
 
     // ---- Power mode ----

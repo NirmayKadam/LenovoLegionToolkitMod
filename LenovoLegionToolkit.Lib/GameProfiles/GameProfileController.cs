@@ -38,6 +38,16 @@ public class GameProfileController
     private readonly Action<string, Exception> _reportError;
     private readonly InstanceStartedEventAutoAutoListener? _startedListener;
     private readonly InstanceStoppedEventAutoAutoListener? _stoppedListener;
+    private readonly WindowsGameSignals? _signals;
+
+    /// <summary>Reads the names of the games Windows has recognised (for Game mode).</summary>
+    private readonly Func<IReadOnlyCollection<string>> _readKnownGames;
+
+    /// <summary>The known games' names, read when Game mode turns on and when Windows' list changes. Guarded by <see cref="_lock"/>.</summary>
+    private HashSet<string> _knownGames = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>The name Windows reported for each running game process, by id. Guarded by <see cref="_lock"/>.</summary>
+    private readonly Dictionary<int, string> _gameNames = [];
 
     /// <summary>One start or end of a session at a time.</summary>
     private readonly SemaphoreSlim _oneAtATime = new(1, 1);
@@ -52,19 +62,28 @@ public class GameProfileController
 
     public GameProfileController(GameProfileSettings settings, GameProfileSessionSettings session,
         InstanceStartedEventAutoAutoListener startedListener, InstanceStoppedEventAutoAutoListener stoppedListener)
-        : this(settings, session, new WindowsGameProfileSystem(), Log.Instance.ErrorReport)
+        : this(settings, session, new WindowsGameProfileSystem(), Log.Instance.ErrorReport, WindowsGameSignals.ReadKnownGameNames)
     {
         _startedListener = startedListener;
         _stoppedListener = stoppedListener;
+
+        _signals = new WindowsGameSignals();
+        _signals.KnownGamesChanged += (_, _) => _ = Task.Run(RefreshAsync);
+        _signals.GameModeGameStarted += (_, game) => _ = ProcessStartedAsync(game.Name, game.ProcessId, fromWindowsGameMode: true);
     }
 
-    /// <summary>For tests: Windows' answers and the error report are supplied by the caller; no process events are listened to.</summary>
-    internal GameProfileController(GameProfileSettings settings, GameProfileSessionSettings session, IGameProfileSystem system, Action<string, Exception> reportError)
+    /// <summary>
+    /// For tests: Windows' answers, the known-games list and the error report are supplied by the caller; no process
+    /// events or Windows Game Mode are listened to.
+    /// </summary>
+    internal GameProfileController(GameProfileSettings settings, GameProfileSessionSettings session, IGameProfileSystem system, Action<string, Exception> reportError,
+        Func<IReadOnlyCollection<string>>? readKnownGames = null)
     {
         _settings = settings;
         _session = session;
         _system = system;
         _reportError = reportError;
+        _readKnownGames = readKnownGames ?? (() => []);
     }
 
     /// <summary>True while the running game's profile asks for game-safe mode.</summary>
@@ -98,16 +117,32 @@ public class GameProfileController
         try
         {
             var enabled = EnabledProfiles();
+            var gameMode = ActiveGameMode();
 
-            if (_session.Store.ProfileId is { } activeId && enabled.All(p => p.Id != activeId))
+            if (_session.Store.ProfileId is { } activeId && enabled.All(p => p.Id != activeId) && gameMode?.Id != activeId)
                 await EndSessionAsync().ConfigureAwait(false);
 
-            await UpdateSubscriptionAsync(enabled.Count > 0).ConfigureAwait(false);
+            if (gameMode is not null)
+                LoadKnownGames();
+
+            await UpdateSubscriptionAsync(enabled.Count > 0 || gameMode is not null).ConfigureAwait(false);
+            if (_signals is not null)
+                await _signals.SetRunningAsync(gameMode is not null).ConfigureAwait(false);
 
             // Games already running: found in the process list, without opening them.
             foreach (var profile in enabled)
                 foreach (var pid in _system.FindByName(profile.ExeName))
                     await ProcessStartedAsync(profile.ExeName, pid).ConfigureAwait(false);
+
+            if (gameMode is not null)
+            {
+                string[] known;
+                lock (_lock)
+                    known = [.. _knownGames];
+                foreach (var name in known)
+                    foreach (var pid in _system.FindByName(name))
+                        await ProcessStartedAsync(name, pid).ConfigureAwait(false);
+            }
         }
         catch (Exception ex)
         {
@@ -128,6 +163,33 @@ public class GameProfileController
 
     private List<GameProfile> EnabledProfiles() =>
         _settings.Store.Profiles.Where(p => p.Enabled && !string.IsNullOrWhiteSpace(p.ExeName)).ToList();
+
+    /// <summary>Game mode, when it is on.</summary>
+    private GameProfile? ActiveGameMode() => _settings.Store.GameMode is { Enabled: true } gameMode ? gameMode : null;
+
+    /// <summary>An enabled per-game profile, or Game mode when it's on, by id.</summary>
+    private GameProfile? EnabledProfile(Guid id) =>
+        EnabledProfiles().FirstOrDefault(p => p.Id == id) ?? (ActiveGameMode() is { } gameMode && gameMode.Id == id ? gameMode : null);
+
+    private void LoadKnownGames()
+    {
+        try
+        {
+            var names = _readKnownGames().ToHashSet(StringComparer.OrdinalIgnoreCase);
+            lock (_lock)
+                _knownGames = names;
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Game mode: couldn't read Windows' known games.", ex);
+        }
+    }
+
+    private bool IsKnownGame(string reportedName)
+    {
+        lock (_lock)
+            return _knownGames.Any(known => IsGame(reportedName, known));
+    }
 
     // ---- Watching processes ----
 
@@ -167,19 +229,34 @@ public class GameProfileController
                && string.Equals(reportedName, Path.GetFileNameWithoutExtension(fullName[..15]), StringComparison.OrdinalIgnoreCase);
     }
 
-    internal async Task ProcessStartedAsync(string name, int pid)
+    /// <summary>
+    /// A process started (or was found running). A game with its own profile uses that profile; any other game
+    /// Windows knows, or the program that turned Windows Game Mode on, uses Game mode when it's on.
+    /// </summary>
+    internal async Task ProcessStartedAsync(string name, int pid, bool fromWindowsGameMode = false)
     {
         try
         {
             var profile = EnabledProfiles().FirstOrDefault(p => IsGame(name, p.ExeName));
+
+            if (profile is null && ActiveGameMode() is { } gameMode
+                                && !AppRules.IsProtectedName(name)
+                                && (fromWindowsGameMode || IsKnownGame(name)))
+                profile = gameMode;
+
             if (profile is null)
                 return;
 
             lock (_lock)
+            {
                 _gamePids[pid] = profile.Id;
+                _gameNames[pid] = name;
+            }
 
             if (_session.Store.ProfileId is null)
-                await StartSessionAsync(profile).ConfigureAwait(false);
+                await StartSessionAsync(profile, name).ConfigureAwait(false);
+            else
+                await PutBackIfEasedAsync(pid).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -198,6 +275,7 @@ public class GameProfileController
             {
                 if (!_gamePids.Remove(pid, out profileId))
                     return;
+                _gameNames.Remove(pid);
                 stillRunning = _gamePids.ContainsValue(profileId);
             }
 
@@ -206,13 +284,18 @@ public class GameProfileController
 
             await EndSessionAsync().ConfigureAwait(false);
 
-            // Another profiled game may still be running; its profile applies now.
-            Guid? next;
+            // Another game may still be running; its profile (or Game mode) applies now.
+            (int Pid, Guid Id)? next;
+            string? nextName = null;
             lock (_lock)
-                next = _gamePids.Values.Cast<Guid?>().FirstOrDefault();
+            {
+                next = _gamePids.Select(p => ((int, Guid)?)(p.Key, p.Value)).FirstOrDefault();
+                if (next is { } n)
+                    nextName = _gameNames.GetValueOrDefault(n.Pid);
+            }
 
-            if (next is { } nextId && EnabledProfiles().FirstOrDefault(p => p.Id == nextId) is { } nextProfile)
-                await StartSessionAsync(nextProfile).ConfigureAwait(false);
+            if (next is { } nextGame && EnabledProfile(nextGame.Id) is { } nextProfile)
+                await StartSessionAsync(nextProfile, nextName ?? nextProfile.Name).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -223,7 +306,7 @@ public class GameProfileController
 
     // ---- Applying ----
 
-    private async Task StartSessionAsync(GameProfile profile)
+    private async Task StartSessionAsync(GameProfile profile, string gameName)
     {
         await _oneAtATime.WaitAsync().ConfigureAwait(false);
         try
@@ -235,11 +318,13 @@ public class GameProfileController
             if (_session.Store.ProfileId is not null || !gameRunning)
                 return;
 
-            Log.Instance.Trace($"Game profile for {profile.Name} starting.");
+            // Game mode names the game it is applied for (as Windows reports it).
+            var shownName = profile.IsGameMode ? $"{profile.Name}: {gameName}" : profile.Name;
+            Log.Instance.Trace($"Game profile for {shownName} starting.");
 
             // The note exists before anything changes, so even a change made just before LLT is ended is put back.
             _session.Store.ProfileId = profile.Id;
-            _session.Store.GameName = profile.Name;
+            _session.Store.GameName = shownName;
             _session.Store.PausedServices = [];
             _session.Store.EasedApps = [];
             _session.SynchronizeStore();
@@ -252,7 +337,7 @@ public class GameProfileController
             if (profile.ForceGameSafe)
                 SetForceGameSafe(true);
 
-            Publish(new GameProfileReport(profile.Name, true, counts.Eased, counts.Closed, counts.LeftOpen, counts.Paused, counts.Problems));
+            Publish(new GameProfileReport(shownName, true, counts.Eased, counts.Closed, counts.LeftOpen, counts.Paused, counts.Problems));
         }
         finally
         {
@@ -265,9 +350,61 @@ public class GameProfileController
         public int Eased, Closed, LeftOpen, Paused, Problems;
     }
 
-    /// <summary>Never the game itself, nor LLT or Windows' own shell and system processes (<see cref="AppRules"/>).</summary>
-    private static bool IsOffLimits(string app, GameProfile profile) =>
-        IsGame(app, profile.ExeName) || AppRules.IsProtectedName(app);
+    /// <summary>
+    /// Never the game itself (the profile's game, or any game running now, which is how Game mode knows it), nor LLT
+    /// or Windows' own shell and system processes (<see cref="AppRules"/>).
+    /// </summary>
+    private bool IsOffLimits(string app, GameProfile profile)
+    {
+        if ((!string.IsNullOrEmpty(profile.ExeName) && IsGame(app, profile.ExeName)) || AppRules.IsProtectedName(app))
+            return true;
+
+        lock (_lock)
+            return _gameNames.Values.Any(game => IsGame(game, app));
+    }
+
+    /// <summary>
+    /// A program the running session eased turned out to be a game (recognised only after the session started,
+    /// e.g. when Windows Game Mode turned on for it): its priority and efficiency mode are put back at once, so a
+    /// game is never left slowed down.
+    /// </summary>
+    private async Task PutBackIfEasedAsync(int pid)
+    {
+        await _oneAtATime.WaitAsync().ConfigureAwait(false);
+        try
+        {
+            var eased = _session.Store.EasedApps.Where(a => a.ProcessId == pid).ToList();
+            foreach (var app in eased)
+            {
+                ThrottleState? throttle = app.OriginalThrottleControlMask is { } control
+                    ? new ThrottleState(control, app.OriginalThrottleStateMask ?? 0)
+                    : null;
+
+                _system.SetApp(app.ProcessId, app.StartTimeUtc, app.OriginalPriority, throttle);
+                _session.Store.EasedApps.Remove(app);
+                Log.Instance.Trace($"{app.ExeName} turned out to be a game; its priority was put back.");
+            }
+
+            if (eased.Count > 0)
+                _session.SynchronizeStore();
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Putting back a game that was eased failed. [pid={pid}]", ex);
+            _reportError("Putting back a game that was eased failed.", ex);
+        }
+        finally
+        {
+            _oneAtATime.Release();
+        }
+    }
+
+    /// <summary>A running game's own process: never opened or changed, whatever the lists say.</summary>
+    private bool IsGamePid(int pid)
+    {
+        lock (_lock)
+            return _gamePids.ContainsKey(pid);
+    }
 
     /// <summary>Only apps in the user's own session, outside the Windows folder.</summary>
     private static bool IsUserApp(AppProcess app) => app.SessionId != 0 && AppRules.IsAllowedPath(app.Path);
@@ -288,7 +425,7 @@ public class GameProfileController
             {
                 try
                 {
-                    if (_system.ReadApp(pid) is not { } app)
+                    if (IsGamePid(pid) || _system.ReadApp(pid) is not { } app)
                         continue;
 
                     if (!IsUserApp(app) || app.Priority == ProcessPriorityClass.RealTime)
@@ -342,7 +479,7 @@ public class GameProfileController
             {
                 try
                 {
-                    if (_system.ReadApp(pid) is not { } app)
+                    if (IsGamePid(pid) || _system.ReadApp(pid) is not { } app)
                         continue;
 
                     if (!IsUserApp(app))

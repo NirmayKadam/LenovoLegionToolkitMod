@@ -61,7 +61,11 @@ public sealed record SafetyInputs(
     bool? CliEnabled,
     SensorsInfo? Sensors,
     PowerModeInfo? PowerMode,
-    SettingsFilesInfo? SettingsFiles);
+    SettingsFilesInfo? SettingsFiles,
+    BackgroundServicesInfo? BackgroundServices);
+
+/// <summary>Whether services are kept stopped during normal use, and which ones LLT has stopped now.</summary>
+public sealed record BackgroundServicesInfo(bool Enabled, IReadOnlyList<string> StoppedByLlt);
 
 /// <summary>
 /// The in-app safety report: what LLT is changing on this laptop now and which protections are on, in the order
@@ -83,6 +87,7 @@ public static class SafetyReport
         rows.AddRange(GodModeRows(inputs.GodMode, inputs.PowerMode?.Current == PowerModeState.GodMode));
         rows.AddRange(FanCurveRows(inputs.FanCurves));
         rows.Add(GameProfileRow(inputs.GameProfile));
+        rows.Add(BackgroundServicesRow(inputs.BackgroundServices));
 
         // ---- App security ----
         rows.Add(SettingsFolderRow(inputs.SettingsFolder));
@@ -181,6 +186,19 @@ public static class SafetyReport
             parts.Add(string.Format(Resource.SafetyReport_GpuOverclock_VoltageCap, info.Values.VoltageCapMv));
 
         return new(section, Resource.SafetyReport_GpuOverclock, string.Join(", ", parts));
+    }
+
+    private static SafetyRow BackgroundServicesRow(BackgroundServicesInfo? info)
+    {
+        const SafetySection section = SafetySection.InEffect;
+        return info switch
+        {
+            null => new(section, Resource.SafetyReport_BackgroundServices, Resource.SafetyReport_Unknown),
+            { StoppedByLlt.Count: > 0 } => new(section, Resource.SafetyReport_BackgroundServices,
+                string.Format(Resource.SafetyReport_BackgroundServices_Stopped, info.StoppedByLlt.Count, string.Join(", ", info.StoppedByLlt))),
+            { Enabled: true } => new(section, Resource.SafetyReport_BackgroundServices, Resource.SafetyReport_BackgroundServices_NoneStopped),
+            _ => new(section, Resource.SafetyReport_BackgroundServices, Resource.SafetyReport_BackgroundServices_Off),
+        };
     }
 
     private static SafetyRow PowerModeRow(PowerModeInfo? info)

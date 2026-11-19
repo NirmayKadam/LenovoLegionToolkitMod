@@ -34,7 +34,7 @@ public partial class SettingsBackupWindow
         "godmode.json", "gpu_oc.json", "integrations.json", 
         "itsmode_settings.json", "lamp_array.json", "package_downloader.json", 
         "update_settings.json", "notification_settings.json", "special_key.json", "sunrise_sunset.json", "spectrum_keyboard.json", 
-        "rgb_keyboard.json", "osd.json", "fan_profiles.json", "game_profiles.json", "amd_oc.json", "args.txt", "lang"
+        "rgb_keyboard.json", "osd.json", "fan_profiles.json", "game_profiles.json", "amd_oc.json", "background_services.json", "args.txt", "lang"
     };
 
     private readonly ObservableCollection<BackupItem> _items = new();

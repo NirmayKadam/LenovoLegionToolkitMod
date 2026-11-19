@@ -100,7 +100,11 @@ public static class SafetyReportCollector
                 .Select(f => new SettingsFile(f.Name, f.Length, f.LastWriteTimeUtc))
                 .ToArray();
             return new SettingsFilesInfo(files, DateTime.UtcNow);
-        }));
+        }),
+
+        Read("background services", () => new BackgroundServicesInfo(
+            IoCContainer.Resolve<BackgroundServicesSettings>().Store.Enabled,
+            [.. IoCContainer.Resolve<BackgroundServicesSessionSettings>().Store.StoppedServices])));
     }
 
     /// <summary>

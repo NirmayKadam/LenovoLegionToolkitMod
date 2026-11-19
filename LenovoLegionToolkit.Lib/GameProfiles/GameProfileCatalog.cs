@@ -75,4 +75,46 @@ public static class GameProfileCatalog
 
         return result.OrderBy(s => s.DisplayName, StringComparer.CurrentCultureIgnoreCase).ToList();
     }
+
+    /// <summary>
+    /// The games Windows has recognised on this PC (name without ".exe", and path), for "Add game". It reads
+    /// Windows' own list only; no process is opened.
+    /// </summary>
+    public static IReadOnlyList<(string Name, string Path)> KnownGames(IEnumerable<string> excludeNames) =>
+        FilterKnownGames(GameDetection.GameConfigStoreDetector.GetDetectedGamePaths(), excludeNames);
+
+    /// <summary>
+    /// Drops LLT, Windows' own apps, programs in the Windows folder, and games in <paramref name="excludeNames"/>
+    /// (already profiled); one entry per name, sorted.
+    /// </summary>
+    internal static IReadOnlyList<(string Name, string Path)> FilterKnownGames(IEnumerable<ProcessInfo> games, IEnumerable<string> excludeNames)
+    {
+        var exclude = excludeNames.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        return games
+            .Where(g => !string.IsNullOrWhiteSpace(g.Name) && !exclude.Contains(g.Name) && !AppRules.IsProtectedName(g.Name) && AppRules.IsAllowedPath(g.ExecutablePath))
+            .GroupBy(g => g.Name, StringComparer.OrdinalIgnoreCase)
+            .Select(g => (g.First().Name, g.First().ExecutablePath ?? string.Empty))
+            .OrderBy(g => g.Item1, StringComparer.CurrentCultureIgnoreCase)
+            .ToList();
+    }
+
+    /// <summary>What LLT knows about each named service (null when it isn't installed or can't be read).</summary>
+    public static IReadOnlyDictionary<string, ServiceInfo?> ReadServices(IEnumerable<string> names)
+    {
+        var system = new WindowsGameProfileSystem();
+        var result = new Dictionary<string, ServiceInfo?>(StringComparer.OrdinalIgnoreCase);
+        foreach (var name in names)
+        {
+            try
+            {
+                result[name] = system.ReadService(name);
+            }
+            catch (Exception ex)
+            {
+                Log.Instance.Trace($"Couldn't read service {name}.", ex);
+                result[name] = null;
+            }
+        }
+        return result;
+    }
 }

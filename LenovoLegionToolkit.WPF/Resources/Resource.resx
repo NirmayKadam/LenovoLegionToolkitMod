@@ -6219,4 +6219,136 @@ When the game ends, LLT puts the apps&apos; priority and the services back. It n
   <data name="SafetyReport_Files_None" xml:space="preserve">
     <value>No files</value>
   </data>
+  <data name="ServicePreset_Effect" xml:space="preserve">
+    <value>Usually little or no FPS change; this mainly cuts background disk, CPU or network activity.</value>
+  </data>
+  <data name="ServicePreset_Telemetry_Title" xml:space="preserve">
+    <value>Telemetry and error reports</value>
+  </data>
+  <data name="ServicePreset_Telemetry_Note" xml:space="preserve">
+    <value>Connected User Experiences and Telemetry, its WAP push helper and Windows Error Reporting. Windows sends less diagnostic data; nothing you use stops working.</value>
+  </data>
+  <data name="ServicePreset_SysMain_Title" xml:space="preserve">
+    <value>SysMain (Superfetch)</value>
+  </data>
+  <data name="ServicePreset_SysMain_Note" xml:space="preserve">
+    <value>Preloads apps you use often into memory. On an SSD the gain is small; with it stopped, apps may open a little slower the first time.</value>
+  </data>
+  <data name="ServicePreset_WindowsSearch_Title" xml:space="preserve">
+    <value>Windows Search indexing</value>
+  </data>
+  <data name="ServicePreset_WindowsSearch_Note" xml:space="preserve">
+    <value>Warning: searching in Start, File Explorer and Outlook becomes slow or incomplete while it&apos;s stopped. Saves disk and CPU while the index would update.</value>
+  </data>
+  <data name="ServicePreset_UnusedExtras_Title" xml:space="preserve">
+    <value>Unused extras</value>
+  </data>
+  <data name="ServicePreset_UnusedExtras_Note" xml:space="preserve">
+    <value>Offline maps, Fax, Retail demo and Remote Registry. Rarely used on a personal laptop.</value>
+  </data>
+  <data name="ServicePreset_Xbox_Title" xml:space="preserve">
+    <value>Xbox services</value>
+  </data>
+  <data name="ServicePreset_Xbox_Note" xml:space="preserve">
+    <value>Warning: the Xbox app, Game Pass cloud saves, Xbox sign-in in games and Xbox controller extras stop working while these are stopped. Only for laptops that don&apos;t use them.</value>
+  </data>
+  <data name="BackgroundServices_Title" xml:space="preserve">
+    <value>Background services</value>
+  </data>
+  <data name="BackgroundServices_Message" xml:space="preserve">
+    <value>LLT can keep the services below stopped while it runs, during normal use and games alike. It only stops and starts them: Windows&apos; own service settings aren&apos;t changed, so when LLT exits they start again, and nothing is left behind if you uninstall LLT. Services Windows, the hardware, security or games need are never stopped.</value>
+  </data>
+  <data name="BackgroundServices_Enabled" xml:space="preserve">
+    <value>Keep the chosen services stopped while LLT runs</value>
+  </data>
+  <data name="BackgroundServices_Presets" xml:space="preserve">
+    <value>Presets</value>
+  </data>
+  <data name="BackgroundServices_Status" xml:space="preserve">
+    <value>Now</value>
+  </data>
+  <data name="BackgroundServices_NoneChosen" xml:space="preserve">
+    <value>No preset chosen yet.</value>
+  </data>
+  <data name="BackgroundServices_Apply" xml:space="preserve">
+    <value>Apply</value>
+  </data>
+  <data name="BackgroundServices_RestoreAll" xml:space="preserve">
+    <value>Start them all again</value>
+  </data>
+  <data name="BackgroundServices_RestoreAll_Tooltip" xml:space="preserve">
+    <value>Turns this off and starts every service LLT stopped.</value>
+  </data>
+  <data name="BackgroundServices_Working" xml:space="preserve">
+    <value>Working…</value>
+  </data>
+  <data name="BackgroundServices_Done" xml:space="preserve">
+    <value>Done.</value>
+  </data>
+  <data name="BackgroundServices_Failed" xml:space="preserve">
+    <value>Something went wrong; see the log.</value>
+  </data>
+  <data name="BackgroundServices_State_StoppedByLlt" xml:space="preserve">
+    <value>Stopped by LLT</value>
+  </data>
+  <data name="BackgroundServices_State_RunningAgain" xml:space="preserve">
+    <value>Running again (Windows or an app started it); Apply stops it again</value>
+  </data>
+  <data name="BackgroundServices_State_Running" xml:space="preserve">
+    <value>Running</value>
+  </data>
+  <data name="BackgroundServices_State_StoppedAlready" xml:space="preserve">
+    <value>Stopped, not by LLT (left as it is)</value>
+  </data>
+  <data name="BackgroundServices_State_NotInstalled" xml:space="preserve">
+    <value>Not on this PC</value>
+  </data>
+  <data name="BackgroundServices_State_Refused" xml:space="preserve">
+    <value>LLT won&apos;t stop it: {0}</value>
+  </data>
+  <data name="SettingsPage_BackgroundServices_Message" xml:space="preserve">
+    <value>Keep telemetry, SysMain and other background services stopped while LLT runs.</value>
+  </data>
+  <data name="Help_Settings_BackgroundServices_What" xml:space="preserve">
+    <value>Stops the services of the presets you choose (telemetry, SysMain, Search indexing, unused extras, Xbox) while LLT runs, and starts them again when LLT exits.</value>
+  </data>
+  <data name="Help_Settings_BackgroundServices_When" xml:space="preserve">
+    <value>If you want less background disk, CPU and network activity all the time, not only during games. Expect little or no FPS change.</value>
+  </data>
+  <data name="Help_Settings_BackgroundServices_Risk" xml:space="preserve">
+    <value>Search indexing and Xbox services turn off things you may use; their notes say what. Windows&apos; service settings are never changed, so closing LLT undoes everything.</value>
+  </data>
+  <data name="SafetyReport_BackgroundServices" xml:space="preserve">
+    <value>Background services</value>
+  </data>
+  <data name="SafetyReport_BackgroundServices_Off" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="SafetyReport_BackgroundServices_Stopped" xml:space="preserve">
+    <value>{0} stopped by LLT while it runs: {1}</value>
+  </data>
+  <data name="SafetyReport_BackgroundServices_NoneStopped" xml:space="preserve">
+    <value>On, but nothing is stopped right now</value>
+  </data>
+  <data name="GameProfiles_GameMode_Explanation" xml:space="preserve">
+    <value>Game mode applies to any game without its own profile: games Windows has recognised on this PC, and the program in front when Windows Game Mode turns on. A program only using the NVIDIA GPU (a browser, Discord) doesn&apos;t count. A game with its own profile uses that profile instead. The game itself is never touched.</value>
+  </data>
+  <data name="GameProfiles_AddGame_Known" xml:space="preserve">
+    <value>Games Windows knows</value>
+  </data>
+  <data name="GameProfiles_AddGame_NoneKnown" xml:space="preserve">
+    <value>Windows hasn&apos;t recognised any game yet</value>
+  </data>
+  <data name="GameProfiles_AddGame_Running" xml:space="preserve">
+    <value>Running now</value>
+  </data>
+  <data name="GameProfiles_AddGame_NoneRunning" xml:space="preserve">
+    <value>No other program with a window is running</value>
+  </data>
+  <data name="GameProfiles_AddPreset" xml:space="preserve">
+    <value>Add preset</value>
+  </data>
+  <data name="GameProfiles_PresetNothingToAdd" xml:space="preserve">
+    <value>Nothing to add: the preset&apos;s services are already listed, not on this PC, or can&apos;t be paused.</value>
+  </data>
 </root>
