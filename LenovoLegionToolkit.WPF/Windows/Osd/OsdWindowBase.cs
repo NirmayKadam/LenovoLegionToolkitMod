@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Threading;
+using LenovoLegionToolkit.WPF.Extensions;
 using Microsoft.Win32;
 using LenovoLegionToolkit.Lib;
 using LenovoLegionToolkit.Lib.Controllers.Sensors;
@@ -23,7 +24,6 @@ using LenovoLegionToolkit.Lib.Settings;
 using LenovoLegionToolkit.Lib.Utils;
 using LenovoLegionToolkit.WPF.Resources;
 using LenovoLegionToolkit.WPF.Settings;
-using LenovoLegionToolkit.WPF.Extensions;
 using WpfScreenHelper;
 
 namespace LenovoLegionToolkit.WPF.Windows.Osd;
@@ -138,7 +138,7 @@ public abstract class OsdWindowBase : Window
     {
         MessagingCenter.Subscribe<OsdElementChangedMessage>(this, (message) =>
         {
-            Dispatcher.Invoke(() =>
+            Dispatcher.Post(() =>
             {
                 if (App.Current.OsdWindow == null) return;
 
@@ -154,7 +154,7 @@ public abstract class OsdWindowBase : Window
 
         MessagingCenter.Subscribe<OsdAppearanceChangedMessage>(this, _ =>
         {
-            Dispatcher.Invoke(ApplyAppearanceSettings);
+            Dispatcher.Post(ApplyAppearanceSettings);
         });
     }
 

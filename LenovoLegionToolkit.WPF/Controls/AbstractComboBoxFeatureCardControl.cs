@@ -113,7 +113,7 @@ public abstract class AbstractComboBoxFeatureCardControl<T> : AbstractRefreshing
 
     protected override void OnFinishedLoading()
     {
-        MessagingCenter.Subscribe<FeatureStateMessage<T>>(this, () => Dispatcher.InvokeTask(async () =>
+        MessagingCenter.Subscribe<FeatureStateMessage<T>>(this, () => Dispatcher.Post(async () =>
         {
             if (!IsVisible)
                 return;

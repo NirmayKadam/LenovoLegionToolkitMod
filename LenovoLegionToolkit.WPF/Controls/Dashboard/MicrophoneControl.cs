@@ -1,5 +1,6 @@
 ﻿using LenovoLegionToolkit.Lib;
 using LenovoLegionToolkit.Lib.Listeners;
+using LenovoLegionToolkit.WPF.Extensions;
 using LenovoLegionToolkit.WPF.Resources;
 using Wpf.Ui.Common;
 
@@ -21,7 +22,7 @@ public class MicrophoneControl : AbstractToggleFeatureCardControl<MicrophoneStat
         _listener.Changed += Listener_Changed;
     }
 
-    private void Listener_Changed(object? sender, DriverKeyListener.ChangedEventArgs e) => Dispatcher.Invoke(async () =>
+    private void Listener_Changed(object? sender, DriverKeyListener.ChangedEventArgs e) => Dispatcher.Post(async () =>
     {
         if (!IsLoaded || !IsVisible)
             return;

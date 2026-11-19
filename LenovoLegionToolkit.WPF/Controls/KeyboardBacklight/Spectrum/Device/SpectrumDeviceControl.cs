@@ -26,6 +26,7 @@ public class SpectrumDeviceControl : UserControl
     {
         if (!Dispatcher.CheckAccess())
         {
+            // Synchronous on purpose: callers expect the layout to be set when SetLayout returns.
             Dispatcher.Invoke(() => SetLayout(spectrumLayout, keyboardLayout, keys));
             return;
         }

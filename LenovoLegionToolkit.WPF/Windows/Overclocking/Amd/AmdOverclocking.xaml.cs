@@ -2,6 +2,7 @@ using LenovoLegionToolkit.Lib;
 using LenovoLegionToolkit.Lib.Overclocking.Amd;
 using LenovoLegionToolkit.Lib.System;
 using LenovoLegionToolkit.Lib.Utils;
+using LenovoLegionToolkit.WPF.Extensions;
 using LenovoLegionToolkit.WPF.Resources;
 using LenovoLegionToolkit.WPF.Utils;
 using LenovoLegionToolkit.WPF.Windows.Utils;
@@ -516,7 +517,7 @@ public partial class AmdOverclocking : UiWindow
             {
                 if (t.Status == TaskStatus.RanToCompletion)
                 {
-                    Dispatcher.Invoke(() => _statusInfoBar.IsOpen = false);
+                    Dispatcher.Post(() => _statusInfoBar.IsOpen = false);
                 }
             }, TaskScheduler.Default);
         }

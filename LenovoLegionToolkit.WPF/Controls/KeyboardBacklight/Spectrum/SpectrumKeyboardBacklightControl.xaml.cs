@@ -70,7 +70,7 @@ public partial class SpectrumKeyboardBacklightControl
 
         Focusable = false;
 
-        MessagingCenter.Subscribe<SpectrumBacklightChangedMessage>(this, () => Dispatcher.InvokeTask(async () =>
+        MessagingCenter.Subscribe<SpectrumBacklightChangedMessage>(this, () => Dispatcher.Post(async () =>
         {
             if (!IsVisible)
                 return;
@@ -113,7 +113,7 @@ public partial class SpectrumKeyboardBacklightControl
     }
 
     private void Listener_Changed(object? sender, SpecialKeyListener.ChangedEventArgs e) =>
-        Dispatcher.Invoke(async () =>
+        Dispatcher.Post(async () =>
         {
             if (!IsLoaded || !IsVisible)
                 return;

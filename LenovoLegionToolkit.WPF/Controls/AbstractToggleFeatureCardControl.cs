@@ -103,7 +103,7 @@ public abstract class AbstractToggleFeatureCardControl<T> : AbstractRefreshingCo
 
     protected override void OnFinishedLoading()
     {
-        MessagingCenter.Subscribe<FeatureStateMessage<T>>(this, () => Dispatcher.InvokeTask(async () =>
+        MessagingCenter.Subscribe<FeatureStateMessage<T>>(this, () => Dispatcher.Post(async () =>
         {
             if (!IsVisible)
                 return;

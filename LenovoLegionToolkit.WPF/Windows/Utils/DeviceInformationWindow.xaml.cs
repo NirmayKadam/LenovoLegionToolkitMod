@@ -189,6 +189,7 @@ public partial class DeviceInformationWindow
             var logicalDrives = LenovoLegionToolkit.Lib.System.DeviceInformation.GetLogicalDrives();
             var networkAdapters = LenovoLegionToolkit.Lib.System.DeviceInformation.GetNetworkAdapters();
 
+            // Synchronous on purpose: loading counts as finished only once the values are shown.
             Dispatcher.Invoke(() =>
             {
                 if (cpuInfo != null)

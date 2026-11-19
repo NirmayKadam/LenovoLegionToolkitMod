@@ -7,6 +7,7 @@ using System.Windows.Input;
 using LenovoLegionToolkit.Lib;
 using LenovoLegionToolkit.Lib.Listeners;
 using LenovoLegionToolkit.Lib.Settings;
+using LenovoLegionToolkit.WPF.Extensions;
 using LenovoLegionToolkit.WPF.Resources;
 
 namespace LenovoLegionToolkit.WPF.Windows.Settings;
@@ -114,7 +115,7 @@ public partial class KeyDiscoveryWindow
             CanAdd = canAdd
         };
 
-        Dispatcher.Invoke(() =>
+        Dispatcher.Post(() =>
         {
             _events.Insert(0, entry);
             _listeningOverlay.Visibility = Visibility.Collapsed;

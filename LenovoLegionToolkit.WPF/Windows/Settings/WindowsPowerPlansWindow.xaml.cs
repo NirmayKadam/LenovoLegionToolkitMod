@@ -500,7 +500,7 @@ public partial class WindowsPowerPlansWindow
 
     private void OnNotificationReceived(NotificationMessage message)
     {
-        Dispatcher.Invoke(() =>
+        Dispatcher.Post(() =>
         {
             if (IsRefreshing)
             {

@@ -15,6 +15,7 @@ using LenovoLegionToolkit.Lib.Extensions;
 using LenovoLegionToolkit.Lib.Settings;
 using LenovoLegionToolkit.Lib.System;
 using LenovoLegionToolkit.Lib.Utils;
+using LenovoLegionToolkit.WPF.Extensions;
 using Wpf.Ui.Common;
 using LenovoLegionToolkit.WPF.Resources;
 using LenovoLegionToolkit.WPF.Utils;
@@ -95,7 +96,7 @@ public partial class DiscreteGPUManagementWindow : BaseWindow
 
     private void GpuController_Refreshed(object? sender, GPUStatus e)
     {
-        Dispatcher.Invoke(() =>
+        Dispatcher.Post(() =>
         {
             if (_pStateComboBox.ItemsSource is not List<PStateItemViewModel> items || items.Count <= 1)
             {

@@ -5,6 +5,7 @@ using System.Windows.Automation.Peers;
 using System.Windows.Controls;
 using CustomControls = LenovoLegionToolkit.WPF.Controls.Custom;
 using LenovoLegionToolkit.WPF.Controls.Help;
+using LenovoLegionToolkit.WPF.Extensions;
 using LenovoLegionToolkit.WPF.Resources;
 using LenovoLegionToolkit.WPF.Utils.Skins;
 using Wpf.Ui.Common;
@@ -279,7 +280,7 @@ public class CardHeaderControl : UserControl
         Unloaded += (_, _) => HelpPresenter.SettingsChanged -= HelpPresenter_SettingsChanged;
     }
 
-    private void HelpPresenter_SettingsChanged(object? sender, EventArgs e) => Dispatcher.Invoke(RebuildTitle);
+    private void HelpPresenter_SettingsChanged(object? sender, EventArgs e) => Dispatcher.Post(RebuildTitle);
 
     /// <summary>
     /// The title text, followed by the ⓘ when there's help to show and hover help is on. The explanation is

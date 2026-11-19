@@ -7,6 +7,7 @@ using LenovoLegionToolkit.Lib;
 using LenovoLegionToolkit.Lib.Settings;
 using LenovoLegionToolkit.Lib.System;
 using LenovoLegionToolkit.Lib.Utils;
+using LenovoLegionToolkit.WPF.Extensions;
 using LenovoLegionToolkit.WPF.Resources;
 using LenovoLegionToolkit.WPF.Utils;
 using Wpf.Ui.Common;
@@ -64,7 +65,7 @@ public partial class BatteryPage
                     var batteryInfo = Battery.GetBatteryInformation();
                     var powerAdapterStatus = await Power.IsPowerAdapterConnectedAsync();
                     var onBatterySince = Battery.GetOnBatterySince();
-                    Dispatcher.Invoke(() => Set(batteryInfo, powerAdapterStatus, onBatterySince));
+                    Dispatcher.Post(() => Set(batteryInfo, powerAdapterStatus, onBatterySince));
 
                     await Task.Delay(TimeSpan.FromSeconds(2), token);
                 }

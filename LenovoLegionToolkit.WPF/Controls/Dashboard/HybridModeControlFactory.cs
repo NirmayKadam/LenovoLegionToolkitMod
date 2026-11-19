@@ -12,6 +12,7 @@ using LenovoLegionToolkit.Lib.Features.Hybrid.Notify;
 using LenovoLegionToolkit.Lib.Settings;
 using LenovoLegionToolkit.Lib.System;
 using LenovoLegionToolkit.Lib.Utils;
+using LenovoLegionToolkit.WPF.Extensions;
 using LenovoLegionToolkit.WPF.Resources;
 using LenovoLegionToolkit.WPF.Utils;
 using LenovoLegionToolkit.WPF.Windows.Dashboard;
@@ -121,7 +122,7 @@ public static class HybridModeControlFactory
             return TimeSpan.FromSeconds(5);
         }
 
-        private void DGPUNotify_Notified(object? sender, bool e) => Dispatcher.Invoke(() =>
+        private void DGPUNotify_Notified(object? sender, bool e) => Dispatcher.Post(() =>
         {
             if (e)
             {

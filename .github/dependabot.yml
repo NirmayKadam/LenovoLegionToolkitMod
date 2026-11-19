@@ -1,0 +1,23 @@
+# Dependabot opens pull requests for outdated packages and actions. Nothing is merged automatically: each pull
+# request runs CI and waits for review. Major versions are left out because they need a planned upgrade (WPF-UI 4 is
+# a rewrite of the UI library; the LLT.* hardware libraries are pre-release builds tied to this app).
+version: 2
+updates:
+  - package-ecosystem: "nuget"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "LLT.*"
+    groups:
+      minor-and-patch:
+        update-types: ["minor", "patch"]
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 3

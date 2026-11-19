@@ -50,7 +50,7 @@ public partial class ITSModeLoopControl
                 .Concat(supportedStates.Where(s => !userOrder.Contains(s)))
                 .ToList();
 
-            Dispatcher.Invoke(() => BuildModeCards(orderedModes, disabledSet));
+            Dispatcher.Post(() => BuildModeCards(orderedModes, disabledSet));
         }
         catch (Exception ex)
         {

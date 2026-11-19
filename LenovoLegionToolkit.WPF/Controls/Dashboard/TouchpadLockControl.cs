@@ -2,6 +2,7 @@
 using LenovoLegionToolkit.Lib;
 using LenovoLegionToolkit.Lib.Features;
 using LenovoLegionToolkit.Lib.Listeners;
+using LenovoLegionToolkit.WPF.Extensions;
 using LenovoLegionToolkit.WPF.Resources;
 using Wpf.Ui.Common;
 using Wpf.Ui.Controls;
@@ -32,7 +33,7 @@ public class TouchpadLockControl : AbstractToggleFeatureCardControl<TouchpadLock
         await _listener.StartAsync();
     }
 
-    private void Listener_Changed(object? sender, DriverKeyListener.ChangedEventArgs e) => Dispatcher.Invoke(async () =>
+    private void Listener_Changed(object? sender, DriverKeyListener.ChangedEventArgs e) => Dispatcher.Post(async () =>
     {
         if (!IsLoaded || !IsVisible)
             return;

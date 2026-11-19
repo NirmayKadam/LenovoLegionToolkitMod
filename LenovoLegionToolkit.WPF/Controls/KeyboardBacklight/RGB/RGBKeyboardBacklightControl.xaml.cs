@@ -47,7 +47,7 @@ public partial class RGBKeyboardBacklightControl
         SizeChanged += RGBKeyboardBacklightControl_SizeChanged;
         Unloaded += RGBKeyboardBacklightControl_Unloaded;
 
-        MessagingCenter.Subscribe<RGBKeyboardBacklightChangedMessage>(this, () => Dispatcher.InvokeTask(async () =>
+        MessagingCenter.Subscribe<RGBKeyboardBacklightChangedMessage>(this, () => Dispatcher.Post(async () =>
         {
             if (!IsVisible)
                 return;
@@ -72,7 +72,7 @@ public partial class RGBKeyboardBacklightControl
         _applyButton.IsEnabled = _hasPendingChanges;
     }
 
-    private void Listener_Changed(object? sender, EventArgs e) => Dispatcher.Invoke(async () =>
+    private void Listener_Changed(object? sender, EventArgs e) => Dispatcher.Post(async () =>
     {
         if (!IsLoaded || !IsVisible)
             return;

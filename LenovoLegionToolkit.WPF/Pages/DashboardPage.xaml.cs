@@ -10,6 +10,7 @@ using LenovoLegionToolkit.Lib.Messaging.Messages;
 using LenovoLegionToolkit.Lib.Settings;
 using LenovoLegionToolkit.Lib.Utils;
 using LenovoLegionToolkit.WPF.Controls.Dashboard;
+using LenovoLegionToolkit.WPF.Extensions;
 using LenovoLegionToolkit.WPF.Resources;
 using LenovoLegionToolkit.WPF.Settings;
 using LenovoLegionToolkit.WPF.Utils;
@@ -38,7 +39,7 @@ public partial class DashboardPage
 
         MessagingCenter.Subscribe<SensorDashboardSwappedMessage>(this, _ =>
         {
-            Dispatcher.Invoke(() =>
+            Dispatcher.Post(() =>
             {
                 EnsureConfigFilesExist();
                 RefreshSensorControl();

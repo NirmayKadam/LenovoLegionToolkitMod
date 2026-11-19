@@ -35,7 +35,7 @@ public class NotificationsManager
 
     private void OnNotificationReceived(NotificationMessage notification)
     {
-        Dispatcher.Invoke(() =>
+        Dispatcher.Post(() =>
         {
             Log.Instance.Trace($"Notification {notification} received");
 

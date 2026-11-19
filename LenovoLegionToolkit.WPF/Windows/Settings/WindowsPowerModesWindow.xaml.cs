@@ -351,7 +351,7 @@ public partial class WindowsPowerModesWindow
 
     private void OnNotificationReceived(NotificationMessage message)
     {
-        Dispatcher.Invoke(() =>
+        Dispatcher.Post(() =>
         {
             if (IsRefreshing)
             {

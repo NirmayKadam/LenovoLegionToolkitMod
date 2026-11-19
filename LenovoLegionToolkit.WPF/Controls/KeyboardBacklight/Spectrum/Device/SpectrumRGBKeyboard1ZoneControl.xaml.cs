@@ -32,7 +32,7 @@ public partial class SpectrumRGBKeyboard1ZoneControl
     {
         InitializeComponent();
 
-        MessagingCenter.Subscribe<SpectrumBacklightChangedMessage>(this, () => Dispatcher.InvokeTask(async () =>
+        MessagingCenter.Subscribe<SpectrumBacklightChangedMessage>(this, () => Dispatcher.Post(async () =>
         {
             if (!IsVisible)
                 return;

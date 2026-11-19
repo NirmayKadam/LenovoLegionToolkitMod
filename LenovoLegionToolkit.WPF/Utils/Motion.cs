@@ -9,6 +9,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using LenovoLegionToolkit.Lib;
 using LenovoLegionToolkit.Lib.Settings;
+using LenovoLegionToolkit.WPF.Extensions;
 using TransitionType = Wpf.Ui.Animations.TransitionType;
 
 namespace LenovoLegionToolkit.WPF.Utils;
@@ -87,9 +88,9 @@ public static class Motion
         SystemParameters.StaticPropertyChanged += (_, e) =>
         {
             if (e.PropertyName == nameof(SystemParameters.ClientAreaAnimation))
-                Application.Current.Dispatcher.Invoke(Refresh);
+                Application.Current.Dispatcher.Post(Refresh);
         };
-        RenderCapability.TierChanged += (_, _) => Application.Current.Dispatcher.Invoke(Refresh);
+        RenderCapability.TierChanged += (_, _) => Application.Current.Dispatcher.Post(Refresh);
 
         Refresh();
     }

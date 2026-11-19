@@ -41,12 +41,12 @@ public class ThemeManager
         _listener = systemThemeListener;
         _settings = settings;
 
-        _listener.Changed += (_, _) => Application.Current.Dispatcher.Invoke(Apply);
+        _listener.Changed += (_, _) => Application.Current.Dispatcher.Post(Apply);
 
         SystemParameters.StaticPropertyChanged += (_, e) =>
         {
             if (e.PropertyName == nameof(SystemParameters.HighContrast))
-                Application.Current.Dispatcher.Invoke(Apply);
+                Application.Current.Dispatcher.Post(Apply);
         };
 
         // Glow depends on whether the GPU can draw effects, which Motion tracks.

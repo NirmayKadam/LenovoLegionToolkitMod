@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Shell;
+using LenovoLegionToolkit.WPF.Extensions;
 using Microsoft.Xaml.Behaviors.Core;
 using Windows.Win32;
 using Windows.Win32.System.Threading;
@@ -27,7 +28,6 @@ using LenovoLegionToolkit.Lib.SoftwareDisabler;
 using LenovoLegionToolkit.Lib.Station.Services;
 using LenovoLegionToolkit.Lib.Utils;
 using LenovoLegionToolkit.WPF.Controls.Custom;
-using LenovoLegionToolkit.WPF.Extensions;
 using LenovoLegionToolkit.WPF.Pages;
 using LenovoLegionToolkit.WPF.Resources;
 using LenovoLegionToolkit.WPF.Utils;
@@ -129,7 +129,7 @@ public partial class MainWindow
         }
 
         var actionManager = IoCContainer.Resolve<SpecialKeyActionManager>();
-        actionManager.WireUp(_specialKeyListener, () => Dispatcher.Invoke(BringToForeground));
+        actionManager.WireUp(_specialKeyListener, () => Dispatcher.Post(BringToForeground));
         actionManager.WireUp(_driverKeyListener);
 
         AddExtensionNavigationItems();

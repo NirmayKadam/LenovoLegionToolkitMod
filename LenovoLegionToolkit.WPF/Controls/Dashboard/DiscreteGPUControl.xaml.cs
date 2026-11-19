@@ -8,6 +8,7 @@ using LenovoLegionToolkit.Lib;
 using LenovoLegionToolkit.Lib.Controllers;
 using LenovoLegionToolkit.Lib.Listeners;
 using LenovoLegionToolkit.Lib.Utils;
+using LenovoLegionToolkit.WPF.Extensions;
 using LenovoLegionToolkit.WPF.Resources;
 using LenovoLegionToolkit.WPF.Windows.Dashboard;
 
@@ -66,7 +67,7 @@ public partial class DiscreteGPUControl
         _gpuController.Release(this);
     }
 
-    private void GpuController_Refreshed(object? sender, GPUStatus e) => Dispatcher.Invoke(() =>
+    private void GpuController_Refreshed(object? sender, GPUStatus e) => Dispatcher.Post(() =>
     {
         if (!IsVisible)
             return;

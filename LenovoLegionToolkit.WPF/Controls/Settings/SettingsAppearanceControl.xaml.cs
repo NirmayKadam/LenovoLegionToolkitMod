@@ -130,7 +130,7 @@ public partial class SettingsAppearanceControl
             return;
 
         LocalizationHelper.SetLanguageAsync(cultureInfo).ContinueWith(_ =>
-            Dispatcher.Invoke(() => App.Current.RestartMainWindow()),
+            Dispatcher.Post(() => App.Current.RestartMainWindow()),
             TaskScheduler.Default);
     }
 

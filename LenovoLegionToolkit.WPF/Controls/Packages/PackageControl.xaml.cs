@@ -61,6 +61,7 @@ public partial class PackageControl : IProgress<float>
 
     private void PackageControl_Unloaded(object sender, RoutedEventArgs e) => _downloadPackageTokenSource?.Cancel();
 
+    // Synchronous on purpose: progress values are shown in order, and the download waits for the UI.
     public void Report(float value) => Dispatcher.Invoke(() =>
     {
         _downloadProgressRing.IsIndeterminate = !(value > 0);

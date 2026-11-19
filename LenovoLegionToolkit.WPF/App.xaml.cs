@@ -504,6 +504,7 @@ public partial class App
 
         feature.SaveShutdownInfo(cleanInfo);
 
+        // Synchronous on purpose: shutdown must have started before this method returns.
         Dispatcher.Invoke(Shutdown);
     }
 
@@ -1115,7 +1116,7 @@ public partial class App
     {
         MessagingCenter.Subscribe<OsdChangedMessage>(this, message =>
         {
-            Dispatcher.Invoke(() =>
+            Dispatcher.Post(() =>
             {
                 HandleOsdCommand(message.State, notify: true);
             });
@@ -1133,7 +1134,7 @@ public partial class App
     {
         MessagingCenter.Subscribe<ShowAppMessage>(this, _ =>
         {
-            Dispatcher.Invoke(() =>
+            Dispatcher.Post(() =>
             {
                 if (MainWindowInstance is { } window)
                 {

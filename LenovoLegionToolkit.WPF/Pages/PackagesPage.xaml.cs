@@ -65,6 +65,7 @@ public partial class PackagesPage : IProgress<float>
         _sourceSecondaryRadio.Tag = PackageDownloaderFactory.Type.PCSupport;
     }
 
+    // Synchronous on purpose: progress values are shown in order, and the download waits for the UI.
     public void Report(float value) => Dispatcher.Invoke(() =>
     {
         _loader.IsIndeterminate = value < 0;

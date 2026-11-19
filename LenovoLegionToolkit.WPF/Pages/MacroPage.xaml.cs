@@ -4,6 +4,7 @@ using System.Windows;
 using LenovoLegionToolkit.Lib;
 using LenovoLegionToolkit.Lib.Extensions;
 using LenovoLegionToolkit.Lib.Macro;
+using LenovoLegionToolkit.WPF.Extensions;
 using Wpf.Ui.Common;
 using Wpf.Ui.Controls;
 
@@ -22,7 +23,7 @@ public partial class MacroPage
 
     private void MacroPage_Initialized(object? sender, EventArgs e)
     {
-        _controller.StateChanged += (_, _) => Dispatcher.Invoke(() => _enableMacroToggle.IsChecked = _controller.IsEnabled);
+        _controller.StateChanged += (_, _) => Dispatcher.Post(() => _enableMacroToggle.IsChecked = _controller.IsEnabled);
 
         _enableMacroToggle.IsChecked = _controller.IsEnabled;
 

@@ -9,6 +9,7 @@ using LenovoLegionToolkit.Lib;
 using LenovoLegionToolkit.Lib.Controllers.Sensors;
 using LenovoLegionToolkit.Lib.Settings;
 using LenovoLegionToolkit.Lib.Utils;
+using LenovoLegionToolkit.WPF.Extensions;
 using LenovoLegionToolkit.WPF.Resources;
 using LenovoLegionToolkit.WPF.Settings;
 using Wpf.Ui.Common;
@@ -91,7 +92,7 @@ public partial class SensorsControl
             {
                 Log.Instance.Trace($"Sensors not supported.");
 
-                Dispatcher.Invoke(() => Visibility = Visibility.Collapsed);
+                Dispatcher.Post(() => Visibility = Visibility.Collapsed);
                 return;
             }
 
@@ -102,7 +103,7 @@ public partial class SensorsControl
                 try
                 {
                     var data = await _controller.GetDataAsync();
-                    Dispatcher.Invoke(() => UpdateValues(data));
+                    Dispatcher.Post(() => UpdateValues(data));
                     await Task.Delay(TimeSpan.FromSeconds(_dashboardSettings.Store.SensorsRefreshIntervalSeconds), token);
                 }
                 catch (OperationCanceledException) { }
@@ -110,7 +111,7 @@ public partial class SensorsControl
                 {
                     Log.Instance.Trace($"Sensors refresh failed.", ex);
 
-                    Dispatcher.Invoke(() => UpdateValues(SensorsData.Empty));
+                    Dispatcher.Post(() => UpdateValues(SensorsData.Empty));
                 }
             }
 

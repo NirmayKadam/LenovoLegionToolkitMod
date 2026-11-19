@@ -70,6 +70,7 @@ public partial class SettingsBackupWindow
                 var item = new BackupItem(fileInfo);
                 item.PropertyChanged += Item_PropertyChanged;
                 
+                // Synchronous on purpose: the list must be complete when loading finishes below.
                 Dispatcher.Invoke(() => _items.Add(item));
             }
         });

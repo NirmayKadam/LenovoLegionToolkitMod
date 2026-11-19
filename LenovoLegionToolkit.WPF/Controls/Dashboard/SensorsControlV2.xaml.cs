@@ -15,6 +15,7 @@ using LenovoLegionToolkit.Lib.Messaging.Messages;
 using LenovoLegionToolkit.Lib.Settings;
 using LenovoLegionToolkit.Lib.System;
 using LenovoLegionToolkit.Lib.Utils;
+using LenovoLegionToolkit.WPF.Extensions;
 using LenovoLegionToolkit.WPF.Resources;
 using LenovoLegionToolkit.WPF.Settings;
 using LenovoLegionToolkit.WPF.Windows.Dashboard;
@@ -91,7 +92,7 @@ public partial class SensorsControlV2
 
         MessagingCenter.Subscribe<DashboardElementChangedMessage>(this, message =>
         {
-            Dispatcher.Invoke(() =>
+            Dispatcher.Post(() =>
             {
                 lock (_updateLock)
                 {
@@ -111,7 +112,7 @@ public partial class SensorsControlV2
 
         MessagingCenter.Subscribe<FeatureStateMessage<HardwareSensorsState>>(this, message =>
         {
-            Dispatcher.Invoke(() =>
+            Dispatcher.Post(() =>
             {
                 if (message.State == HardwareSensorsState.Off)
                 {
