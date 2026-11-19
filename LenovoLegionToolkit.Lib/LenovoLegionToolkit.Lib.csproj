@@ -7,18 +7,18 @@
 	<ItemGroup>
 		<PackageReference Include="Autofac" Version="9.3.4" />
 		<PackageReference Include="Ben.Demystifier" Version="0.4.1" />
-		<PackageReference Include="CoordinateSharp" Version="3.4.1.1" />
-		<PackageReference Include="ManagedNativeWifi" Version="2.7.0" />
+		<PackageReference Include="CoordinateSharp" Version="3.5.1.1" />
+		<PackageReference Include="ManagedNativeWifi" Version="2.8.0" />
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-		<PackageReference Include="Microsoft.Win32.SystemEvents" Version="10.0.3" />
-		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.269">
+		<PackageReference Include="Microsoft.Win32.SystemEvents" Version="10.0.15" />
+		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.371">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="NAudio.Wasapi" Version="2.2.1" />
+		<PackageReference Include="NAudio.Wasapi" Version="2.4.0" />
 		<PackageReference Include="PubSub" Version="4.0.2" />
-		<PackageReference Include="System.Management" Version="10.0.9" />
-		<PackageReference Include="System.ServiceProcess.ServiceController" Version="10.0.3" />
+		<PackageReference Include="System.Management" Version="10.0.15" />
+		<PackageReference Include="System.ServiceProcess.ServiceController" Version="10.0.15" />
 		<PackageReference Include="NeoSmart.AsyncLock" Version="3.2.1" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
 		<PackageReference Include="Octokit" Version="14.0.0" />
@@ -30,7 +30,7 @@
 		<PackageReference Include="LLT.NvAPIWrapper.Net" Version="1.1.24-pre.38" />
 		<PackageReference Include="LLT.PresentMonFps" Version="2.0.8-pre.12" />
 		<PackageReference Include="LLT.ZenStates-Core" Version="1.92.6-pre.18" />
-		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.7705" PrivateAssets="all" />
+		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.28000.2957" PrivateAssets="all" />
 	</ItemGroup>
 
 	<ItemGroup>
