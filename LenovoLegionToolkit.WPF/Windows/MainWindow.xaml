@@ -165,18 +165,6 @@
                         PageTag="settings"
                         PageType="{x:Type pages:SettingsPage}" />
                     <custom:NavigationItem
-                        Content="{x:Static resources:Resource.MainWindow_NavigationItem_Donate}"
-                        Icon="Heart24"
-                        PageTag="donate"
-                        PageType="{x:Type pages:DonatePage}">
-                        <custom:NavigationItem.Foreground>
-                            <SolidColorBrush Color="{DynamicResource SystemAccentColorSecondary}" />
-                        </custom:NavigationItem.Foreground>
-                        <custom:NavigationItem.IconForeground>
-                            <SolidColorBrush Color="{DynamicResource SystemAccentColorSecondary}" />
-                        </custom:NavigationItem.IconForeground>
-                    </custom:NavigationItem>
-                    <custom:NavigationItem
                         Content="{x:Static resources:Resource.MainWindow_NavigationItem_About}"
                         Icon="Info24"
                         PageTag="about"

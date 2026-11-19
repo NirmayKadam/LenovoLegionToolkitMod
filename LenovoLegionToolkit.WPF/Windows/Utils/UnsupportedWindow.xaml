@@ -114,7 +114,7 @@
                     Margin="-11,0,0,0"
                     Click="Hyperlink_Click"
                     Content="{x:Static resources:Resource.UnsupportedWindow_Disclaimer_GitHub}"
-                    Tag="https://github.com/LenovoLegionToolkit-Team/LenovoLegionToolkit#contribution" />
+                    Tag="https://github.com/NirmayKadam/LenovoLegionToolkitMod" />
 
             </StackPanel>
 

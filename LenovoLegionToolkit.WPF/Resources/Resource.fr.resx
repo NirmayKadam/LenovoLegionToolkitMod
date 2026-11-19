@@ -121,7 +121,7 @@
     <value>Dossiers de l'application</value>
   </data>
   <data name="AboutPage_AppName" xml:space="preserve">
-    <value>Boîte à outils Lenovo Legion</value>
+    <value>Indra – Legion Toolkit Mod</value>
   </data>
   <data name="AboutPage_Build" xml:space="preserve">
     <value>Build</value>
@@ -149,10 +149,6 @@
   </data>
   <data name="AboutPage_Title" xml:space="preserve">
     <value>À propos</value>
-  </data>
-  <data name="AboutPage_TranslationCredit" xml:space="preserve">
-    <value>Traductions en français fournies par EliotAku, Georges de Massol, Rigbone et ZeroDegree.</value>
-    <comment>Please replace this text with something like "Translated into &lt;language&gt; by &lt;your name&gt;."</comment>
   </data>
   <data name="AboutPage_Version" xml:space="preserve">
     <value>Version</value>
@@ -335,7 +331,7 @@
     <value>Appliquer et fermer</value>
   </data>
   <data name="AppName" xml:space="preserve">
-    <value>Lenovo Legion Toolkit</value>
+    <value>Indra – Legion Toolkit Mod</value>
   </data>
   <data name="ArgumentWindow_Category_Debugging" xml:space="preserve">
     <value>Débogage</value>
@@ -1042,38 +1038,6 @@ Le changement de mode peut nécessiter un redémarrage.</value>
   </data>
   <data name="Displays" xml:space="preserve">
     <value>Affichages</value>
-  </data>
-  <data name="DonatePage_Bartosz_Description" xml:space="preserve">
-    <value>Bartosz a créé Lenovo Legion Toolkit et a rédigé l'architecture de base qui alimente toutes les fonctionnalités de l'application aujourd'hui.</value>
-  </data>
-  <data name="DonatePage_Bartosz_Role" xml:space="preserve">
-    <value>Créateur original</value>
-  </data>
-  <data name="DonatePage_BottomMessage" xml:space="preserve">
-    <value>Même si vous ne pouvez pas faire de don, simplement en utilisant, en partageant et en mettant en vedette le projet sur GitHub va très loin. Chaque support est vraiment apprécié</value>
-  </data>
-  <data name="DonatePage_DrSkinner_Description" xml:space="preserve">
-    <value>Responsable du développement des principales caractéristiques, de l'assurance qualité, de la conception UI/UX et de la direction générale du projet en tant que chef de file du projet actuel.</value>
-  </data>
-  <data name="DonatePage_DrSkinner_Role" xml:space="preserve">
-    <value>Développeur principal et chef de projet</value>
-  </data>
-  <data name="DonatePage_Kaguya_Description" xml:space="preserve">
-    <value>Spécialiste de la recherche matérielle et de l'ingénierie inversée, avec des contributions couvrant le développement de fonctionnalités de base et l'intégration de systèmes de bas niveau.</value>
-  </data>
-  <data name="DonatePage_Kaguya_Role" xml:space="preserve">
-    <value>Développeur &amp; Reverseur de base</value>
-  </data>
-  <data name="DonatePage_Message" xml:space="preserve">
-    <value>Le développement et la maintenance de la trousse d'outils Lenovo Legion prennent beaucoup de temps et d'efforts. Si vous aimez utiliser ce logiciel, vous pouvez soutenir son avenir en parrainant les auteurs qui le rendent possible.
-
-Merci pour votre soutien !</value>
-  </data>
-  <data name="DonatePage_Sponsor" xml:space="preserve">
-    <value>Sponsor</value>
-  </data>
-  <data name="DonatePage_Title" xml:space="preserve">
-    <value>Faire un don</value>
   </data>
   <data name="DpiScaleAutomationStepControl_Message" xml:space="preserve">
     <value>Changer la mise à l'échelle de l'écran intégré.</value>
@@ -1825,9 +1789,6 @@ Cliquez sur Oui pour désactiver et Non pour ignorer.</value>
   </data>
   <data name="MainWindow_NavigationItem_Dashboard" xml:space="preserve">
     <value>Accueil</value>
-  </data>
-  <data name="MainWindow_NavigationItem_Donate" xml:space="preserve">
-    <value>Don</value>
   </data>
   <data name="MainWindow_NavigationItem_Keyboard" xml:space="preserve">
     <value>Clavier</value>

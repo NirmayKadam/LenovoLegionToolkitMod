@@ -1,9 +1,9 @@
 <div align="center">
   <img height="112" src="assets/logo.png" alt="Logo">
 
-  # Lenovo Legion Toolkit — Hardened Mod
+  # Indra – Legion Toolkit Mod
 
-  **A bug-fixed and security-hardened fork of [Lenovo Legion Toolkit](https://github.com/LenovoLegionToolkit-Team/LenovoLegionToolkit) v2.36.0.0**
+  **A bug-fixed and security-hardened fork of [Lenovo Legion Toolkit](https://github.com/LenovoLegionToolkit-Team/LenovoLegionToolkit) v2.36.0.0, developed and maintained by Nirmay Kadam**
 
   ![Base](https://img.shields.io/badge/based%20on-LLT%20v2.36.0.0-blue)
   ![.NET](https://img.shields.io/badge/.NET-9.0-512BD4?logo=dotnet&logoColor=white)
@@ -122,10 +122,12 @@ Start at the [documentation index](docs/README.md).
 
 ## Credits
 
+- **Nirmay Kadam**: developer and maintainer of Indra (this fork), 2026
 - **Bartosz Cichecki**: original author of Lenovo Legion Toolkit
 - **LenovoLegionToolkit-Team** (Kaguya, Dr. Skinner and contributors): maintainers of v2.36.0.0, on which this fork is based
 - Third-party components and their licenses: [NOTICE](NOTICE)
-- Modifications in this fork: Nirmay Kadam, 2026
+
+In the app, About shows the original project's copyright and the licence under **Original project and licence**.
 
 ## License
 

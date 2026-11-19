@@ -4,7 +4,7 @@ This file is the modification notice required by GPL-3.0 section 5(a).
 
 - **Original work:** Lenovo Legion Toolkit v2.36.0.0, © Bartosz Cichecki, Kaguya, Dr. Skinner and contributors, licensed under GPL-3.0. Source: https://github.com/LenovoLegionToolkit-Team/LenovoLegionToolkit/releases/tag/v2.36.0.0
 - **Modified by:** Nirmay Kadam
-- **Date of modifications:** 2026-11-07 (bug and security fixes); 2026-11-08 (UI styles, animations, status strip); 2026-11-13 to 2026-11-17 (features, safety, performance and stability rounds)
+- **Date of modifications:** 2026-11-07 (bug and security fixes); 2026-11-08 (UI styles, animations, status strip); 2026-11-13 to 2026-11-19 (features, safety, performance and stability rounds; renamed to Indra)
 - **License of this modified version:** GPL-3.0 (see [LICENSE](../LICENSE))
 
 What changed and why: [BUG-FIXES.md](BUG-FIXES.md), [SECURITY.md](SECURITY.md) and [SKINS.md](SKINS.md).
@@ -708,5 +708,58 @@ Not verified on the laptop yet.
   - the AI Engine rule;
   - the unsupported-step skip;
   - HTTPS-only release pages.
+
+Not verified on the laptop yet.
+
+## Round 11: the app becomes Indra (2026-11-19)
+The fork is now presented as **Indra – Legion Toolkit Mod**, developed and maintained by Nirmay Kadam.
+
+**What GPL-3.0 requires, and how it is kept:**
+- The original copyright notice and the licence stay. About keeps them reachable under **Original project and licence**: the original copyright, GPL-3.0, no warranty, a link to the licence and one to the original project.
+- The build's file properties (`Directory.Build.props`) and the installer's copyright carry both notices.
+
+**What deliberately stays the same:**
+- the program file (`Lenovo Legion Toolkit.exe`) and the assembly name;
+- the install folder and the settings in it;
+- the installer AppId, so it upgrades in place;
+- the autostart task and the CLI pipe;
+- the process name LLT uses to recognise itself;
+- the HWiNFO sensor group name.
+
+### App
+- `Resource.resx`:
+  - `AppName` and `AboutPage_AppName` are "Indra – Legion Toolkit Mod" (in every resx, because a name isn't translated);
+  - sentences that name the app say "Indra";
+  - new About strings;
+  - `AboutPage_TranslationCredit` removed.
+- `AboutPage.xaml(.cs)`:
+  - maintainer and © 2026 Nirmay Kadam;
+  - links to this repository and its latest release (`UpdateChecker.LatestReleasePage`);
+  - the "Original project and licence" expander. **View the licence** opens the installed `LICENSE` in Notepad, or this repository's LICENSE when that file isn't there.
+- `LanguageSelectorWindow.xaml` uses `Resource.AppName`.
+- `UnsupportedWindow.xaml`: its GitHub link points to this repository. A test found this one.
+- **Removed:**
+  - the Donate page (`DonatePage.xaml(.cs)`) and its menu entry;
+  - its three photos and their csproj entries;
+  - `Constants.cs` (only donation addresses were left);
+  - the `DonatePage_*` and `MainWindow_NavigationItem_Donate` strings in every resx.
+
+### Build and installer
+- `Directory.Build.props` `Copyright`: "© 2026 Nirmay Kadam. Based on Lenovo Legion Toolkit © 2026 Bartosz Cichecki, Kaguya, and Dr. Skinner."
+- `make_installer.iss`, `make_installer_action.iss`:
+  - **Changed:** name, publisher (Nirmay Kadam), URLs (this repository) and copyright.
+  - **Removed:** the three Discord links, their handlers and messages.
+  - **Added:** `[InstallDelete]` removes the old "Lenovo Legion Toolkit" shortcuts on upgrade.
+  - **Encoding:** saved as UTF-8 with a byte-order mark, so the en dash and © are read correctly. Both compile with Inno Setup 6.
+
+### Tests
+- **`AppIdentityTests` (new):**
+  - the name;
+  - About's maintainer and GPL notice;
+  - only the expander links to the original repository;
+  - no Donate page;
+  - both copyright lines in the build;
+  - in both installer scripts: unchanged AppId, folder and program file, the new name, publisher and URL, no Discord, a byte-order mark, and the old shortcuts removed.
+- **878 tests**, all passing.
 
 Not verified on the laptop yet.

@@ -70,7 +70,7 @@ namespace LenovoLegionToolkit.WPF.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Lenovo Legion Toolkit.
+        ///   Looks up a localized string similar to Indra – Legion Toolkit Mod.
         /// </summary>
         public static string AboutPage_AppName {
             get {
@@ -156,15 +156,6 @@ namespace LenovoLegionToolkit.WPF.Resources {
         public static string AboutPage_Title {
             get {
                 return ResourceManager.GetString("AboutPage_Title", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Translations provided by community..
-        /// </summary>
-        public static string AboutPage_TranslationCredit {
-            get {
-                return ResourceManager.GetString("AboutPage_TranslationCredit", resourceCulture);
             }
         }
         
@@ -709,7 +700,7 @@ namespace LenovoLegionToolkit.WPF.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Lenovo Legion Toolkit.
+        ///   Looks up a localized string similar to Indra – Legion Toolkit Mod.
         /// </summary>
         public static string AppName {
             get {
@@ -1016,7 +1007,7 @@ namespace LenovoLegionToolkit.WPF.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Lenovo Legion Toolkit must be running for automatic actions to work..
+        ///   Looks up a localized string similar to Indra must be running for automatic actions to work..
         /// </summary>
         public static string AutomationPage_ActionsEnable_Message {
             get {
@@ -2088,7 +2079,7 @@ namespace LenovoLegionToolkit.WPF.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Close the Lenovo Legion Toolkit.
+        ///   Looks up a localized string similar to Close Indra.
         /// </summary>
         public static string CloseAppAutomationStepControl_Message {
             get {
@@ -2823,98 +2814,6 @@ namespace LenovoLegionToolkit.WPF.Resources {
         public static string Displays {
             get {
                 return ResourceManager.GetString("Displays", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Bartosz created Lenovo Legion Toolkit and authored the foundational architecture that powers every feature in the application today..
-        /// </summary>
-        public static string DonatePage_Bartosz_Description {
-            get {
-                return ResourceManager.GetString("DonatePage_Bartosz_Description", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Original Creator.
-        /// </summary>
-        public static string DonatePage_Bartosz_Role {
-            get {
-                return ResourceManager.GetString("DonatePage_Bartosz_Role", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Even if you can&apos;t donate, simply using, sharing, and starring the project on GitHub goes a long way. Every bit of support is genuinely appreciated.
-        /// </summary>
-        public static string DonatePage_BottomMessage {
-            get {
-                return ResourceManager.GetString("DonatePage_BottomMessage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Responsible for core feature development, quality assurance, UI/UX design, and overall project direction as the current project lead..
-        /// </summary>
-        public static string DonatePage_DrSkinner_Description {
-            get {
-                return ResourceManager.GetString("DonatePage_DrSkinner_Description", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Core Developer &amp; Project Lead.
-        /// </summary>
-        public static string DonatePage_DrSkinner_Role {
-            get {
-                return ResourceManager.GetString("DonatePage_DrSkinner_Role", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Specializes in hardware research and reverse engineering, with contributions spanning core feature development and low-level system integration..
-        /// </summary>
-        public static string DonatePage_Kaguya_Description {
-            get {
-                return ResourceManager.GetString("DonatePage_Kaguya_Description", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Core Developer &amp; Reverser.
-        /// </summary>
-        public static string DonatePage_Kaguya_Role {
-            get {
-                return ResourceManager.GetString("DonatePage_Kaguya_Role", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Development and maintenance of Lenovo Legion Toolkit takes a lot of time and effort. If you enjoy using this software, you can support its future by sponsoring the authors who make it possible.
-        ///
-        ///Thank you for your support!.
-        /// </summary>
-        public static string DonatePage_Message {
-            get {
-                return ResourceManager.GetString("DonatePage_Message", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Sponsor.
-        /// </summary>
-        public static string DonatePage_Sponsor {
-            get {
-                return ResourceManager.GetString("DonatePage_Sponsor", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Donate.
-        /// </summary>
-        public static string DonatePage_Title {
-            get {
-                return ResourceManager.GetString("DonatePage_Title", resourceCulture);
             }
         }
         
@@ -4900,7 +4799,7 @@ namespace LenovoLegionToolkit.WPF.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Lenovo Legion Toolkit must be running for macros to work..
+        ///   Looks up a localized string similar to Indra must be running for macros to work..
         /// </summary>
         public static string MacroPage_Enable_Subtitle {
             get {
@@ -5130,15 +5029,6 @@ namespace LenovoLegionToolkit.WPF.Resources {
         public static string MainWindow_NavigationItem_Dashboard {
             get {
                 return ResourceManager.GetString("MainWindow_NavigationItem_Dashboard", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Donate.
-        /// </summary>
-        public static string MainWindow_NavigationItem_Donate {
-            get {
-                return ResourceManager.GetString("MainWindow_NavigationItem_Donate", resourceCulture);
             }
         }
         
@@ -9777,7 +9667,7 @@ namespace LenovoLegionToolkit.WPF.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Show the Lenovo Legion Toolkit.
+        ///   Looks up a localized string similar to Show Indra.
         /// </summary>
         public static string ShowAppAutomationStepControl_Message {
             get {
@@ -10800,7 +10690,7 @@ namespace LenovoLegionToolkit.WPF.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Lenovo Legion Toolkit has not been tested with your device..
+        ///   Looks up a localized string similar to Indra has not been tested with your device..
         /// </summary>
         public static string UnsupportedWindow_Message {
             get {
@@ -14612,6 +14502,69 @@ namespace LenovoLegionToolkit.WPF.Resources {
         public static string UpdateWindow_OpenReleasePage {
             get {
                 return ResourceManager.GetString("UpdateWindow_OpenReleasePage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Developed and maintained by Nirmay Kadam.
+        /// </summary>
+        public static string AboutPage_DevelopedBy {
+            get {
+                return ResourceManager.GetString("AboutPage_DevelopedBy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to © 2026 Nirmay Kadam.
+        /// </summary>
+        public static string AboutPage_Copyright {
+            get {
+                return ResourceManager.GetString("AboutPage_Copyright", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Original project and licence.
+        /// </summary>
+        public static string AboutPage_OriginalProject {
+            get {
+                return ResourceManager.GetString("AboutPage_OriginalProject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Based on Lenovo Legion Toolkit © 2026 Bartosz Cichecki, Kaguya, and Dr. Skinner..
+        /// </summary>
+        public static string AboutPage_OriginalNotice {
+            get {
+                return ResourceManager.GetString("AboutPage_OriginalNotice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This app is free software under the GNU General Public License v3.0 (GPL-3.0). It comes with no warranty; see the licence for details..
+        /// </summary>
+        public static string AboutPage_LicenceNotice {
+            get {
+                return ResourceManager.GetString("AboutPage_LicenceNotice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to View the licence.
+        /// </summary>
+        public static string AboutPage_ViewLicence {
+            get {
+                return ResourceManager.GetString("AboutPage_ViewLicence", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Original project on GitHub.
+        /// </summary>
+        public static string AboutPage_OriginalProjectOnGitHub {
+            get {
+                return ResourceManager.GetString("AboutPage_OriginalProjectOnGitHub", resourceCulture);
             }
         }
     }

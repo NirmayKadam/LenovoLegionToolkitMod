@@ -35,11 +35,11 @@
             Focusable="True"
             Text="{x:Static resources:Resource.AboutPage_Build}" />
 
-        <TextBlock x:Name="_copyright" Focusable="True" />
         <TextBlock
-            x:Name="_translationCredit"
-            Padding="0,8,0,0"
-            Text="{x:Static resources:Resource.AboutPage_TranslationCredit}" />
+            Padding="0,0,0,8"
+            Focusable="True"
+            Text="{x:Static resources:Resource.AboutPage_DevelopedBy}" />
+        <TextBlock Focusable="True" Text="{x:Static resources:Resource.AboutPage_Copyright}" />
 
         <TextBlock
             Padding="0,24,0,8"
@@ -51,12 +51,40 @@
             Click="Hyperlink_Click"
             Content="{x:Static resources:Resource.AboutPage_ProjectWebsiteOnGitHub}"
             Icon="Link24"
-            Tag="https://github.com/LenovoLegionToolkit-Team/LenovoLegionToolkit" />
+            Tag="https://github.com/NirmayKadam/LenovoLegionToolkitMod" />
         <wpfui:Hyperlink
+            x:Name="_latestReleaseLink"
             Click="Hyperlink_Click"
             Content="{x:Static resources:Resource.AboutPage_LatestReleaseOnGitHub}"
-            Icon="Link24"
-            Tag="https://github.com/LenovoLegionToolkit-Team/LenovoLegionToolkit/releases/latest" />
+            Icon="Link24" />
+
+        <!--  GPL-3.0 requires the original copyright, the no-warranty notice and a way to read the licence to stay reachable.  -->
+        <Expander
+            x:Name="_originalProjectExpander"
+            Margin="0,16,0,0"
+            Header="{x:Static resources:Resource.AboutPage_OriginalProject}">
+            <StackPanel Margin="8,8,0,0">
+                <TextBlock
+                    Padding="0,0,0,8"
+                    Focusable="True"
+                    Text="{x:Static resources:Resource.AboutPage_OriginalNotice}"
+                    TextWrapping="Wrap" />
+                <TextBlock
+                    Padding="0,0,0,8"
+                    Focusable="True"
+                    Text="{x:Static resources:Resource.AboutPage_LicenceNotice}"
+                    TextWrapping="Wrap" />
+                <wpfui:Hyperlink
+                    Click="ViewLicence_Click"
+                    Content="{x:Static resources:Resource.AboutPage_ViewLicence}"
+                    Icon="Document24" />
+                <wpfui:Hyperlink
+                    Click="Hyperlink_Click"
+                    Content="{x:Static resources:Resource.AboutPage_OriginalProjectOnGitHub}"
+                    Icon="Link24"
+                    Tag="https://github.com/LenovoLegionToolkit-Team/LenovoLegionToolkit" />
+            </StackPanel>
+        </Expander>
 
         <TextBlock
             Padding="0,24,0,8"

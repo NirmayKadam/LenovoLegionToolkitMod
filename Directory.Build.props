@@ -6,7 +6,7 @@
     <SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <Platforms>x64</Platforms>
-    <Copyright>© 2026 Bartosz Cichecki, Kaguya, and Dr. Skinner</Copyright>
+    <Copyright>© 2026 Nirmay Kadam. Based on Lenovo Legion Toolkit © 2026 Bartosz Cichecki, Kaguya, and Dr. Skinner.</Copyright>
     <Nullable>enable</Nullable>
     <NeutralLanguage>en</NeutralLanguage>
     <NuGetAudit>false</NuGetAudit>

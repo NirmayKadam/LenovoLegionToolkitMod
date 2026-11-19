@@ -121,7 +121,7 @@
     <value>应用数据文件夹</value>
   </data>
   <data name="AboutPage_AppName" xml:space="preserve">
-    <value>Lenovo Legion Toolkit (Unofficial Fork)</value>
+    <value>Indra – Legion Toolkit Mod</value>
   </data>
   <data name="AboutPage_Build" xml:space="preserve">
     <value>构建版本</value>
@@ -149,10 +149,6 @@
   </data>
   <data name="AboutPage_Title" xml:space="preserve">
     <value>关于</value>
-  </data>
-  <data name="AboutPage_TranslationCredit" xml:space="preserve">
-    <value>Translated by Karl Lee. 由凌卡Karl汉化，开源社区校正。</value>
-    <comment>Please replace this text with something like "Translated into &lt;language&gt; by &lt;your name&gt;."</comment>
   </data>
   <data name="AboutPage_Version" xml:space="preserve">
     <value>版本</value>
@@ -337,7 +333,7 @@
     <value>应用并关闭</value>
   </data>
   <data name="AppName" xml:space="preserve">
-    <value>拯救者工具箱 Lenovo Legion Toolkit</value>
+    <value>Indra – Legion Toolkit Mod</value>
   </data>
   <data name="ArgumentWindow_Category_Debugging" xml:space="preserve">
     <value>调试</value>
@@ -1043,38 +1039,6 @@
   </data>
   <data name="Displays" xml:space="preserve">
     <value>显示</value>
-  </data>
-  <data name="DonatePage_Bartosz_Description" xml:space="preserve">
-    <value>Bartosz 创建了Lenovo Legion Toolkit 并编写了基础架构，为今天应用程序中的每个功能奠基。</value>
-  </data>
-  <data name="DonatePage_Bartosz_Role" xml:space="preserve">
-    <value>原作者</value>
-  </data>
-  <data name="DonatePage_BottomMessage" xml:space="preserve">
-    <value>即使您不能捐赠，只需使用 GitHub 上的项目，分享和启动项目也是很长的路程。每一点支持都是真正感激的。</value>
-  </data>
-  <data name="DonatePage_DrSkinner_Description" xml:space="preserve">
-    <value>负责核心功能开发、质量保证、UI/UX设计以及目前项目牵头的总体项目方向。</value>
-  </data>
-  <data name="DonatePage_DrSkinner_Role" xml:space="preserve">
-    <value>核心开发者 &amp; 项目负责人</value>
-  </data>
-  <data name="DonatePage_Kaguya_Description" xml:space="preserve">
-    <value>负责硬件研究和逆向工程，其贡献涉及核心功能开发和低级系统功能集成。</value>
-  </data>
-  <data name="DonatePage_Kaguya_Role" xml:space="preserve">
-    <value>核心开发者 &amp; 逆向</value>
-  </data>
-  <data name="DonatePage_Message" xml:space="preserve">
-    <value>开发和维护 Lenovo Legion Toolkit 需要投入大量的时间与精力。如果您喜欢使用这款软件，可以通过赞助开发者来支持它的未来，是他们的付出让这一切成为可能。
-
-感谢您的支持！</value>
-  </data>
-  <data name="DonatePage_Sponsor" xml:space="preserve">
-    <value>赞助</value>
-  </data>
-  <data name="DonatePage_Title" xml:space="preserve">
-    <value>赞助</value>
   </data>
   <data name="DpiScaleAutomationStepControl_Message" xml:space="preserve">
     <value>调整文本、图标和界面元素的缩放。</value>
@@ -1832,9 +1796,6 @@
   </data>
   <data name="MainWindow_NavigationItem_Dashboard" xml:space="preserve">
     <value>控制台</value>
-  </data>
-  <data name="MainWindow_NavigationItem_Donate" xml:space="preserve">
-    <value>赞助</value>
   </data>
   <data name="MainWindow_NavigationItem_Keyboard" xml:space="preserve">
     <value>键盘</value>

@@ -121,7 +121,7 @@
     <value>Φάκελοι εφαρμογής</value>
   </data>
   <data name="AboutPage_AppName" xml:space="preserve">
-    <value>Lenovo Legion Toolkit (Ανεπίσημη Διακλάδωση)</value>
+    <value>Indra – Legion Toolkit Mod</value>
   </data>
   <data name="AboutPage_Build" xml:space="preserve">
     <value>Κατασκευή</value>
@@ -149,10 +149,6 @@
   </data>
   <data name="AboutPage_Title" xml:space="preserve">
     <value>Σχετικά με</value>
-  </data>
-  <data name="AboutPage_TranslationCredit" xml:space="preserve">
-    <value>Οι μεταφράσεις γίνονται από την κοινότητα.</value>
-    <comment>Please replace this text with something like "Translated into &lt;language&gt; by &lt;your name&gt;."</comment>
   </data>
   <data name="AboutPage_Version" xml:space="preserve">
     <value>Έκδοση</value>
@@ -335,7 +331,7 @@
     <value>Εφαρμογή και κλείσιμο</value>
   </data>
   <data name="AppName" xml:space="preserve">
-    <value>Lenovo Legion Toolkit</value>
+    <value>Indra – Legion Toolkit Mod</value>
   </data>
   <data name="ArgumentWindow_Category_Debugging" xml:space="preserve">
     <value>Αποσφαλμάτωση</value>
@@ -1042,38 +1038,6 @@
   </data>
   <data name="Displays" xml:space="preserve">
     <value>Εμφανίζει</value>
-  </data>
-  <data name="DonatePage_Bartosz_Description" xml:space="preserve">
-    <value>Ο Bartosz δημιούργησε το Toolkit Λεγεώνας Lenovo και συνέταξε την θεμελιακή αρχιτεκτονική που τροφοδοτεί κάθε χαρακτηριστικό της εφαρμογής σήμερα.</value>
-  </data>
-  <data name="DonatePage_Bartosz_Role" xml:space="preserve">
-    <value>Αρχικός Δημιουργός</value>
-  </data>
-  <data name="DonatePage_BottomMessage" xml:space="preserve">
-    <value>Ακόμα κι αν δεν μπορείτε να δωρίσετε, απλά χρησιμοποιώντας, μοιράζοντας, και πρωταγωνιστώντας το έργο στο GitHub πηγαίνει πολύ μακριά.</value>
-  </data>
-  <data name="DonatePage_DrSkinner_Description" xml:space="preserve">
-    <value>Υπεύθυνος για την ανάπτυξη βασικών χαρακτηριστικών, τη διασφάλιση ποιότητας, το σχεδιασμό UI/UX και τη συνολική κατεύθυνση του έργου ως το σημερινό προβάδισμα.</value>
-  </data>
-  <data name="DonatePage_DrSkinner_Role" xml:space="preserve">
-    <value>Κύριος Προγραμματιστής &amp; Επικεφαλής Έργου</value>
-  </data>
-  <data name="DonatePage_Kaguya_Description" xml:space="preserve">
-    <value>Ειδικεύεται στην έρευνα υλικού και την αντίστροφη μηχανική, με συνεισφορές που εκτείνονται στην ανάπτυξη βασικών χαρακτηριστικών και την ενσωμάτωση συστημάτων χαμηλού επιπέδου.</value>
-  </data>
-  <data name="DonatePage_Kaguya_Role" xml:space="preserve">
-    <value>Βασικός Προγραμματιστής &amp; Αντιστροφέας</value>
-  </data>
-  <data name="DonatePage_Message" xml:space="preserve">
-    <value>Development and maintenance of Lenovo Legion Toolkit takes a lot of time and effort. If you enjoy using this software, you can support its future by sponsoring the authors who make it possible.
-
-Thank you for your support!</value>
-  </data>
-  <data name="DonatePage_Sponsor" xml:space="preserve">
-    <value>Χορηγός</value>
-  </data>
-  <data name="DonatePage_Title" xml:space="preserve">
-    <value>Δωρεά</value>
   </data>
   <data name="DpiScaleAutomationStepControl_Message" xml:space="preserve">
     <value>Αλλαγή κλιμάκωσης της ενσωματωμένης οθόνης.</value>
@@ -1826,9 +1790,6 @@ Do not proceed unless you possess the necessary technical expertise.</value>
   </data>
   <data name="MainWindow_NavigationItem_Dashboard" xml:space="preserve">
     <value>Πίνακας</value>
-  </data>
-  <data name="MainWindow_NavigationItem_Donate" xml:space="preserve">
-    <value>Δωρεά</value>
   </data>
   <data name="MainWindow_NavigationItem_Keyboard" xml:space="preserve">
     <value>Πληκτρολόγιο</value>

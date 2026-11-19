@@ -121,7 +121,7 @@
     <value>Thư mục ứng dụng</value>
   </data>
   <data name="AboutPage_AppName" xml:space="preserve">
-    <value>Lenovo Legion Toolkit</value>
+    <value>Indra – Legion Toolkit Mod</value>
   </data>
   <data name="AboutPage_Build" xml:space="preserve">
     <value>Bản dựng</value>
@@ -149,10 +149,6 @@
   </data>
   <data name="AboutPage_Title" xml:space="preserve">
     <value>Thông tin</value>
-  </data>
-  <data name="AboutPage_TranslationCredit" xml:space="preserve">
-    <value>Bản dịch tiếng Việt do Not_Nhan, Nagidrop, NanKill, Kuri và Kztera thực hiện.</value>
-    <comment>Please replace this text with something like "Translated into &lt;language&gt; by &lt;your name&gt;."</comment>
   </data>
   <data name="AboutPage_Version" xml:space="preserve">
     <value>Phiên bản</value>
@@ -335,7 +331,7 @@
     <value>Áp dụng và đóng</value>
   </data>
   <data name="AppName" xml:space="preserve">
-    <value>Lenovo Legion Toolkit</value>
+    <value>Indra – Legion Toolkit Mod</value>
   </data>
   <data name="ArgumentWindow_Category_Debugging" xml:space="preserve">
     <value>Gỡ lỗi</value>
@@ -1041,38 +1037,6 @@ Chuyển đổi giữa các chế độ có thể cần phải khởi động l�
   </data>
   <data name="Displays" xml:space="preserve">
     <value>Hiển thị</value>
-  </data>
-  <data name="DonatePage_Bartosz_Description" xml:space="preserve">
-    <value>Bartosz là người đã sáng tạo ra Lenovo Legion Toolkit và là tác giả của kiến trúc nền tảng giúp vận hành mọi tính năng trong ứng dụng ngày hôm nay.</value>
-  </data>
-  <data name="DonatePage_Bartosz_Role" xml:space="preserve">
-    <value>Người sáng tạo gốc</value>
-  </data>
-  <data name="DonatePage_BottomMessage" xml:space="preserve">
-    <value>Ngay cả khi bạn không thể quyên góp, chỉ cần sử dụng, chia sẻ và đóng vai chính cho dự án trên GitHub sẽ đi một chặng đường dài. Mọi sự hỗ trợ đều được đánh giá cao</value>
-  </data>
-  <data name="DonatePage_DrSkinner_Description" xml:space="preserve">
-    <value>Chịu trách nhiệm phát triển tính năng cốt lõi, đảm bảo chất lượng, thiết kế UI/UX và định hướng dự án tổng thể với tư cách là người đứng đầu dự án hiện tại.</value>
-  </data>
-  <data name="DonatePage_DrSkinner_Role" xml:space="preserve">
-    <value>Nhà phát triển cốt lõi &amp; Trưởng dự án</value>
-  </data>
-  <data name="DonatePage_Kaguya_Description" xml:space="preserve">
-    <value>Chuyên nghiên cứu phần cứng và kỹ thuật đảo ngược, với những đóng góp bao gồm phát triển tính năng cốt lõi và tích hợp hệ thống cấp thấp.</value>
-  </data>
-  <data name="DonatePage_Kaguya_Role" xml:space="preserve">
-    <value>Nhà phát triển cốt lõi &amp; Chuyên viên đảo ngược</value>
-  </data>
-  <data name="DonatePage_Message" xml:space="preserve">
-    <value>Việc phát triển và bảo trì Lenovo Legion Toolkit mất rất nhiều thời gian và công sức. Nếu bạn thích sử dụng phần mềm này, bạn có thể hỗ trợ tương lai của nó bằng cách tài trợ cho các tác giả đã biến nó thành hiện thực.
-
-Cảm ơn bạn đã ủng hộ!</value>
-  </data>
-  <data name="DonatePage_Sponsor" xml:space="preserve">
-    <value>Tài trợ</value>
-  </data>
-  <data name="DonatePage_Title" xml:space="preserve">
-    <value>Ủng hộ</value>
   </data>
   <data name="DpiScaleAutomationStepControl_Message" xml:space="preserve">
     <value>Thay đổi độ phóng to của màn hình gắn liền máy tính.</value>
@@ -1826,9 +1790,6 @@ Chọn Có để tắt và Không để bỏ qua.</value>
   </data>
   <data name="MainWindow_NavigationItem_Dashboard" xml:space="preserve">
     <value>Trang chủ</value>
-  </data>
-  <data name="MainWindow_NavigationItem_Donate" xml:space="preserve">
-    <value>Ủng hộ</value>
   </data>
   <data name="MainWindow_NavigationItem_Keyboard" xml:space="preserve">
     <value>Bàn phím</value>

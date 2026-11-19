@@ -121,7 +121,7 @@
     <value>Application Folders</value>
   </data>
   <data name="AboutPage_AppName" xml:space="preserve">
-    <value>Lenovo Legion Toolkit</value>
+    <value>Indra – Legion Toolkit Mod</value>
   </data>
   <data name="AboutPage_Build" xml:space="preserve">
     <value>Build</value>
@@ -149,10 +149,6 @@
   </data>
   <data name="AboutPage_Title" xml:space="preserve">
     <value>About</value>
-  </data>
-  <data name="AboutPage_TranslationCredit" xml:space="preserve">
-    <value>Translations provided by community.</value>
-    <comment>Please replace this text with something like "Translated into &lt;language&gt; by &lt;your name&gt;."</comment>
   </data>
   <data name="AboutPage_Version" xml:space="preserve">
     <value>Version</value>
@@ -335,7 +331,7 @@
     <value>Apply &amp; Close</value>
   </data>
   <data name="AppName" xml:space="preserve">
-    <value>Lenovo Legion Toolkit</value>
+    <value>Indra – Legion Toolkit Mod</value>
   </data>
   <data name="ArgumentWindow_Category_Debugging" xml:space="preserve">
     <value>Debugging</value>
@@ -428,7 +424,7 @@
     <value>Enable</value>
   </data>
   <data name="AutomationPage_ActionsEnable_Message" xml:space="preserve">
-    <value>Lenovo Legion Toolkit must be running for automatic actions to work.</value>
+    <value>Indra must be running for automatic actions to work.</value>
   </data>
   <data name="AutomationPage_Actions_Empty" xml:space="preserve">
     <value>No Actions defined. Click "Add new" to create new Action.</value>
@@ -796,7 +792,7 @@ This time might not be accurate, if laptop was charged when sleeping or off.</va
     <value>Close</value>
   </data>
   <data name="CloseAppAutomationStepControl_Message" xml:space="preserve">
-    <value>Close the Lenovo Legion Toolkit</value>
+    <value>Close Indra</value>
   </data>
   <data name="CloseAppAutomationStepControl_Title" xml:space="preserve">
     <value>Close App</value>
@@ -1042,38 +1038,6 @@ Switching modes may require restart.</value>
   <data name="Displays" xml:space="preserve">
     <value>Displays</value>
   </data>
-  <data name="DonatePage_Bartosz_Description" xml:space="preserve">
-    <value>Bartosz created Lenovo Legion Toolkit and authored the foundational architecture that powers every feature in the application today.</value>
-  </data>
-  <data name="DonatePage_Bartosz_Role" xml:space="preserve">
-    <value>Original Creator</value>
-  </data>
-  <data name="DonatePage_BottomMessage" xml:space="preserve">
-    <value>Even if you can't donate, simply using, sharing, and starring the project on GitHub goes a long way. Every bit of support is genuinely appreciated</value>
-  </data>
-  <data name="DonatePage_DrSkinner_Description" xml:space="preserve">
-    <value>Responsible for core feature development, quality assurance, UI/UX design, and overall project direction as the current project lead.</value>
-  </data>
-  <data name="DonatePage_DrSkinner_Role" xml:space="preserve">
-    <value>Core Developer &amp; Project Lead</value>
-  </data>
-  <data name="DonatePage_Kaguya_Description" xml:space="preserve">
-    <value>Specializes in hardware research and reverse engineering, with contributions spanning core feature development and low-level system integration.</value>
-  </data>
-  <data name="DonatePage_Kaguya_Role" xml:space="preserve">
-    <value>Core Developer &amp; Reverser</value>
-  </data>
-  <data name="DonatePage_Message" xml:space="preserve">
-    <value>Development and maintenance of Lenovo Legion Toolkit takes a lot of time and effort. If you enjoy using this software, you can support its future by sponsoring the authors who make it possible.
-
-Thank you for your support!</value>
-  </data>
-  <data name="DonatePage_Sponsor" xml:space="preserve">
-    <value>Sponsor</value>
-  </data>
-  <data name="DonatePage_Title" xml:space="preserve">
-    <value>Donate</value>
-  </data>
   <data name="DpiScaleAutomationStepControl_Message" xml:space="preserve">
     <value>Adjust display scaling for text, icons, and UI elements.</value>
   </data>
@@ -1150,7 +1114,7 @@ Thank you for your support!</value>
     <value>Uncheck refresh rates that you do not want to use when Fn+R shortcut is used.</value>
   </data>
   <data name="ExcludeRefreshRatesWindow_NoRefreshRatesFound_Message" xml:space="preserve">
-    <value>Make sure that laptop display is on. Lenovo Legion Toolkit can't load refresh rates for a display that is not on.</value>
+    <value>Make sure that laptop display is on. Indra can't load refresh rates for a display that is not on.</value>
   </data>
   <data name="ExcludeRefreshRatesWindow_NoRefreshRatesFound_Title" xml:space="preserve">
     <value>No Refresh Rates found</value>
@@ -1739,7 +1703,7 @@ Click Yes to disable and No to ignore.</value>
     <value>Macro</value>
   </data>
   <data name="MacroPage_Enable_Subtitle" xml:space="preserve">
-    <value>Lenovo Legion Toolkit must be running for macros to work.</value>
+    <value>Indra must be running for macros to work.</value>
   </data>
   <data name="MacroPage_Enable_Title" xml:space="preserve">
     <value>Enable</value>
@@ -1821,9 +1785,6 @@ Click Yes to disable and No to ignore.</value>
   </data>
   <data name="MainWindow_NavigationItem_Dashboard" xml:space="preserve">
     <value>Dashboard</value>
-  </data>
-  <data name="MainWindow_NavigationItem_Donate" xml:space="preserve">
-    <value>Donate</value>
   </data>
   <data name="MainWindow_NavigationItem_Keyboard" xml:space="preserve">
     <value>Keyboard</value>
@@ -2948,7 +2909,7 @@ Performance mode can also be changed with Fn+Q.</value>
     <value>Check this backup before restoring</value>
   </data>
   <data name="SettingsBackupWindow_Risk_Header" xml:space="preserve">
-    <value>This backup contains items that Lenovo Legion Toolkit will act on with administrator rights. Only continue if you created this backup yourself or fully trust its source.</value>
+    <value>This backup contains items that Indra will act on with administrator rights. Only continue if you created this backup yourself or fully trust its source.</value>
   </data>
   <data name="SettingsBackupWindow_Risk_Program" xml:space="preserve">
     <value>• Runs program: {0}</value>
@@ -3297,7 +3258,7 @@ If disabled, this app will handle Fn shortcuts.</value>
     <value>Autostart not enabled</value>
   </data>
   <data name="SettingsPage_Autorun_Unprotected_Message" xml:space="preserve">
-    <value>Autostart runs Lenovo Legion Toolkit with administrator rights, so it's only allowed when the app is installed in a folder that only administrators can change (such as Program Files). Install it with the installer to use autostart.</value>
+    <value>Autostart runs Indra with administrator rights, so it's only allowed when the app is installed in a folder that only administrators can change (such as Program Files). Install it with the installer to use autostart.</value>
   </data>
   <data name="SettingsPage_Select_BackgroundImage_AllFiles" xml:space="preserve">
     <value>All Files</value>
@@ -3393,7 +3354,7 @@ If disabled, this app will handle Fn shortcuts.</value>
     <value>Switch to Custom Mode with Fn+Q</value>
   </data>
   <data name="ShowAppAutomationStepControl_Message" xml:space="preserve">
-    <value>Show the Lenovo Legion Toolkit</value>
+    <value>Show Indra</value>
   </data>
   <data name="ShowAppAutomationStepControl_Title" xml:space="preserve">
     <value>Show App</value>
@@ -3736,7 +3697,7 @@ Logging will be enabled automatically, if you choose to continue.</value>
     <value>Machine Type</value>
   </data>
   <data name="UnsupportedWindow_Message" xml:space="preserve">
-    <value>Lenovo Legion Toolkit has not been tested with your device.</value>
+    <value>Indra has not been tested with your device.</value>
   </data>
   <data name="UnsupportedWindow_Model" xml:space="preserve">
     <value>Model</value>
@@ -6347,5 +6308,26 @@ When the game ends, LLT puts the apps&apos; priority and the services back. It n
   </data>
   <data name="UpdateWindow_OpenReleasePage" xml:space="preserve">
     <value>Open release page</value>
+  </data>
+  <data name="AboutPage_DevelopedBy" xml:space="preserve">
+    <value>Developed and maintained by Nirmay Kadam</value>
+  </data>
+  <data name="AboutPage_Copyright" xml:space="preserve">
+    <value>© 2026 Nirmay Kadam</value>
+  </data>
+  <data name="AboutPage_OriginalProject" xml:space="preserve">
+    <value>Original project and licence</value>
+  </data>
+  <data name="AboutPage_OriginalNotice" xml:space="preserve">
+    <value>Based on Lenovo Legion Toolkit © 2026 Bartosz Cichecki, Kaguya, and Dr. Skinner.</value>
+  </data>
+  <data name="AboutPage_LicenceNotice" xml:space="preserve">
+    <value>This app is free software under the GNU General Public License v3.0 (GPL-3.0). It comes with no warranty; see the licence for details.</value>
+  </data>
+  <data name="AboutPage_ViewLicence" xml:space="preserve">
+    <value>View the licence</value>
+  </data>
+  <data name="AboutPage_OriginalProjectOnGitHub" xml:space="preserve">
+    <value>Original project on GitHub</value>
   </data>
 </root>

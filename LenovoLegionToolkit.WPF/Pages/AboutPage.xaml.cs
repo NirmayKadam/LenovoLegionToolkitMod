@@ -28,16 +28,8 @@ public partial class AboutPage
 
     private static string BuildText => Assembly.GetEntryAssembly()?.GetBuildDateTimeString() ?? string.Empty;
 
-    private static string CopyrightText
-    {
-        get
-        {
-            var location = Assembly.GetEntryAssembly()?.Location;
-            if (location is null)
-                return string.Empty;
-            return FileVersionInfo.GetVersionInfo(location).LegalCopyright ?? string.Empty;
-        }
-    }
+    /// <summary>The GPL-3.0 text the installer copies next to the app; read online when it isn't there (portable copies).</summary>
+    private static readonly Uri OnlineLicence = new("https://github.com/NirmayKadam/LenovoLegionToolkitMod/blob/main/LICENSE");
 
     public AboutPage()
     {
@@ -45,9 +37,25 @@ public partial class AboutPage
 
         _version.Text += $" {VersionText}";
         _build.Text += $" {BuildText}";
-        _copyright.Text = CopyrightText;
+        _latestReleaseLink.Tag = UpdateChecker.LatestReleasePage.AbsoluteUri;
+    }
 
-        _translationCredit.Visibility = Resource.Culture.Equals(new CultureInfo("en")) ? Visibility.Collapsed : Visibility.Visible;
+    private void ViewLicence_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var licence = Path.Combine(Folders.Program, "LICENSE");
+            if (File.Exists(licence))
+                Process.Start("notepad.exe", $"\"{licence}\"");
+            else
+                Process.Start("explorer.exe", OnlineLicence.AbsoluteUri);
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Failed to open the licence.", ex);
+        }
+
+        e.Handled = true;
     }
 
     private void OpenApplicationDataFolder_Click(object sender, RoutedEventArgs e)
