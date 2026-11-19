@@ -204,6 +204,10 @@
                         Margin="0"
                         Style="{DynamicResource TextBlockStyle}"
                         Text="-" />
+                    <TextBlock
+                        x:Name="_gpuLimit"
+                        Style="{DynamicResource TextBlockStyle}"
+                        Text="-" />
                 </StackPanel>
 
                 <Rectangle

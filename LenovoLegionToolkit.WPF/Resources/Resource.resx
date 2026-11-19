@@ -6330,4 +6330,61 @@ When the game ends, LLT puts the apps&apos; priority and the services back. It n
   <data name="AboutPage_OriginalProjectOnGitHub" xml:space="preserve">
     <value>Original project on GitHub</value>
   </data>
+  <data name="AfterburnerProfileAutomationStepControl_Title" xml:space="preserve">
+    <value>MSI Afterburner profile</value>
+  </data>
+  <data name="AfterburnerProfileAutomationStepControl_Message" xml:space="preserve">
+    <value>Switch MSI Afterburner to one of its five profiles. Only the genuine, MSI-signed program is started.</value>
+  </data>
+  <data name="AfterburnerProfileAutomationStepControl_Profile" xml:space="preserve">
+    <value>Profile {0}</value>
+  </data>
+  <data name="Help_Step_AfterburnerProfileAutomationStep_What" xml:space="preserve">
+    <value>Starts MSI Afterburner with one of its profiles (1 to 5), like pressing that profile&apos;s button. Before every start, LLT checks that the program is MSIAfterburner.exe and validly signed by Micro-Star; anything else isn&apos;t started.</value>
+  </data>
+  <data name="Help_Step_AfterburnerProfileAutomationStep_When" xml:space="preserve">
+    <value>Use it in power-mode automations to switch your GPU curve with the power mode. The profile is applied at once, also while a game runs.</value>
+  </data>
+  <data name="GameProfiles_PowerMode_Title" xml:space="preserve">
+    <value>Power mode while the game runs</value>
+  </data>
+  <data name="GameProfiles_PowerMode_Message" xml:space="preserve">
+    <value>Switched as the game starts, so automations for that mode (like an Afterburner profile) run while it loads. Put back when it ends, unless you changed it meanwhile.</value>
+  </data>
+  <data name="GameProfiles_PowerMode_DontChange" xml:space="preserve">
+    <value>Don&apos;t change</value>
+  </data>
+  <data name="Help_GameProfiles_PowerMode_What" xml:space="preserve">
+    <value>Switches the laptop to this power mode when the game starts, as Fn+Q would, and back to the earlier mode when it ends.</value>
+  </data>
+  <data name="Help_GameProfiles_PowerMode_When" xml:space="preserve">
+    <value>Pick the mode you play in, so its automations (for example an MSI Afterburner profile) run while the game loads instead of when you press Fn+Q mid-game. A mode you choose during the game is kept when it ends. High-power modes on battery follow your battery setting.</value>
+  </data>
+  <data name="SettingsPage_DetailedLog_Title" xml:space="preserve">
+    <value>Detailed log</value>
+  </data>
+  <data name="SettingsPage_DetailedLog_Message" xml:space="preserve">
+    <value>Records what LLT does, so a problem (like a game crash after a power mode change) can be traced. Stays on this PC.</value>
+  </data>
+  <data name="SettingsPage_DetailedLog_OpenFolder" xml:space="preserve">
+    <value>Open log folder</value>
+  </data>
+  <data name="Help_Settings_DetailedLog_What" xml:space="preserve">
+    <value>Writes a detailed log of what LLT does to the log folder on this PC. Nothing is sent anywhere. Log files over 50 MB in total are removed, oldest first, when LLT starts.</value>
+  </data>
+  <data name="Help_Settings_DetailedLog_When" xml:space="preserve">
+    <value>Turn it on while you chase a problem, then off again. Logs can contain program names, Wi-Fi network names and file paths, so read them before sharing.</value>
+  </data>
+  <data name="SafetyReport_GpuDriverErrors" xml:space="preserve">
+    <value>GPU driver errors (last 24 hours)</value>
+  </data>
+  <data name="SafetyReport_GpuDriverErrors_None" xml:space="preserve">
+    <value>None in Windows&apos; System log</value>
+  </data>
+  <data name="SafetyReport_GpuDriverErrors_Some" xml:space="preserve">
+    <value>{0} in Windows&apos; System log: {1}. An unstable GPU curve or overclock is the usual cause</value>
+  </data>
+  <data name="Osd_GPU_Limit" xml:space="preserve">
+    <value>Limit</value>
+  </data>
 </root>

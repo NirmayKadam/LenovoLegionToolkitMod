@@ -53,6 +53,7 @@ public partial class SettingsAppBehaviorControl
         _autorunComboBox.SetItems(Enum.GetValues<AutorunState>(), Autorun.State, t => t.GetDisplayName());
         _minimizeToTrayToggle.IsChecked = _settings.Store.MinimizeToTray;
         _helpTooltipsToggle.IsChecked = _settings.Store.ShowHelpTooltips;
+        _detailedLogToggle.IsChecked = Log.Instance.IsTraceEnabled;
         _gameSafeModeToggle.IsChecked = _settings.Store.GameSafeMode;
         UpdateGameSafeModeStatus();
         _helpTooltipDelayComboBox.SelectedIndex = _settings.Store.HelpTooltipDelayMs switch { <= 200 => 0, <= 600 => 1, _ => 2 };
@@ -183,6 +184,33 @@ public partial class SettingsAppBehaviorControl
             : monitor.ActiveServices.Count > 0
                 ? string.Format(Resource.SettingsPage_GameSafeMode_Active, string.Join(", ", monitor.ActiveServices))
                 : string.Format(Resource.SettingsPage_GameSafeMode_ActiveProfile, gameProfiles.ActiveGameName);
+    }
+
+    private void DetailedLogToggle_Click(object sender, RoutedEventArgs e)
+    {
+        if (_isRefreshing || !IsLoaded)
+            return;
+
+        _settings.Store.DetailedLog = _detailedLogToggle.IsChecked == true;
+        _settings.SynchronizeStore();
+
+        // Takes effect at once; the --trace start flag keeps it on for this run.
+        Log.Instance.IsTraceEnabled = _settings.Store.DetailedLog || AppFlags.Instance.IsTraceEnabled;
+        _detailedLogToggle.IsChecked = Log.Instance.IsTraceEnabled;
+    }
+
+    private void OpenLogFolderButton_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var folder = Path.GetDirectoryName(Log.Instance.LogPath);
+            if (folder is not null && Directory.Exists(folder))
+                Process.Start("explorer.exe", $"\"{folder}\"");
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Couldn't open the log folder.", ex);
+        }
     }
 
     private void HelpTooltipsToggle_Click(object sender, RoutedEventArgs e)

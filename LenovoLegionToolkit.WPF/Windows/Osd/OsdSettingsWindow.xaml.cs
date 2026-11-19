@@ -190,7 +190,7 @@ public partial class OsdSettingsWindow
                     OsdItem.GpuUtilization, OsdItem.GpuFrequency,
                     OsdItem.GpuTemperature,
                     OsdItem.GpuVramUtilization, OsdItem.GpuVramTemperature,
-                    OsdItem.GpuPower, OsdItem.GpuFan
+                    OsdItem.GpuPower, OsdItem.GpuFan, OsdItem.GpuLimit
                 ]
             },
             new OsdItemGroup { Header = Resource.Osd_Pch, Items =

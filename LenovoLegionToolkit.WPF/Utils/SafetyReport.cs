@@ -6,6 +6,7 @@ using LenovoLegionToolkit.Lib;
 using LenovoLegionToolkit.Lib.Controllers;
 using LenovoLegionToolkit.Lib.Extensions;
 using LenovoLegionToolkit.Lib.Settings;
+using LenovoLegionToolkit.Lib.Utils;
 using LenovoLegionToolkit.WPF.Resources;
 
 namespace LenovoLegionToolkit.WPF.Utils;
@@ -63,7 +64,11 @@ public sealed record SafetyInputs(
     PowerModeInfo? PowerMode,
     SettingsFilesInfo? SettingsFiles,
     BackgroundServicesInfo? BackgroundServices,
-    RunStepsInfo? RunSteps = null);
+    RunStepsInfo? RunSteps = null,
+    GpuDriverErrorsInfo? GpuDriverErrors = null);
+
+/// <summary>GPU driver errors in Windows' System log over the last day, newest first.</summary>
+public sealed record GpuDriverErrorsInfo(IReadOnlyList<GpuDriverError> Errors, DateTime NowUtc);
 
 /// <summary>Programs that automation Run steps start (as administrator) and that other programs could replace, or that have no folder.</summary>
 public sealed record RunStepsInfo(IReadOnlyList<string> AtRisk);
@@ -92,6 +97,7 @@ public static class SafetyReport
         rows.AddRange(FanCurveRows(inputs.FanCurves));
         rows.Add(GameProfileRow(inputs.GameProfile));
         rows.Add(BackgroundServicesRow(inputs.BackgroundServices));
+        rows.Add(GpuDriverErrorsRow(inputs.GpuDriverErrors));
 
         // ---- App security ----
         rows.Add(SettingsFolderRow(inputs.SettingsFolder));
@@ -404,6 +410,24 @@ public static class SafetyReport
             _ => Resource.SafetyReport_PawnIO_NotInstalled,
         };
         return new(section, Resource.SafetyReport_Sensors, string.Format(Resource.SafetyReport_Sensors_On, pawnIO));
+    }
+
+    private static SafetyRow GpuDriverErrorsRow(GpuDriverErrorsInfo? info)
+    {
+        const SafetySection section = SafetySection.InEffect;
+        if (info is null)
+            return new(section, Resource.SafetyReport_GpuDriverErrors, Resource.SafetyReport_Unknown);
+
+        if (info.Errors.Count == 0)
+            return new(section, Resource.SafetyReport_GpuDriverErrors, Resource.SafetyReport_GpuDriverErrors_None);
+
+        var listed = info.Errors.Take(5).Select(e =>
+        {
+            var when = e.TimeUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss");
+            return string.IsNullOrEmpty(e.Context) ? $"{when} ({e.Source} {e.EventId})" : $"{when} ({e.Source} {e.EventId}; {e.Context})";
+        });
+        return new(section, Resource.SafetyReport_GpuDriverErrors,
+            string.Format(Resource.SafetyReport_GpuDriverErrors_Some, info.Errors.Count, string.Join("; ", listed)), Attention: true);
     }
 
     private static SafetyRow RunStepsRow(RunStepsInfo? info)

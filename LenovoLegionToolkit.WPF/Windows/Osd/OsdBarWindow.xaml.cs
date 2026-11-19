@@ -42,6 +42,7 @@ public partial class OsdBarWindow : OsdWindowBase
             { OsdItem.GpuVramTemperature, _gpuVramTemperature },
             { OsdItem.GpuPower, _gpuPower },
             { OsdItem.GpuFan, _gpuFanSpeed },
+        { OsdItem.GpuLimit, _gpuLimit },
 
             // RAM
             { OsdItem.MemoryUtilization, _memUsage },
@@ -65,7 +66,7 @@ public partial class OsdBarWindow : OsdWindowBase
             { _cpuGroup, ([OsdItem.CpuFrequency, OsdItem.CpuPCoreFrequency, OsdItem.CpuECoreFrequency, OsdItem.CpuUtilization, OsdItem.CpuTemperature, OsdItem.CpuPower, OsdItem.CpuVoltage, OsdItem.CpuFan], _separatorCpu) },
 
             // GPU
-            { _gpuGroup, ([OsdItem.GpuFrequency, OsdItem.GpuUtilization, OsdItem.GpuTemperature, OsdItem.GpuVramUtilization, OsdItem.GpuVramTemperature, OsdItem.GpuPower, OsdItem.GpuFan], _separatorGpu) },
+            { _gpuGroup, ([OsdItem.GpuFrequency, OsdItem.GpuUtilization, OsdItem.GpuTemperature, OsdItem.GpuVramUtilization, OsdItem.GpuVramTemperature, OsdItem.GpuPower, OsdItem.GpuFan, OsdItem.GpuLimit], _separatorGpu) },
 
             // RAM
             { _memoryGroup, ([OsdItem.MemoryUtilization, OsdItem.MemoryTemperature], _separatorMemory) },
@@ -185,6 +186,7 @@ public partial class OsdBarWindow : OsdWindowBase
         UpdateTemperatureTextBlock(_gpuVramTemperature, data.GpuVramTemp, store.TempThresholdWarning, store.TempThresholdCritical);
         UpdateTextBlock(_gpuPower, data.GpuPower, $"{{0:F1}} {Resource.Watt}");
         UpdateTextBlock(_gpuFanSpeed, data.GpuFanSpeed);
+        _gpuLimit.Text = data.GpuLimit ?? "-";
 
         UpdateTextBlock(_memUsage, data.MemUsage, GetMemoryDisplayText(data), store.UsageThresholdWarning, store.UsageThresholdCritical);
         UpdateTemperatureTextBlock(_memTemperature, data.MemTemp, store.TempThresholdWarning, store.TempThresholdCritical);

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using LenovoLegionToolkit.Lib;
 using LenovoLegionToolkit.Lib.GameProfiles;
 using LenovoLegionToolkit.Lib.Settings;
 using Xunit;
@@ -54,6 +55,11 @@ public sealed class BackgroundServicesControllerTests : IDisposable
             Services[name] = Services[name] with { Running = true };
             return Task.FromResult(true);
         }
+
+        // Background services never change the power mode; a call here would be a bug.
+        public Task<PowerModeState?> GetPowerModeAsync() => throw new NotSupportedException("Background services don't read the power mode.");
+
+        public Task<bool> SetPowerModeAsync(PowerModeState mode) => throw new NotSupportedException("Background services don't change the power mode.");
 
         public IReadOnlyList<int> FindByName(string exeName) => throw new InvalidOperationException("Apps are not touched here.");
         public AppProcess? ReadApp(int processId) => throw new InvalidOperationException("Apps are not touched here.");

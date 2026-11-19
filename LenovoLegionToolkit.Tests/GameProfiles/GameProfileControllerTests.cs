@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using LenovoLegionToolkit.Lib;
 using LenovoLegionToolkit.Lib.GameProfiles;
 using LenovoLegionToolkit.Lib.Settings;
 using Xunit;
@@ -95,6 +96,23 @@ public sealed class GameProfileControllerTests : IDisposable
         {
             Calls.Add($"start {name}");
             Services[name] = Services[name] with { Running = true };
+            return Task.FromResult(true);
+        }
+
+        /// <summary>The laptop's power mode; null when it can't be read.</summary>
+        public PowerModeState? PowerMode { get; set; } = PowerModeState.Balance;
+
+        /// <summary>Power modes the laptop refuses (for example the high-power ones on battery).</summary>
+        public HashSet<PowerModeState> RefusedModes { get; } = [];
+
+        public Task<PowerModeState?> GetPowerModeAsync() => Task.FromResult(PowerMode);
+
+        public Task<bool> SetPowerModeAsync(PowerModeState mode)
+        {
+            Calls.Add($"power {mode}");
+            if (RefusedModes.Contains(mode))
+                return Task.FromResult(false);
+            PowerMode = mode;
             return Task.FromResult(true);
         }
     }
@@ -669,5 +687,134 @@ public sealed class GameProfileControllerTests : IDisposable
 
         Assert.Contains("start InventorySvc", system.Calls);
         Assert.Null(controller.ActiveGameName);
+    }
+
+    // ---- Power mode while the game runs ----
+
+    [Fact]
+    public async Task ThePowerMode_IsSetFirst_AndPutBackWhenTheGameEnds()
+    {
+        var system = new ScriptedSystem();
+        system.AddService("InventorySvc");
+        var (controller, session, reports) = Create(system, Profile(p =>
+        {
+            p.PowerMode = PowerModeState.Performance;
+            p.PauseServices = ["InventorySvc"];
+        }));
+
+        await controller.ProcessStartedAsync("game", GamePid);
+
+        Assert.Equal(["power Performance", "stop InventorySvc"], system.Calls);
+        Assert.Equal(PowerModeState.Balance, session.Store.PowerModeBefore);
+        Assert.Equal(PowerModeState.Performance, session.Store.PowerModeSet);
+
+        system.Calls.Clear();
+        await controller.ProcessStoppedAsync("game", GamePid);
+
+        Assert.Equal(["start InventorySvc", "power Balance"], system.Calls);
+        Assert.Equal(PowerModeState.Balance, system.PowerMode);
+        Assert.Null(new GameProfileSessionSettings(_dir).Store.PowerModeSet);
+        Assert.Empty(reports);
+    }
+
+    [Fact]
+    public async Task AModeChosenDuringTheGame_IsKept()
+    {
+        var system = new ScriptedSystem();
+        var (controller, _, _) = Create(system, Profile(p => p.PowerMode = PowerModeState.Performance));
+        await controller.ProcessStartedAsync("game", GamePid);
+
+        system.PowerMode = PowerModeState.Quiet;   // Fn+Q during the game
+        system.Calls.Clear();
+        await controller.ProcessStoppedAsync("game", GamePid);
+
+        Assert.Empty(system.Calls);
+        Assert.Equal(PowerModeState.Quiet, system.PowerMode);
+    }
+
+    [Fact]
+    public async Task DontChange_LeavesThePowerModeAlone()
+    {
+        var system = new ScriptedSystem();
+        var (controller, session, _) = Create(system, Profile());
+
+        await controller.ProcessStartedAsync("game", GamePid);
+        await controller.ProcessStoppedAsync("game", GamePid);
+
+        Assert.DoesNotContain(system.Calls, c => c.StartsWith("power"));
+        Assert.Null(session.Store.PowerModeBefore);
+    }
+
+    [Fact]
+    public async Task AlreadyInTheGamesMode_NothingIsChangedOrPutBack()
+    {
+        var system = new ScriptedSystem { PowerMode = PowerModeState.Performance };
+        var (controller, session, _) = Create(system, Profile(p => p.PowerMode = PowerModeState.Performance));
+
+        await controller.ProcessStartedAsync("game", GamePid);
+        Assert.Null(session.Store.PowerModeSet);
+        await controller.ProcessStoppedAsync("game", GamePid);
+
+        Assert.DoesNotContain(system.Calls, c => c.StartsWith("power"));
+    }
+
+    [Fact]
+    public async Task AModeThatCantBeRead_IsNotChanged_BecauseItCouldntBePutBack()
+    {
+        var system = new ScriptedSystem { PowerMode = null };
+        var (controller, _, _) = Create(system, Profile(p => p.PowerMode = PowerModeState.Performance));
+        var events = new List<GameProfileReport>();
+        controller.Reported += (_, r) => events.Add(r);
+
+        await controller.ProcessStartedAsync("game", GamePid);
+
+        Assert.DoesNotContain(system.Calls, c => c.StartsWith("power"));
+        Assert.Equal(1, events.Single().Problems);
+    }
+
+    [Fact]
+    public async Task AModeTheLaptopRefuses_IsReported_AndNothingIsPutBack()
+    {
+        var system = new ScriptedSystem();
+        system.RefusedModes.Add(PowerModeState.Performance);   // for example on battery
+        var (controller, session, _) = Create(system, Profile(p => p.PowerMode = PowerModeState.Performance));
+        var events = new List<GameProfileReport>();
+        controller.Reported += (_, r) => events.Add(r);
+
+        await controller.ProcessStartedAsync("game", GamePid);
+        Assert.Equal(1, events.Single().Problems);
+        Assert.Null(session.Store.PowerModeSet);
+
+        system.Calls.Clear();
+        await controller.ProcessStoppedAsync("game", GamePid);
+        Assert.Empty(system.Calls);
+    }
+
+    [Fact]
+    public async Task AfterLltWasEndedMidGame_TheNextStartPutsThePowerModeBack()
+    {
+        var system = new ScriptedSystem();
+        var (first, _, _) = Create(system, Profile(p => p.PowerMode = PowerModeState.Performance));
+        await first.ProcessStartedAsync("game", GamePid);   // then LLT is ended mid-game
+
+        var (next, session, _) = Create(system, Profile(p => p.PowerMode = PowerModeState.Performance));
+        await next.RecoverAsync();
+
+        Assert.Equal(PowerModeState.Balance, system.PowerMode);
+        Assert.Null(session.Store.ProfileId);
+    }
+
+    [Fact]
+    public async Task GameMode_SetsItsPowerModeToo()
+    {
+        var system = new ScriptedSystem();
+        var (controller, _) = CreateWithGameMode(system, m => m.PowerMode = PowerModeState.Performance, [Valorant]);
+        await controller.RefreshAsync();
+
+        await controller.ProcessStartedAsync(ValorantAsReported, GamePid);
+        Assert.Equal(PowerModeState.Performance, system.PowerMode);
+
+        await controller.ProcessStoppedAsync(ValorantAsReported, GamePid);
+        Assert.Equal(PowerModeState.Balance, system.PowerMode);
     }
 }

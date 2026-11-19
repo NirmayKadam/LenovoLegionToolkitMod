@@ -6,6 +6,7 @@ using System.ServiceProcess;
 using System.Threading;
 using System.Threading.Tasks;
 using LenovoLegionToolkit.Lib.Extensions;
+using LenovoLegionToolkit.Lib.Features;
 using LenovoLegionToolkit.Lib.Utils;
 using Windows.Win32;
 using Windows.Win32.Foundation;
@@ -169,6 +170,39 @@ internal sealed class WindowsGameProfileSystem : IGameProfileSystem
             return false;
         }
     });
+
+    public async Task<PowerModeState?> GetPowerModeAsync()
+    {
+        try
+        {
+            var feature = IoCContainer.Resolve<PowerModeFeature>();
+            if (!await feature.IsSupportedAsync().ConfigureAwait(false))
+                return null;
+
+            return await feature.GetStateAsync().ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Couldn't read the power mode.", ex);
+            return null;
+        }
+    }
+
+    public async Task<bool> SetPowerModeAsync(PowerModeState mode)
+    {
+        try
+        {
+            // The same path as the dashboard and Fn+Q: the laptop's own modes only, and not the high-power ones on
+            // battery unless the user allowed that.
+            await IoCContainer.Resolve<PowerModeFeature>().SetStateAsync(mode).ConfigureAwait(false);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Couldn't switch the power mode to {mode}.", ex);
+            return false;
+        }
+    }
 
     private static unsafe ThrottleState? ReadThrottle(int processId)
     {

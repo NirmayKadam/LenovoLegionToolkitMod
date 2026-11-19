@@ -68,6 +68,7 @@ public static class AutomationRules
         typeof(SpectrumKeyboardBacklightProfileAutomationStep),
         typeof(GodModePresetAutomationStep),
         typeof(CycleGodModePresetAutomationStep),
+        typeof(AfterburnerProfileAutomationStep),
     ];
 
     public static IReadOnlyList<StepIssue> Check(IAutomationPipelineTrigger? trigger, IReadOnlyList<StepInfo> steps, Func<Type, bool>? isSupported = null)

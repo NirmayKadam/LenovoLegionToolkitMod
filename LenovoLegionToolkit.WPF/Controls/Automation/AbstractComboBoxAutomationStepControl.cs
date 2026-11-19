@@ -22,6 +22,9 @@ public abstract class AbstractComboBoxAutomationStepCardControl<T>(IAutomationSt
 
     private T _state;
 
+    /// <summary>The value chosen in the combo box, for steps that need more than the value to be recreated.</summary>
+    protected T SelectedState => _state;
+
     protected override UIElement GetCustomControl()
     {
         _comboBox.SelectionChanged += ComboBox_SelectionChanged;

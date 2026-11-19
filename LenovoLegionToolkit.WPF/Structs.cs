@@ -245,6 +245,9 @@ public readonly struct SensorSnapshot
     public double GpuVramTemp { get; init; }
     public double GpuPower { get; init; }
     public int GpuFanSpeed { get; init; }
+
+    /// <summary>Why the GPU isn't running faster (NVIDIA's own reason); null when not read or unreadable.</summary>
+    public string? GpuLimit { get; init; }
     public double MemUsage { get; init; }
     public double MemUsed { get; init; }
     public double MemTotal { get; init; }

@@ -111,11 +111,23 @@ public static class SafetyReportCollector
         Read("automation Run steps", () => new RunStepsInfo(
             [.. IoCContainer.Resolve<AutomationSettings>().Store.Pipelines
                 .SelectMany(p => p.Steps)
-                .OfType<RunAutomationStep>()
-                .Where(s => RunTargetCheck.Check(s.ScriptPath).Problem is RunTargetProblem.Replaceable or RunTargetProblem.BareName)
-                .Select(s => s.ScriptPath!.Trim())
-                .Distinct(StringComparer.OrdinalIgnoreCase)])));
+                .Select(ProgramStartedAsAdministrator)
+                .Where(path => path is not null && RunTargetCheck.Check(path).Problem is RunTargetProblem.Replaceable or RunTargetProblem.BareName)
+                .Select(path => path!.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)])),
+
+        Read("GPU driver errors", () => new GpuDriverErrorsInfo(
+            IoCContainer.Resolve<GpuDriverErrorMonitor>().ReadSince(DateTime.UtcNow - TimeSpan.FromDays(1)) ?? throw new InvalidOperationException("The System log couldn't be read."),
+            DateTime.UtcNow)));
     }
+
+    /// <summary>The program an automation step starts (as administrator, like LLT), if it starts one.</summary>
+    private static string? ProgramStartedAsAdministrator(IAutomationStep step) => step switch
+    {
+        RunAutomationStep run => run.ScriptPath,
+        AfterburnerProfileAutomationStep afterburner => afterburner.EffectivePath,
+        _ => null
+    };
 
     /// <summary>
     /// The current power mode: one read-only query of the Lenovo WMI interface, the same one the dashboard makes

@@ -192,6 +192,24 @@ internal static class NVAPI
         }
     }
 
+    /// <summary>Why the GPU isn't running faster now; null when it can't be read (for example while it sleeps).</summary>
+    public static PerformanceDecreaseReason? GetPerformanceDecreaseReason(PhysicalGPU gpu)
+    {
+        try
+        {
+            return GPUApi.GetPerformanceDecreaseInfo(gpu.Handle);
+        }
+        catch (NVIDIAApiException ex) when (ex.Status == Status.PortIdNotFound || ex.Status == Status.GpuNotPowered)
+        {
+            return null;
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Failed to get the GPU's performance decrease reason.", ex);
+            return null;
+        }
+    }
+
     public static PerformanceStateId? GetCurrentPerformanceState(PhysicalGPU gpu)
     {
         try

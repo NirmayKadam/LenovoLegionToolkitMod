@@ -69,6 +69,9 @@ public class ApplicationSettings : AbstractSettings<ApplicationSettingsStore>
 
         /// <summary>The first-run tour has been shown (false for new installs and for settings from before it existed).</summary>
         public bool TourShown { get; set; }
+
+        /// <summary>Writes a detailed log of what LLT does (in the local log folder only). Off unless turned on.</summary>
+        public bool DetailedLog { get; set; }
     }
     public class GameDetectionSettings
     {

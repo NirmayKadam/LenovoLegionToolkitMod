@@ -14567,5 +14567,176 @@ namespace LenovoLegionToolkit.WPF.Resources {
                 return ResourceManager.GetString("AboutPage_OriginalProjectOnGitHub", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MSI Afterburner profile.
+        /// </summary>
+        public static string AfterburnerProfileAutomationStepControl_Title {
+            get {
+                return ResourceManager.GetString("AfterburnerProfileAutomationStepControl_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Switch MSI Afterburner to one of its five profiles. Only the genuine, MSI-signed program is started..
+        /// </summary>
+        public static string AfterburnerProfileAutomationStepControl_Message {
+            get {
+                return ResourceManager.GetString("AfterburnerProfileAutomationStepControl_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Profile {0}.
+        /// </summary>
+        public static string AfterburnerProfileAutomationStepControl_Profile {
+            get {
+                return ResourceManager.GetString("AfterburnerProfileAutomationStepControl_Profile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Starts MSI Afterburner with one of its profiles (1 to 5), like pressing that profile&apos;s button. Before every start, LLT checks that the program is MSIAfterburner.exe and validly signed by Micro-St[rest of string was truncated].
+        /// </summary>
+        public static string Help_Step_AfterburnerProfileAutomationStep_What {
+            get {
+                return ResourceManager.GetString("Help_Step_AfterburnerProfileAutomationStep_What", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use it in power-mode automations to switch your GPU curve with the power mode. The profile is applied at once, also while a game runs..
+        /// </summary>
+        public static string Help_Step_AfterburnerProfileAutomationStep_When {
+            get {
+                return ResourceManager.GetString("Help_Step_AfterburnerProfileAutomationStep_When", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Power mode while the game runs.
+        /// </summary>
+        public static string GameProfiles_PowerMode_Title {
+            get {
+                return ResourceManager.GetString("GameProfiles_PowerMode_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Switched as the game starts, so automations for that mode (like an Afterburner profile) run while it loads. Put back when it ends, unless you changed it meanwhile..
+        /// </summary>
+        public static string GameProfiles_PowerMode_Message {
+            get {
+                return ResourceManager.GetString("GameProfiles_PowerMode_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Don&apos;t change.
+        /// </summary>
+        public static string GameProfiles_PowerMode_DontChange {
+            get {
+                return ResourceManager.GetString("GameProfiles_PowerMode_DontChange", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Switches the laptop to this power mode when the game starts, as Fn+Q would, and back to the earlier mode when it ends..
+        /// </summary>
+        public static string Help_GameProfiles_PowerMode_What {
+            get {
+                return ResourceManager.GetString("Help_GameProfiles_PowerMode_What", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pick the mode you play in, so its automations (for example an MSI Afterburner profile) run while the game loads instead of when you press Fn+Q mid-game. A mode you choose during the game is kept when [rest of string was truncated].
+        /// </summary>
+        public static string Help_GameProfiles_PowerMode_When {
+            get {
+                return ResourceManager.GetString("Help_GameProfiles_PowerMode_When", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Detailed log.
+        /// </summary>
+        public static string SettingsPage_DetailedLog_Title {
+            get {
+                return ResourceManager.GetString("SettingsPage_DetailedLog_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Records what LLT does, so a problem (like a game crash after a power mode change) can be traced. Stays on this PC..
+        /// </summary>
+        public static string SettingsPage_DetailedLog_Message {
+            get {
+                return ResourceManager.GetString("SettingsPage_DetailedLog_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open log folder.
+        /// </summary>
+        public static string SettingsPage_DetailedLog_OpenFolder {
+            get {
+                return ResourceManager.GetString("SettingsPage_DetailedLog_OpenFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Writes a detailed log of what LLT does to the log folder on this PC. Nothing is sent anywhere. Log files over 50 MB in total are removed, oldest first, when LLT starts..
+        /// </summary>
+        public static string Help_Settings_DetailedLog_What {
+            get {
+                return ResourceManager.GetString("Help_Settings_DetailedLog_What", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Turn it on while you chase a problem, then off again. Logs can contain program names, Wi-Fi network names and file paths, so read them before sharing..
+        /// </summary>
+        public static string Help_Settings_DetailedLog_When {
+            get {
+                return ResourceManager.GetString("Help_Settings_DetailedLog_When", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to GPU driver errors (last 24 hours).
+        /// </summary>
+        public static string SafetyReport_GpuDriverErrors {
+            get {
+                return ResourceManager.GetString("SafetyReport_GpuDriverErrors", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to None in Windows&apos; System log.
+        /// </summary>
+        public static string SafetyReport_GpuDriverErrors_None {
+            get {
+                return ResourceManager.GetString("SafetyReport_GpuDriverErrors_None", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} in Windows&apos; System log: {1}. An unstable GPU curve or overclock is the usual cause.
+        /// </summary>
+        public static string SafetyReport_GpuDriverErrors_Some {
+            get {
+                return ResourceManager.GetString("SafetyReport_GpuDriverErrors_Some", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Limit.
+        /// </summary>
+        public static string Osd_GPU_Limit {
+            get {
+                return ResourceManager.GetString("Osd_GPU_Limit", resourceCulture);
+            }
+        }
     }
 }

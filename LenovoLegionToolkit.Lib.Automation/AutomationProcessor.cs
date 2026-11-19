@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using LenovoLegionToolkit.Lib.AutoListeners;
 using LenovoLegionToolkit.Lib.Automation.Pipeline;
 using LenovoLegionToolkit.Lib.Automation.Pipeline.Triggers;
+using LenovoLegionToolkit.Lib.Automation.Steps;
 using LenovoLegionToolkit.Lib.Automation.Utils;
 using LenovoLegionToolkit.Lib.Controllers.GodMode;
 using LenovoLegionToolkit.Lib.Listeners;
@@ -61,12 +62,44 @@ public class AutomationProcessor(
             godModeController.PresetChanged += GodModeController_PresetChanged;
             sessionLockUnlockListener.Changed += SessionLockUnlockListener_Changed;
 
+            ConvertAfterburnerRunSteps();
+
             _pipelines = [.. settings.Store.Pipelines];
 
             RaisePipelinesChanged();
 
             await UpdateListenersAsync().ConfigureAwait(false);
             await nativeWindowsMessageListener.EnsureInitializedAsync().ConfigureAwait(false);
+        }
+    }
+
+    /// <summary>
+    /// Once: Run steps that only switch an Afterburner profile become the Afterburner step, which starts only the
+    /// genuine program. The settings file is copied first; nothing is converted if the copy can't be made.
+    /// </summary>
+    private void ConvertAfterburnerRunSteps()
+    {
+        try
+        {
+            var candidates = settings.Store.Pipelines
+                .SelectMany(p => p.Steps)
+                .OfType<RunAutomationStep>()
+                .Count(run => AfterburnerStepMigration.TryGetProfile(run, out _));
+            if (candidates == 0)
+                return;
+
+            var backup = AfterburnerStepMigration.BackUpOnce(settings.FilePath);
+            var converted = AfterburnerStepMigration.Convert(settings.Store.Pipelines);
+            settings.SynchronizeStore();
+
+            Log.Instance.Trace($"Converted {converted} Afterburner Run steps. [backup={backup}]");
+            MessagingCenter.Publish(new NotificationMessage(NotificationType.AutomationNotification,
+                string.Format(Resources.Resource.AfterburnerStep_Converted, converted, AfterburnerStepMigration.BackupFileName)));
+        }
+        catch (Exception ex)
+        {
+            // Left as Run steps; they keep working as before.
+            Log.Instance.Trace($"Couldn't convert Afterburner Run steps.", ex);
         }
     }
 

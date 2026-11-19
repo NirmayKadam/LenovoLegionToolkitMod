@@ -103,6 +103,32 @@ Automations change the same settings as the rest of LLT, with the same limits. W
   - LLT warns when the program or its folder can be changed by programs that aren't elevated, when no folder is given, or when the program is missing. The warning appears on the step, under the automation and in the safety report.
   - The program still runs: you chose warn only.
   - **Limit:** only the program itself is checked, not a script named in its arguments (`cmd /c script.bat`).
+- **The MSI Afterburner profile step** only ever starts the genuine program.
+  - The file must be named `MSIAfterburner.exe` and validly signed by Micro-Star; otherwise it isn't started and a notification says why.
+  - The file is locked from the check until it has started.
+  - Run steps that only switched an Afterburner profile were converted to it once. The automations from before are kept in `automation_before_round14.json` in the settings folder.
+  - The profile is applied at once, also mid-game.
+
+## Power mode while a game runs
+
+A game profile, or Game mode, can switch the laptop to a power mode while its game runs.
+- **When the game starts:** the earlier mode is written to the session note first, then the new mode is set the same way Fn+Q sets it. High-power modes on battery follow your battery setting.
+- **When the game ends:** the earlier mode comes back only if the laptop is still in the mode LLT set. A mode you chose during the game is kept.
+- **If LLT was ended mid-game:** the next start does the same.
+
+## GPU driver errors
+
+While LLT runs, it watches Windows' System log, read only, for NVIDIA driver errors and display driver resets.
+- Each error brings a notification with what had just happened: a power mode change, an Afterburner profile LLT applied, the game running.
+- The safety report lists the last 24 hours of these errors from the same log.
+- LLT changes nothing because of them.
+
+## Detailed log
+
+Settings → App behaviour → **Detailed log** is off unless you turn it on.
+- It writes to the log folder on this PC only.
+- Older log files beyond 50 MB in total are removed when LLT starts.
+- Logs can contain program names, Wi-Fi network names and file paths, so read them before sharing.
 
 ## If a GPU overclock makes the laptop unstable
 

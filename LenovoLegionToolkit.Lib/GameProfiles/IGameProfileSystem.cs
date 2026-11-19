@@ -54,4 +54,10 @@ internal interface IGameProfileSystem
 
     /// <summary>Starts a service and waits up to <paramref name="timeout"/>. True when it runs.</summary>
     Task<bool> StartServiceAsync(string name, TimeSpan timeout);
+
+    /// <summary>The laptop's power mode, or null when it can't be read or the laptop has no power modes.</summary>
+    Task<PowerModeState?> GetPowerModeAsync();
+
+    /// <summary>Switches the laptop's power mode (as Fn+Q would). False when the laptop doesn't offer that mode or it failed.</summary>
+    Task<bool> SetPowerModeAsync(PowerModeState mode);
 }

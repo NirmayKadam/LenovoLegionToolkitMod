@@ -405,6 +405,22 @@
                             Style="{DynamicResource SensorValueStyle}"
                             Text="-" />
                     </Grid>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock
+                            Grid.Column="0"
+                            Style="{DynamicResource SensorLabelStyle}"
+                            Text="{x:Static resources:Resource.Osd_GPU_Limit}" />
+                        <TextBlock
+                            x:Name="_gpuLimit"
+                            Grid.Column="1"
+                            Style="{DynamicResource SensorValueStyle}"
+                            Text="-" />
+                    </Grid>
                 </StackPanel>
 
                 <Separator Margin="0,8" Background="#3A3A3A" />

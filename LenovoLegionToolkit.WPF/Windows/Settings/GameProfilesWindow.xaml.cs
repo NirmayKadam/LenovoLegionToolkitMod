@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using LenovoLegionToolkit.Lib;
+using LenovoLegionToolkit.Lib.Extensions;
 using LenovoLegionToolkit.Lib.GameProfiles;
 using LenovoLegionToolkit.Lib.Settings;
 using LenovoLegionToolkit.Lib.Utils;
@@ -29,10 +30,17 @@ public partial class GameProfilesWindow
 
     private bool _showing;
 
+    /// <summary>One entry of the power-mode list: a mode, or null for "don't change".</summary>
+    private sealed record PowerModeChoice(PowerModeState? Mode, string Name);
+
     public GameProfilesWindow()
     {
         InitializeComponent();
-        Loaded += (_, _) => Refresh(null);
+        Loaded += async (_, _) =>
+        {
+            await LoadPowerModeChoicesAsync();
+            Refresh(null);
+        };
         _controller.Reported += Controller_Reported;
         Closed += (_, _) => _controller.Reported -= Controller_Reported;
     }
@@ -76,6 +84,8 @@ public partial class GameProfilesWindow
             _gamePathText.TextWrapping = profile.IsGameMode ? TextWrapping.Wrap : TextWrapping.NoWrap;
             _enabledToggle.IsChecked = profile.Enabled;
             _forceGameSafeToggle.IsChecked = profile.ForceGameSafe;
+            _powerModeComboBox.SelectedItem = _powerModeComboBox.Items.OfType<PowerModeChoice>().FirstOrDefault(c => c.Mode == profile.PowerMode)
+                                              ?? _powerModeComboBox.Items.OfType<PowerModeChoice>().FirstOrDefault();
 
             FillChips(_easeList, profile.EfficiencyApps, AppRules.IsProtectedName);
             FillChips(_closeList, profile.CloseApps, AppRules.IsProtectedName);
@@ -270,6 +280,33 @@ public partial class GameProfilesWindow
             return;
 
         profile.ForceGameSafe = _forceGameSafeToggle.IsChecked == true;
+        Save();
+    }
+
+    /// <summary>"Don't change" plus the modes this laptop offers. Only "Don't change" when the modes can't be read.</summary>
+    private async Task LoadPowerModeChoicesAsync()
+    {
+        var choices = new List<PowerModeChoice> { new(null, Resource.GameProfiles_PowerMode_DontChange) };
+        try
+        {
+            var feature = IoCContainer.Resolve<Lib.Features.PowerModeFeature>();
+            if (await feature.IsSupportedAsync())
+                choices.AddRange((await feature.GetAllStatesAsync()).Select(mode => new PowerModeChoice(mode, mode.GetDisplayName())));
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Couldn't read the power modes for game profiles.", ex);
+        }
+
+        _powerModeComboBox.ItemsSource = choices;
+    }
+
+    private void PowerModeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_showing || Selected is not { } profile || _powerModeComboBox.SelectedItem is not PowerModeChoice choice)
+            return;
+
+        profile.PowerMode = choice.Mode;
         Save();
     }
 

@@ -793,6 +793,10 @@ public abstract class OsdWindowBase : Window
             useDetailed ? null : SystemMemory.GetStatus(),
             _sensorsGroupControllers.ShowAverageCpuFrequency);
 
+        // Read only while shown, and like the other NVIDIA readings only with hardware sensors on and outside game-safe mode.
+        if (useDetailed && _activeItems.Contains(OsdItem.GpuLimit) && GpuLimitReading.Read() is { } limit)
+            snapshot = snapshot with { GpuLimit = GpuLimitReading.Label(limit) };
+
         await Dispatcher.BeginInvoke(() => UpdateSensorData(snapshot), DispatcherPriority.Normal);
     }
 

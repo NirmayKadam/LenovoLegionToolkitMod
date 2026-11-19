@@ -214,6 +214,11 @@ public partial class App
 
         var settings = IoCContainer.Resolve<ApplicationSettings>();
 
+        // Settings → App behaviour → Detailed log (the --trace flag also turns it on).
+        if (settings.Store.DetailedLog)
+            Log.Instance.IsTraceEnabled = true;
+        Log.Instance.RemoveOldLogs();
+
         Controls.Help.HelpPresenter.Configure(settings.Store.ShowHelpTooltips, settings.Store.HelpTooltipDelayMs);
 
         if (!settings.Store.EnableHardwareAcceleration)
@@ -474,6 +479,11 @@ public partial class App
         await SafeExecuteAsync<Lib.GameProfiles.GameProfileController>(c => c.EndSessionAsync().WaitAsync(TimeSpan.FromSeconds(30)));
         // Services kept stopped while LLT runs start again; if this takes too long, the next start sorts it out.
         await SafeExecuteAsync<Lib.GameProfiles.BackgroundServicesController>(c => c.RestoreAllAsync().WaitAsync(TimeSpan.FromSeconds(30)));
+        await SafeExecuteAsync<GpuDriverErrorMonitor>(c =>
+        {
+            c.Dispose();
+            return Task.CompletedTask;
+        });
         await SafeExecuteAsync<AIController>(c => c.StopAsync());
 
         await SafeExecuteAsync<RGBKeyboardBacklightController>(async c =>
@@ -1179,6 +1189,9 @@ public partial class App
 
         _ = Task.Run(controller.StartAsync);
         _ = Task.Run(backgroundServices.ApplyAsync);
+
+        // GPU driver errors are reported with what had just changed (power mode, Afterburner profile, game).
+        IoCContainer.Resolve<GpuDriverErrorMonitor>().Start();
     }
 
     private void HandleOsdCommand(ToggleState command, bool notify = false)

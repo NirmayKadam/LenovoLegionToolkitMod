@@ -741,4 +741,40 @@
   <data name="OsdItem_FrameTimeGraph" xml:space="preserve">
     <value>Frame-time graph</value>
   </data>
+  <data name="GpuDriverError_Notification" xml:space="preserve">
+    <value>GPU driver error at {0}.</value>
+  </data>
+  <data name="GpuDriverError_NotificationWithContext" xml:space="preserve">
+    <value>GPU driver error at {0}: {1}.</value>
+  </data>
+  <data name="GpuDriverError_AfterPowerMode" xml:space="preserve">
+    <value>{0} s after switching to {1}</value>
+  </data>
+  <data name="GpuDriverError_AfterAfterburner" xml:space="preserve">
+    <value>MSI Afterburner profile {0} applied {1} s before</value>
+  </data>
+  <data name="GpuDriverError_Game" xml:space="preserve">
+    <value>game: {0}</value>
+  </data>
+  <data name="OsdItem_GpuLimit" xml:space="preserve">
+    <value>GPU limit</value>
+  </data>
+  <data name="GpuLimit_None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="GpuLimit_Thermal" xml:space="preserve">
+    <value>Thermal</value>
+  </data>
+  <data name="GpuLimit_Power" xml:space="preserve">
+    <value>Power</value>
+  </data>
+  <data name="GpuLimit_Battery" xml:space="preserve">
+    <value>Battery</value>
+  </data>
+  <data name="GpuLimit_App" xml:space="preserve">
+    <value>App</value>
+  </data>
+  <data name="GpuLimit_Unknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
 </root>

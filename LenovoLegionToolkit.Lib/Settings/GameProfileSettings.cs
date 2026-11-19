@@ -66,6 +66,12 @@ public class GameProfile
 
     /// <summary>The user confirmed, once, what this profile does to other apps and services.</summary>
     public bool ChangesConfirmed { get; set; }
+
+    /// <summary>
+    /// The power mode while the game runs; null leaves it alone. Set when the game starts (while it loads), so
+    /// automations for that mode run then rather than mid-game, and put back when it ends.
+    /// </summary>
+    public PowerModeState? PowerMode { get; set; }
 }
 
 /// <summary>
@@ -90,6 +96,12 @@ public class GameProfileSessionSettings : AbstractSettings<GameProfileSessionSet
         public List<string> PausedServices { get; set; } = [];
 
         public List<EasedApp> EasedApps { get; set; } = [];
+
+        /// <summary>The power mode before the session changed it; written before the change.</summary>
+        public PowerModeState? PowerModeBefore { get; set; }
+
+        /// <summary>The power mode the session set. Put back only while the laptop is still in this mode.</summary>
+        public PowerModeState? PowerModeSet { get; set; }
     }
 }
 

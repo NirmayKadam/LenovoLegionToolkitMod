@@ -1877,5 +1877,113 @@ namespace LenovoLegionToolkit.Lib.Resources {
                 return ResourceManager.GetString("OsdItem_FrameTimeGraph", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to GPU driver error at {0}..
+        /// </summary>
+        public static string GpuDriverError_Notification {
+            get {
+                return ResourceManager.GetString("GpuDriverError_Notification", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to GPU driver error at {0}: {1}..
+        /// </summary>
+        public static string GpuDriverError_NotificationWithContext {
+            get {
+                return ResourceManager.GetString("GpuDriverError_NotificationWithContext", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} s after switching to {1}.
+        /// </summary>
+        public static string GpuDriverError_AfterPowerMode {
+            get {
+                return ResourceManager.GetString("GpuDriverError_AfterPowerMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MSI Afterburner profile {0} applied {1} s before.
+        /// </summary>
+        public static string GpuDriverError_AfterAfterburner {
+            get {
+                return ResourceManager.GetString("GpuDriverError_AfterAfterburner", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to game: {0}.
+        /// </summary>
+        public static string GpuDriverError_Game {
+            get {
+                return ResourceManager.GetString("GpuDriverError_Game", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to GPU limit.
+        /// </summary>
+        public static string OsdItem_GpuLimit {
+            get {
+                return ResourceManager.GetString("OsdItem_GpuLimit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to None.
+        /// </summary>
+        public static string GpuLimit_None {
+            get {
+                return ResourceManager.GetString("GpuLimit_None", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Thermal.
+        /// </summary>
+        public static string GpuLimit_Thermal {
+            get {
+                return ResourceManager.GetString("GpuLimit_Thermal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Power.
+        /// </summary>
+        public static string GpuLimit_Power {
+            get {
+                return ResourceManager.GetString("GpuLimit_Power", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Battery.
+        /// </summary>
+        public static string GpuLimit_Battery {
+            get {
+                return ResourceManager.GetString("GpuLimit_Battery", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to App.
+        /// </summary>
+        public static string GpuLimit_App {
+            get {
+                return ResourceManager.GetString("GpuLimit_App", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown.
+        /// </summary>
+        public static string GpuLimit_Unknown {
+            get {
+                return ResourceManager.GetString("GpuLimit_Unknown", resourceCulture);
+            }
+        }
     }
 }

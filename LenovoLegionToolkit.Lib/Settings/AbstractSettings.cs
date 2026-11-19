@@ -16,6 +16,9 @@ public abstract class AbstractSettings<T> where T : class, new()
 
     protected virtual T Default => new();
 
+    /// <summary>Where this settings file is stored.</summary>
+    public string FilePath => _settingsStorePath;
+
     public T Store
     {
         get => _store ??= LoadStore() ?? Default;

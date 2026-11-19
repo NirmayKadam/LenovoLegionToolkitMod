@@ -599,5 +599,68 @@ namespace LenovoLegionToolkit.Lib.Automation.Resources {
                 return ResourceManager.GetString("RunTarget_NotFound", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MSI Afterburner profile {0} wasn&apos;t applied: {1}.
+        /// </summary>
+        public static string AfterburnerStep_NotStarted {
+            get {
+                return ResourceManager.GetString("AfterburnerStep_NotStarted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Genuine MSI Afterburner, signed by Micro-Star..
+        /// </summary>
+        public static string AfterburnerStep_Genuine {
+            get {
+                return ResourceManager.GetString("AfterburnerStep_Genuine", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MSI Afterburner wasn&apos;t found..
+        /// </summary>
+        public static string AfterburnerStep_NotFound {
+            get {
+                return ResourceManager.GetString("AfterburnerStep_NotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The program isn&apos;t MSIAfterburner.exe..
+        /// </summary>
+        public static string AfterburnerStep_NotAfterburner {
+            get {
+                return ResourceManager.GetString("AfterburnerStep_NotAfterburner", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The program has no valid signature, so it may have been changed. It isn&apos;t started..
+        /// </summary>
+        public static string AfterburnerStep_NotSigned {
+            get {
+                return ResourceManager.GetString("AfterburnerStep_NotSigned", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The program isn&apos;t signed by Micro-Star, so it isn&apos;t started..
+        /// </summary>
+        public static string AfterburnerStep_WrongSigner {
+            get {
+                return ResourceManager.GetString("AfterburnerStep_WrongSigner", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} Run steps that switched MSI Afterburner profiles now use the MSI Afterburner profile step, which only starts the genuine program. Your automations from before are saved in {1}..
+        /// </summary>
+        public static string AfterburnerStep_Converted {
+            get {
+                return ResourceManager.GetString("AfterburnerStep_Converted", resourceCulture);
+            }
+        }
     }
 }

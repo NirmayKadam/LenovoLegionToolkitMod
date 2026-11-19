@@ -327,9 +327,16 @@ public class GameProfileController
             _session.Store.GameName = shownName;
             _session.Store.PausedServices = [];
             _session.Store.EasedApps = [];
+            _session.Store.PowerModeBefore = null;
+            _session.Store.PowerModeSet = null;
             _session.SynchronizeStore();
 
             var counts = new Counts();
+
+            // First, while the game is still loading: automations for the new mode (for example an Afterburner
+            // profile) then run now rather than mid-game.
+            await SetGamePowerModeAsync(profile, counts).ConfigureAwait(false);
+
             EaseApps(profile, counts);
             await CloseAppsAsync(profile, counts).ConfigureAwait(false);
             await PauseServicesAsync(profile, counts).ConfigureAwait(false);
@@ -348,6 +355,60 @@ public class GameProfileController
     private sealed class Counts
     {
         public int Eased, Closed, LeftOpen, Paused, Problems;
+    }
+
+    /// <summary>
+    /// Switches to the profile's power mode, noting the earlier one first. Nothing happens when the profile leaves
+    /// the mode alone or the laptop is already in it. When the current mode can't be read, it isn't changed either,
+    /// because it couldn't be put back.
+    /// </summary>
+    private async Task SetGamePowerModeAsync(GameProfile profile, Counts counts)
+    {
+        if (profile.PowerMode is not { } wanted)
+            return;
+
+        var before = await _system.GetPowerModeAsync().ConfigureAwait(false);
+        if (before is null)
+        {
+            counts.Problems++;
+            Log.Instance.Trace($"Power mode not changed for the game: the current mode couldn't be read.");
+            return;
+        }
+
+        if (before == wanted)
+            return;
+
+        _session.Store.PowerModeBefore = before;
+        _session.Store.PowerModeSet = wanted;
+        _session.SynchronizeStore();
+
+        if (await _system.SetPowerModeAsync(wanted).ConfigureAwait(false))
+            return;
+
+        counts.Problems++;
+        _session.Store.PowerModeBefore = null;
+        _session.Store.PowerModeSet = null;
+        _session.SynchronizeStore();
+    }
+
+    /// <summary>
+    /// Puts back the power mode from before the game, but only while the laptop is still in the mode the session set:
+    /// a mode chosen during the game (Fn+Q, an automation) is kept.
+    /// </summary>
+    private async Task RestorePowerModeAsync(Counts counts)
+    {
+        if (_session.Store.PowerModeSet is not { } set || _session.Store.PowerModeBefore is not { } before)
+            return;
+
+        var now = await _system.GetPowerModeAsync().ConfigureAwait(false);
+        if (now != set)
+        {
+            Log.Instance.Trace($"Power mode changed during the game ({set} -> {now?.ToString() ?? "unknown"}); left as it is.");
+            return;
+        }
+
+        if (!await _system.SetPowerModeAsync(before).ConfigureAwait(false))
+            counts.Problems++;
     }
 
     /// <summary>
@@ -601,12 +662,17 @@ public class GameProfileController
                 }
             }
 
+            // The power mode was the first thing set, so it's the last put back.
+            await RestorePowerModeAsync(counts).ConfigureAwait(false);
+
             SetForceGameSafe(false);
 
             _session.Store.ProfileId = null;
             _session.Store.GameName = null;
             _session.Store.PausedServices = [];
             _session.Store.EasedApps = [];
+            _session.Store.PowerModeBefore = null;
+            _session.Store.PowerModeSet = null;
             _session.SynchronizeStore();
 
             Log.Instance.Trace($"Game profile for {gameName} ended. [services={counts.Paused}, apps={counts.Eased}, problems={counts.Problems}]");

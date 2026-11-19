@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using LenovoLegionToolkit.Lib;
 using LenovoLegionToolkit.Lib.Controllers;
@@ -30,7 +30,8 @@ public class SafetyReportTests
         new PowerModeInfo(Supported: true, PowerModeState.Balance),
         new SettingsFilesInfo([new SettingsFile("settings.json", 2048, Now.AddDays(-3))], Now),
         new BackgroundServicesInfo(Enabled: false, StoppedByLlt: []),
-        new RunStepsInfo([]));
+        new RunStepsInfo([]),
+        new GpuDriverErrorsInfo([], Now));
 
     private static readonly DateTime Now = new(2026, 11, 18, 18, 0, 0, DateTimeKind.Utc);
 
@@ -268,5 +269,25 @@ public class SafetyReportTests
     {
         Assert.Equal(Resource.SafetyReport_RunSteps_None, Row(Calm(), Resource.SafetyReport_RunSteps).State);
         Assert.Equal(Resource.SafetyReport_Unknown, Row(Calm() with { RunSteps = null }, Resource.SafetyReport_RunSteps).State);
+    }
+
+    // ---- GPU driver errors ----
+
+    [Fact]
+    public void GpuDriverErrors_AreFlagged_WithWhatWasKnown()
+    {
+        var error = new LenovoLegionToolkit.Lib.Utils.GpuDriverError(Now.AddHours(-2), "nvlddmkm", 153, "2 s after switching to Performance");
+        var row = Row(Calm() with { GpuDriverErrors = new GpuDriverErrorsInfo([error], Now) }, Resource.SafetyReport_GpuDriverErrors);
+
+        Assert.True(row.Attention);
+        Assert.Contains("nvlddmkm 153", row.State);
+        Assert.Contains("2 s after switching to Performance", row.State);
+    }
+
+    [Fact]
+    public void GpuDriverErrors_NoneOrUnreadable()
+    {
+        Assert.Equal(Resource.SafetyReport_GpuDriverErrors_None, Row(Calm(), Resource.SafetyReport_GpuDriverErrors).State);
+        Assert.Equal(Resource.SafetyReport_Unknown, Row(Calm() with { GpuDriverErrors = null }, Resource.SafetyReport_GpuDriverErrors).State);
     }
 }

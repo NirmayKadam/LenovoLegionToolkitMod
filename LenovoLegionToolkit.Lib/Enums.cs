@@ -534,7 +534,9 @@ public enum NotificationType
     GameSafeModeOn,
     GameSafeModeOff,
     GameProfileOn,
-    GameProfileOff
+    GameProfileOff,
+    /// <summary>The GPU driver reported an error (Windows' System log); always shown.</summary>
+    GpuDriverError
 }
 
 public enum OneLevelWhiteKeyboardBacklightState
@@ -616,6 +618,8 @@ public enum OsdItem
     // === Game (added later; appended so saved item lists keep their meaning) ===
     [Display(ResourceType = typeof(Resource), Name = "OsdItem_FrameTimeGraph")]
     FrameTimeGraph,
+    [Display(ResourceType = typeof(Resource), Name = "OsdItem_GpuLimit")]
+    GpuLimit,
 }
 
 public enum OverDriveState

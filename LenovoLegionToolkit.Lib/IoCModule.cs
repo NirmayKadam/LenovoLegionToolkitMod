@@ -99,6 +99,7 @@ public class IoCModule : Module
         builder.Register<BackgroundServicesSettings>();
         builder.Register<BackgroundServicesSessionSettings>();
         builder.Register<GameProfiles.BackgroundServicesController>();
+        builder.Register<GpuDriverErrorMonitor>();
         builder.Register<RefreshRateFeature>();
         builder.Register<ResolutionFeature>();
         builder.Register<SpeakerFeature>();

@@ -99,6 +99,46 @@ public class Log
         }
     }
 
+    /// <summary>Detailed log files may take this much space in total; older ones beyond it are deleted.</summary>
+    internal const long MaxLogBytes = 50L * 1024 * 1024;
+
+    /// <summary>
+    /// Deletes the oldest detailed log files (their names sort by time) until the rest take at most
+    /// <paramref name="maxTotalBytes"/>. This run's own log is always kept. Error reports are kept separately.
+    /// </summary>
+    public void RemoveOldLogs(long maxTotalBytes = MaxLogBytes)
+    {
+        try
+        {
+            var logs = Directory.GetFiles(_folderPath, "log_*.txt")
+                .Where(f => !string.Equals(f, _logPath, StringComparison.OrdinalIgnoreCase))
+                .OrderByDescending(f => f, StringComparer.Ordinal)
+                .Select(f => new FileInfo(f))
+                .ToList();
+
+            var total = File.Exists(_logPath) ? new FileInfo(_logPath).Length : 0;
+            foreach (var log in logs)
+            {
+                total += log.Length;
+                if (total <= maxTotalBytes)
+                    continue;
+
+                try
+                {
+                    log.Delete();
+                }
+                catch (IOException)
+                {
+                    // In use by another copy of LLT; it goes next time.
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Trace($"Couldn't remove old log files.", ex);
+        }
+    }
+
     public void Trace(FormattableString message,
         Exception? ex = null,
         [CallerFilePath] string? file = null,

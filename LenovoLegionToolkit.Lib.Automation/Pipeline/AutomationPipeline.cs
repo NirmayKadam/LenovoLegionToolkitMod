@@ -184,12 +184,29 @@ public class AutomationPipeline
 
         foreach (var entry in expanded)
         {
-            if (entry.Step is not RunAutomationStep run)
-                continue;
-
-            var message = RunTargetCheck.Describe(RunTargetCheck.Check(run.ScriptPath));
-            if (message is not null)
-                yield return FormatIssue(entry, message);
+            switch (entry.Step)
+            {
+                case RunAutomationStep run:
+                {
+                    var message = RunTargetCheck.Describe(RunTargetCheck.Check(run.ScriptPath));
+                    if (message is not null)
+                        yield return FormatIssue(entry, message);
+                    break;
+                }
+                case AfterburnerProfileAutomationStep afterburner:
+                {
+                    // A program that isn't genuine is never started; a genuine one still warns when files can be
+                    // planted next to it.
+                    var path = afterburner.EffectivePath;
+                    var check = AfterburnerProgram.Check(path);
+                    var message = check == AfterburnerCheck.Genuine
+                        ? RunTargetCheck.Describe(RunTargetCheck.Check(path))
+                        : AfterburnerProfileAutomationStep.Describe(check);
+                    if (message is not null)
+                        yield return FormatIssue(entry, message);
+                    break;
+                }
+            }
         }
 
         if (Trigger is not null)

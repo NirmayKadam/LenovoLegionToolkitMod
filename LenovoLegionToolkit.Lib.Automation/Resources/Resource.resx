@@ -299,4 +299,25 @@
   <data name="RunTarget_NotFound" xml:space="preserve">
     <value>Program not found: {0}.</value>
   </data>
+  <data name="AfterburnerStep_NotStarted" xml:space="preserve">
+    <value>MSI Afterburner profile {0} wasn&apos;t applied: {1}</value>
+  </data>
+  <data name="AfterburnerStep_Genuine" xml:space="preserve">
+    <value>Genuine MSI Afterburner, signed by Micro-Star.</value>
+  </data>
+  <data name="AfterburnerStep_NotFound" xml:space="preserve">
+    <value>MSI Afterburner wasn&apos;t found.</value>
+  </data>
+  <data name="AfterburnerStep_NotAfterburner" xml:space="preserve">
+    <value>The program isn&apos;t MSIAfterburner.exe.</value>
+  </data>
+  <data name="AfterburnerStep_NotSigned" xml:space="preserve">
+    <value>The program has no valid signature, so it may have been changed. It isn&apos;t started.</value>
+  </data>
+  <data name="AfterburnerStep_WrongSigner" xml:space="preserve">
+    <value>The program isn&apos;t signed by Micro-Star, so it isn&apos;t started.</value>
+  </data>
+  <data name="AfterburnerStep_Converted" xml:space="preserve">
+    <value>{0} Run steps that switched MSI Afterburner profiles now use the MSI Afterburner profile step, which only starts the genuine program. Your automations from before are saved in {1}.</value>
+  </data>
 </root>

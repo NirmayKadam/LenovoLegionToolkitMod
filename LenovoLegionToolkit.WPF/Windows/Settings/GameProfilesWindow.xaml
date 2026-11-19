@@ -111,6 +111,21 @@
                                 Click="ForceGameSafeToggle_Click" />
                         </custom:CardControl>
 
+                        <custom:CardControl Margin="0,0,0,8" Icon="Gauge24">
+                            <custom:CardControl.Header>
+                                <controls:CardHeaderControl
+                                    Title="{x:Static resources:Resource.GameProfiles_PowerMode_Title}"
+                                    Subtitle="{x:Static resources:Resource.GameProfiles_PowerMode_Message}"
+                                    HelpKey="Help_GameProfiles_PowerMode" />
+                            </custom:CardControl.Header>
+                            <ComboBox
+                                x:Name="_powerModeComboBox"
+                                MinWidth="160"
+                                AutomationProperties.Name="{x:Static resources:Resource.GameProfiles_PowerMode_Title}"
+                                DisplayMemberPath="Name"
+                                SelectionChanged="PowerModeComboBox_SelectionChanged" />
+                        </custom:CardControl>
+
                         <custom:CardControl Margin="0,0,0,8" Icon="LeafOne24">
                             <custom:CardControl.Header>
                                 <controls:CardHeaderControl
