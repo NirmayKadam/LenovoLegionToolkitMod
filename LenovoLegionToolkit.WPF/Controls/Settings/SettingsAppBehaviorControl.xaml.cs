@@ -3,13 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using LenovoLegionToolkit.Lib;
-using LenovoLegionToolkit.Lib.AutoListeners;
-using LenovoLegionToolkit.Lib.Automation;
 using LenovoLegionToolkit.Lib.Controllers.Sensors;
 using LenovoLegionToolkit.Lib.Extensions;
 using LenovoLegionToolkit.Lib.Messaging;
@@ -36,7 +33,6 @@ public partial class SettingsAppBehaviorControl
     private readonly ApplicationSettings _settings = IoCContainer.Resolve<ApplicationSettings>();
     private readonly SunriseSunsetSettings _sunriseSunsetSettings = IoCContainer.Resolve<SunriseSunsetSettings>();
     private readonly DashboardSettings _dashboardSettings = IoCContainer.Resolve<DashboardSettings>();
-    private readonly AutomationProcessor _automationProcessor = IoCContainer.Resolve<AutomationProcessor>();
     private readonly OsdSettings _OsdSettings = IoCContainer.Resolve<OsdSettings>();
     private readonly SensorsControlSettings _sensorsControlSettings = IoCContainer.Resolve<SensorsControlSettings>();
     private readonly HardwareSensorSettings _hardwareSensorSettings = IoCContainer.Resolve<HardwareSensorSettings>();
@@ -59,8 +55,6 @@ public partial class SettingsAppBehaviorControl
         _sunLocationTextBox.Text = _sunriseSunsetSettings.Store is { Latitude: { } lat, Longitude: { } lon }
             ? string.Create(CultureInfo.InvariantCulture, $"{lat}, {lon}")
             : string.Empty;
-        _gameSafeModeToggle.IsChecked = _settings.Store.GameSafeMode;
-        UpdateGameSafeModeStatus();
         _helpTooltipDelayComboBox.SelectedIndex = _settings.Store.HelpTooltipDelayMs switch { <= 200 => 0, <= 600 => 1, _ => 2 };
         _minimizeOnCloseToggle.IsChecked = _settings.Store.MinimizeOnClose;
         _useNewSensorDashboardToggle.IsChecked = _settings.Store.UseNewSensorDashboard;
@@ -69,25 +63,6 @@ public partial class SettingsAppBehaviorControl
         _alwaysOnTopToggle.IsChecked = _settings.Store.AlwaysOnTop;
         _compactModeToggle.IsChecked = _settings.Store.CompactMode;
         _enableLoggingToggle.IsChecked = _settings.Store.EnableLogging;
-
-        var useGpu = _settings.Store.GameDetection.UseDiscreteGPU;
-        var useStore = _settings.Store.GameDetection.UseGameConfigStore;
-        var useGameMode = _settings.Store.GameDetection.UseEffectiveGameMode;
-
-        var targetTag = (useGpu, useStore, useGameMode) switch
-        {
-            (true, true, true) => "Auto",
-            (true, false, false) => "Gpu",
-            (false, true, false) => "Store",
-            (false, false, true) => "GameMode",
-            (false, false, false) => "Manual",
-            _ => "Auto"
-        };
-
-        _detectionModeComboBox.SelectedItem = _detectionModeComboBox.Items
-            .OfType<ComboBoxItem>()
-            .FirstOrDefault(item => (string?)item.Tag == targetTag)
-            ?? _detectionModeComboBox.Items[0];
 
         _osdToggle.IsChecked = _OsdSettings.Store.ShowOsd;
 
@@ -148,27 +123,6 @@ public partial class SettingsAppBehaviorControl
         }
     }
 
-    private async void GameSafeModeToggle_Click(object sender, RoutedEventArgs e)
-    {
-        if (_isRefreshing || !IsLoaded)
-            return;
-
-        _settings.Store.GameSafeMode = _gameSafeModeToggle.IsChecked == true;
-        _settings.SynchronizeStore();
-        await IoCContainer.Resolve<GameSafeMode>().RefreshAsync();
-        UpdateGameSafeModeStatus();
-    }
-
-    private void GameProfilesButton_Click(object sender, RoutedEventArgs e)
-    {
-        var window = new LenovoLegionToolkit.WPF.Windows.Settings.GameProfilesWindow { Owner = Window.GetWindow(this) };
-        window.ShowDialog();
-        UpdateGameSafeModeStatus();
-    }
-
-    private void BackgroundServicesCard_Click(object sender, RoutedEventArgs e) =>
-        new BackgroundServicesWindow { Owner = Window.GetWindow(this) }.ShowDialog();
-
     private void SafetyReportCard_Click(object sender, RoutedEventArgs e) =>
         new SafetyReportWindow { Owner = Window.GetWindow(this) }.ShowDialog();
 
@@ -176,19 +130,6 @@ public partial class SettingsAppBehaviorControl
     {
         if (Window.GetWindow(this) is { } owner)
             TourWindow.Open(owner);
-    }
-
-    /// <summary>Shows whether game-safe mode is on right now, and which anti-cheat triggered it.</summary>
-    private void UpdateGameSafeModeStatus()
-    {
-        var gameSafeMode = IoCContainer.Resolve<GameSafeMode>();
-        var monitor = IoCContainer.Resolve<AntiCheatMonitor>();
-        var gameProfiles = IoCContainer.Resolve<Lib.GameProfiles.GameProfileController>();
-        _gameSafeModeCardHeader.Success = !gameSafeMode.IsActive
-            ? string.Empty
-            : monitor.ActiveServices.Count > 0
-                ? string.Format(Resource.SettingsPage_GameSafeMode_Active, string.Join(", ", monitor.ActiveServices))
-                : string.Format(Resource.SettingsPage_GameSafeMode_ActiveProfile, gameProfiles.ActiveGameName);
     }
 
     /// <summary>Empty clears the location (back to the lookup by IP address); anything else must be a valid "latitude, longitude".</summary>
@@ -509,57 +450,6 @@ public partial class SettingsAppBehaviorControl
             return;
 
         var window = new EditSensorGroupWindow { Owner = Window.GetWindow(this) };
-        window.ShowDialog();
-    }
-
-    private void DetectionModeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (_isRefreshing || !IsLoaded)
-            return;
-
-        if (_detectionModeComboBox.SelectedItem is not ComboBoxItem item || item.Tag is not string tag)
-            return;
-
-        var (useGpu, useStore, useGameMode) = tag switch
-        {
-            "Auto" => (true, true, true),
-            "Gpu" => (true, false, false),
-            "Store" => (false, true, false),
-            "GameMode" => (false, false, true),
-            "Manual" => (false, false, false),
-            _ => (true, true, true)
-        };
-
-        _settings.Store.GameDetection.UseDiscreteGPU = useGpu;
-        _settings.Store.GameDetection.UseGameConfigStore = useStore;
-        _settings.Store.GameDetection.UseEffectiveGameMode = useGameMode;
-        _settings.SynchronizeStore();
-
-        Log.Instance.Trace($"Game detection mode changed to '{tag}'. [useGpu={useGpu}, useStore={useStore}, useGameMode={useGameMode}]");
-
-        Task.Run(async () =>
-        {
-            try
-            {
-                var gameAutoListener = IoCContainer.Resolve<GameAutoListener>();
-                if (gameAutoListener.AreGamesRunning())
-                {
-                    gameAutoListener.PreserveStateOnRestart();
-                }
-
-                await gameAutoListener.RestartAsync().ConfigureAwait(false);
-                await _automationProcessor.RestartListenersAsync().ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                Log.Instance.Trace($"Failed to restart listeners after detection mode change.", ex);
-            }
-        });
-    }
-
-    private void ExcludeProcesses_Click(object sender, RoutedEventArgs e)
-    {
-        var window = new ExcludeProcessesWindow { Owner = Window.GetWindow(this) };
         window.ShowDialog();
     }
 

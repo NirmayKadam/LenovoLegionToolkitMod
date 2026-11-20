@@ -92,11 +92,11 @@ public class AmdCoreItem : INotifyPropertyChanged
 
 public readonly struct DashboardGroup(DashboardGroupType type, string? customName, params DashboardItem[] items)
 {
-    public static DashboardGroup[] DefaultGroups => GetDefaultGroups();
+    public static DashboardGroup[] DefaultGroups => GetDefaultGroups(Compatibility.GetMachineInformation().Properties.SupportsITSMode);
 
-    private static DashboardGroup[] GetDefaultGroups()
+    /// <summary>The layout before any customising; ITS mode is shown first when the laptop has it.</summary>
+    internal static DashboardGroup[] GetDefaultGroups(bool supportsItsMode)
     {
-        var mi = Compatibility.GetMachineInformation();
         var groups = new List<DashboardGroup>
         {
             new(DashboardGroupType.Power, null,
@@ -106,6 +106,12 @@ public readonly struct DashboardGroup(DashboardGroupType type, string? customNam
                 DashboardItem.AlwaysOnUsb,
                 DashboardItem.InstantBoot,
                 DashboardItem.FlipToStart),
+            // Right after Power: game profiles change the power mode.
+            new(DashboardGroupType.Games, null,
+                DashboardItem.GameDetection,
+                DashboardItem.GameSafeMode,
+                DashboardItem.GameProfiles,
+                DashboardItem.BackgroundServices),
             new(DashboardGroupType.Graphics, null,
                 DashboardItem.HybridMode,
                 DashboardItem.DiscreteGpu,
@@ -128,7 +134,7 @@ public readonly struct DashboardGroup(DashboardGroupType type, string? customNam
                 DashboardItem.WinKeyLock)
         };
 
-        if (!mi.Properties.SupportsITSMode)
+        if (!supportsItsMode)
         {
             return groups.ToArray();
         }
@@ -153,6 +159,7 @@ public readonly struct DashboardGroup(DashboardGroupType type, string? customNam
         DashboardGroupType.Graphics => Resource.DashboardPage_Graphics_Title,
         DashboardGroupType.Display => Resource.DashboardPage_Display_Title,
         DashboardGroupType.Other => Resource.DashboardPage_Other_Title,
+        DashboardGroupType.Games => Resource.DashboardPage_Games_Title,
         DashboardGroupType.Custom => CustomName ?? string.Empty,
         _ => throw new InvalidOperationException($"Invalid type {Type}"),
     };

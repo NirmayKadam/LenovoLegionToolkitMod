@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using LenovoLegionToolkit.WPF.Controls;
 using LenovoLegionToolkit.WPF.Controls.Dashboard;
+using LenovoLegionToolkit.WPF.Controls.Games;
 using LenovoLegionToolkit.WPF.Resources;
 using Wpf.Ui.Common;
 
@@ -36,6 +37,10 @@ public static class DashboardItemExtensions
         DashboardItem.WinKeyLock => SymbolRegular.Keyboard24,
         DashboardItem.WhiteKeyboardBacklight => SymbolRegular.Keyboard24,
         DashboardItem.ItsMode => SymbolRegular.Gauge24,
+        DashboardItem.GameDetection => SymbolRegular.Games24,
+        DashboardItem.GameSafeMode => SymbolRegular.ShieldCheckmark24,
+        DashboardItem.GameProfiles => SymbolRegular.Games24,
+        DashboardItem.BackgroundServices => SymbolRegular.PauseCircle24,
         _ => throw new InvalidOperationException($"Invalid DashboardItem {dashboardItem}"),
     };
 
@@ -65,6 +70,10 @@ public static class DashboardItemExtensions
         DashboardItem.WinKeyLock => Resource.WinKeyControl_Title,
         DashboardItem.WhiteKeyboardBacklight => Resource.WhiteKeyboardBacklightControl_Title,
         DashboardItem.ItsMode => Resource.ITSModeControl_Title,
+        DashboardItem.GameDetection => Resource.AutomationPage_Game_Detection_Title,
+        DashboardItem.GameSafeMode => Resource.SettingsPage_GameSafeMode_Title,
+        DashboardItem.GameProfiles => Resource.GameProfiles_Title,
+        DashboardItem.BackgroundServices => Resource.BackgroundServices_Title,
         _ => throw new InvalidOperationException($"Invalid DashboardItem {dashboardItem}"),
     };
 
@@ -95,6 +104,10 @@ public static class DashboardItemExtensions
         DashboardItem.WinKeyLock => "Help_Feature_WinKeyState",
         DashboardItem.WhiteKeyboardBacklight => "Help_Feature_WhiteKeyboardBacklightState",
         DashboardItem.ItsMode => "Help_Feature_ITSMode",
+        DashboardItem.GameDetection => "Help_Settings_GameDetection",
+        DashboardItem.GameSafeMode => "Help_Settings_GameSafeMode",
+        DashboardItem.GameProfiles => "Help_Settings_GameProfiles",
+        DashboardItem.BackgroundServices => "Help_Settings_BackgroundServices",
         _ => throw new InvalidOperationException($"Invalid DashboardItem {dashboardItem}"),
     };
 
@@ -124,6 +137,10 @@ public static class DashboardItemExtensions
         DashboardItem.WinKeyLock => [new WinKeyControl()],
         DashboardItem.WhiteKeyboardBacklight => [new WhiteKeyboardBacklightControl(), new OneLevelWhiteKeyboardBacklightControl()],
         DashboardItem.ItsMode => [new ITSModeControl()],
+        DashboardItem.GameDetection => [new GameDetectionControl()],
+        DashboardItem.GameSafeMode => [new GameSafeModeControl()],
+        DashboardItem.GameProfiles => [new GameProfilesControl()],
+        DashboardItem.BackgroundServices => [new BackgroundServicesControl()],
         _ => throw new InvalidOperationException($"Invalid DashboardItem {dashboardItem}"),
     };
 }

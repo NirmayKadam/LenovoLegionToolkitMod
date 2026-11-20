@@ -9,7 +9,8 @@ public enum DashboardGroupType
     Graphics,
     Display,
     Other,
-    Custom
+    Custom,
+    Games
 }
 
 public enum DashboardItem
@@ -37,7 +38,11 @@ public enum DashboardItem
     FnLock,
     WinKeyLock,
     WhiteKeyboardBacklight,
-    ItsMode
+    ItsMode,
+    GameDetection,
+    GameSafeMode,
+    GameProfiles,
+    BackgroundServices
 }
 
 public enum GradientDirection

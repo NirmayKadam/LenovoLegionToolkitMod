@@ -101,6 +101,9 @@ public class GameProfileController
     /// <summary>The game whose profile is in effect, or null.</summary>
     public string? ActiveGameName => _session.Store.ProfileId is null ? null : _session.Store.GameName;
 
+    /// <summary>The power mode the running game's profile switched to, or null (no game, or the profile left it alone).</summary>
+    public PowerModeState? ActivePowerMode => _session.Store.ProfileId is null ? null : _session.Store.PowerModeSet;
+
     /// <summary>
     /// At startup: puts back whatever a session LLT didn't get to finish changed (LLT was ended while a game
     /// ran), then watches for profiled games, including ones already running.

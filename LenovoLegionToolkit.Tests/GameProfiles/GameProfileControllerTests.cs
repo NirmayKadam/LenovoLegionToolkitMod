@@ -746,6 +746,24 @@ public sealed class GameProfileControllerTests : IDisposable
     }
 
     [Fact]
+    public async Task TheActivePowerMode_IsShownOnlyWhileTheGamesProfileHasSetIt()
+    {
+        var system = new ScriptedSystem();
+        var (withMode, _, _) = Create(system, Profile(p => p.PowerMode = PowerModeState.Performance));
+
+        Assert.Null(withMode.ActivePowerMode);
+        await withMode.ProcessStartedAsync("game", GamePid);
+        Assert.Equal(PowerModeState.Performance, withMode.ActivePowerMode);
+        await withMode.ProcessStoppedAsync("game", GamePid);
+        Assert.Null(withMode.ActivePowerMode);
+
+        var (leavesItAlone, _, _) = Create(new ScriptedSystem(), Profile());
+        await leavesItAlone.ProcessStartedAsync("game", GamePid);
+        Assert.NotNull(leavesItAlone.ActiveGameName);
+        Assert.Null(leavesItAlone.ActivePowerMode);
+    }
+
+    [Fact]
     public async Task AlreadyInTheGamesMode_NothingIsChangedOrPutBack()
     {
         var system = new ScriptedSystem { PowerMode = PowerModeState.Performance };

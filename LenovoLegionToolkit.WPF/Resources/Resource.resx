@@ -6417,4 +6417,22 @@ When the game ends, LLT puts the apps&apos; priority and the services back. It n
   <data name="Help_Settings_SunLocation_When" xml:space="preserve">
     <value>Type your city&apos;s latitude and longitude (from any map) if you&apos;d rather nothing is looked up online, or if the lookup puts you in the wrong place.</value>
   </data>
+  <data name="DashboardPage_Games_Title" xml:space="preserve">
+    <value>Games</value>
+  </data>
+  <data name="GamesCard_NoGame" xml:space="preserve">
+    <value>No game running</value>
+  </data>
+  <data name="GamesCard_Running" xml:space="preserve">
+    <value>Running: {0}</value>
+  </data>
+  <data name="GamesCard_RunningWithPowerMode" xml:space="preserve">
+    <value>Running: {0}, {1} mode</value>
+  </data>
+  <data name="GamesCard_ServicesOff" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="GamesCard_ServicesStopped" xml:space="preserve">
+    <value>{0} stopped while Indra runs</value>
+  </data>
 </root>

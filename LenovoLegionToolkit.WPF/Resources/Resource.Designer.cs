@@ -14828,5 +14828,59 @@ namespace LenovoLegionToolkit.WPF.Resources {
                 return ResourceManager.GetString("Help_Settings_SunLocation_When", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Games.
+        /// </summary>
+        public static string DashboardPage_Games_Title {
+            get {
+                return ResourceManager.GetString("DashboardPage_Games_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No game running.
+        /// </summary>
+        public static string GamesCard_NoGame {
+            get {
+                return ResourceManager.GetString("GamesCard_NoGame", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Running: {0}.
+        /// </summary>
+        public static string GamesCard_Running {
+            get {
+                return ResourceManager.GetString("GamesCard_Running", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Running: {0}, {1} mode.
+        /// </summary>
+        public static string GamesCard_RunningWithPowerMode {
+            get {
+                return ResourceManager.GetString("GamesCard_RunningWithPowerMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Off.
+        /// </summary>
+        public static string GamesCard_ServicesOff {
+            get {
+                return ResourceManager.GetString("GamesCard_ServicesOff", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} stopped while Indra runs.
+        /// </summary>
+        public static string GamesCard_ServicesStopped {
+            get {
+                return ResourceManager.GetString("GamesCard_ServicesStopped", resourceCulture);
+            }
+        }
     }
 }
