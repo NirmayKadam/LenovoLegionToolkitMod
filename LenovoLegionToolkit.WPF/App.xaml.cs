@@ -484,6 +484,11 @@ public partial class App
             c.Dispose();
             return Task.CompletedTask;
         });
+        await SafeExecuteAsync<HealthMonitor>(c =>
+        {
+            c.Dispose();
+            return Task.CompletedTask;
+        });
         await SafeExecuteAsync<AIController>(c => c.StopAsync());
 
         await SafeExecuteAsync<RGBKeyboardBacklightController>(async c =>
@@ -1192,6 +1197,9 @@ public partial class App
 
         // GPU driver errors are reported with what had just changed (power mode, Afterburner profile, game).
         IoCContainer.Resolve<GpuDriverErrorMonitor>().Start();
+
+        // Read-only Health check: two minutes from now, then once a day.
+        IoCContainer.Resolve<HealthMonitor>().Start();
     }
 
     private void HandleOsdCommand(ToggleState command, bool notify = false)

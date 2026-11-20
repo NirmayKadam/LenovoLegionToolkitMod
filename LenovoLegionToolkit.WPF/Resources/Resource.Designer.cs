@@ -14882,5 +14882,761 @@ namespace LenovoLegionToolkit.WPF.Resources {
                 return ResourceManager.GetString("GamesCard_ServicesStopped", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Health.
+        /// </summary>
+        public static string MainWindow_NavigationItem_Health {
+            get {
+                return ResourceManager.GetString("MainWindow_NavigationItem_Health", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Health ({0}).
+        /// </summary>
+        public static string MainWindow_NavigationItem_HealthAttention {
+            get {
+                return ResourceManager.GetString("MainWindow_NavigationItem_HealthAttention", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Health.
+        /// </summary>
+        public static string Health_Title {
+            get {
+                return ResourceManager.GetString("Health_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Read-only checks of Windows settings that can hurt this laptop or your games. Indra changes nothing here: each button opens the right Windows page, where you decide..
+        /// </summary>
+        public static string Health_Subtitle {
+            get {
+                return ResourceManager.GetString("Health_Subtitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Check now.
+        /// </summary>
+        public static string Health_CheckNow {
+            get {
+                return ResourceManager.GetString("Health_CheckNow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Last checked {0}.
+        /// </summary>
+        public static string Health_LastCheck {
+            get {
+                return ResourceManager.GetString("Health_LastCheck", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not checked yet.
+        /// </summary>
+        public static string Health_NotYetChecked {
+            get {
+                return ResourceManager.GetString("Health_NotYetChecked", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Checking….
+        /// </summary>
+        public static string Health_Checking {
+            get {
+                return ResourceManager.GetString("Health_Checking", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open.
+        /// </summary>
+        public static string Health_Open {
+            get {
+                return ResourceManager.GetString("Health_Open", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to OK.
+        /// </summary>
+        public static string Health_State_Ok {
+            get {
+                return ResourceManager.GetString("Health_State_Ok", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Needs attention.
+        /// </summary>
+        public static string Health_State_Attention {
+            get {
+                return ResourceManager.GetString("Health_State_Attention", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Info.
+        /// </summary>
+        public static string Health_State_Info {
+            get {
+                return ResourceManager.GetString("Health_State_Info", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Couldn&apos;t check.
+        /// </summary>
+        public static string Health_State_Unknown {
+            get {
+                return ResourceManager.GetString("Health_State_Unknown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Windows didn&apos;t answer this check in time. Press Check now to try again; with Detailed log on, the log has the reason..
+        /// </summary>
+        public static string Health_Unknown_Detail {
+            get {
+                return ResourceManager.GetString("Health_Unknown_Detail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Health check: {0} needs attention.
+        /// </summary>
+        public static string Health_Notification {
+            get {
+                return ResourceManager.GetString("Health_Notification", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Low-battery action.
+        /// </summary>
+        public static string Health_BatteryAction_Title {
+            get {
+                return ResourceManager.GetString("Health_BatteryAction_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to At {0}% battery Windows is set to hibernate, but hibernation is turned off, so the laptop may switch off without saving your work. Turn hibernation on (powercfg /h on in an administrator terminal), or[rest of string was truncated].
+        /// </summary>
+        public static string Health_BatteryAction_HibernateOff {
+            get {
+                return ResourceManager.GetString("Health_BatteryAction_HibernateOff", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to At {0}% battery Windows is set to do nothing, so the laptop switches off when the battery runs out and unsaved work is lost. Choose Hibernate or Shut down as the critical battery action..
+        /// </summary>
+        public static string Health_BatteryAction_Nothing {
+            get {
+                return ResourceManager.GetString("Health_BatteryAction_Nothing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to At {0}% battery Windows will {1}..
+        /// </summary>
+        public static string Health_BatteryAction_Ok {
+            get {
+                return ResourceManager.GetString("Health_BatteryAction_Ok", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to go to sleep.
+        /// </summary>
+        public static string Health_BatteryAction_Sleep {
+            get {
+                return ResourceManager.GetString("Health_BatteryAction_Sleep", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to hibernate.
+        /// </summary>
+        public static string Health_BatteryAction_Hibernate {
+            get {
+                return ResourceManager.GetString("Health_BatteryAction_Hibernate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to shut down.
+        /// </summary>
+        public static string Health_BatteryAction_ShutDown {
+            get {
+                return ResourceManager.GetString("Health_BatteryAction_ShutDown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Windows Update.
+        /// </summary>
+        public static string Health_Updates_Title {
+            get {
+                return ResourceManager.GetString("Health_Updates_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Automatic updates are turned off, so security fixes only arrive when you check by hand. {0}.
+        /// </summary>
+        public static string Health_Updates_Off {
+            get {
+                return ResourceManager.GetString("Health_Updates_Off", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The last Windows update was installed {0} days ago. Check for updates..
+        /// </summary>
+        public static string Health_Updates_Old {
+            get {
+                return ResourceManager.GetString("Health_Updates_Old", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Automatic updates are on. {0}.
+        /// </summary>
+        public static string Health_Updates_Ok {
+            get {
+                return ResourceManager.GetString("Health_Updates_Ok", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The last update was installed {0} days ago..
+        /// </summary>
+        public static string Health_Updates_LastDays {
+            get {
+                return ResourceManager.GetString("Health_Updates_LastDays", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The date of the last update isn&apos;t known..
+        /// </summary>
+        public static string Health_Updates_LastUnknown {
+            get {
+                return ResourceManager.GetString("Health_Updates_LastUnknown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Virus protection.
+        /// </summary>
+        public static string Health_Virus_Title {
+            get {
+                return ResourceManager.GetString("Health_Virus_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Microsoft Defender&apos;s real-time protection is on..
+        /// </summary>
+        public static string Health_Virus_Defender {
+            get {
+                return ResourceManager.GetString("Health_Virus_Defender", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Protected by {0}..
+        /// </summary>
+        public static string Health_Virus_Other {
+            get {
+                return ResourceManager.GetString("Health_Virus_Other", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No real-time virus protection is on: Microsoft Defender&apos;s is off and no other antivirus is active..
+        /// </summary>
+        public static string Health_Virus_Off {
+            get {
+                return ResourceManager.GetString("Health_Virus_Off", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Security warnings.
+        /// </summary>
+        public static string Health_Notifications_Title {
+            get {
+                return ResourceManager.GetString("Health_Notifications_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Windows&apos; Security and Maintenance notifications are turned off, so you won&apos;t see warnings about threats or problems..
+        /// </summary>
+        public static string Health_Notifications_Off {
+            get {
+                return ResourceManager.GetString("Health_Notifications_Off", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Security and Maintenance notifications are on..
+        /// </summary>
+        public static string Health_Notifications_Ok {
+            get {
+                return ResourceManager.GetString("Health_Notifications_Ok", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Memory integrity.
+        /// </summary>
+        public static string Health_MemoryIntegrity_Title {
+            get {
+                return ResourceManager.GetString("Health_MemoryIntegrity_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Memory integrity is on. It blocks some kinds of malicious drivers, and some anti-cheats ask for it..
+        /// </summary>
+        public static string Health_MemoryIntegrity_On {
+            get {
+                return ResourceManager.GetString("Health_MemoryIntegrity_On", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Memory integrity is off. It blocks some kinds of malicious drivers, and some anti-cheats ask for it..
+        /// </summary>
+        public static string Health_MemoryIntegrity_Off {
+            get {
+                return ResourceManager.GetString("Health_MemoryIntegrity_Off", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Disabled services.
+        /// </summary>
+        public static string Health_Services_Title {
+            get {
+                return ResourceManager.GetString("Health_Services_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to None of the services Windows and games rely on are disabled..
+        /// </summary>
+        public static string Health_Services_Ok {
+            get {
+                return ResourceManager.GetString("Health_Services_Ok", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Disabled: {0}..
+        /// </summary>
+        public static string Health_Services_Disabled {
+            get {
+                return ResourceManager.GetString("Health_Services_Disabled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Windows Update (no security fixes).
+        /// </summary>
+        public static string Health_Service_wuauserv {
+            get {
+                return ResourceManager.GetString("Health_Service_wuauserv", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Background Intelligent Transfer (update and Store downloads).
+        /// </summary>
+        public static string Health_Service_BITS {
+            get {
+                return ResourceManager.GetString("Health_Service_BITS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Microsoft Defender Antivirus.
+        /// </summary>
+        public static string Health_Service_WinDefend {
+            get {
+                return ResourceManager.GetString("Health_Service_WinDefend", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Windows Firewall.
+        /// </summary>
+        public static string Health_Service_mpssvc {
+            get {
+                return ResourceManager.GetString("Health_Service_mpssvc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Windows Audio (no sound).
+        /// </summary>
+        public static string Health_Service_Audiosrv {
+            get {
+                return ResourceManager.GetString("Health_Service_Audiosrv", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Audio devices (no sound).
+        /// </summary>
+        public static string Health_Service_AudioEndpointBuilder {
+            get {
+                return ResourceManager.GetString("Health_Service_AudioEndpointBuilder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to WMI (Indra and many apps need it).
+        /// </summary>
+        public static string Health_Service_Winmgmt {
+            get {
+                return ResourceManager.GetString("Health_Service_Winmgmt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Event Log (no error history or GPU error alerts).
+        /// </summary>
+        public static string Health_Service_EventLog {
+            get {
+                return ResourceManager.GetString("Health_Service_EventLog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Xbox sign-in (Xbox app, Game Pass).
+        /// </summary>
+        public static string Health_Service_XblAuthManager {
+            get {
+                return ResourceManager.GetString("Health_Service_XblAuthManager", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Xbox accessories (controllers and their updates).
+        /// </summary>
+        public static string Health_Service_XboxGipSvc {
+            get {
+                return ResourceManager.GetString("Health_Service_XboxGipSvc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to GPU driver errors.
+        /// </summary>
+        public static string Health_Gpu_Title {
+            get {
+                return ResourceManager.GetString("Health_Gpu_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No NVIDIA driver errors or display driver resets in the last 24 hours..
+        /// </summary>
+        public static string Health_Gpu_Ok {
+            get {
+                return ResourceManager.GetString("Health_Gpu_Ok", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} NVIDIA driver errors or display driver resets in the last 24 hours. The safety report lists them with what was happening at the time..
+        /// </summary>
+        public static string Health_Gpu_Errors {
+            get {
+                return ResourceManager.GetString("Health_Gpu_Errors", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Disk space.
+        /// </summary>
+        public static string Health_Disk_Title {
+            get {
+                return ResourceManager.GetString("Health_Disk_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Only {0} GB free of {1} GB on {2}. Windows and games need room for updates and caches..
+        /// </summary>
+        public static string Health_Disk_Low {
+            get {
+                return ResourceManager.GetString("Health_Disk_Low", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} GB free of {1} GB on {2}..
+        /// </summary>
+        public static string Health_Disk_Ok {
+            get {
+                return ResourceManager.GetString("Health_Disk_Ok", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Battery wear.
+        /// </summary>
+        public static string Health_Battery_Title {
+            get {
+                return ResourceManager.GetString("Health_Battery_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The battery now holds {0}% of its design capacity. Below 80% it lasts noticeably less per charge..
+        /// </summary>
+        public static string Health_Battery_Worn {
+            get {
+                return ResourceManager.GetString("Health_Battery_Worn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The battery holds {0}% of its design capacity..
+        /// </summary>
+        public static string Health_Battery_Ok {
+            get {
+                return ResourceManager.GetString("Health_Battery_Ok", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CPU.
+        /// </summary>
+        public static string UsageOverview_Cpu {
+            get {
+                return ResourceManager.GetString("UsageOverview_Cpu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to GPU.
+        /// </summary>
+        public static string UsageOverview_Gpu {
+            get {
+                return ResourceManager.GetString("UsageOverview_Gpu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to RAM.
+        /// </summary>
+        public static string UsageOverview_Ram {
+            get {
+                return ResourceManager.GetString("UsageOverview_Ram", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to RAM {0} / {1} GB.
+        /// </summary>
+        public static string UsageOverview_RamLabel {
+            get {
+                return ResourceManager.GetString("UsageOverview_RamLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Temperature, last 60 s.
+        /// </summary>
+        public static string UsageOverview_Temperature {
+            get {
+                return ResourceManager.GetString("UsageOverview_Temperature", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} °C.
+        /// </summary>
+        public static string UsageOverview_TemperatureValue {
+            get {
+                return ResourceManager.GetString("UsageOverview_TemperatureValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to What Windows does when the battery reaches its critical level (usually 5%): hibernate, shut down, sleep or nothing..
+        /// </summary>
+        public static string Help_Health_BatteryAction_What {
+            get {
+                return ResourceManager.GetString("Help_Health_BatteryAction_What", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hibernate only works while hibernation is turned on. Tweak tools often turn it off to save disk space, and then the laptop can run flat with your work unsaved..
+        /// </summary>
+        public static string Help_Health_BatteryAction_When {
+            get {
+                return ResourceManager.GetString("Help_Health_BatteryAction_When", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Whether Windows installs updates by itself, and how long ago the last one was installed..
+        /// </summary>
+        public static string Help_Health_WindowsUpdate_What {
+            get {
+                return ResourceManager.GetString("Help_Health_WindowsUpdate_What", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Security fixes come every month. Games&apos; anti-cheats and drivers also expect a reasonably up-to-date Windows..
+        /// </summary>
+        public static string Help_Health_WindowsUpdate_When {
+            get {
+                return ResourceManager.GetString("Help_Health_WindowsUpdate_When", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Whether Microsoft Defender or another antivirus is scanning files as they are used..
+        /// </summary>
+        public static string Help_Health_VirusProtection_What {
+            get {
+                return ResourceManager.GetString("Help_Health_VirusProtection_What", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Without real-time protection, a harmful download isn&apos;t stopped when it runs..
+        /// </summary>
+        public static string Help_Health_VirusProtection_When {
+            get {
+                return ResourceManager.GetString("Help_Health_VirusProtection_When", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Whether Windows may show its Security and Maintenance warnings, for example about threats found or problems to fix..
+        /// </summary>
+        public static string Help_Health_SecurityNotifications_What {
+            get {
+                return ResourceManager.GetString("Help_Health_SecurityNotifications_What", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tweak tools sometimes hide them to avoid pop-ups; then you won&apos;t learn about a real problem..
+        /// </summary>
+        public static string Help_Health_SecurityNotifications_When {
+            get {
+                return ResourceManager.GetString("Help_Health_SecurityNotifications_When", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Memory integrity (core isolation) blocks some kinds of malicious or vulnerable drivers..
+        /// </summary>
+        public static string Help_Health_MemoryIntegrity_What {
+            get {
+                return ResourceManager.GetString("Help_Health_MemoryIntegrity_What", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Some anti-cheats ask for it; it can cost a little performance and can refuse very old drivers..
+        /// </summary>
+        public static string Help_Health_MemoryIntegrity_When {
+            get {
+                return ResourceManager.GetString("Help_Health_MemoryIntegrity_When", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Windows services that Windows and games rely on and that are set to Disabled, which stops them for good..
+        /// </summary>
+        public static string Help_Health_DisabledServices_What {
+            get {
+                return ResourceManager.GetString("Help_Health_DisabledServices_What", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Indra&apos;s Background services only stop services while Indra runs, so they never appear here. A Disabled service was set that way elsewhere, for example by a tweak tool..
+        /// </summary>
+        public static string Help_Health_DisabledServices_When {
+            get {
+                return ResourceManager.GetString("Help_Health_DisabledServices_When", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to NVIDIA driver errors and display driver resets in Windows&apos; System log over the last 24 hours..
+        /// </summary>
+        public static string Help_Health_GpuDriverErrors_What {
+            get {
+                return ResourceManager.GetString("Help_Health_GpuDriverErrors_What", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to They often follow an unstable overclock or undervolt, or a game crash. Indra already notifies each one as it happens..
+        /// </summary>
+        public static string Help_Health_GpuDriverErrors_When {
+            get {
+                return ResourceManager.GetString("Help_Health_GpuDriverErrors_When", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Free space on the drive Windows is installed on..
+        /// </summary>
+        public static string Help_Health_DiskSpace_What {
+            get {
+                return ResourceManager.GetString("Help_Health_DiskSpace_What", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Windows updates, shader caches and game patches need room; a nearly full drive makes them fail..
+        /// </summary>
+        public static string Help_Health_DiskSpace_When {
+            get {
+                return ResourceManager.GetString("Help_Health_DiskSpace_When", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to How much charge the battery holds now compared with when it was new..
+        /// </summary>
+        public static string Help_Health_BatteryWear_What {
+            get {
+                return ResourceManager.GetString("Help_Health_BatteryWear_What", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Batteries wear with use and heat. Below 80% the laptop runs noticeably shorter on battery..
+        /// </summary>
+        public static string Help_Health_BatteryWear_When {
+            get {
+                return ResourceManager.GetString("Help_Health_BatteryWear_When", resourceCulture);
+            }
+        }
     }
 }

@@ -536,7 +536,9 @@ public enum NotificationType
     GameProfileOn,
     GameProfileOff,
     /// <summary>The GPU driver reported an error (Windows' System log); always shown.</summary>
-    GpuDriverError
+    GpuDriverError,
+    /// <summary>A Health check newly needs attention; always shown.</summary>
+    HealthAttention
 }
 
 public enum OneLevelWhiteKeyboardBacklightState

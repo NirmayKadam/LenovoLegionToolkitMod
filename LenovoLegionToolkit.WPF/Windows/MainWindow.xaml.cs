@@ -134,6 +134,14 @@ public partial class MainWindow
 
         AddExtensionNavigationItems();
 
+        // The Health entry shows how many items need attention after each check.
+        // Unsubscribed when the window closes: it can be recreated while the monitor lives on.
+        var health = IoCContainer.Resolve<HealthMonitor>();
+        EventHandler healthUpdated = (_, _) => Dispatcher.Post(() => UpdateHealthItem(health));
+        health.Updated += healthUpdated;
+        Closed += (_, _) => health.Updated -= healthUpdated;
+        UpdateHealthItem(health);
+
         _contentGrid.Visibility = Visibility.Visible;
 
         LoadDeviceInfo();
@@ -819,6 +827,11 @@ public partial class MainWindow
     /// Opens the page with <paramref name="pageTag"/> and, for Settings, the category <paramref name="settingsTab"/>.
     /// False when this laptop doesn't have that page (some pages are removed at start).
     /// </summary>
+    private void UpdateHealthItem(HealthMonitor health) =>
+        _healthItem.Content = health.AttentionCount > 0
+            ? string.Format(Resource.MainWindow_NavigationItem_HealthAttention, health.AttentionCount)
+            : Resource.MainWindow_NavigationItem_Health;
+
     public bool NavigateTo(string pageTag, string? settingsTab = null)
     {
         var exists = _navigationStore.Items.Concat(_navigationStore.Footer)

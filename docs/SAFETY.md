@@ -127,6 +127,13 @@ While LLT runs, it watches Windows' System log, read only, for NVIDIA driver err
 - The safety report lists the last 24 hours of these errors from the same log.
 - LLT changes nothing because of them.
 
+## Health check
+
+The Health page only reads Windows; it changes nothing and sends nothing anywhere.
+- It checks the low-battery action, Windows Update, virus protection, security warnings, memory integrity, disabled services, GPU driver errors, disk space and battery wear.
+- Each button opens the Windows page where you can change that setting yourself.
+- It runs two minutes after LLT starts and then once a day, and notifies only about problems that are new since the last notification. Its state is kept in `health.json` in the settings folder.
+
 ## Detailed log
 
 Settings → App behaviour → **Detailed log** is off unless you turn it on.

@@ -30,10 +30,14 @@ public partial class DashboardPage
     private readonly List<DashboardGroupControl> _dashboardGroupControls = [];
     private FrameworkElement sensorControl = null!;
 
+    // Usage rings and the temperature graph, right above the sensor cards; shown and hidden with them.
+    private readonly UsageOverviewControl _usageOverview = new() { Margin = new Thickness(0, 16, 16, 0) };
+
     public DashboardPage()
     {
         InitializeComponent();
 
+        _panel.Children.Insert(_panel.Children.IndexOf(_content), _usageOverview);
         RefreshSensorControl();
         EnsureConfigFilesExist();
 
@@ -79,6 +83,7 @@ public partial class DashboardPage
             sensorControl.Visibility = _dashboardSettings.Store.ShowSensors
                 ? Visibility.Visible
                 : Visibility.Collapsed;
+            _usageOverview.Visibility = _dashboardSettings.Store.ShowSensors ? Visibility.Visible : Visibility.Collapsed;
         }
     }
 
@@ -111,6 +116,7 @@ public partial class DashboardPage
                 sensorControl.Visibility = _dashboardSettings.Store.ShowSensors
                     ? Visibility.Visible
                     : Visibility.Collapsed;
+                _usageOverview.Visibility = _dashboardSettings.Store.ShowSensors ? Visibility.Visible : Visibility.Collapsed;
             }
 
             _dashboardGroupControls.Clear();
@@ -191,6 +197,8 @@ public partial class DashboardPage
         var elements = new List<UIElement>();
         if (_statusArea.Visibility == Visibility.Visible)
             elements.Add(_statusArea);
+        if (_usageOverview.Visibility == Visibility.Visible)
+            elements.Add(_usageOverview);
         if (sensorControl is { Visibility: Visibility.Visible })
             elements.Add(sensorControl);
         elements.AddRange(_dashboardGroupControls);

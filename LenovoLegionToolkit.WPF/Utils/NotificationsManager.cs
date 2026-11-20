@@ -104,6 +104,7 @@ public class NotificationsManager
                 NotificationType.GameProfileOn => _settings.Store.Notifications.GameProfile,
                 NotificationType.GameProfileOff => _settings.Store.Notifications.GameProfile,
                 NotificationType.GpuDriverError => true,
+                NotificationType.HealthAttention => true,
                 _ => throw new ArgumentException(nameof(notification.Type))
             };
 
@@ -169,6 +170,7 @@ public class NotificationsManager
                 NotificationType.GameProfileOn => string.Format("{0}", notification.Args),
                 NotificationType.GameProfileOff => string.Format("{0}", notification.Args),
                 NotificationType.GpuDriverError => string.Format("{0}", notification.Args),
+                NotificationType.HealthAttention => string.Format(Resource.Health_Notification, notification.Args),
                 _ => throw new ArgumentException(nameof(notification.Type))
             };
 
@@ -331,6 +333,7 @@ public class NotificationsManager
         NotificationType.GameProfileOn => SymbolRegular.Games24,
         NotificationType.GameProfileOff => SymbolRegular.Games24,
         NotificationType.GpuDriverError => SymbolRegular.ErrorCircle24,
+        NotificationType.HealthAttention => SymbolRegular.HeartPulse24,
         _ => SymbolRegular.Question24,
     };
 

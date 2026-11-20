@@ -23,6 +23,10 @@ public class SettingsBackupCoverageTests
         // The services LLT stopped for normal use. Restoring an old one could start or keep stopped services
         // from another time.
         ["background_services_session.json"] = "session note, not a setting",
+
+        // When the Health check last ran and which problems were already notified. Restoring an old one would only
+        // hide or repeat notifications; the check reads Windows afresh anyway.
+        ["health.json"] = "check state, not a setting",
     };
 
     private static IEnumerable<string> SettingsFileNames()

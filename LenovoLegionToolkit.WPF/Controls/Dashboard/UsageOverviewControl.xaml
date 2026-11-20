@@ -1,0 +1,124 @@
+<UserControl
+    x:Class="LenovoLegionToolkit.WPF.Controls.Dashboard.UsageOverviewControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:custom="clr-namespace:LenovoLegionToolkit.WPF.Controls.Custom"
+    xmlns:resources="clr-namespace:LenovoLegionToolkit.WPF.Resources">
+    <UserControl.Resources>
+        <Style x:Key="RingTrack" TargetType="Ellipse">
+            <Setter Property="Stroke" Value="{DynamicResource ControlStrokeColorDefaultBrush}" />
+            <Setter Property="StrokeThickness" Value="6" />
+        </Style>
+        <Style x:Key="RingArc" TargetType="Path">
+            <Setter Property="Stroke" Value="{DynamicResource SystemAccentColorSecondaryBrush}" />
+            <Setter Property="StrokeThickness" Value="6" />
+            <Setter Property="StrokeStartLineCap" Value="Round" />
+            <Setter Property="StrokeEndLineCap" Value="Round" />
+        </Style>
+        <Style x:Key="RingValue" TargetType="TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="FontWeight" Value="Medium" />
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+        </Style>
+        <Style x:Key="RingLabel" TargetType="TextBlock">
+            <Setter Property="Margin" Value="0,6,0,0" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+        </Style>
+    </UserControl.Resources>
+
+    <custom:CardControl>
+        <custom:CardControl.Header>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                    <Grid Width="72" Height="72">
+                        <Ellipse Margin="3" Style="{StaticResource RingTrack}" />
+                        <Path x:Name="_cpuArc" Style="{StaticResource RingArc}" />
+                        <TextBlock x:Name="_cpuValue" Style="{StaticResource RingValue}" Text="–" />
+                    </Grid>
+                    <TextBlock Style="{StaticResource RingLabel}" Text="{x:Static resources:Resource.UsageOverview_Cpu}" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Margin="0,0,16,0">
+                    <Grid Width="72" Height="72">
+                        <Ellipse Margin="3" Style="{StaticResource RingTrack}" />
+                        <Path x:Name="_gpuArc" Style="{StaticResource RingArc}" />
+                        <TextBlock x:Name="_gpuValue" Style="{StaticResource RingValue}" Text="–" />
+                    </Grid>
+                    <TextBlock Style="{StaticResource RingLabel}" Text="{x:Static resources:Resource.UsageOverview_Gpu}" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Margin="0,0,24,0">
+                    <Grid Width="72" Height="72">
+                        <Ellipse Margin="3" Style="{StaticResource RingTrack}" />
+                        <Path x:Name="_ramArc" Style="{StaticResource RingArc}" />
+                        <TextBlock x:Name="_ramValue" Style="{StaticResource RingValue}" Text="–" />
+                    </Grid>
+                    <TextBlock x:Name="_ramLabel" Style="{StaticResource RingLabel}" Text="{x:Static resources:Resource.UsageOverview_Ram}" />
+                </StackPanel>
+
+                <Grid Grid.Column="3" MinWidth="160">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0" Margin="0,0,0,6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock
+                            Grid.Column="0"
+                            VerticalAlignment="Center"
+                            Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                            Text="{x:Static resources:Resource.UsageOverview_Temperature}"
+                            TextTrimming="CharacterEllipsis" />
+                        <TextBlock
+                            x:Name="_temperatureValue"
+                            Grid.Column="1"
+                            Margin="8,0,12,0"
+                            VerticalAlignment="Center"
+                            FontWeight="Medium"
+                            Text="–" />
+                        <StackPanel Grid.Column="2" Orientation="Horizontal">
+                            <RadioButton
+                                x:Name="_cpuTemperatureButton"
+                                MinWidth="0"
+                                Margin="0,0,8,0"
+                                Checked="TemperatureSource_Checked"
+                                Content="{x:Static resources:Resource.UsageOverview_Cpu}"
+                                GroupName="UsageOverviewTemperature"
+                                IsChecked="True" />
+                            <RadioButton
+                                x:Name="_gpuTemperatureButton"
+                                MinWidth="0"
+                                Checked="TemperatureSource_Checked"
+                                Content="{x:Static resources:Resource.UsageOverview_Gpu}"
+                                GroupName="UsageOverviewTemperature" />
+                        </StackPanel>
+                    </Grid>
+                    <Border
+                        Grid.Row="1"
+                        MinHeight="60"
+                        BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                        BorderThickness="0,0,0,1">
+                        <Canvas
+                            x:Name="_graphCanvas"
+                            ClipToBounds="True"
+                            SizeChanged="GraphCanvas_SizeChanged" />
+                    </Border>
+                </Grid>
+            </Grid>
+        </custom:CardControl.Header>
+    </custom:CardControl>
+</UserControl>

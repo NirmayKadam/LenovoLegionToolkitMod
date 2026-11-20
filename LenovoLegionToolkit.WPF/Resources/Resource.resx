@@ -6435,4 +6435,256 @@ When the game ends, LLT puts the apps&apos; priority and the services back. It n
   <data name="GamesCard_ServicesStopped" xml:space="preserve">
     <value>{0} stopped while Indra runs</value>
   </data>
+  <data name="MainWindow_NavigationItem_Health" xml:space="preserve">
+    <value>Health</value>
+  </data>
+  <data name="MainWindow_NavigationItem_HealthAttention" xml:space="preserve">
+    <value>Health ({0})</value>
+  </data>
+  <data name="Health_Title" xml:space="preserve">
+    <value>Health</value>
+  </data>
+  <data name="Health_Subtitle" xml:space="preserve">
+    <value>Read-only checks of Windows settings that can hurt this laptop or your games. Indra changes nothing here: each button opens the right Windows page, where you decide.</value>
+  </data>
+  <data name="Health_CheckNow" xml:space="preserve">
+    <value>Check now</value>
+  </data>
+  <data name="Health_LastCheck" xml:space="preserve">
+    <value>Last checked {0}</value>
+  </data>
+  <data name="Health_NotYetChecked" xml:space="preserve">
+    <value>Not checked yet</value>
+  </data>
+  <data name="Health_Checking" xml:space="preserve">
+    <value>Checking…</value>
+  </data>
+  <data name="Health_Open" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="Health_State_Ok" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Health_State_Attention" xml:space="preserve">
+    <value>Needs attention</value>
+  </data>
+  <data name="Health_State_Info" xml:space="preserve">
+    <value>Info</value>
+  </data>
+  <data name="Health_State_Unknown" xml:space="preserve">
+    <value>Couldn&apos;t check</value>
+  </data>
+  <data name="Health_Unknown_Detail" xml:space="preserve">
+    <value>Windows didn&apos;t answer this check in time. Press Check now to try again; with Detailed log on, the log has the reason.</value>
+  </data>
+  <data name="Health_Notification" xml:space="preserve">
+    <value>Health check: {0} needs attention</value>
+  </data>
+  <data name="Health_BatteryAction_Title" xml:space="preserve">
+    <value>Low-battery action</value>
+  </data>
+  <data name="Health_BatteryAction_HibernateOff" xml:space="preserve">
+    <value>At {0}% battery Windows is set to hibernate, but hibernation is turned off, so the laptop may switch off without saving your work. Turn hibernation on (powercfg /h on in an administrator terminal), or choose Shut down as the critical battery action.</value>
+  </data>
+  <data name="Health_BatteryAction_Nothing" xml:space="preserve">
+    <value>At {0}% battery Windows is set to do nothing, so the laptop switches off when the battery runs out and unsaved work is lost. Choose Hibernate or Shut down as the critical battery action.</value>
+  </data>
+  <data name="Health_BatteryAction_Ok" xml:space="preserve">
+    <value>At {0}% battery Windows will {1}.</value>
+  </data>
+  <data name="Health_BatteryAction_Sleep" xml:space="preserve">
+    <value>go to sleep</value>
+  </data>
+  <data name="Health_BatteryAction_Hibernate" xml:space="preserve">
+    <value>hibernate</value>
+  </data>
+  <data name="Health_BatteryAction_ShutDown" xml:space="preserve">
+    <value>shut down</value>
+  </data>
+  <data name="Health_Updates_Title" xml:space="preserve">
+    <value>Windows Update</value>
+  </data>
+  <data name="Health_Updates_Off" xml:space="preserve">
+    <value>Automatic updates are turned off, so security fixes only arrive when you check by hand. {0}</value>
+  </data>
+  <data name="Health_Updates_Old" xml:space="preserve">
+    <value>The last Windows update was installed {0} days ago. Check for updates.</value>
+  </data>
+  <data name="Health_Updates_Ok" xml:space="preserve">
+    <value>Automatic updates are on. {0}</value>
+  </data>
+  <data name="Health_Updates_LastDays" xml:space="preserve">
+    <value>The last update was installed {0} days ago.</value>
+  </data>
+  <data name="Health_Updates_LastUnknown" xml:space="preserve">
+    <value>The date of the last update isn&apos;t known.</value>
+  </data>
+  <data name="Health_Virus_Title" xml:space="preserve">
+    <value>Virus protection</value>
+  </data>
+  <data name="Health_Virus_Defender" xml:space="preserve">
+    <value>Microsoft Defender&apos;s real-time protection is on.</value>
+  </data>
+  <data name="Health_Virus_Other" xml:space="preserve">
+    <value>Protected by {0}.</value>
+  </data>
+  <data name="Health_Virus_Off" xml:space="preserve">
+    <value>No real-time virus protection is on: Microsoft Defender&apos;s is off and no other antivirus is active.</value>
+  </data>
+  <data name="Health_Notifications_Title" xml:space="preserve">
+    <value>Security warnings</value>
+  </data>
+  <data name="Health_Notifications_Off" xml:space="preserve">
+    <value>Windows&apos; Security and Maintenance notifications are turned off, so you won&apos;t see warnings about threats or problems.</value>
+  </data>
+  <data name="Health_Notifications_Ok" xml:space="preserve">
+    <value>Security and Maintenance notifications are on.</value>
+  </data>
+  <data name="Health_MemoryIntegrity_Title" xml:space="preserve">
+    <value>Memory integrity</value>
+  </data>
+  <data name="Health_MemoryIntegrity_On" xml:space="preserve">
+    <value>Memory integrity is on. It blocks some kinds of malicious drivers, and some anti-cheats ask for it.</value>
+  </data>
+  <data name="Health_MemoryIntegrity_Off" xml:space="preserve">
+    <value>Memory integrity is off. It blocks some kinds of malicious drivers, and some anti-cheats ask for it.</value>
+  </data>
+  <data name="Health_Services_Title" xml:space="preserve">
+    <value>Disabled services</value>
+  </data>
+  <data name="Health_Services_Ok" xml:space="preserve">
+    <value>None of the services Windows and games rely on are disabled.</value>
+  </data>
+  <data name="Health_Services_Disabled" xml:space="preserve">
+    <value>Disabled: {0}.</value>
+  </data>
+  <data name="Health_Service_wuauserv" xml:space="preserve">
+    <value>Windows Update (no security fixes)</value>
+  </data>
+  <data name="Health_Service_BITS" xml:space="preserve">
+    <value>Background Intelligent Transfer (update and Store downloads)</value>
+  </data>
+  <data name="Health_Service_WinDefend" xml:space="preserve">
+    <value>Microsoft Defender Antivirus</value>
+  </data>
+  <data name="Health_Service_mpssvc" xml:space="preserve">
+    <value>Windows Firewall</value>
+  </data>
+  <data name="Health_Service_Audiosrv" xml:space="preserve">
+    <value>Windows Audio (no sound)</value>
+  </data>
+  <data name="Health_Service_AudioEndpointBuilder" xml:space="preserve">
+    <value>Audio devices (no sound)</value>
+  </data>
+  <data name="Health_Service_Winmgmt" xml:space="preserve">
+    <value>WMI (Indra and many apps need it)</value>
+  </data>
+  <data name="Health_Service_EventLog" xml:space="preserve">
+    <value>Event Log (no error history or GPU error alerts)</value>
+  </data>
+  <data name="Health_Service_XblAuthManager" xml:space="preserve">
+    <value>Xbox sign-in (Xbox app, Game Pass)</value>
+  </data>
+  <data name="Health_Service_XboxGipSvc" xml:space="preserve">
+    <value>Xbox accessories (controllers and their updates)</value>
+  </data>
+  <data name="Health_Gpu_Title" xml:space="preserve">
+    <value>GPU driver errors</value>
+  </data>
+  <data name="Health_Gpu_Ok" xml:space="preserve">
+    <value>No NVIDIA driver errors or display driver resets in the last 24 hours.</value>
+  </data>
+  <data name="Health_Gpu_Errors" xml:space="preserve">
+    <value>{0} NVIDIA driver errors or display driver resets in the last 24 hours. The safety report lists them with what was happening at the time.</value>
+  </data>
+  <data name="Health_Disk_Title" xml:space="preserve">
+    <value>Disk space</value>
+  </data>
+  <data name="Health_Disk_Low" xml:space="preserve">
+    <value>Only {0} GB free of {1} GB on {2}. Windows and games need room for updates and caches.</value>
+  </data>
+  <data name="Health_Disk_Ok" xml:space="preserve">
+    <value>{0} GB free of {1} GB on {2}.</value>
+  </data>
+  <data name="Health_Battery_Title" xml:space="preserve">
+    <value>Battery wear</value>
+  </data>
+  <data name="Health_Battery_Worn" xml:space="preserve">
+    <value>The battery now holds {0}% of its design capacity. Below 80% it lasts noticeably less per charge.</value>
+  </data>
+  <data name="Health_Battery_Ok" xml:space="preserve">
+    <value>The battery holds {0}% of its design capacity.</value>
+  </data>
+  <data name="UsageOverview_Cpu" xml:space="preserve">
+    <value>CPU</value>
+  </data>
+  <data name="UsageOverview_Gpu" xml:space="preserve">
+    <value>GPU</value>
+  </data>
+  <data name="UsageOverview_Ram" xml:space="preserve">
+    <value>RAM</value>
+  </data>
+  <data name="UsageOverview_RamLabel" xml:space="preserve">
+    <value>RAM {0} / {1} GB</value>
+  </data>
+  <data name="UsageOverview_Temperature" xml:space="preserve">
+    <value>Temperature, last 60 s</value>
+  </data>
+  <data name="UsageOverview_TemperatureValue" xml:space="preserve">
+    <value>{0} °C</value>
+  </data>
+  <data name="Help_Health_BatteryAction_What" xml:space="preserve">
+    <value>What Windows does when the battery reaches its critical level (usually 5%): hibernate, shut down, sleep or nothing.</value>
+  </data>
+  <data name="Help_Health_BatteryAction_When" xml:space="preserve">
+    <value>Hibernate only works while hibernation is turned on. Tweak tools often turn it off to save disk space, and then the laptop can run flat with your work unsaved.</value>
+  </data>
+  <data name="Help_Health_WindowsUpdate_What" xml:space="preserve">
+    <value>Whether Windows installs updates by itself, and how long ago the last one was installed.</value>
+  </data>
+  <data name="Help_Health_WindowsUpdate_When" xml:space="preserve">
+    <value>Security fixes come every month. Games&apos; anti-cheats and drivers also expect a reasonably up-to-date Windows.</value>
+  </data>
+  <data name="Help_Health_VirusProtection_What" xml:space="preserve">
+    <value>Whether Microsoft Defender or another antivirus is scanning files as they are used.</value>
+  </data>
+  <data name="Help_Health_VirusProtection_When" xml:space="preserve">
+    <value>Without real-time protection, a harmful download isn&apos;t stopped when it runs.</value>
+  </data>
+  <data name="Help_Health_SecurityNotifications_What" xml:space="preserve">
+    <value>Whether Windows may show its Security and Maintenance warnings, for example about threats found or problems to fix.</value>
+  </data>
+  <data name="Help_Health_SecurityNotifications_When" xml:space="preserve">
+    <value>Tweak tools sometimes hide them to avoid pop-ups; then you won&apos;t learn about a real problem.</value>
+  </data>
+  <data name="Help_Health_MemoryIntegrity_What" xml:space="preserve">
+    <value>Memory integrity (core isolation) blocks some kinds of malicious or vulnerable drivers.</value>
+  </data>
+  <data name="Help_Health_MemoryIntegrity_When" xml:space="preserve">
+    <value>Some anti-cheats ask for it; it can cost a little performance and can refuse very old drivers.</value>
+  </data>
+  <data name="Help_Health_DisabledServices_What" xml:space="preserve">
+    <value>Windows services that Windows and games rely on and that are set to Disabled, which stops them for good.</value>
+  </data>
+  <data name="Help_Health_DisabledServices_When" xml:space="preserve">
+    <value>Indra&apos;s Background services only stop services while Indra runs, so they never appear here. A Disabled service was set that way elsewhere, for example by a tweak tool.</value>
+  </data>
+  <data name="Help_Health_GpuDriverErrors_What" xml:space="preserve">
+    <value>NVIDIA driver errors and display driver resets in Windows&apos; System log over the last 24 hours.</value>
+  </data>
+  <data name="Help_Health_GpuDriverErrors_When" xml:space="preserve">
+    <value>They often follow an unstable overclock or undervolt, or a game crash. Indra already notifies each one as it happens.</value>
+  </data>
+  <data name="Help_Health_DiskSpace_What" xml:space="preserve">
+    <value>Free space on the drive Windows is installed on.</value>
+  </data>
+  <data name="Help_Health_DiskSpace_When" xml:space="preserve">
+    <value>Windows updates, shader caches and game patches need room; a nearly full drive makes them fail.</value>
+  </data>
+  <data name="Help_Health_BatteryWear_What" xml:space="preserve">
+    <value>How much charge the battery holds now compared with when it was new.</value>
+  </data>
+  <data name="Help_Health_BatteryWear_When" xml:space="preserve">
+    <value>Batteries wear with use and heat. Below 80% the laptop runs noticeably shorter on battery.</value>
+  </data>
 </root>

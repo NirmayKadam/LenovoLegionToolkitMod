@@ -25,6 +25,8 @@ public class IoCModule : Module
         builder.Register<DashboardSettings>();
         builder.Register<SensorsControlSettings>();
         builder.Register<HardwareSensorSettings>();
+        builder.Register<HealthSettings>();
+        builder.Register<HealthMonitor>();
 
         builder.Register<IpcServer>();
         builder.Register<GlobalHotkeyService>();

@@ -125,6 +125,12 @@
                         PageTag="dashboard"
                         PageType="{x:Type pages:DashboardPage}" />
                     <custom:NavigationItem
+                        x:Name="_healthItem"
+                        Content="{x:Static resources:Resource.MainWindow_NavigationItem_Health}"
+                        Icon="HeartPulse24"
+                        PageTag="health"
+                        PageType="{x:Type pages:HealthPage}" />
+                    <custom:NavigationItem
                         x:Name="_keyboardItem"
                         Content="{x:Static resources:Resource.MainWindow_NavigationItem_Keyboard}"
                         Icon="Keyboard24"
