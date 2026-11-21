@@ -150,10 +150,43 @@ public static class Registry
         }
         catch (UnauthorizedAccessException)
         {
-            if (fixPermissions && AddPermissions(hive, subKey))
-                SetValue(hive, subKey, valueName, value, false, valueKind);
-            else
+            if (!fixPermissions || AddPermissions(hive, subKey) is not { } addedRule)
                 throw;
+
+            // The access is only for this write: it used to stay on the key for good, letting any program running as
+            // this user change it later without administrator rights.
+            try
+            {
+                SetValue(hive, subKey, valueName, value, false, valueKind);
+            }
+            finally
+            {
+                RemovePermissions(hive, subKey, addedRule);
+            }
+        }
+    }
+
+    private static void RemovePermissions(string hive, string subKey, RegistryAccessRule rule)
+    {
+        try
+        {
+            using var baseKey = GetBaseKey(hive);
+            using var key = baseKey.OpenSubKey(subKey, RegistryKeyPermissionCheck.ReadWriteSubTree, RegistryRights.ChangePermissions | RegistryRights.ReadKey);
+            if (key is null)
+            {
+                Log.Instance.Trace($"Couldn't open {hive}\\{subKey} to remove the access added for the write.");
+                return;
+            }
+
+            var accessControl = key.GetAccessControl();
+            accessControl.RemoveAccessRuleSpecific(rule);
+            key.SetAccessControl(accessControl);
+
+            Log.Instance.Trace($"Access added for the write removed again from {hive}\\{subKey}.");
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Couldn't remove the access added for the write from {hive}\\{subKey}.", ex);
         }
     }
 
@@ -166,7 +199,8 @@ public static class Registry
         baseKey.DeleteSubKeyTree(subKey);
     }
 
-    private static bool AddPermissions(string hive, string subKey)
+    /// <summary>Gives the current user full access to the key; returns the rule added, or null when it couldn't.</summary>
+    private static RegistryAccessRule? AddPermissions(string hive, string subKey)
     {
         IdentityReference? originalOwner = null;
 
@@ -178,7 +212,7 @@ public static class Registry
             {
                 Log.Instance.Trace($"Could not get current user.");
 
-                return false;
+                return null;
             }
 
             Log.Instance.Trace($"Attempting to add permissions to {hive}\\{subKey} for {current.Name}...");
@@ -188,14 +222,14 @@ public static class Registry
             {
                 Log.Instance.Trace($"Could not get current security identifier of user {current.Name}.");
 
-                return false;
+                return null;
             }
 
             if (!TakeOwnership(hive, subKey, user, out originalOwner))
             {
                 Log.Instance.Trace($"Could not take ownership of {hive}\\{subKey}. [user={user}, originalOwner={originalOwner}]");
 
-                return false;
+                return null;
             }
 
             using var baseKey = GetBaseKey(hive);
@@ -204,19 +238,20 @@ public static class Registry
             {
                 Log.Instance.Trace($"Failed to open key {hive}\\{subKey} for {current.Name}.");
 
-                return false;
+                return null;
             }
 
             var accessControl = key.GetAccessControl();
 
             const RegistryRights rights = RegistryRights.FullControl;
             const AccessControlType type = AccessControlType.Allow;
-            accessControl.AddAccessRule(new(user, rights, type));
+            var rule = new RegistryAccessRule(user, rights, type);
+            accessControl.AddAccessRule(rule);
             key.SetAccessControl(accessControl);
 
             Log.Instance.Trace($"Permissions added on {hive}\\{subKey} for {current.Name}. [rights={rights}, type={type}]");
 
-            return true;
+            return rule;
         }
         catch (Exception ex)
         {

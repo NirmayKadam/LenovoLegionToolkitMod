@@ -343,23 +343,17 @@ public class WindowsPowerPlanController(ApplicationSettings settings, VantageDis
 
     public void SetPowerPlanParameter(WindowsPowerPlan windowsPowerPlan, Brightness brightness)
     {
-        try
-        {
-            PInvoke.PowerWriteACValueIndex(NullSafeHandle.Null, windowsPowerPlan.Guid, PInvoke.GUID_VIDEO_SUBGROUP, PInvokeExtensions.DISPLAY_BRIGTHNESS_SETTING_GUID, brightness.Value);
-        }
-        catch (Exception ex)
-        {
-            Log.Instance.Trace($"Failed to set AC brightness for power plan. [guid={windowsPowerPlan.Guid}]", ex);
-        }
+        // Windows takes 0–100 %; a byte can hold more.
+        var value = Math.Min(brightness.Value, (byte)100);
 
-        try
-        {
-            PInvoke.PowerWriteDCValueIndex(NullSafeHandle.Null, windowsPowerPlan.Guid, PInvoke.GUID_VIDEO_SUBGROUP, PInvokeExtensions.DISPLAY_BRIGTHNESS_SETTING_GUID, brightness.Value);
-        }
-        catch (Exception ex)
-        {
-            Log.Instance.Trace($"Failed to set DC brightness for power plan. [guid={windowsPowerPlan.Guid}]", ex);
-        }
+        // These calls report failure by their return code, not by throwing; it used to be ignored.
+        var ac = PInvoke.PowerWriteACValueIndex(NullSafeHandle.Null, windowsPowerPlan.Guid, PInvoke.GUID_VIDEO_SUBGROUP, PInvokeExtensions.DISPLAY_BRIGTHNESS_SETTING_GUID, value);
+        if (ac != (uint)WIN32_ERROR.ERROR_SUCCESS)
+            Log.Instance.Trace($"Failed to set AC brightness for power plan. [guid={windowsPowerPlan.Guid}, error={ac}]");
+
+        var dc = PInvoke.PowerWriteDCValueIndex(NullSafeHandle.Null, windowsPowerPlan.Guid, PInvoke.GUID_VIDEO_SUBGROUP, PInvokeExtensions.DISPLAY_BRIGTHNESS_SETTING_GUID, value);
+        if (dc != (uint)WIN32_ERROR.ERROR_SUCCESS)
+            Log.Instance.Trace($"Failed to set DC brightness for power plan. [guid={windowsPowerPlan.Guid}, error={dc}]");
     }
 
     private async Task<bool> ShouldSetPowerPlanAsync(bool alwaysActivateDefaults, bool isDefault)

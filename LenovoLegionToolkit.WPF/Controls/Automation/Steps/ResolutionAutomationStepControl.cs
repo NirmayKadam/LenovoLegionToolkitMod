@@ -18,7 +18,7 @@ public class ResolutionAutomationStepControl : AbstractComboBoxAutomationStepCar
         Title = Resource.ResolutionAutomationStepControl_Title;
         Subtitle = Resource.ResolutionAutomationStepControl_Message;
 
-        _listener.Changed += Listener_Changed;
+        this.WhileLoaded(() => _listener.Changed += Listener_Changed, () => _listener.Changed -= Listener_Changed);
     }
 
     private void Listener_Changed(object? sender, EventArgs e) => Dispatcher.Post(async () =>

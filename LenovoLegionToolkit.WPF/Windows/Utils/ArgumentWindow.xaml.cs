@@ -72,10 +72,13 @@ public partial class ArgumentWindow
             nameof(AppFlags.Instance.IsTraceEnabled),
             new("--trace", Resource.ArgumentWindow_Category_Debugging, SymbolRegular.AppsListDetail24, Resource.ArgumentWindow_Flag_TraceEnabled)
         },
+#if DEBUG
+        // Developer mode exists only in Debug builds (see AppFlags.Debug).
         {
             nameof(AppFlags.Instance.Debug),
             new("--debug", Resource.ArgumentWindow_Category_Debugging, SymbolRegular.Bug24, Resource.ArgumentWindow_Flag_DebugMode)
         },
+#endif
         {
             nameof(AppFlags.Instance.ProxyUrl),
             new("--proxy-url", Resource.ArgumentWindow_Category_Network_Proxy, SymbolRegular.Globe24, Resource.ArgumentWindow_Flag_ProxyUrl)

@@ -20,7 +20,7 @@ public class PortsBacklightControl : AbstractToggleFeatureCardControl<PortsBackl
         Title = Resource.PortsBacklightControl_Title;
         Subtitle = Resource.PortsBacklightControl_Message;
 
-        _listener.Changed += Listener_Changed;
+        this.WhileLoaded(() => _listener.Changed += Listener_Changed, () => _listener.Changed -= Listener_Changed);
     }
 
     private void Listener_Changed(object? sender, LightingChangeListener.ChangedEventArgs e) => Dispatcher.Post(async () =>

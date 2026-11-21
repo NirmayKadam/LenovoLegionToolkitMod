@@ -20,7 +20,7 @@ public class RefreshRateControl : AbstractComboBoxFeatureCardControl<RefreshRate
         Title = Resource.RefreshRateControl_Title;
         Subtitle = Resource.RefreshRateControl_Message;
 
-        _listener.Changed += Listener_Changed;
+        this.WhileLoaded(() => _listener.Changed += Listener_Changed, () => _listener.Changed -= Listener_Changed);
     }
 
     protected override async Task OnRefreshAsync()

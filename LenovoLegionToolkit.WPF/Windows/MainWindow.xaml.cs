@@ -109,21 +109,38 @@ public partial class MainWindow
     {
         _contentGrid.Visibility = Visibility.Hidden;
 
+        // A failed check hides its own sidebar entry; it no longer leaves the whole window blank and without a tray icon.
         if (!AppFlags.Instance.Debug)
         {
-            if (!await KeyboardBacklightPage.IsSupportedAsync())
+            try
             {
+                if (!await KeyboardBacklightPage.IsSupportedAsync())
+                {
+                    _navigationStore.Items.Remove(_keyboardItem);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Instance.Trace($"Keyboard backlight check failed; its page is hidden.", ex);
                 _navigationStore.Items.Remove(_keyboardItem);
             }
 
-            if (!await LampArrayRGBKeyboardPage.IsSupportedAsync())
+            try
             {
-                _navigationStore.Items.Remove(_lampArrayKeyboardItem);
-            }
+                if (!await LampArrayRGBKeyboardPage.IsSupportedAsync())
+                {
+                    _navigationStore.Items.Remove(_lampArrayKeyboardItem);
+                }
 
-            var mi = await Compatibility.GetMachineInformationAsync();
-            if (!(mi.LegionSeries == LegionSeries.Legion_Pro_7 && mi.Generation >= 10))
+                var mi = await Compatibility.GetMachineInformationAsync();
+                if (!(mi.LegionSeries == LegionSeries.Legion_Pro_7 && mi.Generation >= 10))
+                {
+                    _navigationStore.Items.Remove(_lampArrayKeyboardItem);
+                }
+            }
+            catch (Exception ex)
             {
+                Log.Instance.Trace($"LampArray keyboard check failed; its page is hidden.", ex);
                 _navigationStore.Items.Remove(_lampArrayKeyboardItem);
             }
         }
@@ -156,7 +173,15 @@ public partial class MainWindow
             InputBindings.Add(new KeyBinding(new ActionCommand(() => _navigationStore.Navigate(item.PageTag)), (Key)key++, ModifierKeys.Control));
 
         var trayHelper = new TrayHelper(_navigationStore, BringToForeground, TrayTooltipEnabled);
-        await trayHelper.InitializeAsync();
+        try
+        {
+            await trayHelper.InitializeAsync();
+        }
+        catch (Exception ex)
+        {
+            // The tray icon still appears, without the quick actions.
+            Log.Instance.Trace($"Quick actions for the tray menu couldn't be loaded.", ex);
+        }
         trayHelper.MakeVisible();
         _trayHelper = trayHelper;
 
@@ -562,25 +587,19 @@ public partial class MainWindow
         if (DisableConflictingSoftwareWarning)
             return;
 
-        _vantageDisabler.OnRefreshed += async (_, e) => await Dispatcher.InvokeAsync(() =>
+        // The checkers live as long as the app; the window unsubscribes when it closes (a window restart used to leave
+        // the old window attached, and alive).
+        _vantageDisabler.OnRefreshed += VantageDisabler_OnRefreshed;
+        _legionSpaceDisabler.OnRefreshed += LegionSpaceDisabler_OnRefreshed;
+        _legionZoneDisabler.OnRefreshed += LegionZoneDisabler_OnRefreshed;
+        _fnKeysDisabler.OnRefreshed += FnKeysDisabler_OnRefreshed;
+        Closed += (_, _) =>
         {
-            _vantageIndicator.Visibility = e.Status == SoftwareStatus.Enabled ? Visibility.Visible : Visibility.Collapsed;
-        });
-
-        _legionSpaceDisabler.OnRefreshed += async (_, e) => await Dispatcher.InvokeAsync(() =>
-        {
-            _legionSpaceIndicator.Visibility = e.Status == SoftwareStatus.Enabled ? Visibility.Visible : Visibility.Collapsed;
-        });
-
-        _legionZoneDisabler.OnRefreshed += async (_, e) => await Dispatcher.InvokeAsync(() =>
-        {
-            _legionZoneIndicator.Visibility = e.Status == SoftwareStatus.Enabled ? Visibility.Visible : Visibility.Collapsed;
-        });
-
-        _fnKeysDisabler.OnRefreshed += async (_, e) => await Dispatcher.InvokeAsync(() =>
-        {
-            _fnKeysIndicator.Visibility = e.Status == SoftwareStatus.Enabled ? Visibility.Visible : Visibility.Collapsed;
-        });
+            _vantageDisabler.OnRefreshed -= VantageDisabler_OnRefreshed;
+            _legionSpaceDisabler.OnRefreshed -= LegionSpaceDisabler_OnRefreshed;
+            _legionZoneDisabler.OnRefreshed -= LegionZoneDisabler_OnRefreshed;
+            _fnKeysDisabler.OnRefreshed -= FnKeysDisabler_OnRefreshed;
+        };
 
         Task.Run(async () =>
         {
@@ -590,6 +609,15 @@ public partial class MainWindow
             _ = await _fnKeysDisabler.GetStatusAsync().ConfigureAwait(false);
         });
     }
+
+    // Raised on the checkers' threads.
+    private void VantageDisabler_OnRefreshed(object? sender, AbstractSoftwareDisabler.AbstractSoftwareDisablerEventArgs e) => ShowIndicator(_vantageIndicator, e.Status);
+    private void LegionSpaceDisabler_OnRefreshed(object? sender, AbstractSoftwareDisabler.AbstractSoftwareDisablerEventArgs e) => ShowIndicator(_legionSpaceIndicator, e.Status);
+    private void LegionZoneDisabler_OnRefreshed(object? sender, AbstractSoftwareDisabler.AbstractSoftwareDisablerEventArgs e) => ShowIndicator(_legionZoneIndicator, e.Status);
+    private void FnKeysDisabler_OnRefreshed(object? sender, AbstractSoftwareDisabler.AbstractSoftwareDisablerEventArgs e) => ShowIndicator(_fnKeysIndicator, e.Status);
+
+    private void ShowIndicator(UIElement indicator, SoftwareStatus status) =>
+        Dispatcher.Post(() => indicator.Visibility = status == SoftwareStatus.Enabled ? Visibility.Visible : Visibility.Collapsed);
 
     public void CheckForUpdates(bool manualCheck = false) => _ = CheckForUpdatesAsync(manualCheck);
 

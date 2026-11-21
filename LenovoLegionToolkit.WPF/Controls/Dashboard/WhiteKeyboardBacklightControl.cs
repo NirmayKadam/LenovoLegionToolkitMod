@@ -16,7 +16,7 @@ public class WhiteKeyboardBacklightControl : AbstractComboBoxFeatureCardControl<
         Title = Resource.WhiteKeyboardBacklightControl_Title;
         Subtitle = Resource.WhiteKeyboardBacklightControl_Message;
 
-        _listener.Changed += ListenerChanged;
+        this.WhileLoaded(() => _listener.Changed += ListenerChanged, () => _listener.Changed -= ListenerChanged);
     }
 
     private void ListenerChanged(object? sender, DriverKeyListener.ChangedEventArgs e) => Dispatcher.Post(async () =>

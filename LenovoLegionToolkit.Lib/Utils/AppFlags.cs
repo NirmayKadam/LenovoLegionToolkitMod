@@ -32,11 +32,23 @@ public class AppFlags
     }
 
     private bool _debug;
+
+    /// <summary>
+    /// Developer mode: features claim to be supported without asking the laptop, and every control is forced on. Only
+    /// in Debug builds; an installed (Release) build ignores it, since it could send commands to hardware that doesn't
+    /// have the feature.
+    /// </summary>
     public bool Debug
     {
         get => _debug;
-        set { _debug = value; Save(); }
+        set { _debug = value && IsDebugBuild; Save(); }
     }
+
+#if DEBUG
+    public const bool IsDebugBuild = true;
+#else
+    public const bool IsDebugBuild = false;
+#endif
 
     private bool _disableTrayTooltip;
     public bool DisableTrayTooltip
@@ -164,7 +176,7 @@ public class AppFlags
         _isTraceEnabled = BoolValue(args, "--trace");
         _minimized = BoolValue(args, "--minimized");
         _skipCompatibilityCheck = BoolValue(args, "--skip-compat-check");
-        _debug = BoolValue(args, "--debug");
+        _debug = BoolValue(args, "--debug") && IsDebugBuild;
         _disableTrayTooltip = BoolValue(args, "--disable-tray-tooltip");
         _allowAllPowerModesOnBattery = BoolValue(args, "--allow-all-power-modes-on-battery");
         _forceDisableRgbKeyboardSupport = BoolValue(args, "--force-disable-rgbkb");

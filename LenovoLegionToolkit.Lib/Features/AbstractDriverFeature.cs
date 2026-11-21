@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LenovoLegionToolkit.Lib.Extensions;
+using LenovoLegionToolkit.Lib.System;
 using LenovoLegionToolkit.Lib.Utils;
 using Microsoft.Win32.SafeHandles;
 
@@ -107,6 +108,9 @@ public abstract class AbstractDriverFeature<T>(
                 return outBuffer;
 
             var error = Marshal.GetLastWin32Error();
+            // The request is not repeated here (it may have been a write); the next one gets a fresh handle.
+            if (Drivers.IsStaleHandleError(error))
+                Drivers.ForgetEnergy(handle);
             throw new InvalidOperationException($"DeviceIoControl failed, error: {error}");
         });
 

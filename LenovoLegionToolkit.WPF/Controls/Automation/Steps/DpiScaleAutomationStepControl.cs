@@ -19,7 +19,7 @@ public class DpiScaleAutomationStepControl : AbstractComboBoxAutomationStepCardC
         Title = Resource.DpiScaleAutomationStepControl_Title;
         Subtitle = Resource.DpiScaleAutomationStepControl_Message;
 
-        _listener.Changed += Listener_Changed;
+        this.WhileLoaded(() => _listener.Changed += Listener_Changed, () => _listener.Changed -= Listener_Changed);
     }
 
     protected override string ComboBoxItemDisplayName(DpiScale value)

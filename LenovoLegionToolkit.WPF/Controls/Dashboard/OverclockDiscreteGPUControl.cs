@@ -58,8 +58,8 @@ public class OverclockDiscreteGPUControl : AbstractRefreshingControl
     {
         InitializeComponent();
 
-        _nativeWindowsMessageListener.Changed += NativeWindowsMessageListener_Changed;
-        _controller.Changed += Controller_Changed;
+        this.WhileLoaded(() => _nativeWindowsMessageListener.Changed += NativeWindowsMessageListener_Changed, () => _nativeWindowsMessageListener.Changed -= NativeWindowsMessageListener_Changed);
+        this.WhileLoaded(() => _controller.Changed += Controller_Changed, () => _controller.Changed -= Controller_Changed);
     }
 
     private void InitializeComponent()

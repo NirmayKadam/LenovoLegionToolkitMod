@@ -41,26 +41,17 @@ public partial class RGBKeyboardBacklightControl
     {
         InitializeComponent();
 
-        _listener.Changed += Listener_Changed;
-
+        this.WhileLoaded(() => _listener.Changed += Listener_Changed, () => _listener.Changed -= Listener_Changed);
 
         SizeChanged += RGBKeyboardBacklightControl_SizeChanged;
-        Unloaded += RGBKeyboardBacklightControl_Unloaded;
 
-        MessagingCenter.Subscribe<RGBKeyboardBacklightChangedMessage>(this, () => Dispatcher.Post(async () =>
+        this.WhileLoaded(() => MessagingCenter.Subscribe<RGBKeyboardBacklightChangedMessage>(this, () => Dispatcher.Post(async () =>
         {
             if (!IsVisible)
                 return;
 
             await RefreshAsync();
-        }));
-
-
-    }
-
-    private void RGBKeyboardBacklightControl_Unloaded(object sender, RoutedEventArgs e)
-    {
-
+        })), () => MessagingCenter.Unsubscribe<RGBKeyboardBacklightChangedMessage>(this));
     }
 
 

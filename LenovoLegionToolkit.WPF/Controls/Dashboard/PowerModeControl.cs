@@ -8,6 +8,7 @@ using LenovoLegionToolkit.Lib.Features;
 using LenovoLegionToolkit.Lib.Listeners;
 using LenovoLegionToolkit.Lib.System;
 using LenovoLegionToolkit.Lib.Utils;
+using LenovoLegionToolkit.WPF.Extensions;
 using LenovoLegionToolkit.WPF.Resources;
 using Wpf.Ui.Common;
 using Button = Wpf.Ui.Controls.Button;
@@ -38,8 +39,8 @@ public class PowerModeControl : AbstractComboBoxFeatureCardControl<PowerModeStat
 
         AutomationProperties.SetName(_configButton, Resource.PowerModeControl_Title);
 
-        _thermalModeListener.Changed += ThermalModeListener_Changed;
-        _powerModeListener.Changed += PowerModeListener_Changed;
+        this.WhileLoaded(() => _thermalModeListener.Changed += ThermalModeListener_Changed, () => _thermalModeListener.Changed -= ThermalModeListener_Changed);
+        this.WhileLoaded(() => _powerModeListener.Changed += PowerModeListener_Changed, () => _powerModeListener.Changed -= PowerModeListener_Changed);
     }
 
     private async void ThermalModeListener_Changed(object? sender, ThermalModeListener.ChangedEventArgs e) => await _throttleDispatcher.DispatchLoggingErrorsAsync(async () =>

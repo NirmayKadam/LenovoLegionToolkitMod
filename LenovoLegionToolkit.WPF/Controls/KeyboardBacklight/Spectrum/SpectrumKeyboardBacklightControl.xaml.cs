@@ -66,11 +66,11 @@ public partial class SpectrumKeyboardBacklightControl
         IsVisibleChanged += SpectrumKeyboardBacklightControl_IsVisibleChanged;
         SizeChanged += SpectrumKeyboardBacklightControl_SizeChanged;
 
-        _listener.Changed += Listener_Changed;
+        this.WhileLoaded(() => _listener.Changed += Listener_Changed, () => _listener.Changed -= Listener_Changed);
 
         Focusable = false;
 
-        MessagingCenter.Subscribe<SpectrumBacklightChangedMessage>(this, () => Dispatcher.Post(async () =>
+        this.WhileLoaded(() => MessagingCenter.Subscribe<SpectrumBacklightChangedMessage>(this, () => Dispatcher.Post(async () =>
         {
             if (!IsVisible)
                 return;
@@ -78,10 +78,7 @@ public partial class SpectrumKeyboardBacklightControl
             await RefreshBrightnessAsync();
             await RefreshProfileAsync();
             await RefreshProfileDescriptionAsync();
-        }));
-
-
-
+        })), () => MessagingCenter.Unsubscribe<SpectrumBacklightChangedMessage>(this));
     }
 
     private async void SpectrumKeyboardBacklightControl_IsVisibleChanged(object sender,

@@ -201,9 +201,40 @@ public class SensorsGroupController : IDisposable
         _cpuProvider.SensorResetNeeded += OnSensorResetNeeded;
     }
 
-    private void OnSensorResetNeeded()
+    private void OnSensorResetNeeded() => RequestReset("the CPU sensors asked for it");
+
+    private int _resetRequested;
+    private long _lastResetTicks;
+    private static readonly TimeSpan MinimumTimeBetweenResets = TimeSpan.FromSeconds(10);
+
+    /// <summary>
+    /// Reopens the sensor library in the background: one at a time, and at most once every 10 s. A reset closes and
+    /// reopens the hardware driver; a read failing on every tick used to start one reset per tick, piling up.
+    /// </summary>
+    private void RequestReset(string reason, Exception? cause = null)
     {
-        Task.Run(ResetSensors);
+        var sinceLast = TimeSpan.FromTicks(Environment.TickCount64 * TimeSpan.TicksPerMillisecond - Interlocked.Read(ref _lastResetTicks));
+        if (sinceLast < MinimumTimeBetweenResets || Interlocked.CompareExchange(ref _resetRequested, 1, 0) != 0)
+            return;
+
+        Log.Instance.Trace($"Resetting sensors: {reason}.", cause);
+
+        Task.Run(() =>
+        {
+            try
+            {
+                ResetSensors();
+            }
+            catch (Exception ex)
+            {
+                Log.Instance.Trace($"Resetting sensors failed.", ex);
+            }
+            finally
+            {
+                Interlocked.Exchange(ref _lastResetTicks, Environment.TickCount64 * TimeSpan.TicksPerMillisecond);
+                Interlocked.Exchange(ref _resetRequested, 0);
+            }
+        });
     }
 
     #region Subscription
@@ -579,7 +610,11 @@ public class SensorsGroupController : IDisposable
                     }
                     catch (Exception ex)
                     {
-                        if (ex is IndexOutOfRangeException) Task.Run(ResetSensors);
+                        // The sensor library's lists change size when hardware comes or goes (the dGPU turning off).
+                        if (ex is IndexOutOfRangeException)
+                            RequestReset("its hardware list changed during a read", ex);
+                        else
+                            Log.Instance.Trace($"Sensor read failed.", ex);
                     }
                 }
             }).ConfigureAwait(false);

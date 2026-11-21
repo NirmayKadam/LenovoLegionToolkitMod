@@ -23,7 +23,7 @@ public class TouchpadLockControl : AbstractToggleFeatureCardControl<TouchpadLock
         Title = Resource.TouchpadLockControl_Title;
         Subtitle = Resource.TouchpadLockControl_Message;
 
-        _listener.Changed += Listener_Changed;
+        this.WhileLoaded(() => _listener.Changed += Listener_Changed, () => _listener.Changed -= Listener_Changed);
     }
 
     protected override async Task OnStateChange(ToggleSwitch toggle, IFeature<TouchpadLockState> feature)

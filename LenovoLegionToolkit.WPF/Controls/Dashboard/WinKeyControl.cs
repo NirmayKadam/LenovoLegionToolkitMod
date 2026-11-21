@@ -23,7 +23,7 @@ public class WinKeyControl : AbstractToggleFeatureCardControl<WinKeyState>
         Title = Resource.WinKeyControl_Title;
         Subtitle = Resource.WinKeyControl_Message;
 
-        _listener.Changed += Listener_Changed;
+        this.WhileLoaded(() => _listener.Changed += Listener_Changed, () => _listener.Changed -= Listener_Changed);
     }
 
     private void Listener_Changed(object? sender, EventArgs e) => Dispatcher.Post(async () =>

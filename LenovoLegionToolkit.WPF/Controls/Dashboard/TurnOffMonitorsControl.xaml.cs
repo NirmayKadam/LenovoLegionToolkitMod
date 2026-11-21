@@ -1,7 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using System.Windows;
 using LenovoLegionToolkit.Lib;
 using LenovoLegionToolkit.Lib.Listeners;
+using LenovoLegionToolkit.Lib.Utils;
 
 namespace LenovoLegionToolkit.WPF.Controls.Dashboard;
 
@@ -14,8 +16,18 @@ public partial class TurnOffMonitorsControl
     private async void TurnOffButton_Click(object sender, RoutedEventArgs e)
     {
         _turnOffButton.IsEnabled = false;
-        await _nativeWindowsMessageListener.TurnOffMonitorAsync();
-        _turnOffButton.IsEnabled = true;
+        try
+        {
+            await _nativeWindowsMessageListener.TurnOffMonitorAsync();
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Turning off the monitors failed.", ex);
+        }
+        finally
+        {
+            _turnOffButton.IsEnabled = true;
+        }
     }
 
     protected override Task OnRefreshAsync() => Task.CompletedTask;

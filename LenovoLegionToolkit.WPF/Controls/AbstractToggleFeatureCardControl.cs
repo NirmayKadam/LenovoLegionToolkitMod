@@ -103,6 +103,12 @@ public abstract class AbstractToggleFeatureCardControl<T> : AbstractRefreshingCo
 
     protected override void OnFinishedLoading()
     {
+        // Loaded fires each time the card comes back on screen: keep one subscription, not one per visit (they used
+        // to pile up, each refreshing the card again). Unloaded drops it, so a card taken off the dashboard can go.
+        MessagingCenter.Unsubscribe<FeatureStateMessage<T>>(this);
+        Unloaded -= FeatureCard_Unloaded;
+        Unloaded += FeatureCard_Unloaded;
+
         MessagingCenter.Subscribe<FeatureStateMessage<T>>(this, () => Dispatcher.Post(async () =>
         {
             if (!IsVisible)
@@ -111,6 +117,8 @@ public abstract class AbstractToggleFeatureCardControl<T> : AbstractRefreshingCo
             await RefreshAsync();
         }));
     }
+
+    private void FeatureCard_Unloaded(object sender, RoutedEventArgs e) => MessagingCenter.Unsubscribe<FeatureStateMessage<T>>(this);
 
     protected virtual async Task OnStateChange(ToggleSwitch toggle, IFeature<T> feature)
     {

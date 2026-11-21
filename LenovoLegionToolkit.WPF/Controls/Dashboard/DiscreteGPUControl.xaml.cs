@@ -23,8 +23,8 @@ public partial class DiscreteGPUControl
     {
         InitializeComponent();
 
-        _gpuController.Refreshed += GpuController_Refreshed;
-        _nativeWindowsMessageListener.Changed += NativeWindowsMessageListener_Changed;
+        this.WhileLoaded(() => _gpuController.Refreshed += GpuController_Refreshed, () => _gpuController.Refreshed -= GpuController_Refreshed);
+        this.WhileLoaded(() => _nativeWindowsMessageListener.Changed += NativeWindowsMessageListener_Changed, () => _nativeWindowsMessageListener.Changed -= NativeWindowsMessageListener_Changed);
 
         IsVisibleChanged += DiscreteGPUControl_IsVisibleChanged;
     }
@@ -169,16 +169,25 @@ public partial class DiscreteGPUControl
         _deactivateGPUButton.ContextMenu.IsOpen = true;
     }
 
-    private async void KillAppsMenuItem_Click(object sender, RoutedEventArgs e)
-    {
-        _deactivateGPUButton.IsEnabled = false;
-        await _gpuController.KillGPUProcessesAsync();
-    }
+    private async void KillAppsMenuItem_Click(object sender, RoutedEventArgs e) =>
+        await DeactivateAsync(_gpuController.KillGPUProcessesAsync, "Closing the apps using the GPU");
 
-    private async void RestartGPUMenuItem_Click(object sender, RoutedEventArgs e)
+    private async void RestartGPUMenuItem_Click(object sender, RoutedEventArgs e) =>
+        await DeactivateAsync(_gpuController.RestartGPUAsync, "Restarting the GPU");
+
+    /// <summary>The button comes back with the next GPU check; after a failure it comes back at once.</summary>
+    private async Task DeactivateAsync(Func<Task> action, string what)
     {
         _deactivateGPUButton.IsEnabled = false;
-        await _gpuController.RestartGPUAsync();
+        try
+        {
+            await action();
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"{what} failed.", ex);
+            _deactivateGPUButton.IsEnabled = true;
+        }
     }
 
     private void GpuInfoButton_Click(object sender, RoutedEventArgs e)

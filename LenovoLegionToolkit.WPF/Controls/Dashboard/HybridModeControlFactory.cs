@@ -58,7 +58,7 @@ public static class HybridModeControlFactory
             AutomationProperties.SetName(_infoButton, Resource.ComboBoxHybridModeControl_Title);
             AutomationProperties.SetHelpText(_infoButton, Resource.Information);
 
-            _dgpuNotify.Notified += DGPUNotify_Notified;
+            this.WhileLoaded(() => _dgpuNotify.Notified += DGPUNotify_Notified, () => _dgpuNotify.Notified -= DGPUNotify_Notified);
         }
 
         protected override FrameworkElement GetAccessory(ComboBox comboBox)

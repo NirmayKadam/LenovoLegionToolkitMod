@@ -24,8 +24,8 @@ public partial class MacroSequenceControl
     {
         InitializeComponent();
 
-        _controller.RecorderReceived += Controller_RecorderReceived;
-        _controller.RecorderStopped += Controller_RecorderStopped;
+        this.WhileLoaded(() => _controller.RecorderReceived += Controller_RecorderReceived, () => _controller.RecorderReceived -= Controller_RecorderReceived);
+        this.WhileLoaded(() => _controller.RecorderStopped += Controller_RecorderStopped, () => _controller.RecorderStopped -= Controller_RecorderStopped);
     }
 
     public void Set(MacroIdentifier macroIdentifier)

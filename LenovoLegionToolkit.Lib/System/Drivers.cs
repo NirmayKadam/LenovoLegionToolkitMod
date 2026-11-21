@@ -1,4 +1,5 @@
 ﻿using System;
+using LenovoLegionToolkit.Lib.Utils;
 using Windows.Win32;
 using Windows.Win32.Storage.FileSystem;
 using Microsoft.Win32.SafeHandles;
@@ -47,4 +48,26 @@ public static class Drivers
 
         return _energy;
     }
+
+    /// <summary>
+    /// Forgets the Lenovo driver handle after Windows said it is no longer valid (the driver was restarted or updated
+    /// while Indra ran), so the next request opens a fresh one instead of failing until Indra restarts. The old handle
+    /// is not closed: another thread may still be using it, and closing it under that thread is worse than keeping one
+    /// stale handle until exit.
+    /// </summary>
+    public static void ForgetEnergy(SafeFileHandle stale)
+    {
+        lock (Lock)
+        {
+            if (!ReferenceEquals(_energy, stale))
+                return;
+
+            _energy = null;
+        }
+
+        Log.Instance.Trace($"Lenovo driver handle no longer valid; it will be opened again on the next request.");
+    }
+
+    /// <summary>Errors that mean the handle itself is gone (rather than the request being refused).</summary>
+    public static bool IsStaleHandleError(int win32Error) => win32Error is 6 /* ERROR_INVALID_HANDLE */ or 1167 /* ERROR_DEVICE_NOT_CONNECTED */;
 }

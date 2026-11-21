@@ -6,7 +6,9 @@ using System.Windows.Controls;
 using LenovoLegionToolkit.Lib;
 using LenovoLegionToolkit.Lib.Automation;
 using LenovoLegionToolkit.Lib.Automation.Pipeline;
+using LenovoLegionToolkit.Lib.Utils;
 using LenovoLegionToolkit.WPF.Assets;
+using LenovoLegionToolkit.WPF.Extensions;
 using LenovoLegionToolkit.WPF.Resources;
 using LenovoLegionToolkit.WPF.Windows.Utils;
 using Wpf.Ui.Common;
@@ -53,8 +55,14 @@ public class TrayHelper : IDisposable
         notifyIcon.OnClick += (_, _) => _bringToForeground();
         _notifyIcon = notifyIcon;
 
-        _themeManager.ThemeApplied += (_, _) => _contextMenu.Resources = App.Current.Resources;
+        _themeManager.ThemeApplied += ThemeManager_ThemeApplied;
     }
+
+    private void ThemeManager_ThemeApplied(object? sender, EventArgs e) => _contextMenu.Resources = App.Current.Resources;
+
+    // Raised after a background save of the rules: the menu is changed on the UI thread.
+    private void AutomationProcessor_PipelinesChanged(object? sender, List<AutomationPipeline> pipelines) =>
+        _contextMenu.Dispatcher.Post(() => SetAutomationItems(pipelines));
 
     public async Task InitializeAsync()
     {
@@ -62,7 +70,8 @@ public class TrayHelper : IDisposable
         pipelines = pipelines.Where(p => p.Trigger is null).ToList();
         SetAutomationItems(pipelines);
 
-        _automationProcessor.PipelinesChanged += (_, p) => SetAutomationItems(p);
+        _automationProcessor.PipelinesChanged -= AutomationProcessor_PipelinesChanged;
+        _automationProcessor.PipelinesChanged += AutomationProcessor_PipelinesChanged;
     }
 
     private void InitializeStaticItems(INavigation navigation)
@@ -133,7 +142,10 @@ public class TrayHelper : IDisposable
                 {
                     await _automationProcessor.RunNowAsync(pipeline);
                 }
-                catch {  /* Ignore */ }
+                catch (Exception ex)
+                {
+                    Log.Instance.Trace($"Running a quick action from the tray failed. [name={pipeline.Name}]", ex);
+                }
             };
 
             _contextMenu.Items.Insert(0, item);
@@ -151,6 +163,10 @@ public class TrayHelper : IDisposable
     public void Dispose()
     {
         GC.SuppressFinalize(this);
+
+        // The theme manager and the rules live as long as the app; a disposed tray icon must not stay attached to them.
+        _themeManager.ThemeApplied -= ThemeManager_ThemeApplied;
+        _automationProcessor.PipelinesChanged -= AutomationProcessor_PipelinesChanged;
 
         if (_notifyIcon is not null)
             _notifyIcon.Visible = false;

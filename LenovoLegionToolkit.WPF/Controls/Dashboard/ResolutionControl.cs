@@ -20,7 +20,7 @@ public class ResolutionControl : AbstractComboBoxFeatureCardControl<Resolution>
         Title = Resource.ResolutionControl_Title;
         Subtitle = Resource.ResolutionControl_Message;
 
-        _listener.Changed += Listener_Changed;
+        this.WhileLoaded(() => _listener.Changed += Listener_Changed, () => _listener.Changed -= Listener_Changed);
     }
 
     protected override async Task OnRefreshAsync()

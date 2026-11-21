@@ -288,6 +288,12 @@ public sealed class AmdOverclockingController : IDisposable
                 {
                     if (profile.CoreValues[i] is { } value && IsCoreActive(i))
                     {
+                        if (!IsUsableCurveOptimizerValue(value))
+                        {
+                            Log.Instance.Trace($"Curve Optimizer core {i} not applied: {value} is outside ±{CurveOptimizerLimit}.");
+                            continue;
+                        }
+
                         if (_cpu.SetPsmMarginSingleCore(EncodeCoreMarginBitmask(i), (int)value))
                         {
                             applied.Add($"Core {i}: {value}");
@@ -314,13 +320,13 @@ public sealed class AmdOverclockingController : IDisposable
 
             // Advanced Settings
             ApplyAndLog("FMax", profile.FMax, v => _cpu.SetFMax(v));
-            ApplyAndLog("StapmLimit", profile.PowerLimit1, v => _cpu.SetStapmLimit((uint)v));
-            ApplyAndLog("FastLimit", profile.PowerLimit2, v => _cpu.SetFastLimit((uint)v));
-            ApplyAndLog("SlowLimit", profile.PowerLimit3, v => _cpu.SetSlowLimit((uint)v));
-            ApplyAndLog("TDCSOC", profile.TDCSoc, v => _cpu.SetTDCSOCLimit((uint)v));
-            ApplyAndLog("TDCVDD", profile.TDCVdd, v => _cpu.SetTDCVDDLimit((uint)v));
-            ApplyAndLog("EDCSOC", profile.EDCSoc, v => _cpu.SetEDCSOCLimit((uint)v));
-            ApplyAndLog("EDCVDD", profile.EDCVdd, v => _cpu.SetEDCVDDLimit((uint)v));
+            ApplyAndLog("StapmLimit", UsableLimit("StapmLimit", profile.PowerLimit1), v => _cpu.SetStapmLimit(v));
+            ApplyAndLog("FastLimit", UsableLimit("FastLimit", profile.PowerLimit2), v => _cpu.SetFastLimit(v));
+            ApplyAndLog("SlowLimit", UsableLimit("SlowLimit", profile.PowerLimit3), v => _cpu.SetSlowLimit(v));
+            ApplyAndLog("TDCSOC", UsableLimit("TDCSOC", profile.TDCSoc), v => _cpu.SetTDCSOCLimit(v));
+            ApplyAndLog("TDCVDD", UsableLimit("TDCVDD", profile.TDCVdd), v => _cpu.SetTDCVDDLimit(v));
+            ApplyAndLog("EDCSOC", UsableLimit("EDCSOC", profile.EDCSoc), v => _cpu.SetEDCSOCLimit(v));
+            ApplyAndLog("EDCVDD", UsableLimit("EDCVDD", profile.EDCVdd), v => _cpu.SetEDCVDDLimit(v));
         }).ConfigureAwait(false);
 
         await ForceApplyPowerMappingAsync().ConfigureAwait(false);
@@ -390,14 +396,40 @@ public sealed class AmdOverclockingController : IDisposable
         return _cpu.GetPsmMarginSingleCore(EncodeCoreMarginBitmask(coreIndex)) != null;
     }
 
-    private void ApplyAndLog<T>(string settingName, T? value, Action<T> applyAction) where T : struct
+    private static void ApplyAndLog<T, TResult>(string settingName, T? value, Func<T, TResult> applyAction) where T : struct
     {
-        if (value.HasValue)
-        {
-            Log.Instance.Trace($"{settingName,-12} = {value.Value}");
-            applyAction(value.Value);
-        }
+        if (!value.HasValue)
+            return;
+
+        // The SMU's answer used to be dropped: a refused value looked applied.
+        var status = applyAction(value.Value);
+        Log.Instance.Trace($"{settingName,-12} = {value.Value} [status={status}]");
     }
+
+    /// <summary>
+    /// A power or current limit for the SMU, or null to leave it alone. The profile stores these as signed numbers and
+    /// they were cast straight to unsigned: a negative value (a damaged or hand-edited profile) became about 4 billion.
+    /// </summary>
+    internal static uint? UsableLimit(string settingName, short? value)
+    {
+        if (value is null)
+            return null;
+
+        if (value.Value > 0)
+            return (uint)value.Value;
+
+        Log.Instance.Trace($"{settingName} not applied: {value.Value} is not a usable limit.");
+        return null;
+    }
+
+    /// <summary>
+    /// The widest Curve Optimizer range AMD documents is -50 to +50 (Ryzen 7000 and later; earlier ones accept less and
+    /// refuse the rest themselves). A value outside it can only come from a damaged or hand-edited profile.
+    /// </summary>
+    internal const int CurveOptimizerLimit = 50;
+
+    internal static bool IsUsableCurveOptimizerValue(double value) =>
+        !double.IsNaN(value) && Math.Abs(value) <= CurveOptimizerLimit;
 
     public static uint[] MakeCmdArgs(uint arg = 0, uint maxArgs = 6)
     {

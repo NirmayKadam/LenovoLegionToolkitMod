@@ -19,7 +19,7 @@ public class MicrophoneControl : AbstractToggleFeatureCardControl<MicrophoneStat
         Title = Resource.MicrophoneControl_Title;
         Subtitle = Resource.MicrophoneControl_Message;
 
-        _listener.Changed += Listener_Changed;
+        this.WhileLoaded(() => _listener.Changed += Listener_Changed, () => _listener.Changed -= Listener_Changed);
     }
 
     private void Listener_Changed(object? sender, DriverKeyListener.ChangedEventArgs e) => Dispatcher.Post(async () =>

@@ -1,8 +1,10 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Input;
 using LenovoLegionToolkit.Lib;
 using LenovoLegionToolkit.Lib.Controllers;
 using LenovoLegionToolkit.Lib.Features;
+using LenovoLegionToolkit.Lib.Utils;
 
 namespace LenovoLegionToolkit.WPF.Windows.Dashboard;
 
@@ -32,9 +34,27 @@ public partial class BalanceModeSettingsWindow
 
         _aiController.IsAIModeEnabled = isAiModeChecked;
 
-        await _aiController.StopAsync();
-        await _powerModeFeature.SetStateAsync(PowerModeState.Balance);
-        await _aiController.StartIfNeededAsync();
+        try
+        {
+            await _aiController.StopAsync();
+            await _powerModeFeature.SetStateAsync(PowerModeState.Balance);
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Applying the Balance mode settings failed.", ex);
+        }
+        finally
+        {
+            // Started again whatever happened above: a failure used to leave AI mode stopped until Indra restarted.
+            try
+            {
+                await _aiController.StartIfNeededAsync();
+            }
+            catch (Exception ex)
+            {
+                Log.Instance.Trace($"Restarting AI mode failed.", ex);
+            }
+        }
 
         Close();
     }

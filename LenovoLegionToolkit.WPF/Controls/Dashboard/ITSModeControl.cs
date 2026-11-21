@@ -8,6 +8,7 @@ using LenovoLegionToolkit.Lib.Extensions;
 using LenovoLegionToolkit.Lib.Features;
 using LenovoLegionToolkit.Lib.Listeners;
 using LenovoLegionToolkit.Lib.Utils;
+using LenovoLegionToolkit.WPF.Extensions;
 using LenovoLegionToolkit.WPF.Resources;
 using LenovoLegionToolkit.WPF.Utils;
 using LenovoLegionToolkit.WPF.Windows.Dashboard;
@@ -39,7 +40,7 @@ public class ITSModeControl : AbstractComboBoxFeatureCardControl<ITSMode>
         _configButton.Click += ConfigButton_Click;
 
         IsVisibleChanged += ITSModeControl_IsVisibleChanged;
-        _iTSModeListener.Changed += ITSModeListener_Changed;
+        this.WhileLoaded(() => _iTSModeListener.Changed += ITSModeListener_Changed, () => _iTSModeListener.Changed -= ITSModeListener_Changed);
     }
 
     protected override FrameworkElement GetAccessory(ComboBox comboBox)

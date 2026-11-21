@@ -21,7 +21,7 @@ public class DpiScaleControl : AbstractComboBoxFeatureCardControl<DpiScale>
         Title = Resource.DpiScaleControl_Title;
         Subtitle = Resource.DpiScaleControl_Message;
 
-        _listener.Changed += Listener_Changed;
+        this.WhileLoaded(() => _listener.Changed += Listener_Changed, () => _listener.Changed -= Listener_Changed);
     }
 
     protected override async Task OnRefreshAsync()

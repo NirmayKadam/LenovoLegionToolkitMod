@@ -151,6 +151,21 @@ public static partial class Compatibility
 
     private static readonly SemaphoreSlim MachineInformationLock = new(1, 1);
     private static MachineInformation? _machineInformation;
+
+    // Set during a scan (one at a time, under MachineInformationLock) when a probe got no answer in time.
+    private static bool _probeTimedOut;
+
+    /// <summary>
+    /// A probe that failed. Most failures mean the laptop doesn't have that feature (and the scan says so); a timeout
+    /// means Windows didn't answer, so the scan isn't kept. Logged either way: these used to be silent.
+    /// </summary>
+    private static void NoteProbeFailure(string what, Exception ex)
+    {
+        if (ex is TimeoutException)
+            _probeTimedOut = true;
+
+        Log.Instance.Trace($"Machine information: couldn't read {what}.", ex);
+    }
 #if DEBUG
     private static FakeMachineInformation? _fakeMachineInformation;
 #endif
@@ -219,8 +234,19 @@ public static partial class Compatibility
             if (_machineInformation is { } loaded)
                 return loaded;
 
-            _machineInformation = await ReadMachineInformationAsync().ConfigureAwait(false);
-            return _machineInformation.Value;
+            _probeTimedOut = false;
+            var machineInformation = await ReadMachineInformationAsync().ConfigureAwait(false);
+
+            // A probe Windows didn't answer in time isn't the same as "not supported": that scan is used now but not
+            // kept, so the next caller asks again instead of hiding features for the whole session.
+            if (_probeTimedOut)
+            {
+                Log.Instance.Trace($"Machine information not kept: a probe got no answer in time. It will be read again.");
+                return machineInformation;
+            }
+
+            _machineInformation = machineInformation;
+            return machineInformation;
         }
         finally
         {
@@ -347,7 +373,7 @@ public static partial class Compatibility
             var capabilities = await WMI.LenovoCapabilityData00.ReadAsync().ConfigureAwait(false);
             return new(MachineInformation.FeatureData.SourceType.CapabilityData, capabilities);
         }
-        catch { /* Ignore */ }
+        catch (Exception ex) { NoteProbeFailure("capability data", ex); }
 
         try
         {
@@ -365,7 +391,7 @@ public static partial class Compatibility
                 [CapabilityID.OverDrive] = true
             };
         }
-        catch { /* Ignore */ }
+        catch (Exception ex) { NoteProbeFailure("feature flags", ex); }
 
         return MachineInformation.FeatureData.Unknown;
     }
@@ -398,7 +424,7 @@ public static partial class Compatibility
 
             return powerModes;
         }
-        catch { /* Ignore */ }
+        catch (Exception ex) { NoteProbeFailure("supported power modes", ex); }
 
         try
         {
@@ -423,7 +449,7 @@ public static partial class Compatibility
 
             return powerModes;
         }
-        catch { /* Ignore */ }
+        catch (Exception ex) { NoteProbeFailure("supported thermal modes", ex); }
 
         return [];
     }
@@ -434,7 +460,7 @@ public static partial class Compatibility
         {
             return await WMI.LenovoGameZoneData.IsSupportSmartFanAsync().ConfigureAwait(false);
         }
-        catch { /* Ignore */ }
+        catch (Exception ex) { NoteProbeFailure("smart fan version", ex); }
 
         return -1;
     }
@@ -445,13 +471,13 @@ public static partial class Compatibility
         {
             return await WMI.LenovoOtherMethod.GetFeatureValueAsync(CapabilityID.LegionZoneSupportVersion).ConfigureAwait(false);
         }
-        catch { /* Ignore */ }
+        catch (Exception ex) { NoteProbeFailure("Legion Zone version", ex); }
 
         try
         {
             return await WMI.LenovoOtherMethod.GetSupportLegionZoneVersionAsync().ConfigureAwait(false);
         }
-        catch { /* Ignore */ }
+        catch (Exception ex) { NoteProbeFailure("Legion Zone version (older method)", ex); }
 
         return -1;
     }
@@ -570,8 +596,9 @@ public static partial class Compatibility
         {
             return await WMI.LenovoGameZoneData.IsSupportGSyncAsync().ConfigureAwait(false) > 0;
         }
-        catch
+        catch (Exception ex)
         {
+            NoteProbeFailure("G-SYNC support", ex);
             return false;
         }
     }
@@ -582,8 +609,9 @@ public static partial class Compatibility
         {
             return await WMI.LenovoGameZoneData.IsSupportIGPUModeAsync().ConfigureAwait(false) > 0;
         }
-        catch
+        catch (Exception ex)
         {
+            NoteProbeFailure("iGPU mode support", ex);
             return false;
         }
     }
@@ -595,8 +623,9 @@ public static partial class Compatibility
             await WMI.LenovoGameZoneData.GetIntelligentSubModeAsync().ConfigureAwait(false);
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            NoteProbeFailure("AI mode support", ex);
             return false;
         }
     }
@@ -900,14 +929,13 @@ public static partial class Compatibility
         var sensorsControllerTypeName = sensorCtrl?.GetType().Name ?? "Null SensorsController or Result";
         Log.Instance.Trace($"Using {sensorsControllerTypeName}");
 
-        if (!_machineInformation!.Value.Properties.SupportsGodMode)
+        var properties = (await GetMachineInformationAsync().ConfigureAwait(false)).Properties;
+        if (!properties.SupportsGodMode)
         {
             return;
         }
 
-        GodModeController godModeController = IoCContainer.Resolve<GodModeController>();
-
-        var godModePlatform = _machineInformation!.Value.Properties.GodModePlatform?.ToString() ?? "None";
+        var godModePlatform = properties.GodModePlatform?.ToString() ?? "None";
         Log.Instance.Trace($"Using GodMode platform: {godModePlatform}");
     }
 }

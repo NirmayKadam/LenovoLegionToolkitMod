@@ -33,7 +33,7 @@ public partial class SettingsAppearanceControl
     public SettingsAppearanceControl()
     {
         InitializeComponent();
-        _themeManager.ThemeApplied += ThemeManager_ThemeApplied;
+        this.WhileLoaded(() => _themeManager.ThemeApplied += ThemeManager_ThemeApplied, () => _themeManager.ThemeApplied -= ThemeManager_ThemeApplied);
     }
 
     private void ThemeManager_ThemeApplied(object? sender, EventArgs e)
