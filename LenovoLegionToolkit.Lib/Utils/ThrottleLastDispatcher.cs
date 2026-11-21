@@ -34,6 +34,22 @@ public class ThrottleLastDispatcher(TimeSpan interval, string? tag = null)
         }
     }
 
+    /// <summary>
+    /// Like <see cref="DispatchAsync"/>, for event handlers (<c>async void</c>): an error in <paramref name="task"/> is
+    /// logged and goes no further. Raised on a listener's thread, it would otherwise end the whole app.
+    /// </summary>
+    public async Task DispatchLoggingErrorsAsync(Func<Task> task)
+    {
+        try
+        {
+            await DispatchAsync(task).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Throttled work failed. [tag={tag}]", ex);
+        }
+    }
+
     public async Task DispatchImmediateAsync(Func<Task> task)
     {
         try

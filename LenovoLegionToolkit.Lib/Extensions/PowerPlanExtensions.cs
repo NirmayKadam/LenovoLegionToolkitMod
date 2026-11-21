@@ -36,15 +36,25 @@ public static class PowerPlanExtensions
         return schemeGuid == BalancedBaseGuid;
     }
 
-    public static bool IsActivePlanBasedOnBalanced()
+    public static bool IsActivePlanBasedOnBalanced() => GetActiveSchemeGuid() is { } active && IsPlanBasedOnBalanced(active);
+
+    /// <summary>
+    /// The active power plan's GUID, or null when Windows doesn't answer. Windows allocates the memory the GUID is
+    /// returned in; it is freed here, every time (callers used to read it and never free it, a small leak per read).
+    /// </summary>
+    public static Guid? GetActiveSchemeGuid()
     {
-        var result = PowerGetActiveScheme(IntPtr.Zero, out var activePolicyGuidPtr);
-        if (result != 0)
-            return false;
+        var result = PowerGetActiveScheme(IntPtr.Zero, out var pointer);
+        if (result != 0 || pointer == IntPtr.Zero)
+            return null;
 
-        var activePolicyGuid = Marshal.PtrToStructure<Guid>(activePolicyGuidPtr);
-        LocalFree(activePolicyGuidPtr);
-
-        return IsPlanBasedOnBalanced(activePolicyGuid);
+        try
+        {
+            return Marshal.PtrToStructure<Guid>(pointer);
+        }
+        finally
+        {
+            LocalFree(pointer);
+        }
     }
 }

@@ -445,20 +445,13 @@ public class WindowsPowerPlanController(ApplicationSettings settings, VantageDis
         }
     }
 
-    private static unsafe Guid GetActivePowerPlanGuid()
+    private static Guid GetActivePowerPlanGuid()
     {
-        try
-        {
-            if (PInvoke.PowerGetActiveScheme(null, out var guid) != WIN32_ERROR.ERROR_SUCCESS)
-                PInvokeExtensions.ThrowIfWin32Error("PowerGetActiveScheme");
+        if (PowerPlanExtensions.GetActiveSchemeGuid() is { } guid)
+            return guid;
 
-            return *guid;
-        }
-        catch (Exception ex)
-        {
-            Log.Instance.Trace($"Failed to get active power plan guid.", ex);
-            return DefaultPowerPlan;
-        }
+        Log.Instance.Trace($"Failed to get active power plan guid.");
+        return DefaultPowerPlan;
     }
 
     private static void SetActivePowerPlan(Guid powerPlanGuid)

@@ -97,7 +97,7 @@ public partial class PowerModeSelectorControl
 
     private void Listener_Changed<T>(object? sender, T e) => QueueRefresh();
 
-    private async void QueueRefresh() => await _throttle.DispatchAsync(async () =>
+    private async void QueueRefresh() => await _throttle.DispatchLoggingErrorsAsync(async () =>
     {
         await Dispatcher.InvokeAsync(async () =>
         {

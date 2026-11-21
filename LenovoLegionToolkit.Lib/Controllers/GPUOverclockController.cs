@@ -320,8 +320,16 @@ public class GPUOverclockController
         if (e.Message is not NativeWindowsMessage.DisplayDeviceChanged and not NativeWindowsMessage.MonitorOn)
             return;
 
-        if (await IsSupportedAsync().ConfigureAwait(false))
-            await ApplyStateAsync().ConfigureAwait(false);
+        try
+        {
+            if (await IsSupportedAsync().ConfigureAwait(false))
+                await ApplyStateAsync().ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            // Raised from the Windows message listener: an exception escaping here would end the app.
+            Log.Instance.Trace($"Reapplying the GPU overclock after a display change failed. [message={e.Message}]", ex);
+        }
     }
 
     public static int GetMinCoreDeltaMhz() => -500;

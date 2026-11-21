@@ -119,7 +119,7 @@ public partial class StatusWindow
     {
         if (!_machineInfo.HasValue)
         {
-            SetMachineInformation(await Compatibility.GetMachineInformationAsync().ConfigureAwait(false));
+            SetMachineInformation(await Compatibility.GetMachineInformationAsync());
         }
         var token = _cancellationTokenSource.Token;
         try
@@ -200,10 +200,17 @@ public partial class StatusWindow
 
     private async void StatusWindow_Loaded(object sender, RoutedEventArgs e)
     {
-        ComputeAnchorAndPosition();
-        if (!_machineInfo.HasValue)
+        try
         {
-            SetMachineInformation(await Compatibility.GetMachineInformationAsync().ConfigureAwait(false));
+            ComputeAnchorAndPosition();
+            if (!_machineInfo.HasValue)
+            {
+                SetMachineInformation(await Compatibility.GetMachineInformationAsync());
+            }
+        }
+        catch (Exception ex)
+        {
+            LogReadFailure("the machine information", ex);
         }
     }
 
@@ -266,7 +273,7 @@ public partial class StatusWindow
     {
         if (!_machineInfo.HasValue)
         {
-            SetMachineInformation(await Compatibility.GetMachineInformationAsync().ConfigureAwait(false));
+            SetMachineInformation(await Compatibility.GetMachineInformationAsync());
         }
 
         PowerModeState? state = null;
@@ -317,7 +324,7 @@ public partial class StatusWindow
             }, token)
         };
 
-        await Task.WhenAll(tasks).ConfigureAwait(false);
+        await Task.WhenAll(tasks);
 
         if (_settings.Store.EnableHardwareSensors)
         {

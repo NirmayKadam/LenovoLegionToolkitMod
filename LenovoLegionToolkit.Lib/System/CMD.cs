@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,7 +9,11 @@ namespace LenovoLegionToolkit.Lib.System;
 
 public static class CMD
 {
-    public static async Task<(int, string)> RunAsync(string file, string arguments, bool createNoWindow = true, bool waitForExit = true, Dictionary<string, string?>? environment = null, CancellationToken token = default)
+    /// <param name="endOnCancel">
+    /// End the program when <paramref name="token"/> cancels the wait. Off by default: a Run step's program keeps
+    /// running when its rule is cancelled, as it always has.
+    /// </param>
+    public static async Task<(int, string)> RunAsync(string file, string arguments, bool createNoWindow = true, bool waitForExit = true, Dictionary<string, string?>? environment = null, CancellationToken token = default, bool endOnCancel = false)
     {
         Log.Instance.Trace($"Running... [file={file}, argument={arguments}, createNoWindow={createNoWindow}, waitForExit={waitForExit}, environment=[{(environment is null ? string.Empty : string.Join(",", environment))}]");
 
@@ -44,21 +49,40 @@ public static class CMD
         var output = string.Empty;
         var error = string.Empty;
 
-        if (redirect)
+        try
         {
-            // Read both streams while the process runs; reading only after exit deadlocks
-            // as soon as the child writes more than the pipe buffer can hold.
-            var outputTask = cmd.StandardOutput.ReadToEndAsync(token);
-            var errorTask = cmd.StandardError.ReadToEndAsync(token);
+            if (redirect)
+            {
+                // Read both streams while the process runs; reading only after exit deadlocks
+                // as soon as the child writes more than the pipe buffer can hold.
+                var outputTask = cmd.StandardOutput.ReadToEndAsync(token);
+                var errorTask = cmd.StandardError.ReadToEndAsync(token);
 
-            await Task.WhenAll(outputTask, errorTask, cmd.WaitForExitAsync(token)).ConfigureAwait(false);
+                await Task.WhenAll(outputTask, errorTask, cmd.WaitForExitAsync(token)).ConfigureAwait(false);
 
-            output = await outputTask.ConfigureAwait(false);
-            error = await errorTask.ConfigureAwait(false);
+                output = await outputTask.ConfigureAwait(false);
+                error = await errorTask.ConfigureAwait(false);
+            }
+            else
+            {
+                await cmd.WaitForExitAsync(token).ConfigureAwait(false);
+            }
         }
-        else
+        catch (OperationCanceledException) when (token.IsCancellationRequested && endOnCancel)
         {
-            await cmd.WaitForExitAsync(token).ConfigureAwait(false);
+            // The caller stopped waiting and asked for the program not to be left running behind its back.
+            try
+            {
+                if (!cmd.HasExited)
+                    cmd.Kill(true);
+            }
+            catch (Exception ex)
+            {
+                Log.Instance.Trace($"Couldn't end {file} after the wait was cancelled.", ex);
+            }
+
+            Log.Instance.Trace($"Stopped waiting for {file}. [argument={arguments}]");
+            throw;
         }
 
         var exitCode = cmd.ExitCode;

@@ -416,7 +416,7 @@ public partial class DeviceInformationWindow
 
             if (_amdOverclockingWindow is not { IsLoaded: true })
             {
-                var mi = await Compatibility.GetMachineInformationAsync().ConfigureAwait(false);
+                var mi = await Compatibility.GetMachineInformationAsync();
                 if (!mi.Properties.IsAmdDevice && !AppFlags.Instance.Debug)
                 {
                     return;

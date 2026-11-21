@@ -189,7 +189,7 @@ public partial class SettingsAppearanceControl
         _settings.Store.NeonGlow = glow;
         _settings.SynchronizeStore();
 
-        await _skinOptionThrottle.DispatchAsync(() => Dispatcher.InvokeAsync(_themeManager.Apply).Task);
+        await _skinOptionThrottle.DispatchLoggingErrorsAsync(() => Dispatcher.InvokeAsync(_themeManager.Apply).Task);
     }
 
     private void RetroPhosphorComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -212,7 +212,7 @@ public partial class SettingsAppearanceControl
         _settings.Store.RetroScanlines = value;
         _settings.SynchronizeStore();
 
-        await _skinOptionThrottle.DispatchAsync(() => Dispatcher.InvokeAsync(_themeManager.Apply).Task);
+        await _skinOptionThrottle.DispatchLoggingErrorsAsync(() => Dispatcher.InvokeAsync(_themeManager.Apply).Task);
     }
 
     private void RetroGlowToggle_Changed(object sender, RoutedEventArgs e)

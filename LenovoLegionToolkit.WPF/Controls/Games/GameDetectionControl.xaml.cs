@@ -80,8 +80,8 @@ public partial class GameDetectionControl
                 if (gameAutoListener.AreGamesRunning())
                     gameAutoListener.PreserveStateOnRestart();
 
-                await gameAutoListener.RestartAsync().ConfigureAwait(false);
-                await IoCContainer.Resolve<AutomationProcessor>().RestartListenersAsync().ConfigureAwait(false);
+                await gameAutoListener.RestartAsync();
+                await IoCContainer.Resolve<AutomationProcessor>().RestartListenersAsync();
             }
             catch (Exception ex)
             {

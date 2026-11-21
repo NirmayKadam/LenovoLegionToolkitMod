@@ -37,24 +37,45 @@ public sealed class DgpuAwakeManager : IAsyncDisposable, IDisposable
 
     private async void PowerStateListener_Changed(object? sender, PowerStateListener.ChangedEventArgs e)
     {
-        if (e.PowerStateEvent == PowerStateEvent.Suspend)
+        try
         {
-            Log.Instance.Trace($"System suspending: tearing down dGPU awake manager.");
-            await StopInternalAsync().ConfigureAwait(false);
+            if (e.PowerStateEvent == PowerStateEvent.Suspend)
+            {
+                Log.Instance.Trace($"System suspending: tearing down dGPU awake manager.");
+                await StopInternalAsync().ConfigureAwait(false);
+            }
+            else if (e.PowerStateEvent == PowerStateEvent.Resume)
+            {
+                Log.Instance.Trace($"System resumed: restoring dGPU awake manager.");
+                await UpdateStateAsync().ConfigureAwait(false);
+            }
+            else if (e.PowerAdapterStateChanged)
+            {
+                Log.Instance.Trace($"Power adapter state changed: updating dGPU awake manager.");
+                await UpdateStateAsync().ConfigureAwait(false);
+            }
         }
-        else if (e.PowerStateEvent == PowerStateEvent.Resume)
+        catch (Exception ex)
         {
-            Log.Instance.Trace($"System resumed: restoring dGPU awake manager.");
-            await UpdateStateAsync().ConfigureAwait(false);
-        }
-        else if (e.PowerAdapterStateChanged)
-        {
-            Log.Instance.Trace($"Power adapter state changed: updating dGPU awake manager.");
-            await UpdateStateAsync().ConfigureAwait(false);
+            // Raised on a listener thread: an exception escaping here would end the app.
+            Log.Instance.Trace($"Updating the dGPU awake manager after a power change failed.", ex);
         }
     }
 
+    /// <summary>Starts or stops keeping the dGPU awake to match the setting. Never throws: callers start it and move on.</summary>
     public async Task UpdateStateAsync()
+    {
+        try
+        {
+            await UpdateStateCoreAsync().ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Updating the dGPU awake manager failed.", ex);
+        }
+    }
+
+    private async Task UpdateStateCoreAsync()
     {
         if (_isDisposed) return;
 
@@ -212,6 +233,7 @@ public sealed class DgpuAwakeManager : IAsyncDisposable, IDisposable
         _powerStateListener.Changed -= PowerStateListener_Changed;
 
         StopInternalAsync().GetAwaiter().GetResult();
-        _lock.Dispose();
+        // _lock is not disposed: a power event handler may still be waiting on it, and a SemaphoreSlim that never
+        // handed out a wait handle holds nothing that needs releasing.
     }
 }

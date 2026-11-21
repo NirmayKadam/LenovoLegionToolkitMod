@@ -99,9 +99,25 @@ public partial class ITSModeFeature : IFeature<ITSMode>
         }
 
         _pendingOverlaySync = false;
-        _overlayTimeoutCts?.Cancel();
 
-        await ApplyPowerChanges().ConfigureAwait(false);
+        try
+        {
+            _overlayTimeoutCts?.Cancel();
+        }
+        catch (ObjectDisposedException)
+        {
+            // A newer ITS change replaced the token meanwhile; there is nothing left to cancel.
+        }
+
+        try
+        {
+            await ApplyPowerChanges().ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            // Raised on the power listener's thread: an exception escaping here would end the app.
+            Log.Instance.Trace($"Applying power changes after the ITS overlay changed failed.", ex);
+        }
     }
 
     private void SaveCurrentStateToSettings(ITSMode state)

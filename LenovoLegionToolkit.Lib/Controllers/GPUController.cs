@@ -283,7 +283,9 @@ public class GPUController
             try
             {
                 process.Kill(true);
-                await process.WaitForExitAsync().ConfigureAwait(false);
+                // A process stuck in the graphics driver may never exit; don't hang the action on it.
+                using var exitWait = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+                await process.WaitForExitAsync(exitWait.Token).ConfigureAwait(false);
             }
             catch (Exception ex)
             {

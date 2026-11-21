@@ -12,7 +12,9 @@ namespace LenovoLegionToolkit.Lib.Features.Hybrid;
 
 public class HybridModeFeature(GSyncFeature gSyncFeature, IGPUModeFeature igpuModeFeature, DGPUNotify dgpuNotify, BiosHybridModeFeature biosHybridMode) : IFeature<HybridModeState>
 {
-    private readonly CancellationTokenSource _ensureDGPUEjectedIfNeededCancellationTokenSource = new();
+    // Cancelled when the mode changes, then replaced. It used to be a single token that, once cancelled by the first
+    // mode change, stayed cancelled, so every later "make sure the dGPU turned off" check stopped at its first step.
+    private CancellationTokenSource _ensureDGPUEjectedIfNeededCancellationTokenSource = new();
     private int _isEnsuringEjected;
 
     private HybridModeState? _lastState;
@@ -104,7 +106,9 @@ public class HybridModeFeature(GSyncFeature gSyncFeature, IGPUModeFeature igpuMo
                 await biosHybridMode.SetSwitchableAsync().ConfigureAwait(false);
         }
 
-        await _ensureDGPUEjectedIfNeededCancellationTokenSource.CancelAsync().ConfigureAwait(false);
+        var previousEnsure = Interlocked.Exchange(ref _ensureDGPUEjectedIfNeededCancellationTokenSource, new CancellationTokenSource());
+        await previousEnsure.CancelAsync().ConfigureAwait(false);
+        previousEnsure.Dispose();
 
         var (gSync, igpuMode) = Unpack(state);
 
@@ -185,6 +189,19 @@ public class HybridModeFeature(GSyncFeature gSyncFeature, IGPUModeFeature igpuMo
             return;
         }
 
+        // This check belongs to the current mode: a later mode change cancels it (and only it).
+        CancellationToken token;
+        try
+        {
+            token = Volatile.Read(ref _ensureDGPUEjectedIfNeededCancellationTokenSource).Token;
+        }
+        catch (ObjectDisposedException)
+        {
+            // The mode changed at this very moment; the new mode starts its own check.
+            Interlocked.Exchange(ref _isEnsuringEjected, 0);
+            return;
+        }
+
         _ = Task.Run(async () =>
         {
             try
@@ -200,7 +217,7 @@ public class HybridModeFeature(GSyncFeature gSyncFeature, IGPUModeFeature igpuMo
                 {
                     await Task.Delay(delay).ConfigureAwait(false);
 
-                    if (_ensureDGPUEjectedIfNeededCancellationTokenSource.IsCancellationRequested)
+                    if (token.IsCancellationRequested)
                     {
                         Log.Instance.Trace($"Cancelled, aborting...");
                         break;

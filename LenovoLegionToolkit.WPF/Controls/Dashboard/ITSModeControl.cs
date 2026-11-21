@@ -67,26 +67,34 @@ public class ITSModeControl : AbstractComboBoxFeatureCardControl<ITSMode>
 
     private async void ITSModeControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
     {
-        if (!await _itsModeFeature.IsSupportedAsync().ConfigureAwait(false))
+        try
         {
-            return;
-        }
+            // Stays on the UI thread: the combo box is set at the end.
+            if (!await _itsModeFeature.IsSupportedAsync())
+            {
+                return;
+            }
 
-        ITSMode mode;
-        if (_itsModeFeature.LastItsMode == ITSMode.None)
-        {
-            mode = await _itsModeFeature.GetStateAsync();
-            _itsModeFeature.LastItsMode = mode;
-            Log.Instance.Trace($"Read ITSMode from GetStateAsync(): {mode}");
-        }
-        else
-        {
-            mode = _itsModeFeature.LastItsMode;
-            Log.Instance.Trace($"Read ITSMode from LastItsMode: {mode}");
-        }
+            ITSMode mode;
+            if (_itsModeFeature.LastItsMode == ITSMode.None)
+            {
+                mode = await _itsModeFeature.GetStateAsync();
+                _itsModeFeature.LastItsMode = mode;
+                Log.Instance.Trace($"Read ITSMode from GetStateAsync(): {mode}");
+            }
+            else
+            {
+                mode = _itsModeFeature.LastItsMode;
+                Log.Instance.Trace($"Read ITSMode from LastItsMode: {mode}");
+            }
 
-        Log.Instance.Trace($"Visible changed. Set ITSMode to {mode}");
-        _comboBox.SelectedItem = mode;
+            Log.Instance.Trace($"Visible changed. Set ITSMode to {mode}");
+            _comboBox.SelectedItem = mode;
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Couldn't show the ITS mode.", ex);
+        }
     }
 
     protected override string ComboBoxItemDisplayName(ITSMode value) => _itsModeFeature.GetITSModeDisplayName(value);

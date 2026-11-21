@@ -25,6 +25,20 @@ public static class Devices
     private static SafeFileHandle? _rgbKeyboard;
     private static List<SafeFileHandle>? _spectrumRgbKeyboards;
 
+    /// <summary>
+    /// The buffer size for a device's interface details, from the size Windows reported when asked. If Windows reported
+    /// nothing usable (the size question failed), this throws instead of handing back a buffer too small for the
+    /// <c>cbSize</c> field that is written into it next.
+    /// </summary>
+    internal static int InterfaceDetailBufferSize(uint requiredSize)
+    {
+        var minimum = Marshal.SizeOf<SP_DEVICE_INTERFACE_DETAIL_DATA_W>();
+        if (requiredSize < minimum || requiredSize > 64 * 1024)
+            throw new InvalidOperationException($"SetupDiGetDeviceInterfaceDetail reported an unusable size. [requiredSize={requiredSize}, error={Marshal.GetLastWin32Error()}]");
+
+        return (int)requiredSize;
+    }
+
     #region All devices
 
     public static List<Device> GetAll()
@@ -185,7 +199,7 @@ public static class Devices
             var output = IntPtr.Zero;
             try
             {
-                output = Marshal.AllocHGlobal((int)requiredSize);
+                output = Marshal.AllocHGlobal(InterfaceDetailBufferSize(requiredSize));
                 var deviceDetailData = (SP_DEVICE_INTERFACE_DETAIL_DATA_W*)output.ToPointer();
                 deviceDetailData->cbSize = (uint)Marshal.SizeOf<SP_DEVICE_INTERFACE_DETAIL_DATA_W>();
 
@@ -334,7 +348,7 @@ public static class Devices
             var output = IntPtr.Zero;
             try
             {
-                output = Marshal.AllocHGlobal((int)requiredSize);
+                output = Marshal.AllocHGlobal(InterfaceDetailBufferSize(requiredSize));
                 var deviceDetailData = (SP_DEVICE_INTERFACE_DETAIL_DATA_W*)output.ToPointer();
                 deviceDetailData->cbSize = (uint)Marshal.SizeOf<SP_DEVICE_INTERFACE_DETAIL_DATA_W>();
 
@@ -424,7 +438,7 @@ public static class Devices
             var output = IntPtr.Zero;
             try
             {
-                output = Marshal.AllocHGlobal((int)requiredSize);
+                output = Marshal.AllocHGlobal(InterfaceDetailBufferSize(requiredSize));
                 var deviceDetailData = (SP_DEVICE_INTERFACE_DETAIL_DATA_W*)output.ToPointer();
                 deviceDetailData->cbSize = (uint)Marshal.SizeOf<SP_DEVICE_INTERFACE_DETAIL_DATA_W>();
 

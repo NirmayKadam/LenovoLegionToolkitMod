@@ -320,12 +320,11 @@ public partial class WindowsPowerModeController(ApplicationSettings settings, IM
         Log.Instance.Trace($"Overlay scheme set. [result={result}, guid={guid}]");
     }
 
-    private static unsafe void ActivateDefaultPowerPlanIfNeeded()
+    private static void ActivateDefaultPowerPlanIfNeeded()
     {
-        if (PInvoke.PowerGetActiveScheme(null, out var guid) != WIN32_ERROR.ERROR_SUCCESS)
-            PInvokeExtensions.ThrowIfWin32Error("PowerGetActiveScheme");
+        var guid = PowerPlanExtensions.GetActiveSchemeGuid() ?? throw new InvalidOperationException("Windows didn't say which power plan is active.");
 
-        if (PowerPlanExtensions.IsPlanBasedOnBalanced(*guid))
+        if (PowerPlanExtensions.IsPlanBasedOnBalanced(guid))
         {
             Log.Instance.Trace($"Default power plan is already active.");
             return;

@@ -11,6 +11,9 @@ namespace LenovoLegionToolkit.Lib.Features;
 internal static class GlobalDriverLock
 {
     public static readonly SemaphoreSlim Queue = new(1, 1);
+
+    /// <summary>How long a request waits for its turn, and for the driver to answer. Requests normally take milliseconds.</summary>
+    public static readonly TimeSpan AnswerTimeLimit = TimeSpan.FromSeconds(15);
 }
 
 public abstract class AbstractDriverFeature<T>(
@@ -107,30 +110,42 @@ public abstract class AbstractDriverFeature<T>(
             throw new InvalidOperationException($"DeviceIoControl failed, error: {error}");
         });
 
+        var what = $"driver request, feature={GetType().Name}, code={controlCode}";
+
         if (!UseQueue || bypassQueue)
         {
-            return await CoreAction().ConfigureAwait(false);
+            return await TimeLimit.WithinAsync(CoreAction(), GlobalDriverLock.AnswerTimeLimit, what).ConfigureAwait(false);
         }
 
-        await GlobalDriverLock.Queue.WaitAsync().ConfigureAwait(false);
+        if (!await GlobalDriverLock.Queue.WaitAsync(GlobalDriverLock.AnswerTimeLimit).ConfigureAwait(false))
+            throw new TimeoutException($"The Lenovo driver is still busy with an earlier request. [{what}]");
+
+        Task<uint> work;
         try
         {
-            return await CoreAction().ConfigureAwait(false);
+            work = CoreAction();
         }
-        finally
+        catch
         {
-            _ = Task.Run(async () =>
-            {
-                try
-                {
-                    await Task.Delay(DRIVER_COOLDOWN_MS).ConfigureAwait(false);
-                }
-                finally
-                {
-                    GlobalDriverLock.Queue.Release();
-                }
-            });
+            GlobalDriverLock.Queue.Release();
+            throw;
         }
+
+        // The queue is freed only once the driver has really answered (plus a short cooldown), even if this caller
+        // stops waiting: two requests are never in the driver at the same time.
+        _ = work.ContinueWith(async _ =>
+        {
+            try
+            {
+                await Task.Delay(DRIVER_COOLDOWN_MS).ConfigureAwait(false);
+            }
+            finally
+            {
+                GlobalDriverLock.Queue.Release();
+            }
+        }, CancellationToken.None, TaskContinuationOptions.None, TaskScheduler.Default).Unwrap();
+
+        return await TimeLimit.WithinAsync(work, GlobalDriverLock.AnswerTimeLimit, what).ConfigureAwait(false);
     }
 
     private async Task VerifyStateSetAsync(T state, CancellationToken ct)

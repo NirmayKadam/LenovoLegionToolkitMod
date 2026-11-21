@@ -7,6 +7,7 @@ using Windows.Win32;
 using Windows.Win32.Devices.DeviceAndDriverInstallation;
 using Windows.Win32.Foundation;
 using LenovoLegionToolkit.Lib.Extensions;
+using LenovoLegionToolkit.Lib.System;
 using LenovoLegionToolkit.Lib.System.Management;
 using LenovoLegionToolkit.Lib.Utils;
 
@@ -144,7 +145,7 @@ public abstract partial class AbstractDGPUNotify : IDGPUNotify
             var output = IntPtr.Zero;
             try
             {
-                output = Marshal.AllocHGlobal((int)requiredSize);
+                output = Marshal.AllocHGlobal(Devices.InterfaceDetailBufferSize(requiredSize));
                 var deviceDetailData = (SP_DEVICE_INTERFACE_DETAIL_DATA_W*)output.ToPointer();
                 deviceDetailData->cbSize = (uint)Marshal.SizeOf<SP_DEVICE_INTERFACE_DETAIL_DATA_W>();
 

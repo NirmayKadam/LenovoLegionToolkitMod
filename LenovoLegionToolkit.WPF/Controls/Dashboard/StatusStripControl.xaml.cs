@@ -105,7 +105,7 @@ public partial class StatusStripControl
     private void ThermalModeListener_Changed(object? sender, ThermalModeListener.ChangedEventArgs e) => QueuePowerRefresh();
     private void PowerStateListener_Changed(object? sender, PowerStateListener.ChangedEventArgs e) => QueuePowerRefresh();
 
-    private async void QueuePowerRefresh() => await _powerThrottle.DispatchAsync(async () =>
+    private async void QueuePowerRefresh() => await _powerThrottle.DispatchLoggingErrorsAsync(async () =>
     {
         await Dispatcher.InvokeAsync(async () =>
         {

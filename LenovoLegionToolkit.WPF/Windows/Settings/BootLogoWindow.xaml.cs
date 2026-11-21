@@ -199,11 +199,11 @@ public partial class BootLogoWindow
         {
             var isAnimationEnabled = _animationToggle.IsChecked == true;
             var disable = !isAnimationEnabled;
-            await BootLogo.SetWindowsBootAnimationAsync(disable).ConfigureAwait(false);
+            await BootLogo.SetWindowsBootAnimationAsync(disable);
         }
         catch (Exception ex)
         {
-            Log.Instance.Trace($"Failed to set boot animation. [ex={ex.Message}]");
+            Log.Instance.Trace($"Failed to set boot animation.", ex);
         }
     }
 

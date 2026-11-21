@@ -65,12 +65,15 @@ public class DriverKeyListener(
     {
         try
         {
+            // Not disposed on purpose: the driver keeps this handle to signal key presses, and a closed handle's number
+            // could be reused by something else that the driver would then signal.
             var resetEvent = new ManualResetEvent(false);
             var setHandleResult = BindListener(resetEvent);
             if (!setHandleResult)
                 PInvokeExtensions.ThrowIfWin32Error("DeviceIoControl, setHandleResult");
 
-            GetValue(out _); // Clear register
+            if (!GetValue(out _)) // Clear register
+                Log.Instance.Trace($"Couldn't clear the key register; the first key press may be read twice.");
 
             while (true)
             {
@@ -197,13 +200,21 @@ public class DriverKeyListener(
         MessagingCenter.Publish(new NotificationMessage(NotificationType.WhiteKeyboardBacklightChangedSpecial));
     }
 
+    /// <summary>
+    /// The driver reads 16 bytes; the wait handle goes in the first 4, as it always has. The buffer used to be a single
+    /// 4-byte value, so the driver also read 12 bytes of whatever was next on the stack; they are now zero.
+    /// </summary>
     private static unsafe bool BindListener(WaitHandle waitHandle)
     {
-        var handle = (uint)waitHandle.SafeWaitHandle.DangerousGetHandle();
+        const int bufferSize = 16;
+        var buffer = stackalloc uint[bufferSize / sizeof(uint)];
+        new Span<uint>(buffer, bufferSize / sizeof(uint)).Clear();
+        buffer[0] = (uint)waitHandle.SafeWaitHandle.DangerousGetHandle();
+
         return PInvoke.DeviceIoControl(new HANDLE(Drivers.GetEnergy().DangerousGetHandle()),
             Drivers.IOCTL_KEY_WAIT_HANDLE,
-            &handle,
-            16,
+            buffer,
+            bufferSize,
             null,
             0,
             null,

@@ -88,9 +88,22 @@ public class AIController(
         }
     }
 
-    private async void PowerModeListener_Changed(object? sender, PowerModeListener.ChangedEventArgs e) => await _dispatcher.DispatchAsync(RefreshAsync).ConfigureAwait(false);
-    private async void PowerStateListener_Changed(object? sender, PowerStateListener.ChangedEventArgs e) => await _dispatcher.DispatchAsync(RefreshAsync).ConfigureAwait(false);
-    private async void GameAutoListener_Changed(object? sender, GameAutoListener.ChangedEventArgs e) => await _dispatcher.DispatchAsync(RefreshAsync).ConfigureAwait(false);
+    private async void PowerModeListener_Changed(object? sender, PowerModeListener.ChangedEventArgs e) => await RefreshAfterChangeAsync().ConfigureAwait(false);
+    private async void PowerStateListener_Changed(object? sender, PowerStateListener.ChangedEventArgs e) => await RefreshAfterChangeAsync().ConfigureAwait(false);
+    private async void GameAutoListener_Changed(object? sender, GameAutoListener.ChangedEventArgs e) => await RefreshAfterChangeAsync().ConfigureAwait(false);
+
+    /// <summary>The listeners' handlers run on listener threads: an exception escaping them would end the app.</summary>
+    private async Task RefreshAfterChangeAsync()
+    {
+        try
+        {
+            await _dispatcher.DispatchAsync(RefreshAsync).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Refreshing AI mode after a change failed.", ex);
+        }
+    }
 
     private async Task RefreshAsync()
     {

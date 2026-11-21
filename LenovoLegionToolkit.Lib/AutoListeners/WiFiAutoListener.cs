@@ -59,7 +59,11 @@ public class WiFiAutoListener : AbstractAutoListener<WiFiAutoListener.ChangedEve
             null,
             null);
         if (result != 0)
+        {
+            Log.Instance.Trace($"Couldn't register for WiFi notifications. [result={result}]");
+            _ = PInvoke.WlanCloseHandle(handle, null);
             return null;
+        }
 
         return new LambdaDisposable(() =>
         {
@@ -75,26 +79,41 @@ public class WiFiAutoListener : AbstractAutoListener<WiFiAutoListener.ChangedEve
         });
     }
 
+    /// <summary>
+    /// Called by Windows on its own thread. An exception escaping back into Windows ends the app at once, so nothing
+    /// may leave this method.
+    /// </summary>
     private unsafe void WlanCallback(L2_NOTIFICATION_DATA* param0, void* param1)
     {
-        ref var data = ref Unsafe.AsRef<L2_NOTIFICATION_DATA>(param0);
-
-        switch (data.NotificationCode)
+        try
         {
-            case 0x0A: /* Connected */
-                ref var notificationData = ref Unsafe.AsRef<WLAN_CONNECTION_NOTIFICATION_DATA>(data.pData);
-                var dot11Ssid = notificationData.dot11Ssid;
-                var ssid = Encoding.UTF8.GetString(dot11Ssid.ucSSID.Value, (int)dot11Ssid.uSSIDLength);
+            ref var data = ref Unsafe.AsRef<L2_NOTIFICATION_DATA>(param0);
 
-                Log.Instance.Trace($"WiFi connected. [ssid={ssid}]");
+            switch (data.NotificationCode)
+            {
+                case 0x0A: /* Connected */
+                    if (data.pData is null)
+                        return;
 
-                RaiseChanged(new ChangedEventArgs(true, ssid));
-                break;
-            case 0x15: /* Disconnected */
-                Log.Instance.Trace($"WiFi disconnected.");
+                    ref var notificationData = ref Unsafe.AsRef<WLAN_CONNECTION_NOTIFICATION_DATA>(data.pData);
+                    var dot11Ssid = notificationData.dot11Ssid;
+                    var ssidLength = (int)Math.Min(dot11Ssid.uSSIDLength, 32u); // an SSID is at most 32 bytes
+                    var ssid = Encoding.UTF8.GetString(dot11Ssid.ucSSID.Value, ssidLength);
 
-                RaiseChanged(new ChangedEventArgs(false, null));
-                break;
+                    Log.Instance.Trace($"WiFi connected. [ssid={ssid}]");
+
+                    RaiseChanged(new ChangedEventArgs(true, ssid));
+                    break;
+                case 0x15: /* Disconnected */
+                    Log.Instance.Trace($"WiFi disconnected.");
+
+                    RaiseChanged(new ChangedEventArgs(false, null));
+                    break;
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Handling a WiFi notification failed.", ex);
         }
     }
 }

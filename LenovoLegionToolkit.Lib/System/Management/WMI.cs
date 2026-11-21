@@ -17,7 +17,7 @@ public static partial class WMI
     /// trace with the dashboard open). <paramref name="convert"/> must copy what it needs; the object is released
     /// right after it returns. The results come back as a list, never as a lazy sequence over released objects.
     /// </summary>
-    internal static Task<List<T>> QueryAsync<T>(string scope, string query, Func<ManagementBaseObject, T> convert) => Task.Run(() =>
+    internal static Task<List<T>> QueryAsync<T>(string scope, string query, Func<ManagementBaseObject, T> convert) => WithinAsync(Task.Run(() =>
     {
         using var searcher = new ManagementObjectSearcher(scope, query);
         using var collection = searcher.Get();
@@ -29,13 +29,23 @@ public static partial class WMI
                 results.Add(convert(item));
         }
         return results;
-    });
+    }), ReadTimeLimit, $"scope={scope}, query={query}");
+
+    /// <summary>How long a WMI read may take before the caller is told Windows didn't answer.</summary>
+    internal static readonly TimeSpan ReadTimeLimit = TimeSpan.FromSeconds(30);
+
+    /// <summary>How long a WMI method call (a change to firmware or Windows) may take before the caller is told so.</summary>
+    internal static readonly TimeSpan CallTimeLimit = TimeSpan.FromSeconds(60);
+
+    // A WMI provider that stops answering used to leave every feature waiting on it stuck for good (God Mode apply,
+    // the AI controller lock, ...). Now the caller gets a TimeoutException and its usual "couldn't read/apply" path.
+    private static Task<T> WithinAsync<T>(Task<T> work, TimeSpan limit, string what) => TimeLimit.WithinAsync(work, limit, $"WMI {what}");
 
     /// <summary>
     /// Calls a WMI method on the first object the query finds, releasing the query objects, the method's input
     /// parameters and its result once <paramref name="readResult"/> has copied what it needs.
     /// </summary>
-    private static Task<T> InvokeAsync<T>(string scope, string query, string methodName, Dictionary<string, object> methodParams, Func<ManagementBaseObject?, T> readResult) => Task.Run(() =>
+    private static Task<T> InvokeAsync<T>(string scope, string query, string methodName, Dictionary<string, object> methodParams, Func<ManagementBaseObject?, T> readResult) => WithinAsync(Task.Run(() =>
     {
         using var searcher = new ManagementObjectSearcher(scope, query);
         using var collection = searcher.Get();
@@ -65,7 +75,7 @@ public static partial class WMI
         {
             target?.Dispose();
         }
-    });
+    }), CallTimeLimit, $"scope={scope}, query={query}, method={methodName}");
 
     private static async Task<bool> ExistsAsync(string scope, FormattableString query)
     {
@@ -85,7 +95,18 @@ public static partial class WMI
     {
         var queryFormatted = query.ToString(WMIPropertyValueFormatter.Instance);
         var watcher = new ManagementEventWatcher(scope, queryFormatted);
-        watcher.EventArrived += (_, e) => handler(e.NewEvent.Properties);
+        // Runs on a WMI thread: an exception escaping here would end the whole app.
+        watcher.EventArrived += (_, e) =>
+        {
+            try
+            {
+                handler(e.NewEvent.Properties);
+            }
+            catch (Exception ex)
+            {
+                Log.Instance.Trace($"Handling a WMI event failed. [scope={scope}, query={queryFormatted}]", ex);
+            }
+        };
         watcher.Start();
 
         return new LambdaDisposable(() =>

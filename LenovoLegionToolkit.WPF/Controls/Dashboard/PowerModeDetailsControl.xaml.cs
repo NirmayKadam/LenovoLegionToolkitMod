@@ -85,7 +85,7 @@ public partial class PowerModeDetailsControl
     private void GodModeController_PresetChanged(object? sender, Guid e) => QueueRefresh();
     private void GpuOverclockController_Changed(object? sender, EventArgs e) => QueueRefresh();
 
-    private async void QueueRefresh() => await _throttle.DispatchAsync(async () =>
+    private async void QueueRefresh() => await _throttle.DispatchLoggingErrorsAsync(async () =>
     {
         await Dispatcher.InvokeAsync(async () =>
         {

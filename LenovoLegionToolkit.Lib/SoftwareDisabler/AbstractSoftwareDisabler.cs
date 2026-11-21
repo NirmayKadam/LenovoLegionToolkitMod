@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.ServiceProcess;
+using System.Threading;
 using System.Threading.Tasks;
 using LenovoLegionToolkit.Lib.Extensions;
 using LenovoLegionToolkit.Lib.Utils;
@@ -91,32 +92,54 @@ public abstract class AbstractSoftwareDisabler
         Log.Instance.Trace($"Disabled [type={GetType().Name}]");
     });
 
-    private bool IsInstalled() => ServiceController.GetServices().Any(s => ServiceNames.Contains(s.ServiceName));
+    /// <summary>How long a service may take to start or stop before this gives up waiting (it used to wait for good).</summary>
+    private static readonly TimeSpan ServiceWaitLimit = TimeSpan.FromSeconds(30);
 
-    private IEnumerable<string> RunningServices()
+    /// <summary>How long a killed process may take to exit before this moves on.</summary>
+    private static readonly TimeSpan ProcessExitLimit = TimeSpan.FromSeconds(10);
+
+    private bool IsInstalled() => WithServices(services => services.Any(s => ServiceNames.Contains(s.ServiceName)));
+
+    private IEnumerable<string> RunningServices() => WithServices(services => ServiceNames.Where(s => IsServiceEnabled(s, services)).ToArray());
+
+    private static bool IsServiceInstalled(string serviceName) => WithServices(services => services.Any(s => s.ServiceName == serviceName));
+
+    /// <summary>Reads the installed services and releases their handles afterwards (they were left to the garbage collector).</summary>
+    private static T WithServices<T>(Func<ServiceController[], T> read)
     {
         var services = ServiceController.GetServices();
-        return ServiceNames.Where(s => IsServiceEnabled(s, services));
+        try
+        {
+            return read(services);
+        }
+        finally
+        {
+            foreach (var service in services)
+                service.Dispose();
+        }
     }
 
     protected virtual IEnumerable<string> RunningProcesses()
     {
         foreach (var process in Process.GetProcesses())
         {
-            foreach (var processName in ProcessNames)
+            using (process)
             {
-                var name = string.Empty;
-
-                try
+                foreach (var processName in ProcessNames)
                 {
-                    name = process.ProcessName;
-                    if (!name.StartsWith(processName, StringComparison.InvariantCultureIgnoreCase))
-                        continue;
-                }
-                catch {  /* Ignore */ }
+                    var name = string.Empty;
 
-                if (!string.IsNullOrEmpty(name))
-                    yield return name;
+                    try
+                    {
+                        name = process.ProcessName;
+                        if (!name.StartsWith(processName, StringComparison.InvariantCultureIgnoreCase))
+                            continue;
+                    }
+                    catch (InvalidOperationException) { /* The process exited meanwhile. */ }
+
+                    if (!string.IsNullOrEmpty(name))
+                        yield return name;
+                }
             }
         }
     }
@@ -184,14 +207,14 @@ public abstract class AbstractSoftwareDisabler
         {
             Log.Instance.Trace($"Setting service {serviceName} to {enabled}. [type={GetType().Name}]");
 
-            if (!ServiceController.GetServices().Any(s => s.ServiceName == serviceName))
+            if (!IsServiceInstalled(serviceName))
             {
                 Log.Instance.Trace($"Service {serviceName} not found. [type={GetType().Name}]");
 
                 return;
             }
 
-            var service = new ServiceController(serviceName);
+            using var service = new ServiceController(serviceName);
 
             try
             {
@@ -205,7 +228,7 @@ public abstract class AbstractSoftwareDisabler
                     {
                         Log.Instance.Trace($"Starting service {serviceName}... [type={GetType().Name}]");
                         service.Start();
-                        service.WaitForStatus(ServiceControllerStatus.Running);
+                        service.WaitForStatus(ServiceControllerStatus.Running, ServiceWaitLimit);
                     }
                     else
                     {
@@ -218,7 +241,7 @@ public abstract class AbstractSoftwareDisabler
                     {
                         Log.Instance.Trace($"Stopping service {serviceName}... [type={GetType().Name}]");
                         service.Stop();
-                        service.WaitForStatus(ServiceControllerStatus.Stopped);
+                        service.WaitForStatus(ServiceControllerStatus.Stopped, ServiceWaitLimit);
                     }
                     else
                     {
@@ -237,25 +260,37 @@ public abstract class AbstractSoftwareDisabler
 
             throw new SoftwareDisablerException(serviceName, ex);
         }
+        catch (global::System.ServiceProcess.TimeoutException ex)
+        {
+            Log.Instance.Trace($"Service {serviceName} didn't reach its new state within {ServiceWaitLimit.TotalSeconds:0} s. [enabled={enabled}, type={GetType().Name}]");
+
+            throw new SoftwareDisablerException(serviceName, ex);
+        }
     }
 
     protected virtual async Task KillProcessesAsync()
     {
         foreach (var process in Process.GetProcesses())
-            foreach (var processName in ProcessNames)
+        {
+            using (process)
             {
-                try
+                foreach (var processName in ProcessNames)
                 {
-                    if (process.ProcessName.StartsWith(processName, StringComparison.InvariantCultureIgnoreCase))
+                    try
                     {
-                        process.Kill(true);
-                        await process.WaitForExitAsync().ConfigureAwait(false);
+                        if (process.ProcessName.StartsWith(processName, StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            process.Kill(true);
+                            using var exitWait = new CancellationTokenSource(ProcessExitLimit);
+                            await process.WaitForExitAsync(exitWait.Token).ConfigureAwait(false);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Instance.Trace($"Couldn't kill process.", ex);
                     }
                 }
-                catch (Exception ex)
-                {
-                    Log.Instance.Trace($"Couldn't kill process.", ex);
-                }
             }
+        }
     }
 }

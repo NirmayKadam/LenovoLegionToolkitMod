@@ -141,7 +141,7 @@ public partial class SpectrumKeyboardBacklightControl
                     {
                         var presetProfile = e.SpecialKey - SpecialKey.SpectrumPreset1 + 1;
                         Log.Instance.Trace($"Spectrum preset key: profile {presetProfile}.");
-                        if (await _controller.IsFixedZoneKeyboardAsync().ConfigureAwait(false) && await _controller.GetProfileAsync() != presetProfile)
+                        if (await _controller.IsFixedZoneKeyboardAsync() && await _controller.GetProfileAsync() != presetProfile)
                         {
                             await _controller.SetProfileAsync(presetProfile);
                         }
@@ -156,7 +156,7 @@ public partial class SpectrumKeyboardBacklightControl
         });
 
     private async void BrightnessSlider_OnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) =>
-        await _changeBrightnessDispatcher.DispatchAsync(async () =>
+        await _changeBrightnessDispatcher.DispatchLoggingErrorsAsync(async () =>
         {
             await Dispatcher.InvokeAsync(async () =>
             {

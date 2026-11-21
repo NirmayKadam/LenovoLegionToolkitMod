@@ -361,10 +361,10 @@ public partial class ExcludeProcessesWindow
                     gameAutoListener.PreserveStateOnRestart();
                 }
 
-                await gameAutoListener.RestartAsync().ConfigureAwait(false);
+                await gameAutoListener.RestartAsync();
 
                 var automationProcessor = IoCContainer.Resolve<AutomationProcessor>();
-                await automationProcessor.RestartListenersAsync().ConfigureAwait(false);
+                await automationProcessor.RestartListenersAsync();
             }
             catch (Exception ex)
             {

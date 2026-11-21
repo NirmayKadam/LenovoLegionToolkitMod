@@ -535,7 +535,7 @@ public partial class AmdOverclocking : UiWindow
             Resource.RestartRequired_Title,
             Resource.RestartRequired_Message,
             Resource.RestartNow,
-            Resource.RestartLater).ConfigureAwait(false);
+            Resource.RestartLater);
 
         if (!result)
         {
@@ -543,7 +543,7 @@ public partial class AmdOverclocking : UiWindow
         }
 
         _controller.SwitchProfile(CpuProfileMode.X3DGaming);
-        await Power.RestartAsync().ConfigureAwait(false);
+        await Power.RestartAsync();
     }
 
     private async void X3DGamingModeDisabled_OnClick(object sender, RoutedEventArgs e)
@@ -558,7 +558,7 @@ public partial class AmdOverclocking : UiWindow
             Resource.RestartRequired_Title,
             Resource.RestartRequired_Message,
             Resource.RestartNow,
-            Resource.RestartLater).ConfigureAwait(false);
+            Resource.RestartLater);
 
         if (!result)
         {
@@ -566,7 +566,7 @@ public partial class AmdOverclocking : UiWindow
         }
 
         _controller.SwitchProfile(CpuProfileMode.Productivity);
-        await Power.RestartAsync().ConfigureAwait(false);
+        await Power.RestartAsync();
     }
 
     #region Curve Shape

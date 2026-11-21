@@ -286,7 +286,7 @@ public partial class SensorsControlV2
             var batteryInfoTask = Task.Run(Battery.GetBatteryInformation);
             var gpuNameTask = GetProcessedGpuName();
 
-            await Task.WhenAll(dataTask, batteryInfoTask, gpuNameTask).ConfigureAwait(false);
+            await Task.WhenAll(dataTask, batteryInfoTask, gpuNameTask);
 
             _gpuNameTask = gpuNameTask;
 
@@ -373,8 +373,9 @@ public partial class SensorsControlV2
                 control.Visibility = _activeSensorItems.Contains(kv.Key) ? Visibility.Visible : Visibility.Collapsed;
             }
 
-            _cpuCardName.Text = _cpuNameTask.Result;
-            _gpuCardName.Text = _gpuNameTask?.Result ?? "UNKNOWN";
+            // Never wait here (this is the UI thread, every refresh): a name not read yet shows as unknown until it is.
+            _cpuCardName.Text = NameOrUnknown(_cpuNameTask);
+            _gpuCardName.Text = NameOrUnknown(_gpuNameTask);
 
             // --- CPU ---
             if (_activeSensorItems.Contains(SensorItem.CpuUtilization)) UpdateValue(_cpuUtilizationBar, _cpuUtilizationLabel, 100, cpuUsage, $"{cpuUsage:0}{Resource.Percent}");
@@ -502,6 +503,9 @@ public partial class SensorsControlV2
     private Task<string> GetProcessedCpuName() => _sensorsGroupControllers.GetCpuNameAsync();
 
     private Task<string> GetProcessedGpuName() => _sensorsGroupControllers.GetGpuNameAsync();
+
+    private static string NameOrUnknown(Task<string>? nameTask) =>
+        nameTask is { IsCompletedSuccessfully: true } && !string.IsNullOrWhiteSpace(nameTask.Result) ? nameTask.Result : Resource.Unknown;
 
     private string GetTemperatureText(double temperature)
     {

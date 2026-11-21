@@ -100,7 +100,15 @@ public sealed class AntiCheatMonitor : IDisposable
         if (changed)
         {
             Log.Instance.Trace($"Protected game {(state ? "started" : "stopped")}. [services={string.Join(",", ActiveServices)}]");
-            ProtectedGameChanged?.Invoke(this, state);
+            try
+            {
+                ProtectedGameChanged?.Invoke(this, state);
+            }
+            catch (Exception ex)
+            {
+                // Usually raised from the timer's thread: an exception escaping here would end the app.
+                Log.Instance.Trace($"Handling a protected game change failed. [state={state}]", ex);
+            }
         }
 
         return state;

@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
+using System.Threading;
 using System.Threading.Tasks;
 using LenovoLegionToolkit.Lib.Extensions;
 using LenovoLegionToolkit.Lib.Utils;
@@ -530,7 +531,7 @@ public static class BootLogo
     {
         try
         {
-            var (result, output) = await CMD.RunAsync("bcdedit", "/enum {current}").ConfigureAwait(false);
+            var (result, output) = await RunToolAsync("bcdedit", "/enum {current}").ConfigureAwait(false);
             if (result == 0 && output != null)
             {
                 var lines = output.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries);
@@ -557,8 +558,28 @@ public static class BootLogo
         var arg = disable ? "on" : "off";
         Log.Instance.Trace($"Setting bootuxdisabled {arg}...");
 
-        var (result, _) = await CMD.RunAsync("bcdedit", $"-set bootuxdisabled {arg}").ConfigureAwait(false);
+        var (result, _) = await RunToolAsync("bcdedit", $"-set bootuxdisabled {arg}").ConfigureAwait(false);
         Log.Instance.Trace($"bootuxdisabled {arg} result: {result}");
+
+        if (result != 0)
+            throw new InvalidOperationException($"bcdedit couldn't set bootuxdisabled {arg} (exit code {result}).");
+    }
+
+    /// <summary>
+    /// Runs <c>bcdedit</c> or <c>mountvol</c>, giving up after 30 s (they normally take well under a second) instead of
+    /// waiting for good. The process is ended if it is still running.
+    /// </summary>
+    private static async Task<(int, string)> RunToolAsync(string file, string arguments)
+    {
+        using var limit = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+        try
+        {
+            return await CMD.RunAsync(file, arguments, token: limit.Token, endOnCancel: true).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (limit.IsCancellationRequested)
+        {
+            throw new TimeoutException($"{file} didn't finish within 30 s. [arguments={arguments}]");
+        }
     }
 
     private static char GetUnusedDriveLetter()
@@ -578,7 +599,7 @@ public static class BootLogo
     private static async Task<char?> MountEfiPartitionAsync()
     {
         var drive = GetUnusedDriveLetter();
-        var (result, _) = await CMD.RunAsync("mountvol", $"{drive}: /s").ConfigureAwait(false);
+        var (result, _) = await RunToolAsync("mountvol", $"{drive}: /s").ConfigureAwait(false);
         if (result != 0)
         {
             Log.Instance.Trace($"Failed to mount EFI partition at {drive}:");
@@ -593,7 +614,7 @@ public static class BootLogo
 
     private static async Task UnMountEfiPartitionAsync(char letter)
     {
-        var (result, _) = await CMD.RunAsync("mountvol", $"{letter}: /d").ConfigureAwait(false);
+        var (result, _) = await RunToolAsync("mountvol", $"{letter}: /d").ConfigureAwait(false);
 
         if (result != 0)
         {

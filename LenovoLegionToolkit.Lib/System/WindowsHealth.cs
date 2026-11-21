@@ -163,21 +163,8 @@ public static class WindowsHealth
         return new SystemDriveInfo(drive.Name, drive.AvailableFreeSpace, drive.TotalSize);
     }
 
-    private static Guid GetActiveScheme()
-    {
-        var result = PowerGetActiveScheme(IntPtr.Zero, out var pointer);
-        if (result != 0)
-            throw new InvalidOperationException($"PowerGetActiveScheme failed ({result}).");
-
-        try
-        {
-            return Marshal.PtrToStructure<Guid>(pointer);
-        }
-        finally
-        {
-            LocalFree(pointer);
-        }
-    }
+    private static Guid GetActiveScheme() =>
+        Extensions.PowerPlanExtensions.GetActiveSchemeGuid() ?? throw new InvalidOperationException("Windows didn't say which power plan is active.");
 
     private static uint ReadDcValue(Guid scheme, Guid setting)
     {
@@ -192,12 +179,8 @@ public static class WindowsHealth
     [return: MarshalAs(UnmanagedType.U1)]
     private static extern bool GetPwrCapabilities(IntPtr capabilities);
 
-    [DllImport("PowrProf.dll")]
-    private static extern uint PowerGetActiveScheme(IntPtr rootPowerKey, out IntPtr activePolicyGuid);
 
     [DllImport("PowrProf.dll")]
     private static extern uint PowerReadDCValueIndex(IntPtr rootPowerKey, ref Guid schemeGuid, ref Guid subGroupGuid, ref Guid powerSettingGuid, out uint valueIndex);
 
-    [DllImport("kernel32.dll")]
-    private static extern IntPtr LocalFree(IntPtr memory);
 }

@@ -355,28 +355,35 @@ public abstract class OsdWindowBase : Window
 
     private async void OnVisibilityChanged(object? sender, DependencyPropertyChangedEventArgs e)
     {
-        if (IsVisible)
+        try
         {
-            _sensorsGroupControllers.ShowAverageCpuFrequency = _hardwareSensorSettings.Store.ShowCpuAverageFrequency;
-            _sensorsGroupControllers.CpuVoltageMode = _hardwareSensorSettings.Store.CpuVoltageMode;
-            _sensorsGroupControllers.CpuVoltageCoreIndex = _hardwareSensorSettings.Store.CpuVoltageCoreIndex;
+            if (IsVisible)
+            {
+                _sensorsGroupControllers.ShowAverageCpuFrequency = _hardwareSensorSettings.Store.ShowCpuAverageFrequency;
+                _sensorsGroupControllers.CpuVoltageMode = _hardwareSensorSettings.Store.CpuVoltageMode;
+                _sensorsGroupControllers.CpuVoltageCoreIndex = _hardwareSensorSettings.Store.CpuVoltageCoreIndex;
 
-            _cts?.Cancel();
-            _cts?.Dispose();
-            _cts = new CancellationTokenSource();
+                _cts?.Cancel();
+                _cts?.Dispose();
+                _cts = new CancellationTokenSource();
 
-            CheckAndUpdateFpsMonitoring();
-            UpdateMeasurementControlsVisibility();
+                CheckAndUpdateFpsMonitoring();
+                UpdateMeasurementControlsVisibility();
 
-            StartHardwareSensorUpdates();
+                StartHardwareSensorUpdates();
 
-            await TheRing(_cts.Token);
+                await TheRing(_cts.Token);
+            }
+            else
+            {
+                _cts?.Cancel();
+                _sensorSubscription?.Dispose();
+                CheckAndUpdateFpsMonitoring();
+            }
         }
-        else
+        catch (Exception ex)
         {
-            _cts?.Cancel();
-            _sensorSubscription?.Dispose();
-            CheckAndUpdateFpsMonitoring();
+            Log.Instance.Trace($"Showing or hiding the OSD failed. [visible={IsVisible}]", ex);
         }
     }
 
@@ -408,7 +415,10 @@ public abstract class OsdWindowBase : Window
         _refreshLock.Dispose();
 
         _fpsController.FpsDataUpdated -= OnFpsDataUpdated;
-        _fpsController.Dispose();
+        // The FPS counter is shared (the next OSD window, e.g. after a style change, uses the same one), so it is
+        // stopped here, not disposed.
+        try { _fpsController.StopMonitoring(); }
+        catch (Exception ex) { Log.Instance.Trace($"Failed to stop FPS monitoring", ex); }
 
         MessagingCenter.Unsubscribe(this);
 
@@ -417,13 +427,14 @@ public abstract class OsdWindowBase : Window
 
     protected virtual void ApplyAppearanceSettings()
     {
-        var converter = new BrushConverter();
+        var store = _OsdSettings.Store;
+        var defaults = new OsdSettings.OsdSettingsStore();
 
-        _categoryBrush = (Brush)converter.ConvertFromString(_OsdSettings.Store.CategoryColor)!;
-        _labelBrush = (Brush)converter.ConvertFromString(_OsdSettings.Store.LabelColor)!;
-        _valueBrush = (Brush)converter.ConvertFromString(_OsdSettings.Store.ValueColor)!;
-        _warningBrush = (Brush)converter.ConvertFromString(_OsdSettings.Store.WarningColor)!;
-        _criticalBrush = (Brush)converter.ConvertFromString(_OsdSettings.Store.CriticalColor)!;
+        _categoryBrush = OsdBrush(store.CategoryColor, defaults.CategoryColor);
+        _labelBrush = OsdBrush(store.LabelColor, defaults.LabelColor);
+        _valueBrush = OsdBrush(store.ValueColor, defaults.ValueColor);
+        _warningBrush = OsdBrush(store.WarningColor, defaults.WarningColor);
+        _criticalBrush = OsdBrush(store.CriticalColor, defaults.CriticalColor);
 
         FrameTimeGraphElement?.SetBrushes(_valueBrush, _criticalBrush);
 
@@ -433,6 +444,25 @@ public abstract class OsdWindowBase : Window
         {
             SetDefaultWindowPosition();
         }
+    }
+
+    /// <summary>
+    /// A colour from the OSD settings. One that can't be read (an edited or damaged <c>osd.json</c>) used to stop the
+    /// app from starting; now the default colour is used and the bad value is logged.
+    /// </summary>
+    internal static Brush OsdBrush(string? value, string fallback)
+    {
+        try
+        {
+            if (!string.IsNullOrWhiteSpace(value) && new BrushConverter().ConvertFromString(value) is Brush brush)
+                return brush;
+        }
+        catch (Exception ex) when (ex is FormatException or NotSupportedException)
+        {
+            Log.Instance.Trace($"OSD colour can't be read, using the default. [value={value}, default={fallback}]", ex);
+        }
+
+        return (Brush)new BrushConverter().ConvertFromString(fallback)!;
     }
 
     protected void ApplyCornerRadius(Border border)
@@ -724,6 +754,20 @@ public abstract class OsdWindowBase : Window
 
     #region Main Loop & Data Refresh
 
+    /// <summary>Waits; false when the OSD was hidden meanwhile. Hiding used to throw out of the loop on every hide.</summary>
+    private static async Task<bool> DelayUnlessCancelledAsync(TimeSpan delay, CancellationToken token)
+    {
+        try
+        {
+            await Task.Delay(delay, token);
+            return true;
+        }
+        catch (OperationCanceledException)
+        {
+            return false;
+        }
+    }
+
     private async Task TheRing(CancellationToken token)
     {
         try
@@ -748,15 +792,14 @@ public abstract class OsdWindowBase : Window
                 catch (Exception ex)
                 {
                     Log.Instance.Trace($"Exception occurred when executing TheRing()", ex);
-                    await Task.Delay(1000, token);
+                    if (!await DelayUnlessCancelledAsync(TimeSpan.FromSeconds(1), token))
+                        break;
                 }
 
                 var elapsed = DateTime.Now - loopStart;
                 var delay = TimeSpan.FromSeconds(_OsdSettings.Store.OsdRefreshInterval) - elapsed;
-                if (delay > TimeSpan.Zero)
-                {
-                    await Task.Delay(delay, token);
-                }
+                if (delay > TimeSpan.Zero && !await DelayUnlessCancelledAsync(delay, token))
+                    break;
             }
         }
         finally

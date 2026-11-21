@@ -165,8 +165,13 @@ public sealed class PowerStateListener : IListener<PowerStateListener.ChangedEve
 
     private async Task ProcessPowerEventAsync(PowerStateEvent powerStateEvent)
     {
+        // Windows delivers suspend/resume through two routes (SystemEvents and the native callback). An event that
+        // arrives while another is still being handled is almost always that duplicate, so it is skipped, and said so.
         if (!await _processingLock.WaitAsync(TimeSpan.FromSeconds(5)).ConfigureAwait(false))
+        {
+            Log.Instance.Trace($"Skipped {powerStateEvent}: another power event is still being handled.");
             return;
+        }
 
         try
         {
@@ -223,40 +228,53 @@ public sealed class PowerStateListener : IListener<PowerStateListener.ChangedEve
         }
     }
 
+    /// <summary>
+    /// Puts things back after sleep. Each step runs on its own: one that fails (say, the keyboard lighting) is logged
+    /// and no longer stops the steps after it (the battery mode, God Mode).
+    /// </summary>
     private async Task HandleResumeInternalAsync(PowerAdapterStatus currentAdapterStatus)
     {
-        if (await _batteryFeature.IsSupportedAsync().ConfigureAwait(false))
+        await ResumeStepAsync("battery mode", async () =>
         {
-            await _batteryFeature.EnsureCorrectBatteryModeIsSetAsync().ConfigureAwait(false);
-        }
+            if (await _batteryFeature.IsSupportedAsync().ConfigureAwait(false))
+                await _batteryFeature.EnsureCorrectBatteryModeIsSetAsync().ConfigureAwait(false);
+        }).ConfigureAwait(false);
 
-        if (await _rgbController.IsSupportedAsync().ConfigureAwait(false))
+        await ResumeStepAsync("keyboard lighting", async () =>
         {
-            await _rgbController.SetLightControlOwnerAsync(true, true).ConfigureAwait(false);
-        }
+            if (await _rgbController.IsSupportedAsync().ConfigureAwait(false))
+                await _rgbController.SetLightControlOwnerAsync(true, true).ConfigureAwait(false);
+        }).ConfigureAwait(false);
 
-        var overclockingController = IoCContainer.Resolve<AmdOverclockingController>();
-        if (overclockingController.IsActive())
+        await ResumeStepAsync("AMD overclocking", async () =>
         {
+            var overclockingController = IoCContainer.Resolve<AmdOverclockingController>();
+            if (!overclockingController.IsActive())
+                return;
+
             var shouldApply = currentAdapterStatus == PowerAdapterStatus.Connected || overclockingController.AllowOnBattery;
             if (shouldApply)
             {
                 Log.Instance.Trace($"Applying overclocking profile...");
                 await overclockingController.ApplyInternalProfileAsync().ConfigureAwait(false);
             }
-        }
+        }).ConfigureAwait(false);
 
-        var gpuOverclockController = IoCContainer.Resolve<GPUOverclockController>();
-        if (await gpuOverclockController.IsSupportedAsync().ConfigureAwait(false))
+        await ResumeStepAsync("GPU overclock", async () =>
         {
-            await gpuOverclockController.EnsureOverclockIsAppliedAsync().ConfigureAwait(false);
-        }
+            var gpuOverclockController = IoCContainer.Resolve<GPUOverclockController>();
+            if (await gpuOverclockController.IsSupportedAsync().ConfigureAwait(false))
+                await gpuOverclockController.EnsureOverclockIsAppliedAsync().ConfigureAwait(false);
+        }).ConfigureAwait(false);
 
-        // The God Mode ranges are re-read on the next apply, in case BIOS settings changed while asleep.
-        IoCContainer.Resolve<GodModeController>().ForgetFirmwareRanges();
-
-        if (await _powerModeFeature.IsSupportedAsync().ConfigureAwait(false))
+        await ResumeStepAsync("power mode", async () =>
         {
+            // The God Mode ranges are re-read on the next apply, in case BIOS settings changed while asleep.
+            IoCContainer.Resolve<GodModeController>().ForgetFirmwareRanges();
+
+            if (!await _powerModeFeature.IsSupportedAsync().ConfigureAwait(false))
+                return;
+
             if (_powerModeFeature.LastPowerModeState == PowerModeState.GodMode)
             {
                 Log.Instance.Trace($"Restore to {_powerModeFeature.LastPowerModeState}");
@@ -264,7 +282,7 @@ public sealed class PowerStateListener : IListener<PowerStateListener.ChangedEve
             }
 
             await _powerModeFeature.EnsureGodModeStateIsAppliedAsync().ConfigureAwait(false);
-        }
+        }).ConfigureAwait(false);
 
         if (HasExtensionProvider("FanControl"))
         {
@@ -272,6 +290,18 @@ public sealed class PowerStateListener : IListener<PowerStateListener.ChangedEve
         }
 
         _ = NotifyDgpuAsync();
+    }
+
+    private static async Task ResumeStepAsync(string what, Func<Task> step)
+    {
+        try
+        {
+            await step().ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Restoring {what} after sleep failed.", ex);
+        }
     }
 
     private async Task HandleConnectedStatusChangeAsync()

@@ -115,7 +115,7 @@ public partial class App
                     Log.Instance.Trace($"Lenovo Legion Toolkit Version {Assembly.GetEntryAssembly()?.GetName().Version}");
                 }
 
-                Compatibility.PrintControllerVersionAsync().ConfigureAwait(false);
+                _ = LogFailureAsync(Compatibility.PrintControllerVersionAsync(), "Printing the controller version");
                 InitOsd();
                 IoCContainer.Resolve<GlobalHotkeyService>().Start();
                 IoCContainer.Resolve<GameSafeMode>().Start();
@@ -162,6 +162,9 @@ public partial class App
         AppFlags.Initialize(e.Args);
         Log.Instance.IsTraceEnabled = AppFlags.Instance.IsTraceEnabled;
 
+        // First, so that anything failing from here on is caught and reported.
+        SetupExceptionHandling();
+
         if (AppFlags.Instance.Debug)
         {
             InitializeDebugConsole();
@@ -173,9 +176,9 @@ public partial class App
             return false;
         }
 
-        await Compatibility.PrintMachineInfoAsync().ConfigureAwait(false);
-
-        SetupExceptionHandling();
+        // Stays on the UI thread. With Detailed log on, this used to move the rest of start-up (the IoC container and
+        // the singletons it starts) to a pool thread, so start-up ran differently with and without the log.
+        await Compatibility.PrintMachineInfoAsync();
 
         if (AppFlags.Instance.Debug)
         {
@@ -473,7 +476,33 @@ public partial class App
         }
     }
 
+    private int _shutdownStarted;
+
+    /// <summary>
+    /// Puts things back and exits. Runs once: closing the main window during shutdown calls this again, which used to
+    /// run the whole teardown a second time.
+    /// </summary>
     public async Task ShutdownAsync()
+    {
+        if (Interlocked.Exchange(ref _shutdownStarted, 1) != 0)
+        {
+            Log.Instance.Trace($"Shutdown already in progress.");
+            return;
+        }
+
+        try
+        {
+            await ShutdownCoreAsync();
+        }
+        finally
+        {
+            // Synchronous on purpose: shutdown must have started before this method returns. In finally, so the app
+            // always exits even if saving something above failed.
+            Dispatcher.Invoke(Shutdown);
+        }
+    }
+
+    private async Task ShutdownCoreAsync()
     {
         // Puts back what a running game's profile changed; if it takes too long, the next start does it.
         await SafeExecuteAsync<Lib.GameProfiles.GameProfileController>(c => c.EndSessionAsync().WaitAsync(TimeSpan.FromSeconds(30)));
@@ -509,18 +538,39 @@ public partial class App
         await SafeExecuteAsync<ExtensionManager>(c => c.StopAsync());
         await SafeExecuteAsync<GodModeController>(c => c.RestoreDefaultsInOtherPowerModeAsync(PowerModeState.Balance));
 
-        var feature = IoCContainer.Resolve<AmdOverclockingController>();
-
-        var cleanInfo = new ShutdownInfo
+        // Things started at start-up that hold Windows or driver resources: let them go in order (the OSD first, as it
+        // reads the sensors).
+        try
         {
-            Status = "Normal",
-            AbnormalCount = 0
-        };
+            OsdWindow?.Close();
+            OsdWindow = null;
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Closing the OSD at shutdown failed.", ex);
+        }
 
-        feature.SaveShutdownInfo(cleanInfo);
+        await SafeExecuteAsync<GlobalHotkeyService>(c =>
+        {
+            c.Dispose();
+            return Task.CompletedTask;
+        });
+        await SafeExecuteAsync<LampArrayController>(c => c.StopAsync());
+        await SafeExecuteAsync<SensorsGroupController>(c =>
+        {
+            c.Dispose();
+            return Task.CompletedTask;
+        });
 
-        // Synchronous on purpose: shutdown must have started before this method returns.
-        Dispatcher.Invoke(Shutdown);
+        await SafeExecuteAsync<AmdOverclockingController>(c =>
+        {
+            c.SaveShutdownInfo(new ShutdownInfo
+            {
+                Status = "Normal",
+                AbnormalCount = 0
+            });
+            return Task.CompletedTask;
+        });
     }
 
     private static async Task SafeExecuteAsync<T>(Func<T, Task> action) where T : class
@@ -532,7 +582,23 @@ public partial class App
                 await action(service);
             }
         }
-        catch { /* Ignore */ }
+        catch (Exception ex)
+        {
+            // Shutdown carries on with the next step either way; this says which one didn't finish.
+            Log.Instance.Trace($"Shutdown step for {typeof(T).Name} failed.", ex);
+        }
+    }
+
+    private static async Task LogFailureAsync(Task work, string what)
+    {
+        try
+        {
+            await work;
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"{what} failed.", ex);
+        }
     }
 
     protected override void OnSessionEnding(SessionEndingCancelEventArgs e)
@@ -1294,7 +1360,7 @@ public partial class App
         }
         catch (Exception ex)
         {
-            Log.Instance.Trace($"{taskName} failed: {ex.Message}");
+            Log.Instance.Trace($"{taskName} failed.", ex);
         }
     }
 
