@@ -921,6 +921,31 @@ public class GodModeController : IGodModeController
         };
     }
 
+    public async Task<CurrentValues?> ReadCurrentValuesAsync(IReadOnlyCollection<string> propertyNames)
+    {
+        var config = await GetConfigAsync().ConfigureAwait(false);
+        if (config.Platform == GodModePlatform.LegacyLegion)
+            return null;
+
+        var values = new Dictionary<string, int>();
+        var failures = new Dictionary<string, Exception>();
+
+        // The NVIDIA power target is read through the GPU driver, not the firmware; it isn't one of these values.
+        foreach (var cap in config.Capabilities.Where(c => propertyNames.Contains(c.PropertyName) && !IsNvApiCapability(c)))
+        {
+            try
+            {
+                values[cap.PropertyName] = await GetValueAsync(cap.RawId, config.CapabilityIdMask).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                failures[cap.PropertyName] = ex;
+            }
+        }
+
+        return new CurrentValues(values, failures);
+    }
+
     public async Task RestoreDefaultsInOtherPowerModeAsync(PowerModeState state)
     {
         var config = await GetConfigAsync().ConfigureAwait(false);

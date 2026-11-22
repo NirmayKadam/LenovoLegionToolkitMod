@@ -98,38 +98,65 @@ public class NativeWindowsMessageListener : NativeWindow, IListener<NativeWindow
     /// Removes (true) or restores (false) the keyboard hook used for the Caps Lock / Num Lock notifications,
     /// for game-safe mode. Device, display and lid notifications keep working: they don't use the hook.
     /// </summary>
-    public Task SetKeyboardHookSuspendedAsync(bool suspended) => _mainThreadDispatcher.DispatchAsync(() =>
+    public async Task SetKeyboardHookSuspendedAsync(bool suspended)
     {
-        if (suspended && _kbHook != default)
+        await _mainThreadDispatcher.DispatchAsync(() =>
+        {
+            if (suspended && _kbHook != default)
+            {
+                PInvoke.UnhookWindowsHookEx(_kbHook);
+                _kbHook = default;
+            }
+            else if (!suspended && _kbHook == default && Handle != IntPtr.Zero)
+            {
+                _kbHook = PInvoke.SetWindowsHookEx(WINDOWS_HOOK_ID.WH_KEYBOARD_LL, _kbProc, HINSTANCE.Null, 0);
+            }
+
+            return Task.CompletedTask;
+        }).ConfigureAwait(false);
+
+        if (suspended)
+            await ReleaseSmartFnLockAsync().ConfigureAwait(false);
+    }
+
+    public async Task StopAsync()
+    {
+        await _mainThreadDispatcher.DispatchAsync(() =>
         {
             PInvoke.UnhookWindowsHookEx(_kbHook);
+
+            PInvoke.UnregisterDeviceNotification(_deviceNotificationHandle);
+            PInvoke.UnregisterPowerSettingNotification(_consoleDisplayStateNotificationHandle);
+            PInvoke.UnregisterPowerSettingNotification(_lidSwitchStateChangeNotificationHandle);
+            PInvoke.UnregisterPowerSettingNotification(_powerSavingStateChangeNotificationHandle);
+
             _kbHook = default;
-        }
-        else if (!suspended && _kbHook == default && Handle != IntPtr.Zero)
-        {
-            _kbHook = PInvoke.SetWindowsHookEx(WINDOWS_HOOK_ID.WH_KEYBOARD_LL, _kbProc, HINSTANCE.Null, 0);
-        }
+            _deviceNotificationHandle = default;
+            _consoleDisplayStateNotificationHandle = default;
 
-        return Task.CompletedTask;
-    });
+            ReleaseHandle();
 
-    public Task StopAsync() => _mainThreadDispatcher.DispatchAsync(() =>
+            return Task.CompletedTask;
+        }).ConfigureAwait(false);
+
+        await ReleaseSmartFnLockAsync().ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Without the hook, Smart Fn Lock sees no more key releases: Fn Lock turned off for a held modifier is turned
+    /// back on now. Bounded, so removing the hook (game-safe mode, shutdown) never waits long on the Fn Lock driver.
+    /// </summary>
+    private async Task ReleaseSmartFnLockAsync()
     {
-        PInvoke.UnhookWindowsHookEx(_kbHook);
-
-        PInvoke.UnregisterDeviceNotification(_deviceNotificationHandle);
-        PInvoke.UnregisterPowerSettingNotification(_consoleDisplayStateNotificationHandle);
-        PInvoke.UnregisterPowerSettingNotification(_lidSwitchStateChangeNotificationHandle);
-        PInvoke.UnregisterPowerSettingNotification(_powerSavingStateChangeNotificationHandle);
-
-        _kbHook = default;
-        _deviceNotificationHandle = default;
-        _consoleDisplayStateNotificationHandle = default;
-
-        ReleaseHandle();
-
-        return Task.CompletedTask;
-    });
+        try
+        {
+            await _smartFnLockController.KeysNoLongerSeenAsync().WaitAsync(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
+        }
+        catch (TimeoutException)
+        {
+            Log.Instance.Trace($"Putting Fn Lock back took longer than 5 s; it carries on in the background.");
+        }
+    }
 
     protected override unsafe void WndProc(ref Message m)
     {

@@ -25,4 +25,14 @@ public interface IGodModeController
     Task<FanTable> GetMinimumFanTableAsync();
     Task<Dictionary<PowerModeState, GodModeDefaults>> GetDefaultsInOtherPowerModesAsync();
     Task RestoreDefaultsInOtherPowerModeAsync(PowerModeState state);
+
+    /// <summary>
+    /// The values the firmware reports right now for these preset properties, read the way God Mode reads them, with
+    /// the reason for each one that couldn't be read. Null on older (legacy) platforms, whose values are read through
+    /// Lenovo's older CPU and GPU methods instead.
+    /// </summary>
+    Task<CurrentValues?> ReadCurrentValuesAsync(IReadOnlyCollection<string> propertyNames);
 }
+
+/// <summary>What <see cref="IGodModeController.ReadCurrentValuesAsync"/> read, by preset property name.</summary>
+public sealed record CurrentValues(IReadOnlyDictionary<string, int> Values, IReadOnlyDictionary<string, Exception> Failures);

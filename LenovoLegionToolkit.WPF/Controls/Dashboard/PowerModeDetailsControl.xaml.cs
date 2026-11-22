@@ -106,7 +106,7 @@ public partial class PowerModeDetailsControl
 
             var mode = await _feature.GetStateAsync();
             var profile = await _reader.GetProfileAsync(mode);
-            var live = await PowerModeProfileReader.ReadLiveValuesAsync();
+            var live = await _reader.ReadLiveValuesAsync();
 
             var changes = PowerModeProfileReader.Compare(_shown, profile);
             var modeChanged = _shown is not null && _shown.Mode != profile.Mode;

@@ -2,7 +2,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Win32;
-using Windows.Win32.UI.Input.KeyboardAndMouse;
 using Windows.Win32.UI.WindowsAndMessaging;
 using LenovoLegionToolkit.Lib.Features;
 using LenovoLegionToolkit.Lib.Settings;
@@ -17,30 +16,35 @@ public class SmartFnLockController(FnLockFeature feature, ApplicationSettings se
 
     private readonly SemaphoreSlim _hardwareGate = new(1, 1);
     private readonly object _stateLock = new();
+    private readonly ModifierKeyState _keys = new();
     private CancellationTokenSource? _holdCts;
 
-    // Left and right keys are tracked separately: releasing one side must not clear a modifier
-    // that is still held on the other side.
-    private bool _leftCtrlDepressed;
-    private bool _rightCtrlDepressed;
-    private bool _leftShiftDepressed;
-    private bool _rightShiftDepressed;
-    private bool _leftAltDepressed;
-    private bool _rightAltDepressed;
     private bool _wasModifierActive;
     private bool _hardwareToggledOff;
     private bool _isDisposed;
 
     public void OnKeyboardEvent(nuint wParam, KBDLLHOOKSTRUCT kbStruct)
     {
-        if (settings.Store.SmartFnLockFlags == 0)
+        var flags = settings.Store.SmartFnLockFlags;
+        if (flags == 0)
+        {
+            // Switched off while a modifier was held: no event will put Fn Lock back now.
+            if (IsHoldingOrToggled())
+                _ = KeysNoLongerSeenAsync();
             return;
+        }
 
-        bool isModifierActive = IsModifierKeyPressed(wParam, kbStruct);
+        var isKeyDown = wParam is PInvoke.WM_KEYDOWN or PInvoke.WM_SYSKEYDOWN;
 
         lock (_stateLock)
         {
-            if (_isDisposed || isModifierActive == _wasModifierActive)
+            if (_isDisposed)
+                return;
+
+            _keys.Update(kbStruct.vkCode, isKeyDown);
+            var isModifierActive = _keys.IsActive(flags);
+
+            if (isModifierActive == _wasModifierActive)
                 return;
 
             _wasModifierActive = isModifierActive;
@@ -106,33 +110,70 @@ public class SmartFnLockController(FnLockFeature feature, ApplicationSettings se
                 _hardwareToggledOff = false;
 
                 if (needRestore)
-                {
-                    Task.Run(async () =>
-                    {
-                        try
-                        {
-                            await _hardwareGate.WaitAsync().ConfigureAwait(false);
-                            try
-                            {
-                                if (Log.Instance.IsTraceEnabled)
-                                    Log.Instance.Trace($"Modifier released, re-enabling Fn Lock...");
-
-                                await feature.SetStateAsync(FnLockState.On, verify: false).ConfigureAwait(false);
-                            }
-                            finally
-                            {
-                                await Task.Delay(HARDWARE_SETTLE_MS).ConfigureAwait(false);
-                                _hardwareGate.Release();
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            if (Log.Instance.IsTraceEnabled)
-                                Log.Instance.Trace($"Failed to handle keyboard event, {ex.Message}");
-                        }
-                    });
-                }
+                    Task.Run(() => RestoreFnLockAsync("Modifier released"));
             }
+        }
+    }
+
+    /// <summary>
+    /// Key events stop arriving: game-safe mode or shutdown removed the keyboard hook, or Smart Fn Lock was switched
+    /// off. A modifier held at that moment would never be seen released, which used to leave Fn Lock off (and the key
+    /// counted as held). Forgets the held keys and, if Fn Lock was turned off for one, turns it back on.
+    /// </summary>
+    public Task KeysNoLongerSeenAsync()
+    {
+        bool needRestore;
+        lock (_stateLock)
+        {
+            if (_isDisposed)
+                return Task.CompletedTask;
+
+            _holdCts?.Cancel();
+            _holdCts?.Dispose();
+            _holdCts = null;
+
+            _keys.Clear();
+            _wasModifierActive = false;
+
+            needRestore = _hardwareToggledOff;
+            _hardwareToggledOff = false;
+        }
+
+        return needRestore ? RestoreFnLockAsync("Keys no longer seen") : Task.CompletedTask;
+    }
+
+    private bool IsHoldingOrToggled()
+    {
+        lock (_stateLock)
+            return _wasModifierActive || _hardwareToggledOff;
+    }
+
+    /// <summary>
+    /// Turns Fn Lock back on after it was turned off for a held modifier. Waits for any write in progress (the gate),
+    /// so a hold that had just turned it off can't do so again afterwards. Never throws.
+    /// </summary>
+    private async Task RestoreFnLockAsync(string why)
+    {
+        try
+        {
+            await _hardwareGate.WaitAsync().ConfigureAwait(false);
+            try
+            {
+                if (Log.Instance.IsTraceEnabled)
+                    Log.Instance.Trace($"{why}, re-enabling Fn Lock...");
+
+                await feature.SetStateAsync(FnLockState.On, verify: false).ConfigureAwait(false);
+            }
+            finally
+            {
+                await Task.Delay(HARDWARE_SETTLE_MS).ConfigureAwait(false);
+                _hardwareGate.Release();
+            }
+        }
+        catch (Exception ex)
+        {
+            if (Log.Instance.IsTraceEnabled)
+                Log.Instance.Trace($"Failed to re-enable Fn Lock ({why}), {ex.Message}");
         }
     }
 
@@ -181,55 +222,5 @@ public class SmartFnLockController(FnLockFeature feature, ApplicationSettings se
         }
 
         GC.SuppressFinalize(this);
-    }
-
-    private bool IsModifierKeyPressed(nuint wParam, KBDLLHOOKSTRUCT kbStruct)
-    {
-        var isKeyDown = wParam is PInvoke.WM_KEYDOWN or PInvoke.WM_SYSKEYDOWN;
-        var vkKeyCode = (VIRTUAL_KEY)kbStruct.vkCode;
-
-        // Low-level hooks report the left/right variants; a generic code is treated as the left key.
-        switch (vkKeyCode)
-        {
-            case VIRTUAL_KEY.VK_LCONTROL or VIRTUAL_KEY.VK_CONTROL:
-                _leftCtrlDepressed = isKeyDown;
-                break;
-            case VIRTUAL_KEY.VK_RCONTROL:
-                _rightCtrlDepressed = isKeyDown;
-                break;
-            case VIRTUAL_KEY.VK_LSHIFT or VIRTUAL_KEY.VK_SHIFT:
-                _leftShiftDepressed = isKeyDown;
-                break;
-            case VIRTUAL_KEY.VK_RSHIFT:
-                _rightShiftDepressed = isKeyDown;
-                break;
-            case VIRTUAL_KEY.VK_LMENU or VIRTUAL_KEY.VK_MENU:
-                _leftAltDepressed = isKeyDown;
-                break;
-            case VIRTUAL_KEY.VK_RMENU:
-                _rightAltDepressed = isKeyDown;
-                break;
-        }
-
-        var ctrlDepressed = _leftCtrlDepressed || _rightCtrlDepressed;
-        var shiftDepressed = _leftShiftDepressed || _rightShiftDepressed;
-        var altDepressed = _leftAltDepressed || _rightAltDepressed;
-
-        if (!ctrlDepressed && !shiftDepressed && !altDepressed)
-            return false;
-
-        var result = false;
-        var flags = settings.Store.SmartFnLockFlags;
-
-        if (flags.HasFlag(ModifierKey.Ctrl))
-            result |= ctrlDepressed;
-
-        if (flags.HasFlag(ModifierKey.Shift))
-            result |= shiftDepressed;
-
-        if (flags.HasFlag(ModifierKey.Alt))
-            result |= altDepressed;
-
-        return result;
     }
 }

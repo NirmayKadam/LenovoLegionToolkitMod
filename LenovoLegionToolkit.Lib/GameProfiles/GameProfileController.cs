@@ -128,7 +128,19 @@ public class GameProfileController
             if (gameMode is not null)
                 LoadKnownGames();
 
-            await UpdateSubscriptionAsync(enabled.Count > 0 || gameMode is not null).ConfigureAwait(false);
+            var watching = enabled.Count > 0 || gameMode is not null;
+            if (!watching)
+            {
+                // Nothing reports games ending while nothing is watched, so the list would only go stale: a game that
+                // quits now would later look "still running" and keep the next session from ending.
+                lock (_lock)
+                {
+                    _gamePids.Clear();
+                    _gameNames.Clear();
+                }
+            }
+
+            await UpdateSubscriptionAsync(watching).ConfigureAwait(false);
             if (_signals is not null)
                 await _signals.SetRunningAsync(gameMode is not null).ConfigureAwait(false);
 
@@ -273,14 +285,20 @@ public class GameProfileController
         try
         {
             Guid profileId;
-            bool stillRunning;
             lock (_lock)
             {
                 if (!_gamePids.Remove(pid, out profileId))
                     return;
                 _gameNames.Remove(pid);
-                stillRunning = _gamePids.ContainsValue(profileId);
             }
+
+            // Entries whose end was never reported (a missed event) would otherwise count as "still running" and keep
+            // the session on after the last game quit.
+            ForgetGamesNoLongerRunning();
+
+            bool stillRunning;
+            lock (_lock)
+                stillRunning = _gamePids.ContainsValue(profileId);
 
             if (stillRunning || _session.Store.ProfileId != profileId)
                 return;
@@ -305,6 +323,29 @@ public class GameProfileController
             Log.Instance.Trace($"Handling an ended game failed. [name={name}, pid={pid}]", ex);
             _reportError("Handling an ended game failed.", ex);
         }
+    }
+
+    /// <summary>Drops the games the process list no longer shows (checked by id and reported name; nothing is opened).</summary>
+    private void ForgetGamesNoLongerRunning()
+    {
+        (int Pid, string Name)[] tracked;
+        lock (_lock)
+            tracked = [.. _gameNames.Select(g => (g.Key, g.Value))];
+
+        var gone = tracked.Where(g => !_system.IsRunning(g.Pid, g.Name)).ToArray();
+        if (gone.Length == 0)
+            return;
+
+        lock (_lock)
+        {
+            foreach (var (gonePid, _) in gone)
+            {
+                _gamePids.Remove(gonePid);
+                _gameNames.Remove(gonePid);
+            }
+        }
+
+        Log.Instance.Trace($"Game processes that ended without being reported were forgotten. [pids={string.Join(",", gone.Select(g => g.Pid))}]");
     }
 
     // ---- Applying ----

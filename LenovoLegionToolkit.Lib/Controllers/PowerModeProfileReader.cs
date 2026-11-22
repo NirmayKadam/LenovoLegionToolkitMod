@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Management;
 using System.Threading.Tasks;
 using LenovoLegionToolkit.Lib.Controllers.GodMode;
 using LenovoLegionToolkit.Lib.Settings;
@@ -182,25 +184,88 @@ public class PowerModeProfileReader(IGodModeController godModeController, GPUOve
         }).ToList();
     }
 
+    /// <summary>The preset property behind each value, as the God Mode capabilities name it.</summary>
+    internal static readonly IReadOnlyDictionary<string, PowerModeValueKind> KindByPresetProperty = new Dictionary<string, PowerModeValueKind>
+    {
+        [nameof(GodModePreset.CPULongTermPowerLimit)] = PowerModeValueKind.CpuLongTermPowerLimit,
+        [nameof(GodModePreset.CPUShortTermPowerLimit)] = PowerModeValueKind.CpuShortTermPowerLimit,
+        [nameof(GodModePreset.CPUPeakPowerLimit)] = PowerModeValueKind.CpuPeakPowerLimit,
+        [nameof(GodModePreset.CPUCrossLoadingPowerLimit)] = PowerModeValueKind.CpuCrossLoadingPowerLimit,
+        [nameof(GodModePreset.CPUPL2Tau)] = PowerModeValueKind.CpuPl2Tau,
+        [nameof(GodModePreset.APUsPPTPowerLimit)] = PowerModeValueKind.ApuSpptPowerLimit,
+        [nameof(GodModePreset.CPUTemperatureLimit)] = PowerModeValueKind.CpuTemperatureLimit,
+        [nameof(GodModePreset.GPUConfigurableTGP)] = PowerModeValueKind.GpuConfigurableTgp,
+        [nameof(GodModePreset.GPUPowerBoost)] = PowerModeValueKind.GpuPowerBoost,
+        [nameof(GodModePreset.GPUToCPUDynamicBoost)] = PowerModeValueKind.GpuToCpuDynamicBoost,
+        [nameof(GodModePreset.GPUTemperatureLimit)] = PowerModeValueKind.GpuTemperatureLimit,
+    };
+
     /// <summary>
     /// The values the laptop reports right now (CPU/GPU limits), for checking that a mode really applied.
-    /// Values the firmware doesn't answer are left out.
+    /// Values the firmware doesn't answer are left out. Current Legion, LOQ and non-gaming models are read the way
+    /// God Mode reads them (Lenovo's feature values); only older models use Lenovo's older CPU and GPU methods, which
+    /// the newer ones don't have (so the "now" column used to stay empty on them).
     /// </summary>
-    public static async Task<IReadOnlyDictionary<PowerModeValueKind, int>> ReadLiveValuesAsync()
+    public async Task<IReadOnlyDictionary<PowerModeValueKind, int>> ReadLiveValuesAsync()
     {
         var result = new Dictionary<PowerModeValueKind, int>();
 
+        var wanted = KindByPresetProperty
+            .Where(k => !MissingOnThisLaptop.ContainsKey(k.Value))
+            .Select(k => k.Key)
+            .ToArray();
+
+        CurrentValues? current;
+        try
+        {
+            current = await godModeController.ReadCurrentValuesAsync(wanted).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            NoteFailureOnce("all", ex);
+            return result;
+        }
+
+        if (current is not null)
+        {
+            foreach (var (property, value) in current.Values)
+            {
+                if (value > 0 && KindByPresetProperty.TryGetValue(property, out var kind))
+                    result[kind] = value;
+            }
+
+            foreach (var (property, ex) in current.Failures)
+            {
+                if (!KindByPresetProperty.TryGetValue(property, out var kind))
+                    continue;
+
+                if (IsMethodMissing(ex))
+                    MissingOnThisLaptop[kind] = true;
+                NoteFailureOnce(kind.ToString(), ex);
+            }
+
+            return result;
+        }
+
         async Task TryRead(PowerModeValueKind kind, Func<Task<int>> read)
         {
+            if (MissingOnThisLaptop.ContainsKey(kind))
+                return;
+
             try
             {
                 var value = await read().ConfigureAwait(false);
                 if (value > 0)
                     result[kind] = value;
             }
+            catch (Exception ex) when (IsMethodMissing(ex))
+            {
+                MissingOnThisLaptop[kind] = true;
+                Log.Instance.Trace($"Live value {kind}: the firmware doesn't have this method; not asked again until Indra restarts.");
+            }
             catch (Exception ex)
             {
-                Log.Instance.Trace($"Live value {kind} not available.", ex);
+                NoteFailureOnce(kind.ToString(), ex);
             }
         }
 
@@ -213,6 +278,34 @@ public class PowerModeProfileReader(IGodModeController godModeController, GPUOve
         await TryRead(PowerModeValueKind.GpuTemperatureLimit, async () => (await WMI.LenovoGpuMethod.GPUGetTemperatureLimitAsync().ConfigureAwait(false)).value).ConfigureAwait(false);
 
         return result;
+    }
+
+    /// <summary>
+    /// Values whose WMI method this laptop's firmware doesn't implement (on the LOQ 15IRH8: all seven). The answer
+    /// can't change while Indra runs, yet they were asked again on every refresh, about every 4 s, each failure
+    /// logging a full stack trace.
+    /// </summary>
+    private static readonly ConcurrentDictionary<PowerModeValueKind, bool> MissingOnThisLaptop = new();
+
+    /// <summary>Values whose read already failed once this session: logged the first time only (the card asks every few seconds).</summary>
+    private static readonly ConcurrentDictionary<string, bool> FailureLogged = new();
+
+    private static void NoteFailureOnce(string what, Exception ex)
+    {
+        if (FailureLogged.TryAdd(what, true))
+            Log.Instance.Trace($"Live value {what} not available (logged once).", ex);
+    }
+
+    /// <summary>True when Windows says the method doesn't exist, as opposed to a call that failed or got no answer.</summary>
+    internal static bool IsMethodMissing(Exception? ex)
+    {
+        for (; ex is not null; ex = ex.InnerException)
+        {
+            if (ex is ManagementException { ErrorCode: ManagementStatus.MethodNotImplemented })
+                return true;
+        }
+
+        return false;
     }
 
     private static void Add(Dictionary<PowerModeValueKind, int> values, PowerModeValueKind kind, int? value)

@@ -6723,4 +6723,10 @@ When the game ends, LLT puts the apps&apos; priority and the services back. It n
   <data name="App_StartupError_Title" xml:space="preserve">
     <value>Indra couldn&apos;t start</value>
   </data>
+  <data name="App_RestartFailed_Title" xml:space="preserve">
+    <value>Indra couldn&apos;t restart</value>
+  </data>
+  <data name="App_RestartFailed_Message" xml:space="preserve">
+    <value>Indra couldn&apos;t restart itself. Close Indra and open it again. Until then, changes to settings aren&apos;t saved.</value>
+  </data>
 </root>

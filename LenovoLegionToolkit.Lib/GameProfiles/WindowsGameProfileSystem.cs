@@ -34,6 +34,21 @@ internal sealed class WindowsGameProfileSystem : IGameProfileSystem
         }
     }
 
+    public bool IsRunning(int processId, string reportedName)
+    {
+        // A snapshot of the process list: unlike GetProcessById, it never opens the process (a game's must not be).
+        var processes = Process.GetProcesses();
+        try
+        {
+            return processes.Any(p => p.Id == processId && GameProfileController.IsGame(reportedName, p.ProcessName));
+        }
+        finally
+        {
+            foreach (var process in processes)
+                process.Dispose();
+        }
+    }
+
     public AppProcess? ReadApp(int processId)
     {
         try

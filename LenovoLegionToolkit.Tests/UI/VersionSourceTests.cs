@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Xunit;
 
@@ -45,5 +46,21 @@ public class VersionSourceTests
 
         Assert.Matches(@"#ifndef MyAppVersion\s+#error", iss);
         Assert.DoesNotContain("#define MyAppVersion \"0.0.1\"", iss);
+    }
+
+    [Fact]
+    public void BeforeTheFirstSection_TheInstallerHasOnlyPreprocessorLines()
+    {
+        // The #include on line 1 ends inside its [Code] section, so anything else up there (even a ';' comment) is
+        // compiled as Pascal and the build stops with "'BEGIN' expected" (seen with 2.36.18.0).
+        var lines = File.ReadAllLines(Path.Combine(Root, "make_installer.iss"));
+        var offending = lines
+            .TakeWhile(line => !line.TrimStart().StartsWith('['))
+            .Select((line, index) => (Line: line.Trim(), Number: index + 1))
+            .Where(l => l.Line.Length > 0 && !l.Line.StartsWith('#'))
+            .Select(l => $"line {l.Number}: {l.Line}")
+            .ToArray();
+
+        Assert.Empty(offending);
     }
 }

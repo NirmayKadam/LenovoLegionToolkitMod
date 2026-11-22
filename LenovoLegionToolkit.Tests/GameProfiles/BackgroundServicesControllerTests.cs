@@ -62,6 +62,7 @@ public sealed class BackgroundServicesControllerTests : IDisposable
         public Task<bool> SetPowerModeAsync(PowerModeState mode) => throw new NotSupportedException("Background services don't change the power mode.");
 
         public IReadOnlyList<int> FindByName(string exeName) => throw new InvalidOperationException("Apps are not touched here.");
+        public bool IsRunning(int processId, string reportedName) => throw new InvalidOperationException("Apps are not touched here.");
         public AppProcess? ReadApp(int processId) => throw new InvalidOperationException("Apps are not touched here.");
         public bool SetApp(int processId, DateTime startTimeUtc, ProcessPriorityClass priority, ThrottleState? throttle) => throw new InvalidOperationException("Apps are not touched here.");
         public Task<bool> CloseAppAsync(int processId, DateTime startTimeUtc, TimeSpan timeout) => throw new InvalidOperationException("Apps are not touched here.");

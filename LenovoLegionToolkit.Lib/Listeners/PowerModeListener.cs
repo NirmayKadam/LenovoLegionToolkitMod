@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using LenovoLegionToolkit.Lib.Controllers;
 using LenovoLegionToolkit.Lib.Controllers.GodMode;
@@ -35,7 +36,16 @@ public class PowerModeListener(
     {
         Log.Instance.Trace($"PowerModeListener.OnChangedAsync (WMI event path): value={value}");
         var sw = Stopwatch.StartNew();
-        await ChangeDependenciesAsync(value).ConfigureAwait(false);
+        try
+        {
+            await ChangeDependenciesAsync(value).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            // Each failed step is logged where it failed. The mode did change (Fn+Q), so it is still announced and
+            // the Changed event still follows: the dashboard and the fan curves keep up with the laptop.
+            Log.Instance.Trace($"Not everything for {value} could be set; the change is still reported.", ex);
+        }
         Log.Instance.Trace($"ChangeDependenciesAsync completed [elapsed={sw.ElapsedMilliseconds}ms]");
         PublishNotification(value);
     }
@@ -44,9 +54,20 @@ public class PowerModeListener(
     {
         Log.Instance.Trace($"PowerModeListener.NotifyAsync (explicit path): value={value}");
         var sw = Stopwatch.StartNew();
-        await ChangeDependenciesAsync(value).ConfigureAwait(false);
+        ExceptionDispatchInfo? failure = null;
+        try
+        {
+            await ChangeDependenciesAsync(value).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            failure = ExceptionDispatchInfo.Capture(ex);
+        }
         Log.Instance.Trace($"ChangeDependenciesAsync completed [elapsed={sw.ElapsedMilliseconds}ms]");
+
+        // The mode is set either way, so the change is reported; the caller still gets the error to show.
         RaiseChanged(value);
+        failure?.Throw();
     }
 
     protected override async Task<bool> CanStartAsync()
@@ -55,10 +76,51 @@ public class PowerModeListener(
         return Compatibility.IsLegion(mi.LegionSeries);
     }
 
+    /// <summary>
+    /// Everything that follows a power-mode change. A step that fails (the firmware refusing a Custom-mode limit, for
+    /// example) no longer skips the ones after it: the Windows power mode and plan still follow the new mode.
+    /// </summary>
     private async Task ChangeDependenciesAsync(PowerModeState value)
     {
         var sw = Stopwatch.StartNew();
 
+        await RunInOrderAsync(
+            ("God Mode", () => ApplyGodModeSideAsync(value)),
+            ("Windows power mode", () => windowsPowerModeController.SetPowerModeAsync(value)),
+            ("Windows power plan", () => windowsPowerPlanController.SetPowerPlanAsync(value)),
+            ("GPU overclock", ScheduleGpuOverclockAsync),
+            ("AMD overclocking", ApplyAmdDefaultsIfNeededAsync)
+        ).ConfigureAwait(false);
+
+        Log.Instance.Trace($"ChangeDependenciesAsync total [elapsed={sw.ElapsedMilliseconds}ms]");
+    }
+
+    /// <summary>
+    /// Runs every step in order, even after one fails; each failure is logged. Afterwards the first failure is thrown
+    /// again, so the caller still learns that not everything was set.
+    /// </summary>
+    internal static async Task RunInOrderAsync(params (string Name, Func<Task> Step)[] steps)
+    {
+        ExceptionDispatchInfo? firstFailure = null;
+
+        foreach (var (name, step) in steps)
+        {
+            try
+            {
+                await step().ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                Log.Instance.Trace($"Power mode change: {name} failed; carrying on with the next step.", ex);
+                firstFailure ??= ExceptionDispatchInfo.Capture(ex);
+            }
+        }
+
+        firstFailure?.Throw();
+    }
+
+    private async Task ApplyGodModeSideAsync(PowerModeState value)
+    {
         if (value is PowerModeState.GodMode)
         {
             Log.Instance.Trace($"Delaying GodMode apply...");
@@ -79,30 +141,38 @@ public class PowerModeListener(
             await godModeController.RestoreDefaultsInOtherPowerModeAsync(value).ConfigureAwait(false);
             Log.Instance.Trace($"RestoreDefaultsInOtherPowerModeAsync completed [elapsed={restSw.ElapsedMilliseconds}ms]");
         }
+    }
 
-        await windowsPowerModeController.SetPowerModeAsync(value).ConfigureAwait(false);
-        await windowsPowerPlanController.SetPowerPlanAsync(value).ConfigureAwait(false);
-
+    private static async Task ScheduleGpuOverclockAsync()
+    {
         var gpuOverclockController = IoCContainer.Resolve<GPUOverclockController>();
         Log.Instance.Trace($"Checking GPUOverclock IsSupportedAsync...");
-        if (await gpuOverclockController.IsSupportedAsync().ConfigureAwait(false))
+        if (!await gpuOverclockController.IsSupportedAsync().ConfigureAwait(false))
+            return;
+
+        Log.Instance.Trace($"GPU overclock supported, scheduling re-apply after 1s");
+        _ = Task.Run(async () =>
         {
-            Log.Instance.Trace($"GPU overclock supported, scheduling re-apply after 1s");
-            _ = Task.Run(async () =>
+            try
             {
                 await Task.Delay(TimeSpan.FromSeconds(1)).ConfigureAwait(false);
                 await gpuOverclockController.EnsureOverclockIsAppliedAsync().ConfigureAwait(false);
-            });
-        }
+            }
+            catch (Exception ex)
+            {
+                Log.Instance.Trace($"Re-applying the GPU overclock after the mode change failed.", ex);
+            }
+        });
+    }
 
+    private static async Task ApplyAmdDefaultsIfNeededAsync()
+    {
         var amdOverclockingController = IoCContainer.Resolve<AmdOverclockingController>();
         if (amdOverclockingController.IsActive() && !amdOverclockingController.AllowInAllPowerModes)
         {
             Log.Instance.Trace($"Applying AMD OC default profile...");
             await amdOverclockingController.ApplyDefaultProfileAsync().ConfigureAwait(false);
         }
-
-        Log.Instance.Trace($"ChangeDependenciesAsync total [elapsed={sw.ElapsedMilliseconds}ms]");
     }
 
     private static void PublishNotification(PowerModeState value)

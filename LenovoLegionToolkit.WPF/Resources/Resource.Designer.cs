@@ -15746,5 +15746,23 @@ namespace LenovoLegionToolkit.WPF.Resources {
                 return ResourceManager.GetString("App_StartupError_Title", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Indra couldn&apos;t restart.
+        /// </summary>
+        public static string App_RestartFailed_Title {
+            get {
+                return ResourceManager.GetString("App_RestartFailed_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Indra couldn&apos;t restart itself. Close Indra and open it again. Until then, changes to settings aren&apos;t saved..
+        /// </summary>
+        public static string App_RestartFailed_Message {
+            get {
+                return ResourceManager.GetString("App_RestartFailed_Message", resourceCulture);
+            }
+        }
     }
 }

@@ -34,6 +34,12 @@ internal interface IGameProfileSystem
     /// <summary>Ids of running processes with this file name (no ".exe"), from a process list: no process is opened.</summary>
     IReadOnlyList<int> FindByName(string exeName);
 
+    /// <summary>
+    /// Whether a process with this id is still running under the name Windows reported for it (which may be cut to
+    /// 15 characters), from a process list: no process is opened.
+    /// </summary>
+    bool IsRunning(int processId, string reportedName);
+
     /// <summary>Opens a listed app's process and reads what LLT needs; null if it is gone or can't be read.</summary>
     AppProcess? ReadApp(int processId);
 

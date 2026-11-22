@@ -14,7 +14,6 @@ using System.Windows.Media;
 using LenovoLegionToolkit.Lib;
 using LenovoLegionToolkit.Lib.Automation;
 using LenovoLegionToolkit.Lib.Controllers;
-using LenovoLegionToolkit.Lib.Controllers.GodMode;
 using LenovoLegionToolkit.Lib.Controllers.Sensors;
 using LenovoLegionToolkit.Lib.Extensions;
 using LenovoLegionToolkit.Lib.Features;
@@ -169,6 +168,14 @@ public partial class App
         {
             InitializeDebugConsole();
             Console.WriteLine(@"[Startup] Ensuring Single Instance...");
+        }
+
+        // Started by a settings restore or reset: the copy being replaced may still be shutting down.
+        if (RestartHelper.ParseAfterRestartPid(e.Args) is { } previous)
+        {
+            using var current = Process.GetCurrentProcess();
+            if (!RestartHelper.WaitForExit(previous, current.ProcessName, RestartHelper.WaitLimit))
+                Log.Instance.Trace($"The copy being replaced is still running after {RestartHelper.WaitLimit.TotalMinutes:0} minutes. [pid={previous}]");
         }
 
         if (!EnsureSingleInstance())
@@ -479,6 +486,34 @@ public partial class App
         }
     }
 
+    /// <summary>
+    /// After a settings restore or reset (the caller has frozen settings writes and changed the files): starts a new
+    /// copy, which waits for this one to end, then shuts this one down the normal way (game profiles and services put
+    /// back, devices released). Nothing writes the settings files on the way out.
+    /// <para>
+    /// False when the new copy couldn't be started: this copy keeps running with settings writes still frozen (the
+    /// files on disk are the ones that count) and tells the user to close and reopen Indra.
+    /// </para>
+    /// </summary>
+    public async Task<bool> RestartAfterSettingsChangeAsync()
+    {
+        IsRestoringSettings = true;
+        SettingsWrites.Freeze(Folders.Settings);
+
+        if (Environment.ProcessPath is not { } exePath || !RestartHelper.TryStartNewCopy(exePath, Environment.ProcessId))
+        {
+            await MessageBoxHelper.ShowAsync(Current.MainWindow!,
+                Resource.App_RestartFailed_Title,
+                Resource.App_RestartFailed_Message,
+                Resource.OK,
+                string.Empty);
+            return false;
+        }
+
+        await ShutdownAsync();
+        return true;
+    }
+
     private int _shutdownStarted;
 
     /// <summary>
@@ -539,7 +574,10 @@ public partial class App
         await SafeExecuteAsync<IpcServer>(c => c.StopAsync());
         await SafeExecuteAsync<BatteryDischargeRateMonitorService>(c => c.StopAsync());
         await SafeExecuteAsync<ExtensionManager>(c => c.StopAsync());
-        await SafeExecuteAsync<GodModeController>(c => c.RestoreDefaultsInOtherPowerModeAsync(PowerModeState.Balance));
+
+        // Nothing is sent to the firmware here: every mode change already set that mode's limits, so quitting leaves
+        // the laptop as it is. (Balance defaults used to be sent whatever the mode, replacing Performance or Custom
+        // limits on older Legions and Custom mode's GPU power target on other models.)
 
         // Things started at start-up that hold Windows or driver resources: let them go in order (the OSD first, as it
         // reads the sensors).

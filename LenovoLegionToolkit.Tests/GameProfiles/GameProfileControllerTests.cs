@@ -53,6 +53,11 @@ public sealed class GameProfileControllerTests : IDisposable
         public IReadOnlyList<int> FindByName(string exeName) =>
             Processes.Where(p => string.Equals(p.Value.Name, exeName, StringComparison.OrdinalIgnoreCase)).Select(p => p.Key).ToList();
 
+        /// <summary>Game processes that have ended, whether or not their end was reported to the controller.</summary>
+        public HashSet<int> Ended { get; } = [];
+
+        public bool IsRunning(int processId, string reportedName) => !Ended.Contains(processId);
+
         public AppProcess? ReadApp(int processId)
         {
             TouchedPids.Add(processId);
@@ -386,6 +391,84 @@ public sealed class GameProfileControllerTests : IDisposable
         Assert.Null(controller.ActiveGameName);
         Assert.Null(new GameProfileSessionSettings(_dir).Store.ProfileId);
         Assert.Empty(reports);
+    }
+
+    /// <summary>
+    /// A game run whose end Windows never reported used to count as "still running" forever, so the next run's
+    /// session never ended: its power mode and paused services stayed until LLT exited.
+    /// </summary>
+    [Fact]
+    public async Task AGameWhoseEndWasNeverReported_DoesNotKeepTheNextSessionOn()
+    {
+        var system = new ScriptedSystem();
+        system.AddService("SysMain");
+        var (controller, _, reports) = Create(system, Profile(p =>
+        {
+            p.PauseServices = ["SysMain"];
+            p.PowerMode = PowerModeState.Performance;
+        }));
+
+        await controller.ProcessStartedAsync("game", GamePid);
+        system.Ended.Add(GamePid);   // the first run quits, but its end event is lost
+
+        await controller.ProcessStartedAsync("game", GamePid + 1);
+        system.Ended.Add(GamePid + 1);
+        await controller.ProcessStoppedAsync("game", GamePid + 1);
+
+        Assert.Null(controller.ActiveGameName);
+        Assert.Equal(PowerModeState.Balance, system.PowerMode);
+        Assert.True(system.Services["SysMain"].Running);
+        Assert.Empty(reports);
+    }
+
+    /// <summary>
+    /// Turning the profile off mid-game stops the watching, so the game's end isn't reported. Turned on again and
+    /// played again, that game's earlier run must not keep the new session on.
+    /// </summary>
+    [Fact]
+    public async Task AProfileTurnedOffAndOnMidGame_StillEndsAfterTheNextRun()
+    {
+        var system = new ScriptedSystem();
+        var profile = Profile(p => p.PowerMode = PowerModeState.Performance);
+        var (controller, _, reports) = Create(system, profile);
+        await controller.RefreshAsync();
+
+        await controller.ProcessStartedAsync("game", GamePid);
+        Assert.Equal(PowerModeState.Performance, system.PowerMode);
+
+        profile.Enabled = false;
+        await controller.RefreshAsync();     // ends the session; nothing is watched any more
+        Assert.Equal(PowerModeState.Balance, system.PowerMode);
+        system.Ended.Add(GamePid);           // the game quits while nothing watches
+
+        profile.Enabled = true;
+        await controller.RefreshAsync();
+        await controller.ProcessStartedAsync("game", GamePid + 1);
+        Assert.Equal(PowerModeState.Performance, system.PowerMode);
+
+        system.Ended.Add(GamePid + 1);
+        await controller.ProcessStoppedAsync("game", GamePid + 1);
+
+        Assert.Null(controller.ActiveGameName);
+        Assert.Equal(PowerModeState.Balance, system.PowerMode);
+        Assert.Empty(reports);
+    }
+
+    /// <summary>Two runs at once: the first quitting (reported) leaves the second's session on, as before.</summary>
+    [Fact]
+    public async Task ASecondRunStillGoing_KeepsTheSessionOn()
+    {
+        var system = new ScriptedSystem();
+        var (controller, _, _) = Create(system, Profile(p => p.PowerMode = PowerModeState.Performance));
+
+        await controller.ProcessStartedAsync("game", GamePid);
+        await controller.ProcessStartedAsync("game", GamePid + 1);
+
+        system.Ended.Add(GamePid);
+        await controller.ProcessStoppedAsync("game", GamePid);
+
+        Assert.Equal("My Game", controller.ActiveGameName);
+        Assert.Equal(PowerModeState.Performance, system.PowerMode);
     }
 
     [Fact]

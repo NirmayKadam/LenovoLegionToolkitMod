@@ -87,7 +87,21 @@ public sealed class GodModeApplyTests : IDisposable
         public Task<IEnumerable<(int mode, byte fanId, byte sensorId, ushort[] fanTableData, ushort[] sensorTableData)>> ReadFanTableDataAsync() =>
             Task.FromResult<IEnumerable<(int, byte, byte, ushort[], ushort[])>>([]);
 
-        public Task<int> GetFeatureValueAsync(uint idRaw) => Task.FromResult(0);
+        /// <summary>What each feature value reads as right now (by masked id); 0 when not set.</summary>
+        public Dictionary<uint, int> FeatureValues { get; } = [];
+
+        /// <summary>The feature read of this id throws, as a failed WMI call would.</summary>
+        public uint? FailingFeatureRead { get; set; }
+
+        public List<uint> FeatureReads { get; } = [];
+
+        public Task<int> GetFeatureValueAsync(uint idRaw)
+        {
+            FeatureReads.Add(idRaw);
+            if (idRaw == FailingFeatureRead)
+                throw new InvalidOperationException($"Read of 0x{idRaw:X} failed");
+            return Task.FromResult(FeatureValues.GetValueOrDefault(idRaw));
+        }
 
         public Task SetFeatureValueAsync(uint idRaw, int value)
         {
@@ -413,5 +427,69 @@ public sealed class GodModeApplyTests : IDisposable
         Assert.Equal(2, afterFirst);
         Assert.Equal(afterFirst + 1, afterSecond);
         Assert.Equal(afterSecond + 2, laptop.CapabilityReads);
+    }
+
+    // ---- Current values (the Dashboard's "now" column) ----
+
+    private static readonly string[] LimitProperties =
+        [nameof(GodModePreset.CPULongTermPowerLimit), nameof(GodModePreset.CPUShortTermPowerLimit), nameof(GodModePreset.GPUPowerBoost)];
+
+    [Fact]
+    public async Task CurrentValues_OnCurrentModels_AreReadAsGodModeReadsThem()
+    {
+        // The LOQ's log showed Lenovo's older CPU/GPU methods missing; these models answer through feature values.
+        var laptop = LegionLaptop();
+        laptop.FeatureValues[LongTerm] = 55;
+        laptop.FeatureValues[ShortTerm] = 70;
+        laptop.FeatureValues[GpuBoost] = 15;
+        var controller = Controller(laptop, new Preset { Name = "Test" });
+
+        var current = await controller.ReadCurrentValuesAsync(LimitProperties);
+
+        Assert.NotNull(current);
+        Assert.Equal(55, current.Values[nameof(GodModePreset.CPULongTermPowerLimit)]);
+        Assert.Equal(70, current.Values[nameof(GodModePreset.CPUShortTermPowerLimit)]);
+        Assert.Equal(15, current.Values[nameof(GodModePreset.GPUPowerBoost)]);
+        Assert.Empty(current.Failures);
+        Assert.Contains(LongTerm, laptop.FeatureReads);
+        Assert.Contains(ShortTerm, laptop.FeatureReads);
+        Assert.Contains(GpuBoost, laptop.FeatureReads);
+    }
+
+    [Fact]
+    public async Task CurrentValues_OnlyTheAskedOnesAreRead_AndAFailureIsReportedNotGuessed()
+    {
+        var laptop = LegionLaptop();
+        laptop.FeatureValues[ShortTerm] = 70;
+        laptop.FailingFeatureRead = LongTerm;
+        var controller = Controller(laptop, new Preset { Name = "Test" });
+
+        var current = await controller.ReadCurrentValuesAsync([nameof(GodModePreset.CPULongTermPowerLimit), nameof(GodModePreset.CPUShortTermPowerLimit)]);
+
+        Assert.NotNull(current);
+        Assert.False(current.Values.ContainsKey(nameof(GodModePreset.CPULongTermPowerLimit)));
+        Assert.IsType<InvalidOperationException>(current.Failures[nameof(GodModePreset.CPULongTermPowerLimit)]);
+        Assert.Equal(70, current.Values[nameof(GodModePreset.CPUShortTermPowerLimit)]);
+        Assert.DoesNotContain(GpuBoost, laptop.FeatureReads);
+    }
+
+    [Fact]
+    public async Task CurrentValues_OnOlderModels_AreLeftToTheOlderMethods()
+    {
+        var laptop = new ScriptedLaptop { Machine = Laptop(GodModePlatform.LegacyLegion) };
+        var controller = Controller(laptop, new Preset { Name = "Test" });
+
+        Assert.Null(await controller.ReadCurrentValuesAsync(LimitProperties));
+        Assert.Empty(laptop.FeatureReads);
+    }
+
+    [Fact]
+    public void EveryValueTheDashboardShows_HasAPresetPropertyToReadItFrom()
+    {
+        var properties = typeof(GodModePreset).GetProperties().Select(p => p.Name).ToHashSet();
+
+        Assert.Equal(Enum.GetValues<LenovoLegionToolkit.Lib.Controllers.PowerModeValueKind>().Order(),
+            LenovoLegionToolkit.Lib.Controllers.PowerModeProfileReader.KindByPresetProperty.Values.Order());
+        Assert.All(LenovoLegionToolkit.Lib.Controllers.PowerModeProfileReader.KindByPresetProperty.Keys, name => Assert.Contains(name, properties));
     }
 }

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -272,31 +271,51 @@ public partial class SettingsBackupWindow
             }
 
             var filesRestored = 0;
-            
-            foreach (var item in selectedItems)
+
+            // Frozen before the first file is copied, so nothing in memory saves over the restored files.
+            SettingsWrites.Freeze(Folders.Settings);
+            try
             {
-                var sourcePath = Path.Combine(sourceDir, item.FileName);
-                if (File.Exists(sourcePath))
+                foreach (var item in selectedItems)
                 {
-                    File.Copy(sourcePath, item.FullPath, true);
-                    filesRestored++;
+                    var sourcePath = Path.Combine(sourceDir, item.FileName);
+                    if (File.Exists(sourcePath))
+                    {
+                        File.Copy(sourcePath, item.FullPath, true);
+                        filesRestored++;
+                    }
                 }
+            }
+            catch (Exception ex) when (filesRestored > 0)
+            {
+                // Some files are already replaced: restart on what is on disk rather than keep running half-restored
+                // with saving frozen.
+                Log.Instance.Trace($"Restore stopped after {filesRestored} file(s).", ex);
+                await MessageBoxHelper.ShowAsync(this, Resource.SettingsBackupWindow_Restore, ex.Message, Resource.OK, string.Empty);
+                await App.Current.RestartAfterSettingsChangeAsync();
+                return;
+            }
+            catch
+            {
+                SettingsWrites.Thaw(Folders.Settings);   // nothing changed: Indra keeps running and saving normally
+                throw;
             }
 
             if (filesRestored > 0)
             {
                 App.IsRestoringSettings = true;
-                await MessageBoxHelper.ShowAsync(this, 
-                    Resource.SettingsBackupWindow_Restore, 
-                    Resource.SettingsBackupWindow_RestoreSuccess, 
-                    Resource.OK, 
+                await MessageBoxHelper.ShowAsync(this,
+                    Resource.SettingsBackupWindow_Restore,
+                    Resource.SettingsBackupWindow_RestoreSuccess,
+                    Resource.OK,
                     string.Empty);
-    
-                RestartApp();
+
+                await App.Current.RestartAfterSettingsChangeAsync();
             }
             else
             {
-                 await SnackbarHelper.ShowAsync(Resource.SettingsBackupWindow_Title, Resource.SettingsBackupWindow_NoMatchingFiles, SnackbarType.Warning);
+                SettingsWrites.Thaw(Folders.Settings);
+                await SnackbarHelper.ShowAsync(Resource.SettingsBackupWindow_Title, Resource.SettingsBackupWindow_NoMatchingFiles, SnackbarType.Warning);
             }
         }
         catch (Exception ex)
@@ -304,12 +323,6 @@ public partial class SettingsBackupWindow
             Log.Instance.Trace($"Restore failed", ex);
             await SnackbarHelper.ShowAsync(Resource.SettingsBackupWindow_Title, ex.Message, SnackbarType.Error);
         }
-    }
-
-    private void RestartApp()
-    {
-        Process.Start(new ProcessStartInfo(Environment.ProcessPath!) { UseShellExecute = true });
-        Application.Current.Shutdown();
     }
 
     private void CancelButton_Click(object sender, RoutedEventArgs e)

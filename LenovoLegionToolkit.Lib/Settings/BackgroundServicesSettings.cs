@@ -34,6 +34,10 @@ public class BackgroundServicesSessionSettings : AbstractSettings<BackgroundServ
 
     internal BackgroundServicesSessionSettings(string folder) : base(FILE_NAME, folder) { }
 
+    // What is live on the laptop, never backed up or restored: the shutdown after a restore or reset starts the
+    // services again and this note must then say so.
+    protected override bool KeepsWritingWhenFrozen => true;
+
     public class BackgroundServicesSessionStore
     {
         public List<string> StoppedServices { get; set; } = [];

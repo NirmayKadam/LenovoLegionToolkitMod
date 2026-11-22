@@ -347,7 +347,7 @@ public partial class FanCurvesWindow
             }
             else
             {
-                _settings.Store.Curves.Remove(mode);
+                _settings.Store.Curves.TryRemove(mode, out _);
             }
 
             _settings.SynchronizeStore();

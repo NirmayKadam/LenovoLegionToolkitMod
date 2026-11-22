@@ -86,6 +86,10 @@ public class GameProfileSessionSettings : AbstractSettings<GameProfileSessionSet
 
     internal GameProfileSessionSettings(string folder) : base(FILE_NAME, folder) { }
 
+    // What is live on the laptop, never backed up or restored: the shutdown after a restore or reset puts the session
+    // back and this note must then say nothing is left to put back.
+    protected override bool KeepsWritingWhenFrozen => true;
+
     public class GameProfileSessionStore
     {
         /// <summary>The profile whose changes are in effect; null when nothing needs putting back.</summary>

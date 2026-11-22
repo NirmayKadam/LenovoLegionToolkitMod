@@ -594,6 +594,9 @@ public partial class SettingsAppBehaviorControl
         {
             App.IsRestoringSettings = true;
 
+            // Frozen before deleting, so nothing in memory writes the files back on the way out.
+            SettingsWrites.Freeze(Folders.Settings);
+
             var files = Directory.GetFiles(Folders.Settings);
             foreach (var file in files)
             {
@@ -611,11 +614,15 @@ public partial class SettingsAppBehaviorControl
                 }
             }
 
-            Process.Start(new ProcessStartInfo(Environment.ProcessPath!) { UseShellExecute = true });
-            Application.Current.Shutdown();
+            // When the new copy can't be started, this one keeps running with writes still frozen, so the in-memory
+            // settings don't go back over the reset; the user is told to close and reopen Indra.
+            await App.Current.RestartAfterSettingsChangeAsync();
         }
         catch (Exception ex)
         {
+            // The settings folder couldn't be read, so nothing was deleted: Indra saves its settings normally again.
+            SettingsWrites.Thaw(Folders.Settings);
+            App.IsRestoringSettings = false;
             Log.Instance.Trace($"Failed to reset settings.", ex);
         }
     }

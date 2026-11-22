@@ -328,7 +328,7 @@ public class FanProfileController
 
         foreach (var removed in affected)
         {
-            settings.Store.Curves.Remove(removed);
+            settings.Store.Curves.TryRemove(removed, out _);
             _lastOutcome.TryRemove(removed, out _);
         }
         settings.SynchronizeStore();
@@ -387,7 +387,7 @@ public class FanProfileController
             .ToArray();
 
         settings.Store.Enabled = snapshot.Enabled;
-        settings.Store.Curves = snapshot.Curves.ToDictionary(c => c.Key, c => c.Value.ToArray());
+        settings.Store.Curves = new ConcurrentDictionary<PowerModeState, ushort[]>(snapshot.Curves.ToDictionary(c => c.Key, c => c.Value.ToArray()));
         settings.SynchronizeStore();
         foreach (var changed in changedModes)
             _lastOutcome.TryRemove(changed, out _);

@@ -16,6 +16,13 @@ public abstract class AbstractSettings<T> where T : class, new()
 
     protected virtual T Default => new();
 
+    /// <summary>
+    /// True for a note of what is live on the laptop right now (not a setting): it keeps being written while settings
+    /// writes are frozen for a restore or reset (<see cref="SettingsWrites"/>), since the shutdown that follows puts
+    /// things back and the note must say so.
+    /// </summary>
+    protected virtual bool KeepsWritingWhenFrozen => false;
+
     /// <summary>Where this settings file is stored.</summary>
     public string FilePath => _settingsStorePath;
 
@@ -123,6 +130,13 @@ public abstract class AbstractSettings<T> where T : class, new()
 
     private void WriteStore()
     {
+        // After a settings restore or reset, until the restart: the files on disk are the ones that count.
+        if (!KeepsWritingWhenFrozen && SettingsWrites.IsFrozen(_settingsStorePath))
+        {
+            Log.Instance.Trace($"Not writing {_fileName}: settings are being restored or reset.");
+            return;
+        }
+
         var settingsSerialized = JsonConvert.SerializeObject(Store, JsonSerializerSettings);
         Folders.EnsureParentDirectoryExists(_settingsStorePath);
         WriteAllTextAtomic(_settingsStorePath, settingsSerialized);

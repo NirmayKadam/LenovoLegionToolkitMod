@@ -8,8 +8,6 @@
 #define MyAppGitHub "https://github.com/NirmayKadam/LenovoLegionToolkitMod"
 #define MyAppCopyright "© 2026 Nirmay Kadam. Based on Lenovo Legion Toolkit © 2026 Bartosz Cichecki, Kaguya, and Dr. Skinner."
 
-; The version comes from make.bat or make_action.bat (/DMyAppVersion=...). There is no default: an installer
-; labelled 0.0.1 would install a build that always sees an update.
 #ifndef MyAppVersion
   #error MyAppVersion is not set. Build with make.bat <version>.
 #endif
@@ -25,6 +23,9 @@ AppId={{0C37B9AC-9C3D-4302-8ABB-125C7C7D83D5}
 AppMutex=LenovoLegionToolkit_Mutex_6efcc882-924c-4cbc-8fec-f45c25696f98
 CloseApplications=force
 AppName={#MyAppName}
+; The version comes from make.bat or make_action.bat (/DMyAppVersion=...). There is no default (the #error at the
+; top): an installer labelled with a placeholder version would install a build that always sees an update.
+; (Comments can't go above that #error: the #include on line 1 ends inside its [Code] section.)
 AppVersion={#MyAppVersion}
 AppCopyright={#MyAppCopyright}
 VersionInfoVersion={#MyAppVersion}

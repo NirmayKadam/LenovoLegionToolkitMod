@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace LenovoLegionToolkit.Lib.Settings;
@@ -28,8 +29,11 @@ public class FanProfileSettings : AbstractSettings<FanProfileSettings.FanProfile
     {
         public bool Enabled { get; set; }
 
-        /// <summary>Fan level (0–10) at each of the firmware's ten temperature steps, per power mode.</summary>
-        public Dictionary<PowerModeState, ushort[]> Curves { get; set; } = [];
+        /// <summary>
+        /// Fan level (0–10) at each of the firmware's ten temperature steps, per power mode. Concurrent because the
+        /// window changes it on the UI thread while a mode change reads it on the power-mode listener's thread.
+        /// </summary>
+        public ConcurrentDictionary<PowerModeState, ushort[]> Curves { get; set; } = new();
 
         /// <summary>Result of the first test on this laptop; <see cref="FanCurveFirmwareSupport.Unknown"/> until then.</summary>
         public FanCurveFirmwareSupport FirmwareSupport { get; set; } = FanCurveFirmwareSupport.Unknown;
