@@ -24,7 +24,7 @@ The five `LLT.*` packages are pinned to the versions that were current when v2.3
 
 ## Installer and signing
 
-`make.bat` (local) and `make_action.bat` (release workflow) publish all projects, build the identity package, compile the Inno Setup installer (`make_installer.iss`, shared by both) and sign it.
+`make.bat` (local) and `make_action.bat` (release workflow) publish all projects, build the identity package, compile the Inno Setup installer (`make_installer.iss`, shared by both) and sign it. Both need the version as their first argument (`make.bat 2.36.18.0`), and the installer script refuses to build without one. A plain `dotnet build` gets the version in `Directory.Build.props`.
 
 Signing matters for more than trust prompts: the app manifest requests `uiAccess="true"`, and **Windows only starts uiAccess executables that are signed by a trusted certificate and installed in a protected folder** (such as Program Files). The official certificate's private key is not part of this repository, so to produce a runnable installer you need your own:
 
@@ -42,7 +42,7 @@ Notes:
 
 `.github/workflows/ci.yml` (this fork, runs on `main`):
 - **Every push and pull request to `main`**, and on demand. It runs on `windows-latest` with .NET 9.
-- **Steps:** restore each project (never the `.sln`, whose `.wapproj` the dotnet CLI can't build), build the app and `llt` with warnings as errors, then run every test. The test results are uploaded as the `test-results` artifact, also when a step fails.
+- **Steps:** restore each project (never the `.sln`, whose `.wapproj` the dotnet CLI can't build), build the app and `llt` with warnings as errors, then run every test. The test results are uploaded as the `test-results` artifact, also when a step fails, and each failed test's name and message is shown as an annotation on the run (readable without signing in).
 - **No signing, no secrets, no installer.** Warnings are errors only in CI, so a new SDK warning can't stop a local `make.bat`.
 
 `.github/workflows/release.yml` (this fork):

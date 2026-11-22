@@ -23,7 +23,6 @@
                 <dashboard:PowerModeSelectorControl />
                 <dashboard:PowerModeDetailsControl />
             </StackPanel>
-            <!-- <dashboard:SensorsControl x:Name="_sensors" Margin="0,16,16,0" /> !-->
             <Grid x:Name="_content" />
         </StackPanel>
     </controls:LoadableControl>

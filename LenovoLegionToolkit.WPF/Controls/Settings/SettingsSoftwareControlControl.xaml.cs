@@ -74,8 +74,9 @@ public partial class SettingsSoftwareControlControl
             {
                 await _vantageDisabler.DisableAsync();
             }
-            catch
+            catch (Exception ex)
             {
+                Log.Instance.Trace($"Disabling Lenovo Vantage failed.", ex);
                 await SnackbarHelper.ShowAsync(Resource.SettingsPage_DisableVantage_Error_Title, Resource.SettingsPage_DisableVantage_Error_Message, SnackbarType.Error);
                 return;
             }
@@ -152,8 +153,9 @@ public partial class SettingsSoftwareControlControl
             {
                 await _vantageDisabler.EnableAsync();
             }
-            catch
+            catch (Exception ex)
             {
+                Log.Instance.Trace($"Enabling Lenovo Vantage failed.", ex);
                 await SnackbarHelper.ShowAsync(Resource.SettingsPage_EnableVantage_Error_Title, Resource.SettingsPage_EnableVantage_Error_Message, SnackbarType.Error);
                 return;
             }
@@ -179,8 +181,9 @@ public partial class SettingsSoftwareControlControl
             {
                 await _legionZoneDisabler.DisableAsync();
             }
-            catch
+            catch (Exception ex)
             {
+                Log.Instance.Trace($"Disabling Legion Zone failed.", ex);
                 await SnackbarHelper.ShowAsync(Resource.SettingsPage_DisableLegionZone_Error_Title, Resource.SettingsPage_DisableLegionZone_Error_Message, SnackbarType.Error);
                 return;
             }
@@ -191,8 +194,9 @@ public partial class SettingsSoftwareControlControl
             {
                 await _legionZoneDisabler.EnableAsync();
             }
-            catch
+            catch (Exception ex)
             {
+                Log.Instance.Trace($"Enabling Legion Zone failed.", ex);
                 await SnackbarHelper.ShowAsync(Resource.SettingsPage_EnableLegionZone_Error_Title, Resource.SettingsPage_EnableLegionZone_Error_Message, SnackbarType.Error);
                 return;
             }
@@ -218,8 +222,9 @@ public partial class SettingsSoftwareControlControl
             {
                 await _legionSpaceDisabler.DisableAsync();
             }
-            catch
+            catch (Exception ex)
             {
+                Log.Instance.Trace($"Disabling Legion Space failed.", ex);
                 await SnackbarHelper.ShowAsync(Resource.SettingsPage_DisableLegionSpace_Error_Title, Resource.SettingsPage_DisableLegionSpace_Error_Message, SnackbarType.Error);
                 return;
             }
@@ -230,8 +235,9 @@ public partial class SettingsSoftwareControlControl
             {
                 await _legionSpaceDisabler.EnableAsync();
             }
-            catch
+            catch (Exception ex)
             {
+                Log.Instance.Trace($"Enabling Legion Space failed.", ex);
                 await SnackbarHelper.ShowAsync(Resource.SettingsPage_EnableLegionSpace_Error_Title, Resource.SettingsPage_EnableLegionSpace_Error_Message, SnackbarType.Error);
                 return;
             }
@@ -257,8 +263,9 @@ public partial class SettingsSoftwareControlControl
             {
                 await _fnKeysDisabler.DisableAsync();
             }
-            catch
+            catch (Exception ex)
             {
+                Log.Instance.Trace($"Disabling Lenovo Hotkeys failed.", ex);
                 await SnackbarHelper.ShowAsync(Resource.SettingsPage_DisableLenovoHotkeys_Error_Title, Resource.SettingsPage_DisableLenovoHotkeys_Error_Message, SnackbarType.Error);
                 return;
             }
@@ -269,8 +276,9 @@ public partial class SettingsSoftwareControlControl
             {
                 await _fnKeysDisabler.EnableAsync();
             }
-            catch
+            catch (Exception ex)
             {
+                Log.Instance.Trace($"Enabling Lenovo Hotkeys failed.", ex);
                 await SnackbarHelper.ShowAsync(Resource.SettingsPage_EnableLenovoHotkeys_Error_Title, Resource.SettingsPage_EnableLenovoHotkeys_Error_Message, SnackbarType.Error);
                 return;
             }

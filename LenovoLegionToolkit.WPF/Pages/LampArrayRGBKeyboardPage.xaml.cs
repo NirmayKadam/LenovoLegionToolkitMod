@@ -712,7 +712,7 @@ public partial class LampArrayRGBKeyboardPage : UiPage
         _isProbing = true;
         _probeCts = new CancellationTokenSource();
         var token = _probeCts.Token;
-        btn.Content = "STOP PROBE";
+        btn.Content = Resource.LampArrayRGBKeyboardPage_StopProbe;
 
         LogZoneSummaries();
 
@@ -876,12 +876,12 @@ public partial class LampArrayRGBKeyboardPage : UiPage
         {
             _controller.SaveSettings(_settings);
             _settings.ExportToFile(dialog.FileName);
-            SnackbarHelper.Show("Export", "Profile exported successfully.", SnackbarType.Success);
+            SnackbarHelper.Show(Resource.Export, Resource.LampArrayRGBKeyboardPage_Export_Success, SnackbarType.Success);
         }
         catch (Exception ex)
         {
             Log.Instance.Trace($"Export profile failed.", ex);
-            SnackbarHelper.Show("Export", $"Export failed: {ex.Message}", SnackbarType.Error);
+            SnackbarHelper.Show(Resource.Export, string.Format(Resource.LampArrayRGBKeyboardPage_Export_Failed, ex.Message), SnackbarType.Error);
         }
     }
 
@@ -907,12 +907,12 @@ public partial class LampArrayRGBKeyboardPage : UiPage
             RestoreEffectsFromSettings();
             UpdateEffectSelectionUI();
 
-            SnackbarHelper.Show("Import", "Profile imported successfully.", SnackbarType.Success);
+            SnackbarHelper.Show(Resource.Import, Resource.LampArrayRGBKeyboardPage_Import_Success, SnackbarType.Success);
         }
         catch (Exception ex)
         {
             Log.Instance.Trace($"Import profile failed.", ex);
-            SnackbarHelper.Show("Import", $"Import failed: {ex.Message}", SnackbarType.Error);
+            SnackbarHelper.Show(Resource.Import, string.Format(Resource.LampArrayRGBKeyboardPage_Import_Failed, ex.Message), SnackbarType.Error);
         }
     }
 }

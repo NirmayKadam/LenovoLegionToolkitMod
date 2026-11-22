@@ -12,6 +12,11 @@ updates:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
       - dependency-name: "LLT.*"
+      # Each needs a planned change, not a version bump (tried in Round 18): 2.0 of System.CommandLine removed the API
+      # the command-line tool is written against, and newer CsWin32 generates different native signatures for the
+      # D3D and HID code.
+      - dependency-name: "System.CommandLine"
+      - dependency-name: "Microsoft.Windows.CsWin32"
     groups:
       minor-and-patch:
         update-types: ["minor", "patch"]

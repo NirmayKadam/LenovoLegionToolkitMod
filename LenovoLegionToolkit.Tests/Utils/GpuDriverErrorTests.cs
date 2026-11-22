@@ -63,13 +63,14 @@ public class GpuDriverErrorTests
         Assert.Equal(errors.OrderByDescending(e => e.TimeUtc).Select(e => e.TimeUtc), errors.Select(e => e.TimeUtc));
     }
 
-    [Fact]
+    [SkippableFact]
     public void WhatWasKnownLive_IsAddedToTheMatchingError()
     {
         var since = DateTime.UtcNow - TimeSpan.FromDays(7);
         var all = GpuDriverErrorMonitor.ReadFromLog(since, new Dictionary<DateTime, string>())!;
-        if (all.Count == 0)
-            return;   // nothing in this machine's log to match; the matching itself is a dictionary lookup
+
+        // Reported as skipped, not passed, on a machine without a GPU driver error in the last week (CI, most days).
+        Skip.If(all.Count == 0, "No GPU driver error in this machine's System log in the last 7 days, so nothing to match.");
 
         var first = all[0];
         var withContext = GpuDriverErrorMonitor.ReadFromLog(since, new Dictionary<DateTime, string> { [first.TimeUtc] = "seen live" })!;

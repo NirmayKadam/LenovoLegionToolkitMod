@@ -148,7 +148,15 @@ Settings → App behaviour → **Detailed log** is off unless you turn it on.
 - Limit: a crash that only happens later (for example ten minutes into a game) is not detected this way. The laptop still starts normally, and you can lower the values.
 - Manual way out at any time: close LLT and delete `gpu_oc.json` in the settings folder, or start Windows in Safe Mode (LLT does not start there) and do the same.
 
+## When Windows or the driver doesn't answer
+
+Indra waits a limited time for Windows, the Lenovo driver and Windows services: from a few seconds to a minute, depending on the request. If there is no answer by then, Indra reports that the setting couldn't be read or applied and carries on, instead of freezing. A request that was already sent may still finish later; Indra doesn't send a second one on top of it.
+
+## Access Indra gives itself for a moment
+
+Some Windows power settings are protected. To change one, Indra may give your account access to that registry key for the length of the write, and removes it right after (since 2.36.18.0; earlier versions left it in place). Privileges such as changing firmware variables are turned on only while they are needed and turned off afterwards.
+
 ## Not reviewed in depth
 
-- The separate AMD overclocking module (`LenovoLegionToolkit.Lib` `Overclocking/Amd`). It only runs on AMD laptops and was outside this review.
+- The separate AMD overclocking module (`LenovoLegionToolkit.Lib` `Overclocking/Amd`). It only runs on AMD laptops and was outside this review. It does refuse values that can only come from a damaged profile (negative limits, Curve Optimizer values beyond AMD's widest range), but it hasn't been tested on AMD hardware.
 - Keyboard RGB and Spectrum lighting. These send lighting data only.

@@ -446,9 +446,12 @@ public partial class App
         {
             try
             {
-                MessageBox.Show(errorMsg, "Lenovo Legion Toolkit - Startup Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(errorMsg, Resource.App_StartupError_Title, MessageBoxButton.OK, MessageBoxImage.Error);
             }
-            catch { /* Ignore */ }
+            catch (Exception messageBoxError)
+            {
+                Log.Instance.Trace($"Couldn't show the start-up error.", messageBoxError);
+            }
         }
 
         Environment.Exit(-1);

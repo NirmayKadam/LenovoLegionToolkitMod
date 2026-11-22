@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using LenovoLegionToolkit.Lib.System;
+using LenovoLegionToolkit.Lib.Utils;
 
 namespace LenovoLegionToolkit.Lib.SoftwareDisabler;
 
@@ -51,22 +53,31 @@ public class FnKeysDisabler : AbstractSoftwareDisabler
     {
         await base.KillProcessesAsync().ConfigureAwait(false);
 
-        try
+        // Each process on its own: one that can't be read or ended (access denied) used to stop the rest from being
+        // checked, silently.
+        foreach (var process in Process.GetProcessesByName("utility"))
         {
-            foreach (var process in Process.GetProcessesByName("utility"))
+            using (process)
             {
-                var description = process.MainModule?.FileVersionInfo.FileDescription;
-                if (description is null)
-                    continue;
+                try
+                {
+                    var description = process.MainModule?.FileVersionInfo.FileDescription;
+                    if (description is null)
+                        continue;
 
-                if (!description.Equals("Lenovo Hotkeys", StringComparison.InvariantCultureIgnoreCase))
-                    continue;
+                    if (!description.Equals("Lenovo Hotkeys", StringComparison.InvariantCultureIgnoreCase))
+                        continue;
 
-                process.Kill();
-                await process.WaitForExitAsync().ConfigureAwait(false);
+                    process.Kill();
+                    using var exitWait = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+                    await process.WaitForExitAsync(exitWait.Token).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    Log.Instance.Trace($"Couldn't check or end a 'utility' process. [pid={process.Id}]", ex);
+                }
             }
         }
-        catch {  /* Ignore */ }
     }
 
     private static void SetUwpStartup(string appPattern, string subKeyName, bool enabled)

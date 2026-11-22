@@ -15638,5 +15638,113 @@ namespace LenovoLegionToolkit.WPF.Resources {
                 return ResourceManager.GetString("Help_Health_BatteryWear_When", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Synchronise zones.
+        /// </summary>
+        public static string RGBKeyboardBacklightControl_SynchroniseZones {
+            get {
+                return ResourceManager.GetString("RGBKeyboardBacklightControl_SynchroniseZones", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hex.
+        /// </summary>
+        public static string ColorPickerControl_Hex {
+            get {
+                return ResourceManager.GetString("ColorPickerControl_Hex", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select language.
+        /// </summary>
+        public static string LanguageSelectorWindow_Title {
+            get {
+                return ResourceManager.GetString("LanguageSelectorWindow_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Log.
+        /// </summary>
+        public static string MainWindow_LogIndicator {
+            get {
+                return ResourceManager.GetString("MainWindow_LogIndicator", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Stop probe.
+        /// </summary>
+        public static string LampArrayRGBKeyboardPage_StopProbe {
+            get {
+                return ResourceManager.GetString("LampArrayRGBKeyboardPage_StopProbe", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Profile exported..
+        /// </summary>
+        public static string LampArrayRGBKeyboardPage_Export_Success {
+            get {
+                return ResourceManager.GetString("LampArrayRGBKeyboardPage_Export_Success", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Export failed: {0}.
+        /// </summary>
+        public static string LampArrayRGBKeyboardPage_Export_Failed {
+            get {
+                return ResourceManager.GetString("LampArrayRGBKeyboardPage_Export_Failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Profile imported..
+        /// </summary>
+        public static string LampArrayRGBKeyboardPage_Import_Success {
+            get {
+                return ResourceManager.GetString("LampArrayRGBKeyboardPage_Import_Success", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Import failed: {0}.
+        /// </summary>
+        public static string LampArrayRGBKeyboardPage_Import_Failed {
+            get {
+                return ResourceManager.GetString("LampArrayRGBKeyboardPage_Import_Failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Show hidden downloads.
+        /// </summary>
+        public static string PackagesPage_ShowHiddenDownloads {
+            get {
+                return ResourceManager.GetString("PackagesPage_ShowHiddenDownloads", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not connected.
+        /// </summary>
+        public static string DeviceAutomationPipelineTrigger_NotConnected {
+            get {
+                return ResourceManager.GetString("DeviceAutomationPipelineTrigger_NotConnected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Indra couldn&apos;t start.
+        /// </summary>
+        public static string App_StartupError_Title {
+            get {
+                return ResourceManager.GetString("App_StartupError_Title", resourceCulture);
+            }
+        }
     }
 }

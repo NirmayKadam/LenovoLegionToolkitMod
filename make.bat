@@ -1,8 +1,12 @@
 @echo off
-dotnet restore LenovoLegionToolkit.sln || exit /b
 
-SET VERSION=0.0.1
-IF NOT "%1"=="" IF /I NOT "%1"=="raw" SET VERSION=%1
+REM The version is required, as in make_action.bat: a build without one used to get a placeholder version, which the
+REM update check always saw as older than any release.
+SET VERSION=%1
+IF "%VERSION%"=="" GOTO usage
+IF /I "%VERSION%"=="raw" GOTO usage
+
+dotnet restore LenovoLegionToolkit.sln || exit /b
 
 REM Use PowerShell to get the current date in YYYYMMDD format
 for /f %%i in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMdd"') do set BUILD_DATE=%%i
@@ -23,3 +27,10 @@ iscc make_installer.iss /DMyAppVersion=%VERSION% /DMyBuildDate=%BUILD_DATE% || e
 
 echo Stamping installer executable...
 powershell -NoProfile -ExecutionPolicy Bypass -File ".\sign_installer.ps1" -InstallerPath "build_installer\LenovoLegionToolkitSetup-v%VERSION%_Build%BUILD_DATE%.exe" || exit /b
+
+exit /b 0
+
+:usage
+echo Usage: make.bat ^<version^> [raw]
+echo   for example: make.bat 2.36.18.0
+exit /b 1

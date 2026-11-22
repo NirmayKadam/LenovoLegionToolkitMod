@@ -35,7 +35,6 @@ public partial class StatusWindow
 
     private DateTime _lastUpdate = DateTime.MinValue;
     private const int UI_UPDATE_THROTTLE_MS = 100;
-    private const int MAX_RETRY_COUNT = 3;
     private const int RETRY_DELAY_MS = 1000;
 
     private readonly PowerModeFeature _powerModeFeature = IoCContainer.Resolve<PowerModeFeature>();
@@ -124,7 +123,7 @@ public partial class StatusWindow
         var token = _cancellationTokenSource.Token;
         try
         {
-            var initialData = await GetStatusWindowDataAsync(token, skipRetry: true);
+            var initialData = await GetStatusWindowDataAsync(token);
             ApplyDataToUI(initialData);
         }
         catch (Exception ex)
@@ -153,7 +152,7 @@ public partial class StatusWindow
         _title.Text += " [DEBUG]";
 #else
         var version = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version;
-        if (version == new Version(0, 0, 1, 0) || version?.Build == 99) _title.Text += " [BETA]";
+        if (version is not null && version.IsBeta()) _title.Text += " [BETA]";
 #endif
         if (Log.Instance.IsTraceEnabled) _title.Text += " [LOGGING ENABLED]";
     }
@@ -269,7 +268,7 @@ public partial class StatusWindow
         }
     }
 
-    private async Task<StatusWindowData> GetStatusWindowDataAsync(CancellationToken token, bool skipRetry = false, HardwareSensorSnapshot? snapshot = null)
+    private async Task<StatusWindowData> GetStatusWindowDataAsync(CancellationToken token, HardwareSensorSnapshot? snapshot = null)
     {
         if (!_machineInfo.HasValue)
         {

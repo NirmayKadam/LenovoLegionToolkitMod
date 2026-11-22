@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using LenovoLegionToolkit.Lib;
+using LenovoLegionToolkit.WPF.Resources;
 using Wpf.Ui.Controls;
 
 namespace LenovoLegionToolkit.WPF.Windows.Utils;
@@ -27,11 +28,11 @@ public partial class UnsupportedWindow
     {
         for (var i = 5; i > 0; i--)
         {
-            _continueButton.Content = $"Continue ({i})";
+            _continueButton.Content = $"{Resource.Continue} ({i})";
             await Task.Delay(TimeSpan.FromSeconds(1));
         }
 
-        _continueButton.Content = "Continue";
+        _continueButton.Content = Resource.Continue;
         _continueButton.IsEnabled = true;
     }
 

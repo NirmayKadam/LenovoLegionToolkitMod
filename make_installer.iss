@@ -8,8 +8,10 @@
 #define MyAppGitHub "https://github.com/NirmayKadam/LenovoLegionToolkitMod"
 #define MyAppCopyright "© 2026 Nirmay Kadam. Based on Lenovo Legion Toolkit © 2026 Bartosz Cichecki, Kaguya, and Dr. Skinner."
 
+; The version comes from make.bat or make_action.bat (/DMyAppVersion=...). There is no default: an installer
+; labelled 0.0.1 would install a build that always sees an update.
 #ifndef MyAppVersion
-  #define MyAppVersion "0.0.1"
+  #error MyAppVersion is not set. Build with make.bat <version>.
 #endif
 
 #ifndef MyBuildDate

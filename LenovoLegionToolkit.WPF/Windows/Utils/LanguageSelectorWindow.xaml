@@ -54,7 +54,7 @@
                     Margin="0,0,0,16"
                     Focusable="True"
                     FontWeight="Medium"
-                    Text="Select language"
+                    Text="{x:Static resources:Resource.LanguageSelectorWindow_Title}"
                     TextWrapping="Wrap" />
 
                 <ComboBox x:Name="_languageComboBox" />
@@ -73,7 +73,7 @@
                     MinWidth="120"
                     Appearance="Primary"
                     Click="OK_Click"
-                    Content="OK" />
+                    Content="{x:Static resources:Resource.OK}" />
             </Grid>
         </Grid>
     </Grid>

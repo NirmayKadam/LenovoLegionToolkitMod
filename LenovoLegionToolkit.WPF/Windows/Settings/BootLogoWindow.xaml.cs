@@ -157,7 +157,7 @@ public partial class BootLogoWindow
 
             var ofd = new OpenFileDialog
             {
-                Title = "Open",
+                Title = Resource.Open,
                 Filter = $"Images|{string.Join(";", filters)}",
                 CheckFileExists = true,
             };

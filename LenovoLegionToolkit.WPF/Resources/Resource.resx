@@ -6687,4 +6687,40 @@ When the game ends, LLT puts the apps&apos; priority and the services back. It n
   <data name="Help_Health_BatteryWear_When" xml:space="preserve">
     <value>Batteries wear with use and heat. Below 80% the laptop runs noticeably shorter on battery.</value>
   </data>
+  <data name="RGBKeyboardBacklightControl_SynchroniseZones" xml:space="preserve">
+    <value>Synchronise zones</value>
+  </data>
+  <data name="ColorPickerControl_Hex" xml:space="preserve">
+    <value>Hex</value>
+  </data>
+  <data name="LanguageSelectorWindow_Title" xml:space="preserve">
+    <value>Select language</value>
+  </data>
+  <data name="MainWindow_LogIndicator" xml:space="preserve">
+    <value>Log</value>
+  </data>
+  <data name="LampArrayRGBKeyboardPage_StopProbe" xml:space="preserve">
+    <value>Stop probe</value>
+  </data>
+  <data name="LampArrayRGBKeyboardPage_Export_Success" xml:space="preserve">
+    <value>Profile exported.</value>
+  </data>
+  <data name="LampArrayRGBKeyboardPage_Export_Failed" xml:space="preserve">
+    <value>Export failed: {0}</value>
+  </data>
+  <data name="LampArrayRGBKeyboardPage_Import_Success" xml:space="preserve">
+    <value>Profile imported.</value>
+  </data>
+  <data name="LampArrayRGBKeyboardPage_Import_Failed" xml:space="preserve">
+    <value>Import failed: {0}</value>
+  </data>
+  <data name="PackagesPage_ShowHiddenDownloads" xml:space="preserve">
+    <value>Show hidden downloads</value>
+  </data>
+  <data name="DeviceAutomationPipelineTrigger_NotConnected" xml:space="preserve">
+    <value>Not connected</value>
+  </data>
+  <data name="App_StartupError_Title" xml:space="preserve">
+    <value>Indra couldn&apos;t start</value>
+  </data>
 </root>
