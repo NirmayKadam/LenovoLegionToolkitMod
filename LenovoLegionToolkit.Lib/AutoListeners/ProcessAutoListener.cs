@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using LenovoLegionToolkit.Lib.Extensions;
+using LenovoLegionToolkit.Lib.System;
 using LenovoLegionToolkit.Lib.Utils;
 
 namespace LenovoLegionToolkit.Lib.AutoListeners;
@@ -79,20 +79,10 @@ public class ProcessAutoListener(
             if (IgnoredNames.Contains(e.ProcessName, StringComparer.OrdinalIgnoreCase))
                 return;
 
-            string? processPath = null;
-            try
-            {
-                using var process = Process.GetProcessById(e.ProcessId);
-                processPath = process.GetFileName();
-            }
-            catch (ArgumentException)
-            {
-                Log.Instance.Trace($"Process {e.ProcessName} isn't running, ignoring... [processId={e.ProcessId}]");
-            }
-            catch (Exception ex)
-            {
-                Log.Instance.Trace($"Can't get process {e.ProcessName} details. [processId={e.ProcessId}]", ex);
-            }
+            // Read without opening the process: every started program passes through here, games included.
+            var processPath = ProcessImagePath.Get(e.ProcessId);
+            if (processPath is null)
+                Log.Instance.Trace($"Path of {e.ProcessName} not readable (ended already?). [processId={e.ProcessId}]");
 
             if (!string.IsNullOrEmpty(processPath) && IgnoredPaths.Any(p => processPath.StartsWith(p, StringComparison.OrdinalIgnoreCase)))
                 return;
@@ -135,17 +125,21 @@ public class ProcessAutoListener(
 
         Log.Instance.Trace($"Cleaning up process cache. Current size: {_processCache.Count}.");
 
-        foreach (var (processId, _) in _processCache)
+        // Which ids still run, from one snapshot of the process list (no process is opened).
+        var processes = Process.GetProcesses();
+        HashSet<int> running;
+        try
         {
-            try
-            {
-                using var process = Process.GetProcessById(processId);
-            }
-            catch (ArgumentException)
-            {
-                _processCache.Remove(processId);
-            }
+            running = processes.Select(p => p.Id).ToHashSet();
         }
+        finally
+        {
+            foreach (var process in processes)
+                process.Dispose();
+        }
+
+        foreach (var processId in _processCache.Keys.Where(id => !running.Contains(id)).ToList())
+            _processCache.Remove(processId);
 
         Log.Instance.Trace($"Cleaned up process cache. Current size: {_processCache.Count}.");
     }

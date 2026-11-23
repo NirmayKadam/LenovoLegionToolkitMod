@@ -65,18 +65,39 @@ namespace LenovoLegionToolkit.Lib.Controllers.Sensors
             }
         }
 
+        private int _runningLoops;
+
+        /// <summary>How many once-a-second loops are running (at most one). For tests.</summary>
+        internal int RunningLoops => Volatile.Read(ref _runningLoops);
+
         public Task StartMonitoringAsync()
         {
-            if (_isRunning) return Task.CompletedTask;
-
-            _isRunning = true;
-            _cancellationTokenSource = new CancellationTokenSource();
-
-            _ = Task.Run(async () =>
+            CancellationTokenSource loopCts;
+            lock (_lockObject)
             {
-                Process? lastProcess = null;
+                if (_isRunning) return Task.CompletedTask;
 
-                while (!_cancellationTokenSource.Token.IsCancellationRequested)
+                _isRunning = true;
+                loopCts = new CancellationTokenSource();
+                _cancellationTokenSource = loopCts;
+            }
+
+            // The loop only ever reads its own token. It used to read the shared field each pass, so a stop and start
+            // landing mid-pass left the old loop running on the new token, with two loops fighting over the game.
+            _ = Task.Run(() => MonitorLoopAsync(loopCts));
+
+            return Task.CompletedTask;
+        }
+
+        private async Task MonitorLoopAsync(CancellationTokenSource loopCts)
+        {
+            var token = loopCts.Token;
+            Interlocked.Increment(ref _runningLoops);
+            Process? lastProcess = null;
+
+            try
+            {
+                while (!token.IsCancellationRequested)
                 {
                     try
                     {
@@ -88,7 +109,7 @@ namespace LenovoLegionToolkit.Lib.Controllers.Sensors
                         {
                             case MonitorStep.Switch:
                                 StopProcessMonitoring();
-                                await StartProcessMonitoringAsync(currentProcess!).ConfigureAwait(false);
+                                await StartProcessMonitoringAsync(currentProcess!, token).ConfigureAwait(false);
                                 lastProcess?.Dispose();
                                 lastProcess = currentProcess;
                                 currentProcess = null;   // kept, not disposed below
@@ -103,27 +124,48 @@ namespace LenovoLegionToolkit.Lib.Controllers.Sensors
 
                         currentProcess?.Dispose();
 
-                        await Task.Delay(1000, _cancellationTokenSource.Token).ConfigureAwait(false);
+                        await Task.Delay(1000, token).ConfigureAwait(false);
                     }
-                    catch (TaskCanceledException)
+                    catch (OperationCanceledException) when (token.IsCancellationRequested)
                     {
                         break;
                     }
                     catch (Exception ex)
                     {
                         Log.Instance.Trace($"Monitoring loop error: {ex.Message}");
-                        await Task.Delay(1000, _cancellationTokenSource.Token).ConfigureAwait(false);
+                        try
+                        {
+                            await Task.Delay(1000, token).ConfigureAwait(false);
+                        }
+                        catch (OperationCanceledException)
+                        {
+                            break;
+                        }
                     }
                 }
-            }, _cancellationTokenSource.Token);
-
-            return Task.CompletedTask;
+            }
+            finally
+            {
+                lastProcess?.Dispose();
+                loopCts.Dispose();
+                Interlocked.Decrement(ref _runningLoops);
+            }
         }
 
         public void StopMonitoring()
         {
-            _isRunning = false;
-            _cancellationTokenSource?.Cancel();
+            CancellationTokenSource? loopCts;
+            lock (_lockObject)
+            {
+                _isRunning = false;
+                loopCts = _cancellationTokenSource;
+                _cancellationTokenSource = null;
+            }
+
+            // The loop disposes its own token source when it ends.
+            try { loopCts?.Cancel(); }
+            catch (ObjectDisposedException) { }
+
             StopProcessMonitoring();
         }
 
@@ -205,7 +247,7 @@ namespace LenovoLegionToolkit.Lib.Controllers.Sensors
             return found;
         }
 
-        private Task StartProcessMonitoringAsync(Process process)
+        private Task StartProcessMonitoringAsync(Process process, CancellationToken loopToken)
         {
             try
             {
@@ -216,7 +258,7 @@ namespace LenovoLegionToolkit.Lib.Controllers.Sensors
                 var request = new FpsRequest((uint)process.Id);
                 var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(
                     _currentProcessTokenSource.Token,
-                    _cancellationTokenSource?.Token ?? CancellationToken.None);
+                    loopToken);
 
                 var monitoringTask = Task.Run(async () =>
                 {
@@ -315,7 +357,6 @@ namespace LenovoLegionToolkit.Lib.Controllers.Sensors
         public void Dispose()
         {
             StopMonitoring();
-            _cancellationTokenSource?.Dispose();
             _currentProcessTokenSource?.Dispose();
         }
     }

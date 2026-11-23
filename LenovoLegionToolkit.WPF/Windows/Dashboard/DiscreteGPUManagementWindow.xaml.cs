@@ -124,7 +124,8 @@ public partial class DiscreteGPUManagementWindow : BaseWindow
                 var activeProcesses = _gpuController.AllActiveProcesses.ToList();
                 var processInfos = activeProcesses.Select(p =>
                     {
-                        try { return new { p.Id, Path = p.GetFileName() }; }
+                        // Read without opening the process: the list includes running games.
+                        try { return new { p.Id, Path = ProcessImagePath.Get(p.Id) }; }
                         catch { return null; }
                     })
                     .Where(p => !string.IsNullOrEmpty(p?.Path))
@@ -320,7 +321,8 @@ public partial class DiscreteGPUManagementWindow : BaseWindow
             {
                 try
                 {
-                    var process = Process.GetProcessById(pid);
+                    // Opened only now, because the user asked to end it.
+                    using var process = Process.GetProcessById(pid);
                     process.Kill(true);
                 }
                 catch (Exception ex)

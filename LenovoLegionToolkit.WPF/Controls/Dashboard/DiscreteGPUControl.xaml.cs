@@ -96,11 +96,8 @@ public partial class DiscreteGPUControl
             if (e.ProcessCount > 0)
             {
                 processesStringBuilder.Append(Resource.DiscreteGPUControl_Processes);
-                foreach (var p in e.Processes.OrderBy(p => p.ProcessName))
-                {
-                    try { processesStringBuilder.AppendLine().Append(" · ").Append(p.ProcessName); }
-                    catch {  /* Ignore */ }
-                }
+                foreach (var p in e.Processes.OrderBy(p => p.Name, StringComparer.OrdinalIgnoreCase))
+                    processesStringBuilder.AppendLine().Append(" · ").Append(p.Name);
             }
             else
             {

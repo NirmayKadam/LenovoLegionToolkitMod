@@ -197,11 +197,10 @@ public class AIController(
             var intelligentOpList = await WMI.LenovoIntelligentOPList.ReadAsync().ConfigureAwait(false);
             foreach (var (processName, subMode) in intelligentOpList)
             {
-                var process = Process.GetProcessesByName(Path.GetFileNameWithoutExtension(processName)).FirstOrDefault();
-                if (process is null)
+                if (!RunningProcesses.IsRunning(Path.GetFileNameWithoutExtension(processName)))
                     continue;
 
-                Log.Instance.Trace($"Found running process {processName}. [processId={process.Id}, subMode={subMode}]");
+                Log.Instance.Trace($"Found running process {processName}. [subMode={subMode}]");
 
                 targetSubMode = subMode;
                 break;

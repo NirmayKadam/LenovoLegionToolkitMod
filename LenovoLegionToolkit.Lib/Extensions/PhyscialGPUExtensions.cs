@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using NvAPIWrapper.GPU;
 using NvAPIWrapper.Native;
@@ -15,25 +15,26 @@ public static class NVAPIExtensions
         "explorer.exe",
     ];
 
-    public static (List<Process> All, List<Process> Filtered) GetActiveProcesses(PhysicalGPU gpu)
+    /// <summary>
+    /// The processes using the GPU, from the driver's own list (id and name). No process is opened: this runs on
+    /// every GPU check, and the list includes running games.
+    /// </summary>
+    public static (List<GpuProcess> All, List<GpuProcess> Filtered) GetActiveProcesses(PhysicalGPU gpu)
     {
-        var allProcesses = new List<Process>();
-        var filteredProcesses = new List<Process>();
-        var apps = GPUApi.QueryActiveApps(gpu.Handle);
-        
-        foreach (var app in apps)
+        var allProcesses = new List<GpuProcess>();
+        var filteredProcesses = new List<GpuProcess>();
+
+        foreach (var app in GPUApi.QueryActiveApps(gpu.Handle))
         {
-            try
-            {
-                var process = Process.GetProcessById(app.ProcessId);
-                allProcesses.Add(process);
-                
-                if (!Exclusions.Contains(app.ProcessName, StringComparer.OrdinalIgnoreCase))
-                {
-                    filteredProcesses.Add(process);
-                }
-            }
-            catch (ArgumentException) { }
+            var fileName = Path.GetFileName(app.ProcessName ?? string.Empty);
+            if (app.ProcessId <= 0 || string.IsNullOrEmpty(fileName))
+                continue;
+
+            var process = new GpuProcess(app.ProcessId, Path.GetFileNameWithoutExtension(fileName));
+            allProcesses.Add(process);
+
+            if (!Exclusions.Contains(fileName, StringComparer.OrdinalIgnoreCase))
+                filteredProcesses.Add(process);
         }
 
         return (allProcesses, filteredProcesses);

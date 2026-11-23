@@ -75,15 +75,21 @@ public sealed class GameProfileControllerTests : IDisposable
             return true;
         }
 
-        public Task<bool> CloseAppAsync(int processId, DateTime startTimeUtc, TimeSpan timeout)
+        /// <summary>Background helpers of an app: they have no window, so nothing can be asked to close.</summary>
+        public HashSet<int> Windowless { get; } = [];
+
+        public Task<CloseOutcome> CloseAppAsync(int processId, DateTime startTimeUtc, TimeSpan timeout)
         {
             TouchedPids.Add(processId);
-            if (WontClose.Contains(processId) || !Processes.TryGetValue(processId, out var p))
-                return Task.FromResult(false);
+            if (!Processes.TryGetValue(processId, out var p) || Windowless.Contains(processId))
+                return Task.FromResult(CloseOutcome.NoWindow);
+
+            if (WontClose.Contains(processId))
+                return Task.FromResult(CloseOutcome.LeftOpen);
 
             Calls.Add($"close {p.Name}");
             Processes.Remove(processId);
-            return Task.FromResult(true);
+            return Task.FromResult(CloseOutcome.Closed);
         }
 
         public ServiceInfo? ReadService(string name) => Services.TryGetValue(name, out var s) ? s : null;
@@ -527,6 +533,66 @@ public sealed class GameProfileControllerTests : IDisposable
     }
 
     /// <summary>An app listed both to ease and to close is only closed: easing it first would be pointless.</summary>
+    [Fact]
+    public async Task AnAppWithHelpers_CountsOnce_AndItsHelpersArentLeftOpen()
+    {
+        // One window plus five windowless helpers (WebView2, Electron): Windows has six processes, the user one app.
+        var system = new ScriptedSystem();
+        system.AddApp(100, "claude");
+        for (var pid = 101; pid <= 105; pid++)
+        {
+            system.AddApp(pid, "claude");
+            system.Windowless.Add(pid);
+        }
+        var (controller, _, _) = Create(system, Profile(p => p.CloseApps = ["claude"]));
+        var events = new List<GameProfileReport>();
+        controller.Reported += (_, r) => events.Add(r);
+
+        await controller.ProcessStartedAsync("game", GamePid);
+
+        var report = events.Single();
+        Assert.Equal(1, report.AppsClosed);
+        Assert.Equal(0, report.AppsLeftOpen);
+    }
+
+    [Fact]
+    public async Task AnAppWithOnlyHelpers_IsNotCountedAtAll()
+    {
+        var system = new ScriptedSystem();
+        system.AddApp(100, "msedgewebview2");
+        system.AddApp(101, "msedgewebview2");
+        system.Windowless.UnionWith([100, 101]);
+        var (controller, _, _) = Create(system, Profile(p => p.CloseApps = ["msedgewebview2"]));
+        var events = new List<GameProfileReport>();
+        controller.Reported += (_, r) => events.Add(r);
+
+        await controller.ProcessStartedAsync("game", GamePid);
+
+        var report = events.Single();
+        Assert.Equal(0, report.AppsClosed);
+        Assert.Equal(0, report.AppsLeftOpen);
+        Assert.True(system.Processes.ContainsKey(100) && system.Processes.ContainsKey(101));   // nothing ended
+    }
+
+    [Fact]
+    public async Task AWindowThatWontClose_CountsItsAppAsLeftOpen()
+    {
+        var system = new ScriptedSystem();
+        system.AddApp(100, "editor");
+        system.AddApp(101, "editor");
+        system.Windowless.Add(101);
+        system.WontClose.Add(100);   // asking whether to save
+        var (controller, _, _) = Create(system, Profile(p => p.CloseApps = ["editor"]));
+        var events = new List<GameProfileReport>();
+        controller.Reported += (_, r) => events.Add(r);
+
+        await controller.ProcessStartedAsync("game", GamePid);
+
+        var report = events.Single();
+        Assert.Equal(0, report.AppsClosed);
+        Assert.Equal(1, report.AppsLeftOpen);
+    }
+
     [Fact]
     public async Task AnAppInBothLists_IsClosed_NotEasedFirst()
     {

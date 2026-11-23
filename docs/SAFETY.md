@@ -120,6 +120,14 @@ A game profile, or Game mode, can switch the laptop to a power mode while its ga
 - **When the game ends:** the earlier mode comes back only if the laptop is still in the mode LLT set. A mode you chose during the game is kept.
 - **If LLT was ended mid-game:** the next start does the same.
 
+## Game processes are never opened
+
+Kernel anti-cheats (Vanguard, Easy Anti-Cheat, BattlEye) watch for other programs that open the game's process. Indra never does, with or without game-safe mode:
+- **Finding games** (game detection, for AI mode and automations): from the names Windows reports when programs start and stop, the process list, the known-games list, the GPU driver's list of programs on the discrete GPU, and Windows Game Mode.
+- **File paths** are read from Windows' process list by process id, without opening the process.
+- **A game counts as ended** when Windows reports it stopped, or when the process list no longer shows it.
+- **The only exception is your own action:** Kill in the discrete GPU window opens the program you chose, to end it.
+
 ## GPU driver errors
 
 While LLT runs, it watches Windows' System log, read only, for NVIDIA driver errors and display driver resets.

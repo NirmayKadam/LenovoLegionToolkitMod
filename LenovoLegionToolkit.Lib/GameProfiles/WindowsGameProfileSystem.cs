@@ -85,29 +85,33 @@ internal sealed class WindowsGameProfileSystem : IGameProfileSystem
         }
     }
 
-    public async Task<bool> CloseAppAsync(int processId, DateTime startTimeUtc, TimeSpan timeout)
+    public async Task<CloseOutcome> CloseAppAsync(int processId, DateTime startTimeUtc, TimeSpan timeout)
     {
         try
         {
             using var process = Process.GetProcessById(processId);
             if (process.StartTime.ToUniversalTime() != startTimeUtc)
-                return false;
+                return CloseOutcome.NoWindow;   // the id is another process's now: nothing of this app to ask
 
             if (!process.CloseMainWindow())
-                return false;   // no window to close: LLT doesn't end processes
+                return CloseOutcome.NoWindow;   // a background helper: LLT doesn't end processes
 
             using var cts = new CancellationTokenSource(timeout);
             await process.WaitForExitAsync(cts.Token).ConfigureAwait(false);
-            return true;
+            return CloseOutcome.Closed;
         }
         catch (OperationCanceledException)
         {
-            return false;   // still open (for example, asking whether to save)
+            return CloseOutcome.LeftOpen;   // still open (for example, asking whether to save)
+        }
+        catch (ArgumentException)
+        {
+            return CloseOutcome.NoWindow;   // already gone before it was asked: not counted either way
         }
         catch (Exception ex)
         {
             Log.Instance.Trace($"Couldn't close app. [pid={processId}]", ex);
-            return false;
+            return CloseOutcome.LeftOpen;
         }
     }
 

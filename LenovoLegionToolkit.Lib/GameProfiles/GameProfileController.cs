@@ -580,6 +580,11 @@ public class GameProfileController
                 continue;
             }
 
+            // Counted per app, not per process: an app's windowless helpers (WebView2, Electron) are never asked, so
+            // they aren't "left open". It used to report "left open: 12" for three apps with helpers.
+            var anyClosed = false;
+            var anyLeftOpen = false;
+
             foreach (var pid in _system.FindByName(exe))
             {
                 try
@@ -593,10 +598,15 @@ public class GameProfileController
                         continue;
                     }
 
-                    if (await _system.CloseAppAsync(pid, app.StartTimeUtc, CloseTimeout).ConfigureAwait(false))
-                        counts.Closed++;
-                    else
-                        counts.LeftOpen++;
+                    switch (await _system.CloseAppAsync(pid, app.StartTimeUtc, CloseTimeout).ConfigureAwait(false))
+                    {
+                        case CloseOutcome.Closed:
+                            anyClosed = true;
+                            break;
+                        case CloseOutcome.LeftOpen:
+                            anyLeftOpen = true;
+                            break;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -604,6 +614,11 @@ public class GameProfileController
                     Log.Instance.Trace($"Closing an app failed. [exe={exe}, pid={pid}]", ex);
                 }
             }
+
+            if (anyLeftOpen)
+                counts.LeftOpen++;
+            else if (anyClosed)
+                counts.Closed++;
         }
     }
 

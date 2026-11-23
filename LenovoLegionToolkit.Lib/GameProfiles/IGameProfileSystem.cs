@@ -25,6 +25,19 @@ public readonly record struct ThrottleState(uint ControlMask, uint StateMask)
     public static ThrottleState Efficient { get; } = new(ExecutionSpeed, ExecutionSpeed);
 }
 
+/// <summary>What asking one process to close came to.</summary>
+public enum CloseOutcome
+{
+    /// <summary>It had a window, was asked to close and exited.</summary>
+    Closed,
+
+    /// <summary>It had a window and was asked, but is still running (for example asking whether to save), or it couldn't be asked.</summary>
+    LeftOpen,
+
+    /// <summary>It has no window (a background helper), so nothing was asked; LLT doesn't end processes.</summary>
+    NoWindow,
+}
+
 /// <summary>
 /// The Windows calls a game profile makes. The product uses <see cref="WindowsGameProfileSystem"/>; tests supply
 /// scripted answers to check the controller's decisions.
@@ -49,8 +62,8 @@ internal interface IGameProfileSystem
     /// </summary>
     bool SetApp(int processId, DateTime startTimeUtc, ProcessPriorityClass priority, ThrottleState? throttle);
 
-    /// <summary>Asks the app to close, like clicking X, and waits up to <paramref name="timeout"/>. True when it exited.</summary>
-    Task<bool> CloseAppAsync(int processId, DateTime startTimeUtc, TimeSpan timeout);
+    /// <summary>Asks the app's window to close, like clicking X, and waits up to <paramref name="timeout"/>.</summary>
+    Task<CloseOutcome> CloseAppAsync(int processId, DateTime startTimeUtc, TimeSpan timeout);
 
     /// <summary>The service's state, or null when it isn't installed.</summary>
     ServiceInfo? ReadService(string name);

@@ -188,8 +188,8 @@ public class GPUController
     }
 
     private GPUState _state = GPUState.Unknown;
-    private List<Process> _processes = [];
-    private List<Process> _allProcesses = [];
+    private List<GpuProcess> _processes = [];
+    private List<GpuProcess> _allProcesses = [];
     private string? _gpuInstanceId;
     private string? _performanceState;
     private string? _sleepBlockerReason;
@@ -257,7 +257,7 @@ public class GPUController
 
     public async Task KillGPUProcessesAsync()
     {
-        List<Process> processes;
+        List<GpuProcess> processes;
         string? gpuInstanceId;
 
         using (await _stateLock.LockAsync().ConfigureAwait(false))
@@ -278,10 +278,18 @@ public class GPUController
 
         Log.Instance.Trace($"Killing GPU processes... [gpuInstanceId={gpuInstanceId}]");
 
-        foreach (var process in processes)
+        foreach (var gpuProcess in processes)
         {
             try
             {
+                // Opened only now, because the user asked to end it; and only if the id is still that program's.
+                using var process = Process.GetProcessById(gpuProcess.Id);
+                if (!string.Equals(process.ProcessName, gpuProcess.Name, StringComparison.OrdinalIgnoreCase))
+                {
+                    Log.Instance.Trace($"Not killing: the id now belongs to another program. [pid={gpuProcess.Id}, was={gpuProcess.Name}, now={process.ProcessName}]");
+                    continue;
+                }
+
                 process.Kill(true);
                 // A process stuck in the graphics driver may never exit; don't hang the action on it.
                 using var exitWait = new CancellationTokenSource(TimeSpan.FromSeconds(10));
@@ -289,7 +297,7 @@ public class GPUController
             }
             catch (Exception ex)
             {
-                Log.Instance.Trace($"Couldn't kill process. [pid={process.Id}, name={process.ProcessName}]", ex);
+                Log.Instance.Trace($"Couldn't kill process. [pid={gpuProcess.Id}, name={gpuProcess.Name}]", ex);
             }
         }
     }
@@ -452,8 +460,8 @@ public class GPUController
         }
 
         GPUState newState;
-        List<Process> newProcesses;
-        List<Process> newAllProcesses;
+        List<GpuProcess> newProcesses;
+        List<GpuProcess> newAllProcesses;
         string? newGpuInstanceId;
         string? newPerformanceState;
 
@@ -495,7 +503,7 @@ public class GPUController
 
         }
 
-        List<Process> processNames;
+        List<GpuProcess> processNames;
         try
         {
             var (allProcessNames, filteredProcessNames) = NVAPIExtensions.GetActiveProcesses(gpu);
@@ -576,8 +584,8 @@ public class GPUController
         }
     }
 
-    public IReadOnlyList<Process> ActiveProcesses => _processes;
-    public IReadOnlyList<Process> AllActiveProcesses => _allProcesses;
+    public IReadOnlyList<GpuProcess> ActiveProcesses => _processes;
+    public IReadOnlyList<GpuProcess> AllActiveProcesses => _allProcesses;
 
     public GpuPreference GetGpuPreference(string exePath)
     {

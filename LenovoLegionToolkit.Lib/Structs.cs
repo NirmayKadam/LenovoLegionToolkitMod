@@ -478,11 +478,17 @@ public readonly struct GodModePreset
     }
 }
 
-public readonly struct GPUStatus(GPUState state, string? performanceState, List<Process> processes, string? sleepBlockerReason = null)
+/// <summary>
+/// A process using the discrete GPU, as the NVIDIA driver reports it: id and name (without ".exe"). The process isn't
+/// opened to get this; it may be a game protected by an anti-cheat.
+/// </summary>
+public readonly record struct GpuProcess(int Id, string Name);
+
+public readonly struct GPUStatus(GPUState state, string? performanceState, List<GpuProcess> processes, string? sleepBlockerReason = null)
 {
     public GPUState State { get; } = state;
     public string? PerformanceState { get; } = performanceState;
-    public List<Process> Processes { get; } = processes;
+    public List<GpuProcess> Processes { get; } = processes;
     public string? SleepBlockerReason { get; } = sleepBlockerReason;
     public int ProcessCount => Processes.Count;
 }
