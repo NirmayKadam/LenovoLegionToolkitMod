@@ -103,7 +103,7 @@ public partial class CreateAutomationPipelineWindow
         _countsTextBlock.Text = string.Format(Resource.Automation_SupportedAvailableCount, _triggers.Count, totalAvailableTriggers);
 
         IsVisibleChanged += CreateAutomationPipelineWindow_IsVisibleChanged;
-        _logicComboBox.SelectionChanged += (_, _) => _ = RefreshAsync();
+        _logicComboBox.SelectionChanged += (_, _) => RefreshAsync().Forget("Refreshing the automation list");
     }
 
     private async void CreateAutomationPipelineWindow_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
@@ -150,7 +150,7 @@ public partial class CreateAutomationPipelineWindow
 
     private void _searchBox_TextChanged(object sender, TextChangedEventArgs e)
     {
-        _ = RefreshAsync();
+        RefreshAsync().Forget("Refreshing the automation list");   // a failure is logged, not lost
     }
 
     private Task RefreshAsync()

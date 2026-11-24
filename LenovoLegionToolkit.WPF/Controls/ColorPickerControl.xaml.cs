@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -57,20 +57,25 @@ public partial class ColorPickerControl
             return;
 
         _isEditing = true;
+        try
+        {
+            var color = _colorPicker.SelectedColor;
 
-        var color = _colorPicker.SelectedColor;
+            _button.Background = new SolidColorBrush(color);
 
-        _button.Background = new SolidColorBrush(color);
+            _redNumberBox.Text = color.R.ToString();
+            _greenNumberBox.Text = color.G.ToString();
+            _blueNumberBox.Text = color.B.ToString();
 
-        _redNumberBox.Text = color.R.ToString();
-        _greenNumberBox.Text = color.G.ToString();
-        _blueNumberBox.Text = color.B.ToString();
+            _hexTextBox.Text = $"#{color.R:X2}{color.G:X2}{color.B:X2}";
 
-        _hexTextBox.Text = $"#{color.R:X2}{color.G:X2}{color.B:X2}";
-
-        ColorChangedContinuous?.Invoke(this, EventArgs.Empty);
-
-        _isEditing = false;
+            ColorChangedContinuous?.Invoke(this, EventArgs.Empty);
+        }
+        finally
+        {
+            // Always cleared: left on after a listener failed, the picker stopped answering.
+            _isEditing = false;
+        }
     }
 
 
@@ -80,24 +85,29 @@ public partial class ColorPickerControl
             return;
 
         _isEditing = true;
-
-        var r = ToByte(_redNumberBox.Text);
-        var g = ToByte(_greenNumberBox.Text);
-        var b = ToByte(_blueNumberBox.Text);
-        var color = Color.FromRgb(r, g, b);
-
-        _button.Background = new SolidColorBrush(color);
-
-        _hexTextBox.Text = $"#{r:X2}{g:X2}{b:X2}";
-
-        if (Mouse.LeftButton != MouseButtonState.Pressed && Mouse.RightButton != MouseButtonState.Pressed)
+        try
         {
-            _colorPicker.SelectedColor = color;
+            var r = ToByte(_redNumberBox.Text);
+            var g = ToByte(_greenNumberBox.Text);
+            var b = ToByte(_blueNumberBox.Text);
+            var color = Color.FromRgb(r, g, b);
 
-            ColorChangedDelayed?.Invoke(this, EventArgs.Empty);
+            _button.Background = new SolidColorBrush(color);
+
+            _hexTextBox.Text = $"#{r:X2}{g:X2}{b:X2}";
+
+            if (Mouse.LeftButton != MouseButtonState.Pressed && Mouse.RightButton != MouseButtonState.Pressed)
+            {
+                _colorPicker.SelectedColor = color;
+
+                ColorChangedDelayed?.Invoke(this, EventArgs.Empty);
+            }
         }
-
-        _isEditing = false;
+        finally
+        {
+            // Always cleared: left on after a listener failed, the picker stopped answering.
+            _isEditing = false;
+        }
     }
 
     private void HexTextBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -109,28 +119,33 @@ public partial class ColorPickerControl
             return;
 
         _isEditing = true;
-
         try
         {
-            var c = ColorTranslator.FromHtml(_hexTextBox.Text);
-            var color = Color.FromRgb(c.R, c.G, c.B);
-
-            _button.Background = new SolidColorBrush(color);
-
-            _redNumberBox.Text = color.R.ToString();
-            _greenNumberBox.Text = color.G.ToString();
-            _blueNumberBox.Text = color.B.ToString();
-
-            if (Mouse.LeftButton != MouseButtonState.Pressed && Mouse.RightButton != MouseButtonState.Pressed)
+            try
             {
-                _colorPicker.SelectedColor = color;
+                var c = ColorTranslator.FromHtml(_hexTextBox.Text);
+                var color = Color.FromRgb(c.R, c.G, c.B);
 
-                ColorChangedDelayed?.Invoke(this, EventArgs.Empty);
+                _button.Background = new SolidColorBrush(color);
+
+                _redNumberBox.Text = color.R.ToString();
+                _greenNumberBox.Text = color.G.ToString();
+                _blueNumberBox.Text = color.B.ToString();
+
+                if (Mouse.LeftButton != MouseButtonState.Pressed && Mouse.RightButton != MouseButtonState.Pressed)
+                {
+                    _colorPicker.SelectedColor = color;
+
+                    ColorChangedDelayed?.Invoke(this, EventArgs.Empty);
+                }
             }
+            catch {  /* Ignore */ }
         }
-        catch {  /* Ignore */ }
-
-        _isEditing = false;
+        finally
+        {
+            // Always cleared: left on after a listener failed, the picker stopped answering.
+            _isEditing = false;
+        }
     }
 
     private void OK_Click(object sender, RoutedEventArgs e) => _popup.IsOpen = false;

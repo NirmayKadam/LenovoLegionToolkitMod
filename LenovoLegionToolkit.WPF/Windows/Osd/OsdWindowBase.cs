@@ -808,6 +808,19 @@ public abstract class OsdWindowBase : Window
         }
     }
 
+    private static GpuLimit? ReadGpuLimit()
+    {
+        try
+        {
+            return GpuLimitReading.Read();
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"GPU limit not readable.", ex);
+            return null;
+        }
+    }
+
     private async Task RefreshSensorsDataAsync(CancellationToken token)
     {
         _sensorsGroupControllers.CpuVoltageMode = _hardwareSensorSettings.Store.CpuVoltageMode;
@@ -837,7 +850,8 @@ public abstract class OsdWindowBase : Window
             _sensorsGroupControllers.ShowAverageCpuFrequency);
 
         // Read only while shown, and like the other NVIDIA readings only with hardware sensors on and outside game-safe mode.
-        if (useDetailed && _activeItems.Contains(OsdItem.GpuLimit) && GpuLimitReading.Read() is { } limit)
+        // The NVIDIA call runs on a worker thread: on the UI thread it held up the overlay's drawing each refresh.
+        if (useDetailed && _activeItems.Contains(OsdItem.GpuLimit) && await Task.Run(ReadGpuLimit) is { } limit)
             snapshot = snapshot with { GpuLimit = GpuLimitReading.Label(limit) };
 
         await Dispatcher.BeginInvoke(() => UpdateSensorData(snapshot), DispatcherPriority.Normal);

@@ -81,26 +81,35 @@ public class DriverKeyListener(
 
                 token.ThrowIfCancellationRequested();
 
-                if (await fnKeysDisabler.GetStatusAsync().ConfigureAwait(false) == SoftwareStatus.Enabled)
-                {
-                    Log.Instance.Trace($"Ignoring, FnKeys are enabled.");
-
-                    resetEvent.Reset();
-                    continue;
-                }
-
-                var getValueResult = GetValue(out var value);
-                if (!getValueResult)
-                    PInvokeExtensions.ThrowIfWin32Error("DeviceIoControl, getValueResult");
-
-                var key = (DriverKey)value;
-                Log.Instance.Trace($"Event received. [key={key}, value={value}]");
-
-                if (!DiscoveryMode)
-                    await OnChangedAsync(key).ConfigureAwait(false);
-                Changed?.Invoke(this, new(key, value));
-
+                // Reset before reading, not after handling: a key pressed while this one is handled (a microphone
+                // toggle takes a moment) signals again, and that signal must not be wiped.
                 resetEvent.Reset();
+
+                try
+                {
+                    if (await fnKeysDisabler.GetStatusAsync().ConfigureAwait(false) == SoftwareStatus.Enabled)
+                    {
+                        Log.Instance.Trace($"Ignoring, FnKeys are enabled.");
+                        continue;
+                    }
+
+                    var getValueResult = GetValue(out var value);
+                    if (!getValueResult)
+                        PInvokeExtensions.ThrowIfWin32Error("DeviceIoControl, getValueResult");
+
+                    var key = (DriverKey)value;
+                    Log.Instance.Trace($"Event received. [key={key}, value={value}]");
+
+                    if (!DiscoveryMode)
+                        await OnChangedAsync(key).ConfigureAwait(false);
+                    Changed?.Invoke(this, new(key, value));
+                }
+                catch (Exception ex) when (ex is not OperationCanceledException)
+                {
+                    // One failed key press used to end listening until Indra restarted; the next press is read again.
+                    Log.Instance.Trace($"Handling a key press failed; still listening.", ex);
+                    await Task.Delay(TimeSpan.FromMilliseconds(250), token).ConfigureAwait(false);
+                }
             }
         }
         catch (OperationCanceledException) { }

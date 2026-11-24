@@ -538,7 +538,13 @@ public enum NotificationType
     /// <summary>The GPU driver reported an error (Windows' System log); always shown.</summary>
     GpuDriverError,
     /// <summary>A Health check newly needs attention; always shown.</summary>
-    HealthAttention
+    HealthAttention,
+    /// <summary>The previous start didn't finish, so this start applied no hardware settings; always shown.</summary>
+    SafeStart,
+    /// <summary>A game ended: its session summary. Shown while the game session report is on.</summary>
+    GameSessionReport,
+    /// <summary>Indra's window answers again after not answering for a while; always shown.</summary>
+    UiFreeze
 }
 
 public enum OneLevelWhiteKeyboardBacklightState

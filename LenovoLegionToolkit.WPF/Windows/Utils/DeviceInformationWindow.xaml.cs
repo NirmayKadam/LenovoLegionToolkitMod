@@ -399,7 +399,7 @@ public partial class DeviceInformationWindow
         return System.Runtime.InteropServices.RuntimeInformation.OSDescription;
     }
 
-    private async void RefreshWarrantyButton_OnClick(object sender, RoutedEventArgs e) => await RefreshAsync(true);
+    private async void RefreshWarrantyButton_OnClick(object sender, RoutedEventArgs e) => await UiErrors.RunAsync("Checking the warranty", () => RefreshAsync(true));
 
     private async void BiosCard_OnMouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
     {

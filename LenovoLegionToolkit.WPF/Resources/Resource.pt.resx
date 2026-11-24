@@ -1220,7 +1220,7 @@ Poderá ser necessário reiniciar para mudar de modo.</value>
     <value>Fn Lock</value>
   </data>
   <data name="GB" xml:space="preserve">
-    <value>BR</value>
+    <value>GB</value>
   </data>
   <data name="Generation" xml:space="preserve">
     <value>Geração</value>
@@ -3742,7 +3742,7 @@ Logs serão guardados automaticamente, se escolheres continuar.</value>
     <value>Garantia</value>
   </data>
   <data name="Watt" xml:space="preserve">
-    <value>PO</value>
+    <value>W</value>
   </data>
   <data name="WhiteKeyboardBacklightAutomationStepControl_Message" xml:space="preserve">
     <value>Ajustar o brilho da luz de fundo do teclado.</value>

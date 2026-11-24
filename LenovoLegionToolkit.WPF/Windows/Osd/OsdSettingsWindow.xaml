@@ -156,12 +156,18 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <TextBlock
+            <!--  The title itself moves the window too (it stays clear of the close button on the right).  -->
+            <Border
                 Grid.Column="0"
-                VerticalAlignment="Center"
-                FontSize="12"
-                IsHitTestVisible="False"
-                Text="{Binding Source={x:Static resources:Resource.OsdWindow_Title}}" />
+                Margin="0,0,48,0"
+                Background="Transparent"
+                MouseLeftButtonDown="TitleArea_MouseLeftButtonDown">
+                <TextBlock
+                    VerticalAlignment="Center"
+                    FontSize="12"
+                    IsHitTestVisible="False"
+                    Text="{Binding Source={x:Static resources:Resource.OsdWindow_Title}}" />
+            </Border>
 
         </Grid>
 
@@ -173,7 +179,9 @@
 
             <TabControl Grid.Row="0">
                 <TabItem Header="{x:Static resources:Resource.OsdSettings_Tabs_General}">
-                    <StackPanel>
+                    <!--  Scrolls like the other tabs; never wider than the window (a wider tab pushed the whole window's content off-centre).  -->
+                    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="0,0,12,0">
                         <!--  Show/hide shortcut: registered with Windows (RegisterHotKey), no keyboard hook.  -->
                         <custom:CardControl Margin="0,0,0,8" Icon="Keyboard24">
                             <custom:CardControl.Header>
@@ -210,17 +218,18 @@
                                     Subtitle="{x:Static resources:Resource.OsdSettings_FnKey_Message}"
                                     HelpKey="Help_Osd_FnKey" />
                             </custom:CardControl.Header>
-                            <StackPanel Orientation="Horizontal">
+                            <WrapPanel Orientation="Horizontal">
                                 <wpfui:Button
-                                    Margin="0,0,8,0"
+                                    Margin="0,0,8,4"
                                     Appearance="Secondary"
                                     Click="CreateOsdQuickActionButton_Click"
                                     Content="{x:Static resources:Resource.OsdSettings_FnKey_Create}" />
                                 <wpfui:Button
                                     Appearance="Secondary"
+                                    Margin="0,0,0,4"
                                     Click="OpenSpecialKeysButton_Click"
                                     Content="{x:Static resources:Resource.OsdSettings_FnKey_OpenSpecialKeys}" />
-                            </StackPanel>
+                            </WrapPanel>
                         </custom:CardControl>
 
                         <custom:CardControl Margin="0,0,0,8" Icon="Window24">
@@ -282,6 +291,7 @@
                             </StackPanel>
                         </custom:CardControl>
                     </StackPanel>
+                    </ScrollViewer>
                 </TabItem>
 
                 <TabItem Header="{x:Static resources:Resource.OsdSettings_Tabs_Appearance}">

@@ -22,7 +22,7 @@ public sealed class AfterburnerStepTests : IDisposable
 
     public void Dispose() => Directory.Delete(_dir, true);
 
-    private static string DotnetExe => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "dotnet", "dotnet.exe");
+    private static string DotnetExe => LenovoLegionToolkit.Tests.Utils.TestFiles.SignedDotnetExe;
 
     // ---- Which program may start ----
 
@@ -72,12 +72,16 @@ public sealed class AfterburnerStepTests : IDisposable
     {
         var renamed = Path.Combine(_dir, AfterburnerProgram.FileName);
         File.Copy(DotnetExe, renamed);
-        var before = Process.GetProcessesByName("MSIAfterburner").Length;
+        var starts = new List<string>();   // records what would be started, instead of starting it
 
-        var result = await AfterburnerProgram.StartProfileAsync(renamed, 2);
+        var result = await AfterburnerProgram.StartProfileAsync(renamed, 2, (file, arguments, _) =>
+        {
+            starts.Add($"{file} {arguments}");
+            return Task.CompletedTask;
+        });
 
         Assert.Equal(AfterburnerCheck.WrongSigner, result);
-        Assert.Equal(before, Process.GetProcessesByName("MSIAfterburner").Length);
+        Assert.Empty(starts);
     }
 
     [Theory]

@@ -11,7 +11,11 @@ namespace LenovoLegionToolkit.Tests.UI;
 // The real control with a real help key from the app's resources. The title is rebuilt whenever the title, the help
 // key or the hover-help setting changes; rebuilding twice used to throw "Specified element is already the logical
 // child of another element" and stopped the dashboard from loading.
-[Collection("HelpPresenter")]
+/// <summary>Tests that switch hover help (a process-wide setting) run alone, so no other test sees it switched off.</summary>
+[CollectionDefinition(nameof(HelpPresenterCollection), DisableParallelization = true)]
+public sealed class HelpPresenterCollection;
+
+[Collection(nameof(HelpPresenterCollection))]
 public class CardHeaderControlTests
 {
     private const string RealHelpKey = "Help_Feature_AlwaysOnUSBState";
@@ -47,14 +51,24 @@ public class CardHeaderControlTests
     [Fact]
     public void SeveralRebuilds_LeaveExactlyOneHelpIcon() => StaRunner.Run(() =>
     {
-        var control = CreateInitialized();
+        var wasEnabled = HelpPresenter.IsEnabled;
+        var delay = HelpPresenter.InitialDelayMs;
+        try
+        {
+            HelpPresenter.Configure(true, delay);   // the icon only exists with hover help on
+            var control = CreateInitialized();
 
-        control.Title = "Always on USB";
-        control.HelpKey = RealHelpKey;
-        control.Title = "Always on USB (renamed)";
-        control.HelpKey = RealHelpKey;
+            control.Title = "Always on USB";
+            control.HelpKey = RealHelpKey;
+            control.Title = "Always on USB (renamed)";
+            control.HelpKey = RealHelpKey;
 
-        Assert.Equal(1, HelpIconCount(control));
+            Assert.Equal(1, HelpIconCount(control));
+        }
+        finally
+        {
+            HelpPresenter.Configure(wasEnabled, delay);
+        }
     });
 
     [Fact]

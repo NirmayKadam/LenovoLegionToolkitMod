@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -115,14 +116,22 @@ public partial class OverclockDiscreteGPUSettingsWindow
     private async void ApplyButton_Click(object sender, RoutedEventArgs e)
     {
         Save();
-        ShowResult(await ApplyAsync());
+        await UiErrors.RunAsync("Applying the GPU overclock", async () => ShowResult(await ApplyAsync()));
     }
 
     private async void ApplyAndCloseButton_Click(object sender, RoutedEventArgs e)
     {
         Save();
-        ShowResult(await ApplyAsync());
-        Close();
+        try
+        {
+            ShowResult(await ApplyAsync());
+            Close();
+        }
+        catch (Exception ex)
+        {
+            // The values are saved; sending them to the driver failed. The window stays open to show it.
+            UiErrors.Report("Applying the GPU overclock", ex);
+        }
     }
 
     /// <summary>Says what actually happened, instead of always "applied".</summary>

@@ -89,7 +89,7 @@ public sealed class StandardUserProcessTests : IDisposable
 
         Assert.Equal("C:\\Users", parsed["=C:"]);
         Assert.Equal("C:\\Windows;C:\\Tools", parsed["PATH"]);
-        Assert.Equal(StandardUserProcess.ParseEnvironmentBlock(StandardUserProcess.FormatEnvironmentBlock(parsed)), parsed);
+        Assert.Equal(parsed, StandardUserProcess.ParseEnvironmentBlock(StandardUserProcess.FormatEnvironmentBlock(parsed)));
         Assert.EndsWith("\0\0", StandardUserProcess.FormatEnvironmentBlock(parsed));
     }
 

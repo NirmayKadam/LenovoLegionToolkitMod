@@ -9,6 +9,9 @@ namespace LenovoLegionToolkit.Lib.System;
 
 public static class CMD
 {
+    /// <summary>How long the output is read after the program ended, for what is still on its way.</summary>
+    internal static readonly TimeSpan OutputAfterExit = TimeSpan.FromSeconds(2);
+
     /// <param name="endOnCancel">
     /// End the program when <paramref name="token"/> cancels the wait. Off by default: a Run step's program keeps
     /// running when its rule is cancelled, as it always has.
@@ -55,13 +58,25 @@ public static class CMD
             {
                 // Read both streams while the process runs; reading only after exit deadlocks
                 // as soon as the child writes more than the pipe buffer can hold.
-                var outputTask = cmd.StandardOutput.ReadToEndAsync(token);
-                var errorTask = cmd.StandardError.ReadToEndAsync(token);
+                using var reading = CancellationTokenSource.CreateLinkedTokenSource(token);
+                var outputTask = cmd.StandardOutput.ReadToEndAsync(reading.Token);
+                var errorTask = cmd.StandardError.ReadToEndAsync(reading.Token);
 
-                await Task.WhenAll(outputTask, errorTask, cmd.WaitForExitAsync(token)).ConfigureAwait(false);
+                await cmd.WaitForExitAsync(token).ConfigureAwait(false);
 
-                output = await outputTask.ConfigureAwait(false);
-                error = await errorTask.ConfigureAwait(false);
+                // A program it started can inherit the output and keep it open long after this one ended (a script
+                // that launches an app). Waiting for that held the automation lock, so no other rule ran. The output
+                // gets a short while to finish after the exit.
+                reading.CancelAfter(OutputAfterExit);
+                try
+                {
+                    output = await outputTask.ConfigureAwait(false);
+                    error = await errorTask.ConfigureAwait(false);
+                }
+                catch (OperationCanceledException) when (!token.IsCancellationRequested)
+                {
+                    Log.Instance.Trace($"{file} ended, but a program it started still holds its output; not waiting for it.");
+                }
             }
             else
             {

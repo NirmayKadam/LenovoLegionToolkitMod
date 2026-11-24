@@ -16,7 +16,7 @@ public class ReleaseWorkflowTests
     [Fact]
     public void ItRuns_OnlyForVersionTags_OnMain()
     {
-        Assert.Contains("tags:\n      - 'v*'", Workflow.Replace("\r\n", "\n"));
+        Assert.Matches(@"tags:\s*\n\s*-\s*'v\*'", Workflow.Replace("\r\n", "\n"));   // indentation may differ
         Assert.DoesNotContain("workflow_dispatch", Workflow);
         Assert.DoesNotContain("pull_request", Workflow);
         Assert.Contains("git merge-base --is-ancestor HEAD origin/main", Workflow);
@@ -27,7 +27,7 @@ public class ReleaseWorkflowTests
     {
         var normalized = Workflow.Replace("\r\n", "\n");
 
-        Assert.Contains("- name: Remove signing certificate\n      if: always()", normalized);
+        Assert.Matches(@"-\s*name:\s*Remove signing certificate\s*\n\s*if:\s*always\(\)", normalized);
         Assert.Contains("LenovoLegionToolkit.cer", Workflow);
         Assert.Contains("$sig.SignerCertificate.Thumbprint -ne $expected", Workflow);
         Assert.Contains("Get-FileHash", Workflow);

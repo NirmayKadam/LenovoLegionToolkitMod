@@ -55,9 +55,14 @@ public class InstanceStartedEventAutoAutoListener : AbstractAutoListener<Instanc
     {
         try
         {
-            var processId = Convert.ToInt32(e.NewEvent["ProcessID"]);
-            var parentProcessId = Convert.ToInt32(e.NewEvent["ParentProcessID"]);
-            var processName = (string)e.NewEvent["ProcessName"];
+            int processId, parentProcessId;
+            string processName;
+            using (var newEvent = e.NewEvent)   // released at once: one arrives for every program that starts
+            {
+                processId = Convert.ToInt32(newEvent["ProcessID"]);
+                parentProcessId = Convert.ToInt32(newEvent["ParentProcessID"]);
+                processName = (string)newEvent["ProcessName"];
+            }
 
             var nameWithoutExt = Path.GetFileNameWithoutExtension(processName);
 

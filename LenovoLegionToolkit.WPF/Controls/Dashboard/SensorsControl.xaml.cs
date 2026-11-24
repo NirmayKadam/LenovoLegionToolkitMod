@@ -69,12 +69,22 @@ public partial class SensorsControl
 
         _cts = null;
 
-        if (_refreshTask is not null)
-            await _refreshTask;
-
+        var refreshing = _refreshTask;
         _refreshTask = null;
+        try
+        {
+            if (refreshing is not null)
+                await refreshing;
+        }
+        catch (Exception ex)
+        {
+            // A failed refresh used to reach the app's "Unexpected exception" message from here.
+            Log.Instance.Trace($"Sensors refresh ended with an error.", ex);
+        }
 
-        UpdateValues(SensorsData.Empty);
+        // Shown again meanwhile (hide, show, hide quickly): its new refresh fills the values; don't blank them.
+        if (!IsVisible)
+            UpdateValues(SensorsData.Empty);
     }
 
     private void Refresh()
@@ -88,15 +98,23 @@ public partial class SensorsControl
         {
             Log.Instance.Trace($"Sensors refresh started...");
 
-            if (!await _controller.IsSupportedAsync())
+            try
             {
-                Log.Instance.Trace($"Sensors not supported.");
+                if (!await _controller.IsSupportedAsync())
+                {
+                    Log.Instance.Trace($"Sensors not supported.");
 
-                Dispatcher.Post(() => Visibility = Visibility.Collapsed);
+                    Dispatcher.Post(() => Visibility = Visibility.Collapsed);
+                    return;
+                }
+
+                await _controller.PrepareAsync();
+            }
+            catch (Exception ex)
+            {
+                Log.Instance.Trace($"Sensors couldn't be prepared.", ex);
                 return;
             }
-
-            await _controller.PrepareAsync();
 
             while (!token.IsCancellationRequested)
             {

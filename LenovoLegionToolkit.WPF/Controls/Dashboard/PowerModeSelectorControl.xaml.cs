@@ -106,10 +106,20 @@ public partial class PowerModeSelectorControl
         });
     });
 
+    /// <summary>A refresh or a click arrived during a refresh; one more refresh runs after it, so the mode shown is the real one.</summary>
+    private bool _refreshAgain;
+
+    /// <summary>True while the segments are being checked from code (their Checked events are not clicks).</summary>
+    private bool _settingSegments;
+
     private async Task RefreshAsync()
     {
         if (_isRefreshing)
+        {
+            // Not dropped: a second Fn+Q during a refresh used to leave the previous mode highlighted.
+            _refreshAgain = true;
             return;
+        }
         _isRefreshing = true;
 
         try
@@ -128,8 +138,16 @@ public partial class PowerModeSelectorControl
                 BuildSegments(states);
 
             _current = current;
-            foreach (var segment in _segments.Children.OfType<RadioButton>())
-                segment.IsChecked = segment.Tag is PowerModeState s && s == current;
+            _settingSegments = true;
+            try
+            {
+                foreach (var segment in _segments.Children.OfType<RadioButton>())
+                    segment.IsChecked = segment.Tag is PowerModeState s && s == current;
+            }
+            finally
+            {
+                _settingSegments = false;
+            }
 
             // A change made elsewhere (the card, Fn+Q, an automation) is reported as the current mode.
             if (_consoleMode != current)
@@ -150,6 +168,12 @@ public partial class PowerModeSelectorControl
         finally
         {
             _isRefreshing = false;
+        }
+
+        if (_refreshAgain)
+        {
+            _refreshAgain = false;
+            await RefreshAsync();
         }
     }
 
@@ -176,8 +200,16 @@ public partial class PowerModeSelectorControl
 
     private async void Segment_Checked(object sender, RoutedEventArgs e)
     {
-        if (_isRefreshing || sender is not RadioButton { Tag: PowerModeState selected })
+        if (_settingSegments || sender is not RadioButton { Tag: PowerModeState selected })
             return;
+
+        if (_isRefreshing)
+        {
+            // A click while the mode is being read: it isn't applied, and the highlight is put back on the real mode
+            // once the read ends (it used to stay on the clicked mode with nothing changed).
+            _refreshAgain = true;
+            return;
+        }
 
         if (selected == _current)
             return;

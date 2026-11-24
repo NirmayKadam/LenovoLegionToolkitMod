@@ -1219,7 +1219,7 @@ Schimbarea modurilor poate necesita repornirea.</value>
     <value>Blocare Fn</value>
   </data>
   <data name="GB" xml:space="preserve">
-    <value>GO</value>
+    <value>GB</value>
   </data>
   <data name="Generation" xml:space="preserve">
     <value>Generare</value>
@@ -3743,7 +3743,7 @@ Salvarea logurilor va fi activată automat dacă alegeți să continuați.</valu
     <value>Garanţie</value>
   </data>
   <data name="Watt" xml:space="preserve">
-    <value>P</value>
+    <value>W</value>
   </data>
   <data name="WhiteKeyboardBacklightAutomationStepControl_Message" xml:space="preserve">
     <value>Reglați luminozitatea iluminării tastaturii.</value>

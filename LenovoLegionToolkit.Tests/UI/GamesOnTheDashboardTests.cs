@@ -15,8 +15,9 @@ namespace LenovoLegionToolkit.Tests.UI;
 /// </summary>
 public class GamesOnTheDashboardTests
 {
+    // Round 23 added the game session report card at the end of the group.
     private static readonly DashboardItem[] GameItems =
-        [DashboardItem.GameDetection, DashboardItem.GameSafeMode, DashboardItem.GameProfiles, DashboardItem.BackgroundServices];
+        [DashboardItem.GameDetection, DashboardItem.GameSafeMode, DashboardItem.GameProfiles, DashboardItem.BackgroundServices, DashboardItem.GameSessions];
 
     [Theory]
     [InlineData(false)]
@@ -28,7 +29,7 @@ public class GamesOnTheDashboardTests
         Assert.Equal(DashboardGroupType.Power, groups[0].Type);
         Assert.Equal(DashboardGroupType.Games, groups[1].Type);
         Assert.Equal(GameItems, groups[1].Items);
-        Assert.Equal("Games", groups[1].GetName());
+        Assert.Equal(Resource.DashboardPage_Games_Title, groups[1].GetName());
         Assert.Equal(supportsItsMode, groups[0].Items.Contains(DashboardItem.ItsMode));
     }
 
@@ -61,16 +62,16 @@ public class GamesOnTheDashboardTests
     public void GameProfileStatus_NamesTheGame_AndThePowerModeItsProfileSet()
     {
         Assert.Null(GameStatusText.GameProfile(null, null));
-        Assert.Equal("Running: Witcher 3", GameStatusText.GameProfile("Witcher 3", null));
-        Assert.Equal("Running: Witcher 3, Performance mode", GameStatusText.GameProfile("Witcher 3", "Performance"));
+        Assert.Equal(string.Format(Resource.GamesCard_Running, "Witcher 3"), GameStatusText.GameProfile("Witcher 3", null));
+        Assert.Equal(string.Format(Resource.GamesCard_RunningWithPowerMode, "Witcher 3", "Performance"), GameStatusText.GameProfile("Witcher 3", "Performance"));
     }
 
     [Fact]
     public void BackgroundServicesStatus_CountsWhatIndraKeepsStopped()
     {
         Assert.Null(GameStatusText.BackgroundServices(false, 3));
-        Assert.Equal("0 stopped while Indra runs", GameStatusText.BackgroundServices(true, 0));
-        Assert.Equal("4 stopped while Indra runs", GameStatusText.BackgroundServices(true, 4));
+        Assert.Equal(string.Format(Resource.GamesCard_ServicesStopped, 0), GameStatusText.BackgroundServices(true, 0));
+        Assert.Equal(string.Format(Resource.GamesCard_ServicesStopped, 4), GameStatusText.BackgroundServices(true, 4));
     }
 
     [Fact]
@@ -80,8 +81,8 @@ public class GamesOnTheDashboardTests
         var xaml = File.ReadAllText(Path.Combine(folder, "SettingsAppBehaviorControl.xaml"));
         var code = File.ReadAllText(Path.Combine(folder, "SettingsAppBehaviorControl.xaml.cs"));
 
-        foreach (var card in new[] { "GameDetectionControl", "GameSafeModeControl", "GameProfilesControl", "BackgroundServicesControl" })
-            Assert.Contains($"<games:{card} />", xaml);
+        foreach (var card in new[] { "GameDetectionControl", "GameSafeModeControl", "GameProfilesControl", "BackgroundServicesControl", "GameSessionsControl" })
+            Assert.Matches($@"<games:{card}\s*/>", xaml);
 
         foreach (var old in new[] { "DetectionModeComboBox_SelectionChanged", "ExcludeProcesses_Click", "GameSafeModeToggle_Click", "GameProfilesButton_Click", "BackgroundServicesCard_Click", "UpdateGameSafeModeStatus" })
         {

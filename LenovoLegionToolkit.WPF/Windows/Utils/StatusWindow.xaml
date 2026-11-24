@@ -472,6 +472,17 @@
                 Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
         </Grid>
 
+        <!--  What runs in the background right now (the dashboard's "Active now"); hidden when nothing does.  -->
+        <TextBlock
+            x:Name="_activeNowLabel"
+            MaxWidth="320"
+            Margin="16,8,16,8"
+            HorizontalAlignment="Left"
+            FontSize="{StaticResource SecondaryFontSize}"
+            Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+            TextWrapping="Wrap"
+            Visibility="Collapsed" />
+
         <Border
             x:Name="_updateIndicator"
             Padding="8,4,8,4"

@@ -147,16 +147,23 @@ public class NotifyIcon : NativeWindow, IDisposable
                 return;
 
             _currentToolTipWindow?.Close();
-            _currentToolTipWindow = await _toolTipWindow();
+            _currentToolTipWindow = null;
 
-            token.ThrowIfCancellationRequested();
+            // Made into a local first: a hover that was cancelled meanwhile mustn't replace (and leave on screen) the
+            // window of the newer hover. Only a show that is still wanted becomes the current window.
+            var window = await _toolTipWindow();
+            if (token.IsCancellationRequested)
+            {
+                window?.Close();
+                return;
+            }
 
+            _currentToolTipWindow = window;
             _currentToolTipWindow?.Show();
         }
         catch (OperationCanceledException)
         {
-            _currentToolTipWindow?.Close();
-            _currentToolTipWindow = null;
+            // Cancelled during the delay: nothing was made, and the current window belongs to a newer hover (or none).
         }
         catch (Exception ex)
         {

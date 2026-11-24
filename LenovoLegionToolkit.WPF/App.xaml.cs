@@ -75,6 +75,14 @@ public partial class App
 
     private static readonly ConcurrentDictionary<string, string> TitleCache = new();
 
+    /// <summary>How long after start-up has finished the start counts as having gone well.</summary>
+    private static readonly TimeSpan StartupSettleTime = TimeSpan.FromSeconds(30);
+
+    private readonly StartupGuard _startupGuard = new(Folders.AppData);
+
+    /// <summary>Notices a window that stops answering; started once start-up has finished.</summary>
+    private UiFreezeWatchdog? _freezeWatchdog;
+
     private Mutex? _singleInstanceMutex;
     private EventWaitHandle? _singleInstanceWaitHandle;
     private bool _showPawnIONotify;
@@ -100,7 +108,9 @@ public partial class App
                 return;
             }
 
-            await InitializeSettingsAndCompatibilityAsync();
+            // Stops here when the laptop isn't supported and the user chose not to continue (the app is closing).
+            if (!await InitializeSettingsAndCompatibilityAsync())
+                return;
             await InitializeHardwareAndFeaturesAsync();
             IoCContainer.Resolve<ExtensionManager>().Load();
             var deferredInitTask = StartBackgroundServicesAsync();
@@ -123,11 +133,19 @@ public partial class App
                 InitAppMessages();
                 LogIdentityStatus();
 
+                if (SafeStart.IsActive)
+                    MessagingCenter.Publish(new NotificationMessage(NotificationType.SafeStart, Resource.SafeStart_Notification));
+
+                _freezeWatchdog = new UiFreezeWatchdog(Dispatcher);
+                _freezeWatchdog.Start();
+
                 if (AppFlags.Instance.Debug)
                 {
                     Console.WriteLine(@"[Startup] Startup Complete.");
                 }
             });
+
+            _ = CompleteStartupLaterAsync();
         }
         catch (Exception ex)
         {
@@ -139,6 +157,21 @@ public partial class App
             }
 
             HandleCriticalStartupError(ex);
+        }
+    }
+
+    /// <summary>The start went well once everything has run for <see cref="StartupSettleTime"/>; the next start is normal.</summary>
+    private async Task CompleteStartupLaterAsync()
+    {
+        try
+        {
+            await Task.Delay(StartupSettleTime);
+            _startupGuard.Complete();
+            Log.Instance.Trace($"Start-up finished and settled.");
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Couldn't note the finished start.", ex);
         }
     }
 
@@ -183,6 +216,14 @@ public partial class App
             return false;
         }
 
+        // The previous start didn't finish (it crashed, froze and was ended, or the laptop went down): apply no hardware
+        // settings this time, so a setting that brought the start down can't do it again and again.
+        if (_startupGuard.Begin(Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? string.Empty))
+        {
+            SafeStart.Activate(_startupGuard.UnfinishedStartedAt);
+            Log.Instance.Trace($"Safe start: the previous start didn't finish. [startedAt={_startupGuard.UnfinishedStartedAt?.ToString("s") ?? "unknown"}]");
+        }
+
         // Stays on the UI thread. With Detailed log on, this used to move the rest of start-up (the IoC container and
         // the singletons it starts) to a pool thread, so start-up ran differently with and without the log.
         await Compatibility.PrintMachineInfoAsync();
@@ -203,17 +244,21 @@ public partial class App
         return true;
     }
 
-    private async Task InitializeSettingsAndCompatibilityAsync()
+    /// <summary>False when the app is closing because the compatibility check said so: nothing else may start then.</summary>
+    private async Task<bool> InitializeSettingsAndCompatibilityAsync()
     {
         if (AppFlags.Instance.Debug)
         {
             Console.WriteLine(@"[Startup] Setting Language and Checking Compatibility...");
         }
 
-        await Task.WhenAll(
-            LocalizationHelper.SetLanguageAsync(true),
-            CheckCompatibilityAsyncWrapper(AppFlags.Instance)
-        );
+        var language = LocalizationHelper.SetLanguageAsync(true);
+        var compatible = CheckCompatibilityAsyncWrapper(AppFlags.Instance);
+        await Task.WhenAll(language, compatible);
+
+        // Shutdown only queues the exit; start-up used to carry on and begin hardware set-up on an unsupported laptop.
+        if (!compatible.Result)
+            return false;
 
         if (AppFlags.Instance.Debug)
         {
@@ -239,6 +284,7 @@ public partial class App
         CardControl.IsCompact = settings.Store.CompactMode;
 
         ConfigureFeatureFlags();
+        return true;
     }
 
     private async Task InitializeHardwareAndFeaturesAsync()
@@ -261,7 +307,6 @@ public partial class App
             SafeInitAsync(InitRgbKeyboardControllerAsync, "RGB Keyboard"),
             SafeInitAsync(InitSpectrumKeyboardControllerAsync, "Spectrum Keyboard"),
             SafeInitAsync(InitGpuOverclockControllerAsync, "GPU Overclock"),
-            SafeInitAsync(InitSensorsGroupControllerFeatureAsync, "Sensors Group"),
             SafeInitAsync(InitHybridModeAsync, "Hybrid Mode"),
             SafeInitAsync(InitAutomationProcessorAsync, "Automation Processor"),
             SafeInitAsync(InitLampArrayControllerAsync, "LampArray"),
@@ -303,7 +348,25 @@ public partial class App
             await SafeInitAsync(InitAIControllerAsync, "AI Controller");
             await SafeInitAsync(InitHWiNFOAsync, "HWiNFO Integration");
             await SafeInitAsync(InitIpcServerAsync, "IPC Server");
+
+            // Detailed sensors (LibreHardwareMonitor, PawnIO) take about 5 s to set up. The window used to wait for them;
+            // now it opens first and the sensor cards fill in when they are ready.
+            await SafeInitAsync(InitSensorsGroupControllerFeatureAsync, "Sensors Group");
+            await Dispatcher.InvokeAsync(ShowPawnIONotifyIfNeeded);
         });
+    }
+
+    /// <summary>
+    /// The PawnIO notice, once, when the sensor set-up found a problem: called when the window has opened and when the
+    /// set-up has finished, whichever is later. Not on a start to the tray.
+    /// </summary>
+    private void ShowPawnIONotifyIfNeeded()
+    {
+        if (!_showPawnIONotify || AppFlags.Instance.Minimized || MainWindowInstance is null)
+            return;
+
+        _showPawnIONotify = false;
+        PawnIOHelper.ShowPawnIONotify();
     }
 
     private async Task InitializeUIAsync()
@@ -346,10 +409,7 @@ public partial class App
         else
         {
             mainWindow.Show();
-            if (_showPawnIONotify)
-            {
-                PawnIOHelper.ShowPawnIONotify();
-            }
+            ShowPawnIONotifyIfNeeded();
 
             await ShowLegacyPluginNoticeIfNeededAsync();
             ShowTourIfNeeded();
@@ -467,6 +527,8 @@ public partial class App
     private void Application_Exit(object sender, ExitEventArgs e)
     {
         NoteCleanExitForGpuOverclock();
+        // A normal exit, even one soon after starting, is not a start that failed.
+        _startupGuard.Complete();
         _singleInstanceMutex?.Close();
     }
 
@@ -527,6 +589,9 @@ public partial class App
             Log.Instance.Trace($"Shutdown already in progress.");
             return;
         }
+
+        // Shutting down keeps the window busy on purpose; that isn't a freeze.
+        _freezeWatchdog?.Stop();
 
         try
         {
@@ -661,7 +726,9 @@ public partial class App
 
     private void ExecuteShutdownLogic()
     {
+        _freezeWatchdog?.Stop();
         NoteCleanExitForGpuOverclock();
+        _startupGuard.Complete();
 
         var overclockController = IoCContainer.Resolve<AmdOverclockingController>();
 
@@ -680,11 +747,12 @@ public partial class App
 
     #region Compatibility Check
 
-    private async Task CheckCompatibilityAsyncWrapper(AppFlags flags)
+    /// <summary>True to carry on starting; false when the app is shutting down (unsupported laptop, or the check failed).</summary>
+    private async Task<bool> CheckCompatibilityAsyncWrapper(AppFlags flags)
     {
         if (flags.SkipCompatibilityCheck)
         {
-            return;
+            return true;
         }
 
         try
@@ -700,7 +768,7 @@ public partial class App
             if (isBasicCompatible || isFullCompatible)
             {
                 Log.Instance.Trace($"Compatibility check passed. (Basic={isBasicCompatible}, Full={isFullCompatible}) [Vendor={mi.Vendor}, Model={mi.Model}, MachineType={mi.MachineType}, BIOS={mi.BiosVersion}]");
-                return;
+                return true;
             }
 
             Log.Instance.Trace($"Incompatible system detected. [Vendor={mi.Vendor}, Model={mi.Model}, MachineType={mi.MachineType}, BIOS={mi.BiosVersion}]");
@@ -712,10 +780,11 @@ public partial class App
             {
                 Log.Instance.IsTraceEnabled = true;
                 Log.Instance.Trace($"Compatibility check OVERRIDE. [Vendor={mi.Vendor}, Model={mi.Model}, MachineType={mi.MachineType}]");
-                return;
+                return true;
             }
 
             Shutdown(202);
+            return false;
         }
         catch (Exception ex)
         {
@@ -727,6 +796,7 @@ public partial class App
             Log.Instance.Trace($"Failed to check device compatibility", ex);
             MessageBox.Show(Resource.CompatibilityCheckError_Message, Resource.AppName, MessageBoxButton.OK, MessageBoxImage.Error);
             Shutdown(200);
+            return false;
         }
     }
 
@@ -742,9 +812,13 @@ public partial class App
             mw.Close();
         }
 
+        // Same start-up choices as the first window (a language change used to bring back the tray tooltip and the
+        // conflicting-software warnings that --disable-tray-tooltip and friends had turned off).
         MainWindow = MainWindowInstance = new MainWindow
         {
-            WindowStartupLocation = WindowStartupLocation.CenterScreen
+            WindowStartupLocation = WindowStartupLocation.CenterScreen,
+            TrayTooltipEnabled = !AppFlags.Instance.DisableTrayTooltip,
+            DisableConflictingSoftwareWarning = AppFlags.Instance.DisableConflictingSoftwareWarning
         };
 
         MainWindow.Show();
@@ -788,7 +862,8 @@ public partial class App
         {
             while (_singleInstanceWaitHandle.WaitOne())
             {
-                Dispatcher.BeginInvoke(async () =>
+                // Post (not BeginInvoke with an async lambda): an error in the shutdown is logged, not left to end the app.
+                Dispatcher.Post(async () =>
                 {
                     if (MainWindow is { } window)
                     {
@@ -947,11 +1022,17 @@ public partial class App
 
     private static Task<bool> InitITSModeFeatureAsync()
     {
+        if (SafeStart.Skips("the ITS mode"))
+            return Task.FromResult(false);
+
         return IoCContainer.Resolve<ITSModeFeature>().RestoreStateAsync();
     }
 
     private static async Task<bool> InitPowerModeFeatureAsync()
     {
+        if (SafeStart.Skips("God Mode and the Windows power settings"))
+            return false;
+
         try
         {
             var feature = IoCContainer.Resolve<PowerModeFeature>();
@@ -1018,7 +1099,8 @@ public partial class App
         {
             var ap = IoCContainer.Resolve<AutomationProcessor>();
             await ap.InitializeAsync();
-            ap.RunOnStartup();
+            if (!SafeStart.Skips("automations that run at start-up"))
+                ap.RunOnStartup();
             return true;
         }
         catch (Exception ex)
@@ -1161,6 +1243,9 @@ public partial class App
 
     private static async Task<bool> InitGpuOverclockControllerAsync()
     {
+        if (SafeStart.Skips("the GPU overclock"))
+            return false;
+
         try
         {
             var controller = IoCContainer.Resolve<GPUOverclockController>();
@@ -1181,6 +1266,9 @@ public partial class App
 
     private static async Task<bool> InitAMDOverclocking()
     {
+        if (SafeStart.Skips("AMD overclocking"))
+            return false;
+
         try
         {
             var feature = IoCContainer.Resolve<AmdOverclockingController>();
@@ -1209,6 +1297,9 @@ public partial class App
 
     private static async Task<bool> PostApplyAmdOverclockingProfileAsync()
     {
+        if (SafeStart.Skips("the AMD overclocking profile"))
+            return false;
+
         var feature = IoCContainer.Resolve<AmdOverclockingController>();
 
         if (feature.IsActive() && !feature.DoNotApply && feature.IsSupported())
@@ -1275,8 +1366,10 @@ public partial class App
         controller.Start(IoCContainer.Resolve<Lib.Listeners.PowerModeListener>(), IoCContainer.Resolve<Lib.Listeners.PowerStateListener>());
         IoCContainer.Resolve<Lib.Controllers.PowerModeProfileReader>().UserFanCurve = controller.CurveInUse;
 
-        // The firmware starts with its own curve, so the current mode's curve is applied once now.
-        _ = Task.Run(controller.ApplyForCurrentModeAsync);
+        // The firmware starts with its own curve, so the current mode's curve is applied once now (not in a safe start;
+        // a mode change by the user still applies it).
+        if (!SafeStart.Skips("the fan curve"))
+            Task.Run(controller.ApplyForCurrentModeAsync).Forget("Applying the fan curve");
     }
 
     /// <summary>
@@ -1296,17 +1389,24 @@ public partial class App
 
             // A game session starts the services it paused again; the ones kept stopped for normal use stop again.
             if (!report.Started)
-                _ = Task.Run(backgroundServices.ApplyAsync);
+                Task.Run(backgroundServices.ApplyAsync).Forget("Stopping the chosen background services");
         };
 
-        _ = Task.Run(controller.StartAsync);
-        _ = Task.Run(backgroundServices.ApplyAsync);
+        Task.Run(controller.StartAsync).Forget("Starting game profiles");
+        Task.Run(backgroundServices.ApplyAsync).Forget("Stopping the chosen background services");
 
         // GPU driver errors are reported with what had just changed (power mode, Afterburner profile, game).
         IoCContainer.Resolve<GpuDriverErrorMonitor>().Start();
 
         // Read-only Health check: two minutes from now, then once a day.
         IoCContainer.Resolve<HealthMonitor>().Start();
+
+        // Read-only game session report: a summary after each game.
+        var gameSessions = IoCContainer.Resolve<Lib.GameSessions.GameSessionRecorder>();
+        gameSessions.SessionEnded += (_, report) => MessagingCenter.Publish(new NotificationMessage(
+            NotificationType.GameSessionReport,
+            GameSessionText.Summary(report, IoCContainer.Resolve<ApplicationSettings>().Store.TemperatureUnit)));
+        _ = LogFailureAsync(Task.Run(gameSessions.ApplySettingAsync), "Starting the game session report");
     }
 
     private void HandleOsdCommand(ToggleState command, bool notify = false)

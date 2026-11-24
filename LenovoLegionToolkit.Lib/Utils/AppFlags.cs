@@ -146,6 +146,9 @@ public class AppFlags
         set { _disableConflictingSoftwareWarning = value; Save(); }
     }
 
+    /// <summary>Whether the debug flag is on; false before the flags are read (in tests, before start-up).</summary>
+    public static bool DebugFlagOn => _instance is { Debug: true };
+
     public static void Initialize(IEnumerable<string>? startupArgs)
     {
         _instance = new AppFlags(startupArgs);

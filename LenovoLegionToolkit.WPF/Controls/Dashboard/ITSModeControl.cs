@@ -57,14 +57,15 @@ public class ITSModeControl : AbstractComboBoxFeatureCardControl<ITSMode>
         window.ShowDialog();
     }
 
-    private async void ITSModeListener_Changed(object? sender, ITSModeListener.ChangedEventArgs e)
+    /// <summary>
+    /// Raised on the listener's own thread, where an error escaping an async handler ends the whole app (for example the
+    /// UI thread refusing work while Indra closes). It is posted to the UI thread instead, where errors are logged.
+    /// </summary>
+    private void ITSModeListener_Changed(object? sender, ITSModeListener.ChangedEventArgs e) => Dispatcher.Post(async () =>
     {
-        await Dispatcher.InvokeAsync(async () =>
-        {
-            if (IsLoaded && IsVisible)
-                await RefreshAsync();
-        });
-    }
+        if (IsLoaded && IsVisible)
+            await RefreshAsync();
+    });
 
     private async void ITSModeControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
     {

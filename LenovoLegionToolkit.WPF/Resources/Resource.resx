@@ -6729,4 +6729,142 @@ When the game ends, LLT puts the apps&apos; priority and the services back. It n
   <data name="App_RestartFailed_Message" xml:space="preserve">
     <value>Indra couldn&apos;t restart itself. Close Indra and open it again. Until then, changes to settings aren&apos;t saved.</value>
   </data>
+  <data name="SafeStart_Notification" xml:space="preserve">
+    <value>Safe start: Indra&apos;s last start didn&apos;t finish, so this time it didn&apos;t apply power mode, overclock or fan curve settings. The next start applies them normally.</value>
+  </data>
+  <data name="ActiveNow_Label" xml:space="preserve">
+    <value>Active now</value>
+  </data>
+  <data name="ActiveNow_SafeStart" xml:space="preserve">
+    <value>Safe start</value>
+  </data>
+  <data name="ActiveNow_SafeStart_Tip" xml:space="preserve">
+    <value>Indra&apos;s last start didn&apos;t finish, so this time it didn&apos;t apply power mode, overclock or fan curve settings. The next start applies them normally.</value>
+  </data>
+  <data name="ActiveNow_Game" xml:space="preserve">
+    <value>Game: {0}</value>
+  </data>
+  <data name="ActiveNow_Game_Tip" xml:space="preserve">
+    <value>Game detection counts this as a running game; AI mode and automations react to it. If it isn&apos;t a game, exclude it in Games → Game detection → Process Rules.</value>
+  </data>
+  <data name="ActiveNow_GameProfile" xml:space="preserve">
+    <value>Game profile: {0}</value>
+  </data>
+  <data name="ActiveNow_GameProfile_Tip" xml:space="preserve">
+    <value>This game&apos;s profile is in effect. Everything it changed is put back when the game ends.</value>
+  </data>
+  <data name="ActiveNow_GameSafe" xml:space="preserve">
+    <value>Game-safe mode</value>
+  </data>
+  <data name="ActiveNow_GameSafe_Tip" xml:space="preserve">
+    <value>A game with a kernel anti-cheat runs: detailed sensors, macros and the keyboard hook are paused until it ends.</value>
+  </data>
+  <data name="ActiveNow_AiBoost" xml:space="preserve">
+    <value>AI mode boost</value>
+  </data>
+  <data name="ActiveNow_AiBoost_Tip" xml:space="preserve">
+    <value>AI mode has the firmware&apos;s game boost on (Balance mode, a game running, charger connected). It turns off when the game ends.</value>
+  </data>
+  <data name="ActiveNow_FanCurve" xml:space="preserve">
+    <value>Fan curve: {0}</value>
+  </data>
+  <data name="ActiveNow_FanCurve_Tip" xml:space="preserve">
+    <value>Your own fan curve for this power mode is in use instead of the firmware&apos;s. Change it in Fan curves.</value>
+  </data>
+  <data name="ActiveNow_Services" xml:space="preserve">
+    <value>{0} services stopped</value>
+  </data>
+  <data name="ActiveNow_Services_Tip" xml:space="preserve">
+    <value>Background services Indra keeps stopped while it runs (Games → Background services). They start again when Indra exits.</value>
+  </data>
+  <data name="ActiveNow_Afterburner" xml:space="preserve">
+    <value>MSI Afterburner</value>
+  </data>
+  <data name="ActiveNow_Afterburner_Tip" xml:space="preserve">
+    <value>MSI Afterburner is running, so Indra leaves GPU clocks and overclocking to it.</value>
+  </data>
+  <data name="GameSessions_Title" xml:space="preserve">
+    <value>Game session report</value>
+  </data>
+  <data name="GameSessions_Message" xml:space="preserve">
+    <value>After each game: play time, FPS, highest temperatures and any GPU driver errors, with what the GPU was doing just before. Only reads; changes nothing.</value>
+  </data>
+  <data name="GameSessions_None" xml:space="preserve">
+    <value>No game sessions yet.</value>
+  </data>
+  <data name="GameSessions_Last" xml:space="preserve">
+    <value>Last: {0}</value>
+  </data>
+  <data name="GameSessions_History" xml:space="preserve">
+    <value>History</value>
+  </data>
+  <data name="GameSessions_WindowTitle" xml:space="preserve">
+    <value>Game sessions</value>
+  </data>
+  <data name="GameSessions_Fps" xml:space="preserve">
+    <value>{0} FPS</value>
+  </data>
+  <data name="GameSessions_FpsWithLow" xml:space="preserve">
+    <value>{0} FPS ({1} at 1% low)</value>
+  </data>
+  <data name="GameSessions_NoFps" xml:space="preserve">
+    <value>FPS not measured (show FPS in the OSD to include it)</value>
+  </data>
+  <data name="GameSessions_CpuMax" xml:space="preserve">
+    <value>CPU {0} max</value>
+  </data>
+  <data name="GameSessions_GpuMax" xml:space="preserve">
+    <value>GPU {0} max</value>
+  </data>
+  <data name="GameSessions_DriverErrors" xml:space="preserve">
+    <value>{0} GPU driver error(s)</value>
+  </data>
+  <data name="GameSessions_UnknownGame" xml:space="preserve">
+    <value>Game</value>
+  </data>
+  <data name="GameSessions_Started" xml:space="preserve">
+    <value>Started {0}</value>
+  </data>
+  <data name="GameSessions_GpuClock" xml:space="preserve">
+    <value>GPU clock {0} MHz on average</value>
+  </data>
+  <data name="GameSessions_GpuPower" xml:space="preserve">
+    <value>GPU power up to {0} W</value>
+  </data>
+  <data name="GameSessions_DriverError" xml:space="preserve">
+    <value>GPU driver error at {0}: {1}</value>
+  </data>
+  <data name="GameSessions_DriverErrorNoReadings" xml:space="preserve">
+    <value>GPU driver error at {0} (no GPU readings from just before)</value>
+  </data>
+  <data name="Help_Settings_GameSessions_What" xml:space="preserve">
+    <value>While a game runs, Indra notes temperatures, GPU clock and load every 2 seconds, GPU power when detailed sensors are on, and FPS when the OSD measures it. When the game ends you get a short summary; the last 30 are kept here.</value>
+  </data>
+  <data name="Help_Settings_GameSessions_When" xml:space="preserve">
+    <value>Useful when tuning an undervolt or overclock: a GPU driver error during a game shows the GPU clock, temperature and power from just before it. Sessions under a minute aren&apos;t kept.</value>
+  </data>
+  <data name="Help_Settings_GameSessions_Risk" xml:space="preserve">
+    <value>It only reads. While on, game detection keeps running; it never opens a game&apos;s process.</value>
+  </data>
+  <data name="GameSessions_Afterburner" xml:space="preserve">
+    <value>MSI Afterburner profile applied by Indra: {0}</value>
+  </data>
+  <data name="GameSessions_AfterburnerShort" xml:space="preserve">
+    <value>Afterburner profile {0}</value>
+  </data>
+  <data name="GameSessions_AfterburnerNote" xml:space="preserve">
+    <value>Afterburner profiles shown are the ones Indra applied (automations); profiles you switch in Afterburner itself aren&apos;t seen.</value>
+  </data>
+  <data name="GameSessions_ExportCsv" xml:space="preserve">
+    <value>Export CSV</value>
+  </data>
+  <data name="GameSessions_Exported" xml:space="preserve">
+    <value>Saved: {0}</value>
+  </data>
+  <data name="GameSessions_ExportFailed" xml:space="preserve">
+    <value>Couldn&apos;t save the file: {0}</value>
+  </data>
+  <data name="UiFreeze_Notification" xml:space="preserve">
+    <value>Indra&apos;s window didn&apos;t respond for {0} s ({1}). A report was saved in the log folder.</value>
+  </data>
 </root>

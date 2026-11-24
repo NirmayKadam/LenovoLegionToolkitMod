@@ -24,7 +24,7 @@ public class UpdateChecker
     public static readonly Uri LatestReleasePage = new($"https://github.com/{RepositoryOwner}/{RepositoryName}/releases/latest");
 
     private readonly HttpClientFactory _httpClientFactory;
-    private readonly UpdateSettings _updateSettings = IoCContainer.Resolve<UpdateSettings>();
+    private readonly UpdateSettings _updateSettings;
     private readonly AsyncLock _updateSemaphore = new();
 
     private DateTime _lastUpdate;
@@ -34,9 +34,13 @@ public class UpdateChecker
     public bool Disable { get; set; }
     public UpdateCheckStatus Status { get; set; }
 
-    public UpdateChecker(HttpClientFactory httpClientFactory)
+    public UpdateChecker(HttpClientFactory httpClientFactory) : this(httpClientFactory, IoCContainer.Resolve<UpdateSettings>()) { }
+
+    /// <summary>For tests: the update settings (and their folder) are supplied by the caller.</summary>
+    internal UpdateChecker(HttpClientFactory httpClientFactory, UpdateSettings updateSettings)
     {
         _httpClientFactory = httpClientFactory;
+        _updateSettings = updateSettings;
 
         UpdateMinimumTimeSpanForRefresh();
         _lastUpdate = _updateSettings.Store.LastUpdateCheckDateTime ?? DateTime.MinValue;
@@ -54,12 +58,14 @@ public class UpdateChecker
             }
 
             var shouldCheck = DateTime.UtcNow - _lastUpdate > _minimumTimeSpanForRefresh;
+            if (!forceCheck && !shouldCheck)
+                return _updates.Length != 0 ? _updates.First().Version : null;
 
+            // Only a real check (below) moves the time of the last check. The early return above was inside this try
+            // and its finally, so opening the window or hovering the tray at least hourly pushed the check back each time
+            // (it never ran), and the settings file was written on every call.
             try
             {
-                if (!forceCheck && !shouldCheck)
-                    return _updates.Length != 0 ? _updates.First().Version : null;
-
                 Log.Instance.Trace($"Checking GitHub for updates... [repository={RepositoryOwner}/{RepositoryName}]");
 
                 _updates = [];

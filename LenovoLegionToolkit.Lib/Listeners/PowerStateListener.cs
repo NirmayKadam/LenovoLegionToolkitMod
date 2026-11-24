@@ -163,18 +163,43 @@ public sealed class PowerStateListener : IListener<PowerStateListener.ChangedEve
         await ProcessPowerEventAsync(powerStateEvent).ConfigureAwait(false);
     }
 
+    /// <summary>A second resume this soon after the first is Windows' duplicate of it, not a new wake-up.</summary>
+    internal static readonly TimeSpan DuplicateResumeWindow = TimeSpan.FromSeconds(10);
+
+    /// <summary>Whether a resume at <paramref name="nowMs"/> repeats the one handled at <paramref name="lastResumeAtMs"/>.</summary>
+    internal static bool IsDuplicateResume(long? lastResumeAtMs, long nowMs) =>
+        lastResumeAtMs is { } last && nowMs - last < DuplicateResumeWindow.TotalMilliseconds;
+
+    /// <summary>When the last resume was handled (steady clock); cleared by a suspend. Guarded by <see cref="_processingLock"/>.</summary>
+    private long? _lastResumeAtMs;
+
     private async Task ProcessPowerEventAsync(PowerStateEvent powerStateEvent)
     {
-        // Windows delivers suspend/resume through two routes (SystemEvents and the native callback). An event that
-        // arrives while another is still being handled is almost always that duplicate, so it is skipped, and said so.
-        if (!await _processingLock.WaitAsync(TimeSpan.FromSeconds(5)).ConfigureAwait(false))
+        // Events are handled one at a time and none is dropped: a power adapter change or a suspend that arrives while
+        // a slow resume is handled waits for it (it used to be dropped after 5 s).
+        if (!await _processingLock.WaitAsync(TimeSpan.FromSeconds(60)).ConfigureAwait(false))
         {
-            Log.Instance.Trace($"Skipped {powerStateEvent}: another power event is still being handled.");
+            Log.Instance.Trace($"Skipped {powerStateEvent}: the previous power event has been handled for over a minute.");
             return;
         }
 
         try
         {
+            // Windows delivers resume through two routes (SystemEvents and the native callback) on some laptops. The
+            // second copy used to run the whole resume sequence again; it is recognised by time now.
+            switch (powerStateEvent)
+            {
+                case PowerStateEvent.Resume when IsDuplicateResume(_lastResumeAtMs, Environment.TickCount64):
+                    Log.Instance.Trace($"Skipped a second resume event: Windows reported the same wake-up twice.");
+                    return;
+                case PowerStateEvent.Resume:
+                    _lastResumeAtMs = Environment.TickCount64;
+                    break;
+                case PowerStateEvent.Suspend:
+                    _lastResumeAtMs = null;
+                    break;
+            }
+
             var powerAdapterState = await Power.IsPowerAdapterConnectedAsync().ConfigureAwait(false);
             Log.Instance.Trace($"Handle {powerStateEvent}. [newState={powerAdapterState}]");
 

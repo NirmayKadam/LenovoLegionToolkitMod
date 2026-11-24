@@ -60,14 +60,5 @@ public class TimeLimitTests
         await TimeLimit.WithinAsync(Task.CompletedTask, TimeSpan.FromSeconds(5), "test");
     }
 
-    [Fact]
-    public async Task ThrottledEventWork_LogsItsError_InsteadOfThrowingIntoTheEventHandler()
-    {
-        var dispatcher = new ThrottleLastDispatcher(TimeSpan.FromMilliseconds(10));
-
-        await dispatcher.DispatchLoggingErrorsAsync(() => throw new InvalidOperationException("refresh failed"));
-
-        // The plain dispatch still passes errors on, for callers that handle them.
-        await Assert.ThrowsAsync<InvalidOperationException>(() => dispatcher.DispatchAsync(() => throw new InvalidOperationException("refresh failed")));
-    }
+    // Throttled event work logging its error: BackgroundTaskTests, which reads a real log.
 }

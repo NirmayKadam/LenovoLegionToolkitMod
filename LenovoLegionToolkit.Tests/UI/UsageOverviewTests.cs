@@ -90,7 +90,7 @@ public class UsageOverviewTests
         var code = File.ReadAllText(Path.Combine(HelpContentTests.FindRepositoryRoot(), "LenovoLegionToolkit.WPF", "Pages", "DashboardPage.xaml.cs")).Replace("\r\n", "\n");
 
         // Inserted before the content first, so the sensor cards, inserted at the same place afterwards, come below it.
-        Assert.Contains("_panel.Children.Insert(_panel.Children.IndexOf(_content), _usageOverview);\n        RefreshSensorControl();", code);
+        Assert.Matches(@"_panel\.Children\.Insert\(\s*_panel\.Children\.IndexOf\(\s*_content\s*\)\s*,\s*_usageOverview\s*\)\s*;\s*RefreshSensorControl\(\s*\)\s*;", code);   // spacing may differ
         Assert.Equal(2, code.Split("_usageOverview.Visibility = _dashboardSettings.Store.ShowSensors").Length - 1);
     }
 }

@@ -3,8 +3,15 @@ using static LenovoLegionToolkit.Lib.Settings.SunriseSunsetSettings;
 
 namespace LenovoLegionToolkit.Lib.Settings;
 
-public class SunriseSunsetSettings() : AbstractSettings<SunriseSunsetSettingsStore>("sunrise_sunset.json")
+public class SunriseSunsetSettings : AbstractSettings<SunriseSunsetSettingsStore>
 {
+    private const string FileName = "sunrise_sunset.json";
+
+    public SunriseSunsetSettings() : base(FileName) { }
+
+    /// <summary>For tests: the settings file lives in <paramref name="folder"/>.</summary>
+    internal SunriseSunsetSettings(string folder) : base(FileName, folder) { }
+
     public class SunriseSunsetSettingsStore
     {
         public DateTime? LastCheckDateTime { get; set; }

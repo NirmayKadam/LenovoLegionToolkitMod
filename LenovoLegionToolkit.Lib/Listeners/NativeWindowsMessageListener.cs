@@ -360,7 +360,7 @@ public class NativeWindowsMessageListener : NativeWindow, IListener<NativeWindow
 
     private void OnBatterySaverEnabled()
     {
-        Task.Run(async () => await _powerModeFeature.EnsureCorrectWindowsPowerSettingsAreSetAsync().ConfigureAwait(false));
+        Task.Run(() => _powerModeFeature.EnsureCorrectWindowsPowerSettingsAreSetAsync()).Forget("Re-applying the Windows power settings after battery saver turned on");
 
         RaiseChanged(NativeWindowsMessage.BatterySaverEnabled);
     }
@@ -406,7 +406,7 @@ public class NativeWindowsMessageListener : NativeWindow, IListener<NativeWindow
         {
             if (await _dgpuNotify.IsSupportedAsync().ConfigureAwait(false))
                 await _dgpuNotify.NotifyAsync().ConfigureAwait(false);
-        });
+        }).Forget("Telling the dGPU about a display change");
 
         RaiseChanged(NativeWindowsMessage.DisplayDeviceChanged);
     }

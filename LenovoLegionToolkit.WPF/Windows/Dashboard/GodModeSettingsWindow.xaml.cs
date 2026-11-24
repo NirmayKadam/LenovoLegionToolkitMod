@@ -363,7 +363,7 @@ public partial class GodModeSettingsWindow
         SetVal(_overclockingToggle, defaults.EnableOverclocking, v =>
         {
             _overclockingToggle.IsChecked = v;
-            _ = UpdateOverclockingVisibilityAsync();
+            UpdateOverclockingVisibilityAsync().Forget("Showing the overclocking settings");   // reads the firmware; an error is logged
         });
         SetVal(_coreCurveToggle, defaults.EnableAllCoreCurveOptimizer, v => { _coreCurveToggle.IsChecked = v; });
         SetVal(_gpuPowerBoostControl, defaults.GPUPowerBoost, v => { _gpuPowerBoostControl.Value = v; });
@@ -374,24 +374,35 @@ public partial class GodModeSettingsWindow
 
         if (_fanCurveCardControl.Visibility == Visibility.Visible && defaults.FanTable is { } fanTable)
         {
-            var state = await _godModeController.GetStateAsync();
-            var preset = state.Presets[state.ActivePresetId];
-            if (preset.FanTableInfo?.Data is { } data)
-            {
-                FanTableInfo defaultTableInfo = new FanTableInfo(data, fanTable);
-                FanTable minimum = await _godModeController.GetMinimumFanTableAsync();
-
-                if (FanControl is Controls.FanCurveControl v1)
-                {
-                    v1.SetFanTableInfo(defaultTableInfo, minimum);
-                }
-                else if (FanControl is Controls.FanCurveControlV2 v2)
-                {
-                    v2.SetFanTableInfo(defaultTableInfo, minimum);
-                }
-            }
+            // The fan curve's defaults need two firmware reads. A failure there used to end in the general
+            // "Unexpected exception" message, with the other defaults already filled in; now it is said, and they stay.
+            await UiErrors.RunAsync("Loading the default fan curve", () => SetDefaultFanCurveAsync(fanTable));
         }
 
+        SetDefaultsRest(defaults);
+    }
+
+    private async Task SetDefaultFanCurveAsync(FanTable fanTable)
+    {
+        var state = await _godModeController.GetStateAsync();
+        if (!state.Presets.TryGetValue(state.ActivePresetId, out var preset) || preset.FanTableInfo?.Data is not { } data)
+            return;
+
+        FanTableInfo defaultTableInfo = new FanTableInfo(data, fanTable);
+        FanTable minimum = await _godModeController.GetMinimumFanTableAsync();
+
+        if (FanControl is Controls.FanCurveControl v1)
+        {
+            v1.SetFanTableInfo(defaultTableInfo, minimum);
+        }
+        else if (FanControl is Controls.FanCurveControlV2 v2)
+        {
+            v2.SetFanTableInfo(defaultTableInfo, minimum);
+        }
+    }
+
+    private void SetDefaultsRest(GodModeDefaults defaults)
+    {
         if (_fanFullSpeedCardControl.Visibility == Visibility.Visible && defaults.FanFullSpeed is { } ffs)
         {
             _fanFullSpeedToggle.IsChecked = ffs;

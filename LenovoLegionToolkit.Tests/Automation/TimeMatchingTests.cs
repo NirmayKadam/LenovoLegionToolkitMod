@@ -51,6 +51,10 @@ public class TimeMatchingTests
 
         Assert.Equal(mondayEvent.Time, savedUtc.UtcToLocal(Ist));
         Assert.True(TimeTriggerMatching.IsDayMatching([DayOfWeek.Monday], savedUtc.UtcToLocal(Ist), mondayEvent.Day, savedUtc.UtcToLocal(Ist)));
+
+        // And the UTC day itself (Sunday) is not taken for the selected Monday.
+        Assert.Equal(DayOfWeek.Monday, mondayEvent.Day);
+        Assert.False(TimeTriggerMatching.IsDayMatching([DayOfWeek.Monday], savedUtc.UtcToLocal(Ist), DayOfWeek.Sunday, savedUtc.UtcToLocal(Ist)));
     }
 
     [Fact]

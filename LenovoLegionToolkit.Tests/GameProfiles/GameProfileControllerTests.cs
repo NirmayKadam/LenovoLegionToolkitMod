@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using LenovoLegionToolkit.Lib;
 using LenovoLegionToolkit.Lib.GameProfiles;
@@ -50,8 +51,29 @@ public sealed class GameProfileControllerTests : IDisposable
         public void AddService(string name, bool running = true, bool canStop = true, bool driver = false, bool dependents = false) =>
             Services[name] = new ServiceInfo(name, name, driver, running, canStop, dependents);
 
-        public IReadOnlyList<int> FindByName(string exeName) =>
-            Processes.Where(p => string.Equals(p.Value.Name, exeName, StringComparison.OrdinalIgnoreCase)).Select(p => p.Key).ToList();
+        /// <summary>How long a look at the process list takes (0: at once), and the most looks that overlapped.</summary>
+        public int FindTakesMs { get; set; }
+
+        public int MostFindsAtOnce { get; private set; }
+
+        private int _findsNow;
+
+        public IReadOnlyList<int> FindByName(string exeName)
+        {
+            var now = Interlocked.Increment(ref _findsNow);
+            lock (Processes)
+                MostFindsAtOnce = Math.Max(MostFindsAtOnce, now);
+            try
+            {
+                if (FindTakesMs > 0)
+                    Thread.Sleep(FindTakesMs);
+                return Processes.Where(p => string.Equals(p.Value.Name, exeName, StringComparison.OrdinalIgnoreCase)).Select(p => p.Key).ToList();
+            }
+            finally
+            {
+                Interlocked.Decrement(ref _findsNow);
+            }
+        }
 
         /// <summary>Game processes that have ended, whether or not their end was reported to the controller.</summary>
         public HashSet<int> Ended { get; } = [];
@@ -157,6 +179,19 @@ public sealed class GameProfileControllerTests : IDisposable
         var session = new GameProfileSessionSettings(_dir);
         var controller = new GameProfileController(settings, session, system, (_, ex) => throw ex, () => knownGames);
         return (controller, session);
+    }
+
+    [Fact]
+    public async Task RefreshesAtTheSameMoment_RunOneAfterTheOther()
+    {
+        // The profiles window and Windows' list of known games changing used to refresh at once and subscribe twice.
+        var system = new ScriptedSystem { FindTakesMs = 60 };
+        var (controller, _, reports) = Create(system, Profile());
+
+        await Task.WhenAll(Task.Run(controller.RefreshAsync), Task.Run(controller.RefreshAsync), Task.Run(controller.RefreshAsync));
+
+        Assert.Equal(1, system.MostFindsAtOnce);
+        Assert.Empty(reports);
     }
 
     // ---- Game mode (any game) ----

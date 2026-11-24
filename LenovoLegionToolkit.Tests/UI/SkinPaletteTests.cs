@@ -54,7 +54,7 @@ public class SkinPaletteTests
         PopupCornerRadius = new CornerRadius(6),
     };
 
-    private static SkinPalette ProbePalette()
+    internal static SkinPalette ProbePalette()
     {
         var fluent = SkinPalette.Fluent(true);
         return new SkinPalette
@@ -493,37 +493,6 @@ public class SkinPaletteTests
         });
     }
 
-    [Fact]
-    public void SkinDictionaryMergedLast_WinsOverWpfUiTheme_AndSurvivesThemeSwitch()
-    {
-        // ThemeManager relies on this: WPF-UI's Theme.Apply swaps its theme dictionary in place, so a skin
-        // dictionary merged after it keeps winning across Light/Dark changes. Uses the real WPF-UI calls.
-        StaRunner.Run(() =>
-        {
-            var app = Application.Current ?? new Application();
-            // As in App.xaml.cs: the main window exists (not yet shown) when the theme is first applied.
-            app.MainWindow ??= new Window();
-            var merged = app.Resources.MergedDictionaries;
-            merged.Add(new ThemesDictionary { Theme = ThemeType.Dark });
-
-            var probe = ProbePalette();
-            var skin = probe.ToResourceDictionary();
-            merged.Add(skin);
-
-            Color Resolve(string key) => ((SolidColorBrush)app.FindResource(key)).Color;
-
-            // Not overridden by the skin, so it shows which WPF-UI theme is active.
-            Assert.Equal(Color.FromRgb(0x9D, 0x9D, 0x9D), Resolve("SystemFillColorSolidNeutralBrush"));
-            Assert.Equal(probe.Colors!.TextPrimary, Resolve("TextFillColorPrimaryBrush"));
-
-            Wpf.Ui.Appearance.Theme.Apply(ThemeType.Light, BackgroundType.None, false);
-
-            Assert.Equal(Color.FromRgb(0x8A, 0x8A, 0x8A), Resolve("SystemFillColorSolidNeutralBrush"));
-            Assert.Same(skin, merged[merged.Count - 1]);
-            Assert.Equal(probe.Colors.TextPrimary, Resolve("TextFillColorPrimaryBrush"));
-            Assert.Equal(probe.Colors.ApplicationBackground, Resolve("ApplicationBackgroundBrush"));
-        });
-    }
     private static void Collect(ResourceDictionary dictionary, HashSet<string> keys)
     {
         foreach (var key in dictionary.Keys)

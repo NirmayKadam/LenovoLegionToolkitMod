@@ -45,7 +45,7 @@ public partial class AmdOverclocking : UiWindow
     {
         if (_isInitialized && IsVisible)
         {
-            await LoadFromHardwareAsync();
+            await UiErrors.RunAsync("Reading the CPU overclocking values", LoadFromHardwareAsync);
 
             try
             {

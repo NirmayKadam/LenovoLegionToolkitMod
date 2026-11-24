@@ -3742,7 +3742,7 @@ Click No to disable Hardware Sensor feature.</value>
     <value>Гарантія</value>
   </data>
   <data name="Watt" xml:space="preserve">
-    <value>Пт</value>
+    <value>W</value>
   </data>
   <data name="WhiteKeyboardBacklightAutomationStepControl_Message" xml:space="preserve">
     <value>Налаштуйте підсвітку клавіатури.</value>

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -9,7 +9,9 @@ using LenovoLegionToolkit.Lib;
 using LenovoLegionToolkit.Lib.Automation.Pipeline.Triggers;
 using LenovoLegionToolkit.Lib.Listeners;
 using LenovoLegionToolkit.Lib.System;
+using LenovoLegionToolkit.WPF.Extensions;
 using LenovoLegionToolkit.WPF.Resources;
+using LenovoLegionToolkit.WPF.Utils;
 using Wpf.Ui.Common;
 using Wpf.Ui.Controls;
 
@@ -37,12 +39,16 @@ public partial class DeviceAutomationPipelineTriggerTabItemContent : IAutomation
         _instanceIds = [.. trigger.InstanceIds];
 
         InitializeComponent();
+
+        // Only while on screen: the listener lives as long as the app, and it kept every closed trigger window alive
+        // (each one reloading its device list at every USB plug and unplug).
+        this.WhileLoaded(() => _listener.Changed += NativeWindowsMessageListener_Changed, () => _listener.Changed -= NativeWindowsMessageListener_Changed);
     }
 
     private async void DeviceAutomationPipelineTriggerTabItemContent_Initialized(object? sender, EventArgs e)
     {
         RefreshButtons();
-        await LoadAsync();
+        await UiErrors.RunAsync("Listing the devices", LoadAsync);
     }
 
     private async void NativeWindowsMessageListener_Changed(object? sender, NativeWindowsMessageListener.ChangedEventArgs e)
@@ -50,7 +56,7 @@ public partial class DeviceAutomationPipelineTriggerTabItemContent : IAutomation
         if (e.Message is not NativeWindowsMessage.DeviceConnected and not NativeWindowsMessage.DeviceDisconnected)
             return;
 
-        await LoadAsync();
+        await UiErrors.RunAsync("Listing the devices", LoadAsync);
     }
 
     private async void FilterTextBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -95,12 +101,8 @@ public partial class DeviceAutomationPipelineTriggerTabItemContent : IAutomation
 
     private async Task LoadAsync()
     {
-        _listener.Changed -= NativeWindowsMessageListener_Changed;
-
         _devices.Clear();
         _devices.AddRange(await Task.Run(Devices.GetAll));
-
-        _listener.Changed += NativeWindowsMessageListener_Changed;
 
         Reload();
     }

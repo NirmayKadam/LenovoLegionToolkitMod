@@ -41,14 +41,34 @@ public partial class DashboardPage
         RefreshSensorControl();
         EnsureConfigFilesExist();
 
-        MessagingCenter.Subscribe<SensorDashboardSwappedMessage>(this, _ =>
+        // Only while the page is shown: the message bus keeps its handler, and through it the page and its window, alive.
+        // A language change replaced the window, and each old page stayed in memory and reacted again (one PawnIO notice
+        // per old page). The swap is made in Settings, while this page isn't shown, so the card is checked on return.
+        this.WhileLoaded(() =>
         {
-            Dispatcher.Post(() =>
+            MessagingCenter.Subscribe<SensorDashboardSwappedMessage>(this, _ =>
+            {
+                Dispatcher.Post(() =>
+                {
+                    EnsureConfigFilesExist();
+                    RefreshSensorControl();
+                });
+            });
+
+            if (!SensorControlMatchesSettings())
             {
                 EnsureConfigFilesExist();
                 RefreshSensorControl();
-            });
-        });
+            }
+        }, () => MessagingCenter.Unsubscribe<SensorDashboardSwappedMessage>(this));
+    }
+
+    /// <summary>Whether the sensor card shown is the one the settings ask for (the new one needs PawnIO).</summary>
+    private bool SensorControlMatchesSettings()
+    {
+        var wantsNew = _settings.Store.EnableHardwareSensors && _settings.Store.UseNewSensorDashboard
+                       && PawnIOHelper.GetPawnIOState() == PawnIOState.Installed;
+        return wantsNew ? sensorControl is SensorsControlV2 : sensorControl is SensorsControl;
     }
 
     private void RefreshSensorControl()
@@ -182,6 +202,12 @@ public partial class DashboardPage
             App.MainWindowInstance!.SetVisual();
 
             PlayEntrance();
+        }
+        catch (Exception ex)
+        {
+            // Called from event handlers (page start, Customize → Apply), where an error used to reach the app's
+            // "Unexpected exception" message.
+            Log.Instance.Trace($"Building the dashboard failed.", ex);
         }
         finally
         {

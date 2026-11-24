@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using LenovoLegionToolkit.Lib.Controllers;
+using LenovoLegionToolkit.Lib.Extensions;
 using LenovoLegionToolkit.Lib.GameDetection;
 using LenovoLegionToolkit.Lib.Settings;
 using LenovoLegionToolkit.Lib.System;
@@ -105,6 +106,8 @@ public class GameAutoListener : AbstractAutoListener<GameAutoListener.ChangedEve
                 {
                     StartReconcilingIfNeeded();
                 }
+
+                NotifyGamesChanged();   // the list may have shrunk (the dashboard's "Active now" follows it)
             }
 
             if (checkIncluded || checkGameConfigStore)
@@ -207,17 +210,54 @@ public class GameAutoListener : AbstractAutoListener<GameAutoListener.ChangedEve
             {
                 _games.Clear();
                 _detectedGamePathsCache.Clear();
-                if (_lastState)
-                {
-                    _lastState = false;
-                    RaiseChanged(new ChangedEventArgs(false));
-                }
+                RaiseChangedIfNeeded(false);
+                NotifyGamesChanged();
             }
             else
             {
                 _detectedGamePathsCache.Clear();
                 Log.Instance.Trace($"Preserving games during restart: {_games.Count} game(s).");
+
+                // Kept only for the restart that is meant to follow. If none does (nothing subscribes again), detection
+                // is off, and "a game is running" mustn't stay true with nothing watching.
+                var generation = ++_preserveGeneration;
+                Task.Delay(PreserveTimeout).ContinueWith(_ => DropPreservedGames(generation), TaskScheduler.Default)
+                    .Forget("Dropping kept games");
             }
+        }
+    }
+
+    /// <summary>How long games are kept across a stop for a restart that should follow at once.</summary>
+    internal static readonly TimeSpan PreserveTimeout = TimeSpan.FromSeconds(5);
+
+    /// <summary>Counts preserving stops, so an old time-out never drops games kept for a newer restart. Guarded by Lock.</summary>
+    private int _preserveGeneration;
+
+    private void DropPreservedGames(int generation)
+    {
+        lock (Lock)
+        {
+            if (!_preserveStateOnNextStart || generation != _preserveGeneration)
+                return;   // restarted meanwhile (the start used the kept games), or kept again since
+
+            Log.Instance.Trace($"No restart followed; dropping {_games.Count} kept game(s).");
+            _preserveStateOnNextStart = false;
+            _games.Clear();
+            RaiseChangedIfNeeded(false);
+            NotifyGamesChanged();
+        }
+    }
+
+    /// <summary>Nothing restarted (others still use detection): a "keep games for the restart" request no longer applies.</summary>
+    protected override void OnNoRestart()
+    {
+        lock (Lock)
+        {
+            if (!_preserveStateOnNextStart)
+                return;
+
+            _preserveStateOnNextStart = false;
+            Log.Instance.Trace($"Game detection kept running; the request to keep games for a restart is cleared.");
         }
     }
 
@@ -226,6 +266,39 @@ public class GameAutoListener : AbstractAutoListener<GameAutoListener.ChangedEve
         lock (Lock)
         {
             return _lastState;
+        }
+    }
+
+    /// <summary>
+    /// Raised (on any thread) when a game starts counting as running or the last one ends. Unlike subscribing with
+    /// <c>SubscribeChangedAsync</c>, listening to this doesn't start game detection; it only says what detection
+    /// already running sees.
+    /// </summary>
+    public event EventHandler<bool>? RunningChanged;
+
+    /// <summary>Raised (on any thread) when the list of running games changes. Doesn't start game detection either.</summary>
+    public event EventHandler? GamesChanged;
+
+    /// <summary>The names of the games counted as running now (empty while detection isn't running).</summary>
+    public IReadOnlyList<string> RunningGames
+    {
+        get
+        {
+            lock (Lock)
+                return [.. _games.Games.Select(g => g.Name).Distinct(StringComparer.OrdinalIgnoreCase)];
+        }
+    }
+
+    /// <summary>Called under <see cref="Lock"/> after the tracked games changed. A failing listener never reaches detection.</summary>
+    private void NotifyGamesChanged()
+    {
+        try
+        {
+            GamesChanged?.Invoke(this, EventArgs.Empty);
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"A game-list listener failed.", ex);
         }
     }
 
@@ -262,6 +335,7 @@ public class GameAutoListener : AbstractAutoListener<GameAutoListener.ChangedEve
         Log.Instance.Trace($"{message}: {name} [Source: {source}] [pid={processId}, path={path ?? "Unknown"}].");
         StartReconcilingIfNeeded();
         RaiseChangedIfNeeded(true);
+        NotifyGamesChanged();
     }
 
     /// <summary>Called under <see cref="Lock"/>.</summary>
@@ -269,7 +343,8 @@ public class GameAutoListener : AbstractAutoListener<GameAutoListener.ChangedEve
     {
         foreach (var process in processes)
         {
-            if (_games.Contains(process.Id) || IsBlacklisted(process.Name))
+            // Indra itself is never a game, whatever name the driver gives it.
+            if (process.Id == Environment.ProcessId || _games.Contains(process.Id) || IsBlacklisted(process.Name))
                 continue;
 
             Track(process.Id, process.Name, "Discrete GPU", ProcessImagePath.Get(process.Id), message);
@@ -343,8 +418,11 @@ public class GameAutoListener : AbstractAutoListener<GameAutoListener.ChangedEve
                 if (!_games.AnyPinnedByGameMode)
                     return;
 
-                foreach (var ended in _games.Reconcile(running))
+                var endedGames = _games.Reconcile(running);
+                foreach (var ended in endedGames)
                     Log.Instance.Trace($"Game Mode ended and process exited: {ended.Name} [Source: {ended.Source}] [pid={ended.Id}].");
+                if (endedGames.Count > 0)
+                    NotifyGamesChanged();
 
                 if (_games.IsEmpty)
                 {
@@ -405,53 +483,39 @@ public class GameAutoListener : AbstractAutoListener<GameAutoListener.ChangedEve
         if (_settings.Store.ExcludedProcesses.Contains(processName, StringComparer.OrdinalIgnoreCase))
             return true;
 
-        return processName.Equals("explorer", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("Lenovo Legion Toolkit", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("SearchUI", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("LockApp", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("TextInputHost", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("ShellExperienceHost", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("StartMenuExperienceHost", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("SearchHost", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("dwm", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("csrss", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("WmiApSrv", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("HWiNFO64", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("HWiNFO32", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("nvidia-smi", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("steamwebhelper", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("EpicWebHelper", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("GalaxyCommunicationService", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("GalaxyClientHelper", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("EABackgroundService", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("Link2EA", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("RiotClientCrashHandler", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("CrashReportClient", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("UnityCrashHandler64", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("UnityCrashHandler32", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("UE4-CrashTracker", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("crs-handler", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("cefsharp.browsersubprocess", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("conhost", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("nvngx_update", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("GameGuard", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("GameGuard.des", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("GameMon", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("GameMon64", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("EasyAntiCheat", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("EasyAntiCheat_EOS", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("BEService", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("BEService_x64", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("vgc", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("vgtray", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("EAAntiCheat.GameService", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("EAAntiCheat.GameServiceLauncher", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("ACE-Base", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("UbisoftConnect", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("UbisoftGameLauncher", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("Battle.net Helper", StringComparison.OrdinalIgnoreCase)
-               || processName.Equals("Agent", StringComparison.OrdinalIgnoreCase);
+        return IsNeverAGame(processName);
     }
+
+    /// <summary>
+    /// Programs that are never games, whatever finds them (most often the discrete-GPU source, which sees every app that
+    /// draws on the NVIDIA GPU): Windows' shell, Indra, monitoring tools, launchers and their helpers, overlays,
+    /// browser engines and anti-cheat services. The Included and Excluded settings are checked before this.
+    /// </summary>
+    private static readonly HashSet<string> NeverGames = new(StringComparer.OrdinalIgnoreCase)
+    {
+        // Windows
+        "explorer", "SearchUI", "LockApp", "TextInputHost", "ShellExperienceHost", "StartMenuExperienceHost", "SearchHost",
+        "dwm", "csrss", "WmiApSrv", "conhost", "SnippingTool",
+        // Indra
+        "Lenovo Legion Toolkit",
+        // Monitoring and NVIDIA tools
+        "HWiNFO64", "HWiNFO32", "nvidia-smi", "nvngx_update", "NVIDIA App", "NVIDIA Overlay", "nvcontainer",
+        // Game Bar and the Xbox app
+        "GameBar", "XboxGameBarWidgets", "XboxPcApp", "GameBarFTServer",
+        // Browser engines
+        "msedge", "msedgewebview2", "cefsharp.browsersubprocess",
+        // Launchers and their helpers
+        "steam", "steamwebhelper", "EpicWebHelper", "GalaxyCommunicationService", "GalaxyClientHelper", "EABackgroundService",
+        "Link2EA", "UbisoftConnect", "UbisoftGameLauncher", "Battle.net Helper", "Agent",
+        // Crash reporters
+        "RiotClientCrashHandler", "CrashReportClient", "UnityCrashHandler64", "UnityCrashHandler32", "UE4-CrashTracker", "crs-handler",
+        // Anti-cheat services
+        "GameGuard", "GameGuard.des", "GameMon", "GameMon64", "EasyAntiCheat", "EasyAntiCheat_EOS", "BEService", "BEService_x64",
+        "vgc", "vgtray", "EAAntiCheat.GameService", "EAAntiCheat.GameServiceLauncher", "ACE-Base",
+    };
+
+    /// <summary>Whether a process name (no ".exe") is on the built-in never-a-game list.</summary>
+    internal static bool IsNeverAGame(string processName) => NeverGames.Contains(processName);
 
     /// <summary>
     /// Whether a started process, as Windows names it in the start event, is one of <paramref name="names"/>
@@ -459,6 +523,13 @@ public class GameAutoListener : AbstractAutoListener<GameAutoListener.ChangedEve
     /// compared the same way game profiles do (<see cref="GameProfiles.GameProfileController.IsGame"/>). The full
     /// path is still checked against the known-games list afterwards.
     /// </summary>
+    /// <summary>
+    /// The name to check against the exclusion and never-a-game lists: the file name from the full path when it was read
+    /// (no ".exe"), otherwise the start event's name, which may be cut to 15 characters.
+    /// </summary>
+    internal static string NameToCheck(string reportedName, string? processPath) =>
+        string.IsNullOrEmpty(processPath) ? reportedName : ProcessInfo.FromPath(processPath).Name;
+
     internal static bool MatchesStartedName(string reportedName, IEnumerable<string> names) =>
         names.Any(name => GameProfiles.GameProfileController.IsGame(reportedName, name));
 
@@ -495,13 +566,16 @@ public class GameAutoListener : AbstractAutoListener<GameAutoListener.ChangedEve
                 if (!isIncluded && !_detectedGamePathsCache.Contains(processInfo))
                     return;
 
-                if (IsBlacklisted(e.ProcessName))
+                // The start event cuts names to 15 characters; with a path, the full name decides (an excluded
+                // "SomeLongGameName" arrives as "SomeLongGameNa" and used to slip past the exclusion list).
+                var name = NameToCheck(e.ProcessName, processPath);
+                if (IsBlacklisted(name))
                 {
-                    Log.Instance.Trace($"Ignoring blacklisted process: {e.ProcessName} [Source: {source}] [pid={e.ProcessId}, path={processPath ?? "Unknown"}].");
+                    Log.Instance.Trace($"Ignoring blacklisted process: {name} [Source: {source}] [pid={e.ProcessId}, path={processPath ?? "Unknown"}].");
                     return;
                 }
 
-                Track(e.ProcessId, e.ProcessName, source, processPath);
+                Track(e.ProcessId, name, source, processPath);
             }
             catch (Exception ex)
             {
@@ -523,6 +597,7 @@ public class GameAutoListener : AbstractAutoListener<GameAutoListener.ChangedEve
 
                 Log.Instance.Trace($"Process exited: {e.ProcessName} [pid={e.ProcessId}].");
                 EndIfNoGamesLeft();
+                NotifyGamesChanged();
             }
         }
         catch (Exception ex)
@@ -579,6 +654,7 @@ public class GameAutoListener : AbstractAutoListener<GameAutoListener.ChangedEve
 
                 Log.Instance.Trace($"Games that ended without being reported were dropped. [pids={string.Join(",", gone.Select(g => g.Id))}]");
                 EndIfNoGamesLeft();
+                NotifyGamesChanged();
             }
         }
         catch (Exception ex)
@@ -597,5 +673,14 @@ public class GameAutoListener : AbstractAutoListener<GameAutoListener.ChangedEve
         Log.Instance.Trace($"Game running state changed: Running={newState} [activeGamesCount={_games.Count}].");
 
         RaiseChanged(new ChangedEventArgs(newState));
+
+        try
+        {
+            RunningChanged?.Invoke(this, newState);
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"A game-running listener failed.", ex);
+        }
     }
 }

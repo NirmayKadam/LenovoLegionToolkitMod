@@ -65,6 +65,9 @@ public class ApplicationSettings : AbstractSettings<ApplicationSettingsStore>
         public bool ShowHelpTooltips { get; set; } = true;
         public int HelpTooltipDelayMs { get; set; } = 400;
         public bool GameSafeMode { get; set; } = true;
+
+        /// <summary>A summary after each game (FPS, temperatures, GPU driver errors). Keeps game detection running.</summary>
+        public bool GameSessionReport { get; set; } = true;
         public bool PowerModeDetailsExpanded { get; set; } = true;
 
         /// <summary>The first-run tour has been shown (false for new installs and for settings from before it existed).</summary>

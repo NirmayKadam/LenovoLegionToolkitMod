@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using LenovoLegionToolkit.Lib;
 using LenovoLegionToolkit.Lib.Extensions;
@@ -42,9 +43,22 @@ public class GpuDriverErrorTests
     [Fact]
     public void WithNothingKnown_TheNotificationJustGivesTheTime()
     {
-        var local = new DateTime(2026, 11, 19, 13, 1, 28);
-        Assert.Equal(string.Format(Resource.GpuDriverError_Notification, "13:01:28"), GpuDriverErrorMonitor.Describe(local, null));
-        Assert.Equal(string.Format(Resource.GpuDriverError_NotificationWithContext, "13:01:28", "game: x"), GpuDriverErrorMonitor.Describe(local, "game: x"));
+        // The time follows the PC's language (Finnish writes 13.01.28); pinned here so the expected text is known.
+        var culture = CultureInfo.CurrentCulture;
+        CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
+        try
+        {
+            var local = new DateTime(2026, 11, 19, 13, 1, 28);
+            Assert.Equal(string.Format(Resource.GpuDriverError_Notification, "13:01:28"), GpuDriverErrorMonitor.Describe(local, null));
+            Assert.Equal(string.Format(Resource.GpuDriverError_NotificationWithContext, "13:01:28", "game: x"), GpuDriverErrorMonitor.Describe(local, "game: x"));
+
+            CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("fi-FI");
+            Assert.Equal(string.Format(Resource.GpuDriverError_Notification, "13.01.28"), GpuDriverErrorMonitor.Describe(local, null));
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = culture;
+        }
     }
 
     [Fact]

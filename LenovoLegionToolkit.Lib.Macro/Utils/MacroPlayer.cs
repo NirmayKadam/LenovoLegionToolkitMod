@@ -22,6 +22,29 @@ internal class MacroPlayer
     private Task _playTask = Task.CompletedTask;
     private CancellationTokenSource _cancellationTokenSource = new();
 
+    /// <summary>
+    /// Starts happen one at a time. Two macro keys pressed together used to both swap the playing sequence's
+    /// cancellation, leaving one sequence that nothing could stop, not even game-safe mode.
+    /// </summary>
+    private readonly SemaphoreSlim _oneAtATime = new(1, 1);
+
+    private volatile bool _suspended;
+
+    /// <summary>
+    /// While true (game-safe mode), no sequence starts, including one whose key was pressed just before. Setting it
+    /// stops the sequence that is playing.
+    /// </summary>
+    public bool IsSuspended
+    {
+        get => _suspended;
+        set
+        {
+            _suspended = value;
+            if (value)
+                Stop();
+        }
+    }
+
     public void InterruptIfNeeded(KBDLLHOOKSTRUCT kbStruct)
     {
         if (!_isPlayingInterruptableSequence.Value)
@@ -31,22 +54,41 @@ internal class MacroPlayer
         if (kbStruct.dwExtraInfo == MAGIC_NUMBER)
             return;
 
-        _cancellationTokenSource.Cancel();
+        Volatile.Read(ref _cancellationTokenSource).Cancel();
     }
 
     /// <summary>Stops a sequence that is playing, without starting another.</summary>
-    public void Stop() => _cancellationTokenSource.Cancel();
+    public void Stop() => Volatile.Read(ref _cancellationTokenSource).Cancel();
 
     public async Task StartPlayingAsync(MacroSequence sequence)
     {
-        await _cancellationTokenSource.CancelAsync();
-        try { await _playTask; }
-        catch (OperationCanceledException) { }
+        await _oneAtATime.WaitAsync().ConfigureAwait(false);
+        try
+        {
+            if (_suspended)
+                return;
 
-        _cancellationTokenSource = new();
-        var token = _cancellationTokenSource.Token;
+            await Volatile.Read(ref _cancellationTokenSource).CancelAsync().ConfigureAwait(false);
+            try { await _playTask.ConfigureAwait(false); }
+            catch (OperationCanceledException) { }
 
-        _playTask = Task.Run(async () =>
+            var cancellationTokenSource = new CancellationTokenSource();
+            Volatile.Write(ref _cancellationTokenSource, cancellationTokenSource);
+
+            // Checked again once the new sequence can be stopped: game-safe mode may have started meanwhile.
+            if (_suspended)
+                return;
+
+            _playTask = Play(sequence, cancellationTokenSource.Token);
+        }
+        finally
+        {
+            _oneAtATime.Release();
+        }
+    }
+
+    private Task Play(MacroSequence sequence, CancellationToken token) =>
+        Task.Run(async () =>
         {
             _isPlayingInterruptableSequence.Value = sequence.InterruptOnOtherKey;
 
@@ -75,7 +117,6 @@ internal class MacroPlayer
                     Send(release);
             }
         }, token);
-    }
 
     /// <summary>Sends one event as simulated input. False if Windows refused it.</summary>
     private static bool Send(MacroEvent macroEvent)

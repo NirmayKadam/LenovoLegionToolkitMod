@@ -311,7 +311,7 @@ public class GPUController
         Log.Instance.Trace($"Initialized NVAPI");
 
         var settings = IoCContainer.Resolve<ApplicationSettings>();
-        if (settings.Store.LockedPStateId >= 0)
+        if (settings.Store.LockedPStateId >= 0 && !SafeStart.Skips("the locked GPU P-state"))
         {
             await ApplyPStateAsync(settings.Store.LockedPStateId).ConfigureAwait(false);
         }

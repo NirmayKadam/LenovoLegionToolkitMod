@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -122,7 +123,7 @@ public static class SafetyReport
     public static string ToText(IReadOnlyList<SafetyRow> rows, DateTime generatedLocal)
     {
         var text = new StringBuilder();
-        text.AppendLine($"{Resource.SafetyReport_Title} ({generatedLocal:yyyy-MM-dd HH:mm})");
+        text.AppendLine($"{Resource.SafetyReport_Title} ({generatedLocal.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture)})");   // the same in every language, for copying
 
         foreach (var section in rows.GroupBy(r => r.Section))
         {
@@ -241,7 +242,7 @@ public static class SafetyReport
         foreach (var file in info.Files.OrderBy(f => f.Name, StringComparer.OrdinalIgnoreCase))
         {
             var size = FormatSize(file.Size);
-            var changed = file.LastWriteUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm");
+            var changed = file.LastWriteUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
             var name = file.Name;
 
             if (name.Equals("fake_mi.json", StringComparison.OrdinalIgnoreCase))
@@ -423,7 +424,7 @@ public static class SafetyReport
 
         var listed = info.Errors.Take(5).Select(e =>
         {
-            var when = e.TimeUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss");
+            var when = e.TimeUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
             return string.IsNullOrEmpty(e.Context) ? $"{when} ({e.Source} {e.EventId})" : $"{when} ({e.Source} {e.EventId}; {e.Context})";
         });
         return new(section, Resource.SafetyReport_GpuDriverErrors,

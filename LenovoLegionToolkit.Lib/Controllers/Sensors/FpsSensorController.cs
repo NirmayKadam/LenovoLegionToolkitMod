@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -101,6 +101,14 @@ namespace LenovoLegionToolkit.Lib.Controllers.Sensors
                 {
                     try
                     {
+                        // The same window owner as last second, still measured: nothing to look up. Listing every
+                        // process each second (hundreds of entries) was only needed when the foreground program changes.
+                        if (_currentMonitoredProcess is not null && lastProcess is not null && ForegroundProcessId() == lastProcess.Id)
+                        {
+                            await Task.Delay(1000, token).ConfigureAwait(false);
+                            continue;
+                        }
+
                         // Found in this second's process snapshot, so it is running; no second lookup needed.
                         var currentProcess = GetForegroundProcess();
                         var monitoredId = _currentMonitoredProcess?.Id;
@@ -180,6 +188,17 @@ namespace LenovoLegionToolkit.Lib.Controllers.Sensors
                     FrameTime = _currentFpsData.FrameTime
                 };
             }
+        }
+
+        /// <summary>The id of the program that owns the foreground window (0 when none); nothing is opened or listed.</summary>
+        private static int ForegroundProcessId()
+        {
+            var hwnd = GetForegroundWindow();
+            if (hwnd == IntPtr.Zero)
+                return 0;
+
+            GetWindowThreadProcessId(hwnd, out var processId);
+            return (int)processId;
         }
 
         private Process? GetForegroundProcess()
@@ -267,6 +286,9 @@ namespace LenovoLegionToolkit.Lib.Controllers.Sensors
 
                 monitoringTask.ContinueWith(t =>
                 {
+                    // One per foreground switch; each held a registration on the loop's token until monitoring stopped.
+                    linkedTokenSource.Dispose();
+
                     if (t.IsCanceled)
                     {
                         return;
@@ -331,8 +353,15 @@ namespace LenovoLegionToolkit.Lib.Controllers.Sensors
 
         private void OnFpsDataReceived(FpsResult result)
         {
-            // PresentMon calls this once per frame with that frame's time.
+            // PresentMon calls this once per frame with that frame's time. Every frame goes into the graph; the numbers
+            // are passed on at most every 100 ms (the OSD's fastest refresh). They were formatted and sent on every
+            // frame before, 144 to 600 times a second, and the OSD dropped almost all of them.
             FrameTimes.Add(result.FrameTime);
+
+            var now = Environment.TickCount64;
+            if (!ShouldPublish(Interlocked.Read(ref _lastPublishMs), now))
+                return;
+            Interlocked.Exchange(ref _lastPublishMs, now);
 
             var fpsData = new FpsData
             {
@@ -348,6 +377,14 @@ namespace LenovoLegionToolkit.Lib.Controllers.Sensors
 
             FpsDataUpdated?.Invoke(this, fpsData);
         }
+
+        /// <summary>The fastest the FPS numbers are passed on.</summary>
+        internal const int PublishEveryMs = 100;
+
+        private long _lastPublishMs = long.MinValue / 2;
+
+        /// <summary>Whether a frame at <paramref name="nowMs"/> passes its numbers on, the last ones having gone at <paramref name="lastMs"/>.</summary>
+        internal static bool ShouldPublish(long lastMs, long nowMs) => nowMs - lastMs >= PublishEveryMs;
 
         private bool IsProcessBlacklisted(string processName)
         {

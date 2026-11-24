@@ -2,11 +2,11 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Threading;
-using LenovoLegionToolkit.Lib.Utils;
+using LenovoLegionToolkit.Tests.Utils;
 using LenovoLegionToolkit.WPF.Extensions;
 using Xunit;
 
@@ -143,14 +143,7 @@ public sealed class DispatcherPostTests : IDisposable
     {
         // A synchronous error inside InvokeAsync is swallowed by WPF without a trace, so Post's log line is the
         // only record of it. A logger writing to a temporary folder takes the place of the app's for this test.
-        var folder = Path.Combine(Path.GetTempPath(), $"llt_test_{Guid.NewGuid():N}");
-        var instanceField = typeof(Log).GetField("_instance", BindingFlags.NonPublic | BindingFlags.Static)!;
-        var original = instanceField.GetValue(null);
-        var testLog = (Log)Activator.CreateInstance(typeof(Log), BindingFlags.NonPublic | BindingFlags.Instance, null,
-            [folder, (Func<DateTime>)(() => DateTime.UtcNow)], null)!;
-        testLog.IsTraceEnabled = true;
-        instanceField.SetValue(null, testLog);
-        try
+        using var testLog = new TestLog();
         {
             var marker = Guid.NewGuid().ToString("N");
             var after = new TaskCompletionSource();
@@ -169,34 +162,46 @@ public sealed class DispatcherPostTests : IDisposable
             });
             await after.Task.WaitAsync(Timeout);
 
-            var log = File.ReadAllText(testLog.LogPath);
+            var log = testLog.Text;
             Assert.Contains($"plain-failure {marker}", log);
             Assert.Contains($"awaited-failure {marker}", log);
             Assert.Contains($"caller={nameof(Errors_AreLogged_WithTheCallersName)}", log);
         }
-        finally
-        {
-            instanceField.SetValue(null, original);
-            Directory.Delete(folder, true);
-        }
     }
 
     [Fact]
-    public void WorkPostedAfterShutdownStarts_IsDropped()
+    public void WorkPostedAfterShutdownStarts_IsDropped_WithoutAnError_AndSaidSo()
     {
+        // After shutdown nothing could run anyway; what Post decides is whether that is an error. It isn't: the work
+        // is dropped on purpose and the log says so, once per call.
+        using var testLog = new TestLog();
         _dispatcher.InvokeShutdown();
         _thread.Join(Timeout);
-        var ran = false;
 
-        _dispatcher.Post(() => ran = true);
-        _dispatcher.Post(() =>
+        var error = Record.Exception(() =>
         {
-            ran = true;
-            return Task.CompletedTask;
+            _dispatcher.Post(() => { });
+            _dispatcher.Post(() => Task.CompletedTask);
         });
 
-        Assert.True(_dispatcher.HasShutdownStarted);
-        Assert.False(ran);
+        Assert.Null(error);
+        var dropped = Regex.Matches(testLog.Text, Regex.Escape("UI work dropped: the app is shutting down.")).Count;
+        Assert.Equal(2, dropped);
+        Assert.DoesNotContain("UI work failed", testLog.Text);
+    }
+
+    /// <summary><c>Dispatcher.Invoke(async …)</c> in any spelling: a field or local named dispatcher, spaces, a cast.</summary>
+    private static readonly Regex BlockingInvokeWithAsyncWork =
+        new(@"dispatcher\s*\.\s*Invoke\s*\(\s*(\([^)]*\)\s*)?async\b", RegexOptions.IgnoreCase);
+
+    [Fact]
+    public void TheBlockingInvokeCheck_FindsEverySpelling()
+    {
+        Assert.Matches(BlockingInvokeWithAsyncWork, "Dispatcher.Invoke(async () => await X());");
+        Assert.Matches(BlockingInvokeWithAsyncWork, "_dispatcher.Invoke( async () => {});");
+        Assert.Matches(BlockingInvokeWithAsyncWork, "Dispatcher.Invoke((Func<Task>)async () => {});");
+        Assert.DoesNotMatch(BlockingInvokeWithAsyncWork, "Dispatcher.InvokeAsync(async () => {});");
+        Assert.DoesNotMatch(BlockingInvokeWithAsyncWork, "Dispatcher.Invoke(() => Refresh());");
     }
 
     [Fact]
@@ -205,7 +210,7 @@ public sealed class DispatcherPostTests : IDisposable
         var wpf = Path.Combine(HelpContentTests.FindRepositoryRoot(), "LenovoLegionToolkit.WPF");
         var offenders = Directory.EnumerateFiles(wpf, "*.cs", SearchOption.AllDirectories)
             .Where(f => !f.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}"))
-            .Where(f => File.ReadAllText(f).Contains("Dispatcher.Invoke(async"))
+            .Where(f => BlockingInvokeWithAsyncWork.IsMatch(File.ReadAllText(f)))
             .Select(Path.GetFileName)
             .ToList();
 

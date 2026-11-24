@@ -41,6 +41,7 @@ public static class DashboardItemExtensions
         DashboardItem.GameSafeMode => SymbolRegular.ShieldCheckmark24,
         DashboardItem.GameProfiles => SymbolRegular.Games24,
         DashboardItem.BackgroundServices => SymbolRegular.PauseCircle24,
+        DashboardItem.GameSessions => SymbolRegular.DataHistogram24,
         _ => throw new InvalidOperationException($"Invalid DashboardItem {dashboardItem}"),
     };
 
@@ -74,6 +75,7 @@ public static class DashboardItemExtensions
         DashboardItem.GameSafeMode => Resource.SettingsPage_GameSafeMode_Title,
         DashboardItem.GameProfiles => Resource.GameProfiles_Title,
         DashboardItem.BackgroundServices => Resource.BackgroundServices_Title,
+        DashboardItem.GameSessions => Resource.GameSessions_Title,
         _ => throw new InvalidOperationException($"Invalid DashboardItem {dashboardItem}"),
     };
 
@@ -108,6 +110,7 @@ public static class DashboardItemExtensions
         DashboardItem.GameSafeMode => "Help_Settings_GameSafeMode",
         DashboardItem.GameProfiles => "Help_Settings_GameProfiles",
         DashboardItem.BackgroundServices => "Help_Settings_BackgroundServices",
+        DashboardItem.GameSessions => "Help_Settings_GameSessions",
         _ => throw new InvalidOperationException($"Invalid DashboardItem {dashboardItem}"),
     };
 
@@ -141,6 +144,7 @@ public static class DashboardItemExtensions
         DashboardItem.GameSafeMode => [new GameSafeModeControl()],
         DashboardItem.GameProfiles => [new GameProfilesControl()],
         DashboardItem.BackgroundServices => [new BackgroundServicesControl()],
+        DashboardItem.GameSessions => [new GameSessionsControl()],
         _ => throw new InvalidOperationException($"Invalid DashboardItem {dashboardItem}"),
     };
 }

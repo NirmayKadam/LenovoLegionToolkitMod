@@ -1,4 +1,5 @@
 using System;
+using LenovoLegionToolkit.WPF.Utils;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -56,6 +57,23 @@ public partial class SpecialKeyDetailWindow
     private async Task RefreshAsync()
     {
         _isRefreshing = true;
+        try
+        {
+            await RefreshOnceAsync();
+        }
+        catch (Exception ex)
+        {
+            UiErrors.Report("Loading the special key's settings", ex);
+        }
+        finally
+        {
+            // Always cleared: left on after a failed load, every later change in this window was ignored.
+            _isRefreshing = false;
+        }
+    }
+
+    private async Task RefreshOnceAsync()
+    {
 
         _descriptionTextBox.Text = _settings.Store.KeyDescriptions.TryGetValue(_keyCode, out var desc)
             ? desc : "";
@@ -80,8 +98,6 @@ public partial class SpecialKeyDetailWindow
 
         if (isCustom)
             await RefreshPipelineListAsync();
-
-        _isRefreshing = false;
     }
 
     private async Task RefreshPipelineListAsync()
@@ -140,7 +156,7 @@ public partial class SpecialKeyDetailWindow
         _customPanel.Visibility = isCustom ? Visibility.Visible : Visibility.Collapsed;
 
         if (isCustom)
-            _ = RefreshPipelineListAsync();
+            RefreshPipelineListAsync().Forget("Loading the automations for a special key");
 
         _isRefreshing = false;
     }

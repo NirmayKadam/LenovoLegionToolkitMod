@@ -66,7 +66,7 @@ public class HealthReportTests
         var item = Item(Healthy() with { Updates = new UpdatesInfo(true, new DateTime(2026, 11, 11)) }, HealthCheck.WindowsUpdate);
 
         Assert.Equal(HealthState.Attention, item.State);
-        Assert.Contains("9 days ago", item.Detail);
+        Assert.Contains(string.Format(LenovoLegionToolkit.WPF.Resources.Resource.Health_Updates_LastDays, 9), item.Detail);
     }
 
     [Theory]
@@ -81,7 +81,7 @@ public class HealthReportTests
         var item = Item(Healthy() with { Updates = new UpdatesInfo(false, null) }, HealthCheck.WindowsUpdate);
 
         Assert.Equal(HealthState.Ok, item.State);
-        Assert.Contains("isn't known", item.Detail);
+        Assert.Contains(LenovoLegionToolkit.WPF.Resources.Resource.Health_Updates_LastUnknown, item.Detail);
     }
 
     [Fact]
@@ -109,8 +109,8 @@ public class HealthReportTests
         var item = Item(Healthy() with { DisabledServices = ["XblAuthManager", "XboxGipSvc"] }, HealthCheck.DisabledServices);
 
         Assert.Equal(HealthState.Attention, item.State);
-        Assert.Contains("Xbox sign-in", item.Detail);
-        Assert.Contains("controllers", item.Detail);
+        Assert.Contains(LenovoLegionToolkit.WPF.Resources.Resource.Health_Service_XblAuthManager, item.Detail);
+        Assert.Contains(LenovoLegionToolkit.WPF.Resources.Resource.Health_Service_XboxGipSvc, item.Detail);
     }
 
     [Fact]

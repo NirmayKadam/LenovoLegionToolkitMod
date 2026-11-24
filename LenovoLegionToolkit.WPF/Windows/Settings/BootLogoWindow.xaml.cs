@@ -7,6 +7,7 @@ using System.Windows.Media.Imaging;
 using LenovoLegionToolkit.Lib.System;
 using LenovoLegionToolkit.Lib.Utils;
 using LenovoLegionToolkit.WPF.Resources;
+using LenovoLegionToolkit.WPF.Utils;
 using Microsoft.Win32;
 using Wpf.Ui.Common;
 using Wpf.Ui.Controls;
@@ -34,7 +35,7 @@ public partial class BootLogoWindow
 
     private async void BootLogoWindow_Loaded(object sender, RoutedEventArgs e)
     {
-        await RefreshAsync();
+        await UiErrors.RunAsync("Reading the boot logo", RefreshAsync);   // a firmware variable that may not be readable
     }
 
     private static BitmapImage GetDefaultLogo()

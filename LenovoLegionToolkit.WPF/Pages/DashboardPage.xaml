@@ -19,6 +19,7 @@
         IndicatorMargin="0,64,0,0">
         <StackPanel x:Name="_panel">
             <StackPanel x:Name="_statusArea" Margin="0,16,8,0">
+                <dashboard:ActiveNowControl />
                 <dashboard:StatusStripControl />
                 <dashboard:PowerModeSelectorControl />
                 <dashboard:PowerModeDetailsControl />

@@ -489,3 +489,6 @@ FodyWeavers.xsd
 
 # Local HID tracing utility
 /tools/HidSetFeatureTrace/
+
+# Detailed fix notes and laptop checklists; kept locally, never published
+docs-private/

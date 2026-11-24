@@ -59,7 +59,11 @@ public static class AfterburnerProgram
     }
 
     /// <summary>Starts the genuine program with <c>-Profile{profile}</c>. Returns why it didn't start otherwise.</summary>
-    public static async Task<AfterburnerCheck> StartProfileAsync(string? path, int profile, CancellationToken token = default)
+    public static Task<AfterburnerCheck> StartProfileAsync(string? path, int profile, CancellationToken token = default) =>
+        StartProfileAsync(path, profile, (file, arguments, t) => CMD.RunAsync(file, arguments, createNoWindow: true, waitForExit: false, token: t), token);
+
+    /// <summary>For tests: <paramref name="start"/> takes the place of starting the program, so a test sees whether it would start.</summary>
+    internal static async Task<AfterburnerCheck> StartProfileAsync(string? path, int profile, Func<string, string, CancellationToken, Task> start, CancellationToken token = default)
     {
         if (profile is < 1 or > 5)
             throw new ArgumentOutOfRangeException(nameof(profile), profile, "Afterburner has profiles 1 to 5.");
@@ -74,7 +78,7 @@ public static class AfterburnerProgram
         if (check != AfterburnerCheck.Genuine)
             return check;
 
-        await CMD.RunAsync(path, $"-Profile{profile}", createNoWindow: true, waitForExit: false, token: token).ConfigureAwait(false);
+        await start(path, $"-Profile{profile}", token).ConfigureAwait(false);
         LastStarted = new AfterburnerStart(profile, DateTime.UtcNow);
         return AfterburnerCheck.Genuine;
     }

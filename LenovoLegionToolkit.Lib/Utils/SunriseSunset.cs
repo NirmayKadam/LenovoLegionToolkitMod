@@ -8,33 +8,86 @@ using LenovoLegionToolkit.Lib.Settings;
 
 namespace LenovoLegionToolkit.Lib.Utils;
 
-public class SunriseSunset(SunriseSunsetSettings settings, HttpClientFactory httpClientFactory)
+public class SunriseSunset
 {
-    public async Task<(Time?, Time?)> GetSunriseSunsetAsync(CancellationToken token = default)
+    /// <summary>How long a failed attempt (no location, or no sunrise there) is remembered before trying again.</summary>
+    internal static readonly TimeSpan RetryAfterFailure = TimeSpan.FromHours(1);
+
+    private readonly SunriseSunsetSettings _settings;
+    private readonly Func<CancellationToken, Task<Coordinate?>> _locate;
+    private readonly Func<DateTime> _utcNow;
+    private readonly SemaphoreSlim _oneAtATime = new(1, 1);
+    private DateTime? _lastFailureUtc;
+
+    public SunriseSunset(SunriseSunsetSettings settings, HttpClientFactory httpClientFactory)
+        : this(settings, token => GetGeoLocationAsync(httpClientFactory, token), () => DateTime.UtcNow) { }
+
+    /// <summary>For tests: the IP-address lookup and the clock are supplied by the caller (no network).</summary>
+    internal SunriseSunset(SunriseSunsetSettings settings, Func<CancellationToken, Task<Coordinate?>> locate, Func<DateTime> utcNow)
     {
-        var (sunrise, sunset) = (settings.Store.Sunrise, settings.Store.Sunset);
-        if (settings.Store.LastCheckDateTime == DateTime.Today && sunrise is not null && sunset is not null)
-            return (sunrise, sunset);
-
-        // A location typed in Settings is used as it is; only without one is the location looked up by IP address.
-        var coordinate = settings.Store is { Latitude: { } lat, Longitude: { } lon } && IsValidCoordinate(lat, lon)
-            ? new Coordinate(lat, lon, DateTime.Today)
-            : await GetGeoLocationAsync(token).ConfigureAwait(false);
-
-        if (coordinate is null)
-            return (null, null);
-
-        (sunrise, sunset) = CalculateSunriseSunset(coordinate);
-
-        settings.Store.LastCheckDateTime = DateTime.Today;
-        settings.Store.Sunrise = sunrise;
-        settings.Store.Sunset = sunset;
-        settings.SynchronizeStore();
-
-        return (sunrise, sunset);
+        _settings = settings;
+        _locate = locate;
+        _utcNow = utcNow;
     }
 
-    private async Task<Coordinate?> GetGeoLocationAsync(CancellationToken token)
+    /// <summary>
+    /// Today's sunrise and sunset (UTC), worked out once a day. Time triggers ask every second, so a failed attempt
+    /// (offline, the lookup service refusing, or a place with no sunrise today) is remembered for an hour; before, each
+    /// second sent another request, or wrote the settings file again.
+    /// </summary>
+    public async Task<(Time?, Time?)> GetSunriseSunsetAsync(CancellationToken token = default)
+    {
+        if (Cached() is { } cached)
+            return cached;
+
+        await _oneAtATime.WaitAsync(token).ConfigureAwait(false);
+        try
+        {
+            // Another caller may have finished the work while this one waited.
+            if (Cached() is { } done)
+                return done;
+
+            // A location typed in Settings is used as it is; only without one is the location looked up by IP address.
+            var coordinate = _settings.Store is { Latitude: { } lat, Longitude: { } lon } && IsValidCoordinate(lat, lon)
+                ? new Coordinate(lat, lon, DateTime.Today)
+                : await _locate(token).ConfigureAwait(false);
+
+            var (sunrise, sunset) = coordinate is null ? (null, null) : CalculateSunriseSunset(coordinate);
+            if (sunrise is null || sunset is null)
+            {
+                _lastFailureUtc = _utcNow();
+                Log.Instance.Trace($"No sunrise and sunset for today; trying again in {RetryAfterFailure.TotalMinutes:0} minutes.");
+                return (null, null);
+            }
+
+            _lastFailureUtc = null;
+            _settings.Store.LastCheckDateTime = DateTime.Today;
+            _settings.Store.Sunrise = sunrise;
+            _settings.Store.Sunset = sunset;
+            _settings.SynchronizeStore();
+
+            return (sunrise, sunset);
+        }
+        finally
+        {
+            _oneAtATime.Release();
+        }
+    }
+
+    /// <summary>Today's saved times, or "none" while a recent failure is remembered; null when it's time to work them out.</summary>
+    private (Time?, Time?)? Cached()
+    {
+        var (sunrise, sunset) = (_settings.Store.Sunrise, _settings.Store.Sunset);
+        if (_settings.Store.LastCheckDateTime == DateTime.Today && sunrise is not null && sunset is not null)
+            return (sunrise, sunset);
+
+        if (_lastFailureUtc is { } failed && _utcNow() - failed < RetryAfterFailure)
+            return (null, null);
+
+        return null;
+    }
+
+    private static async Task<Coordinate?> GetGeoLocationAsync(HttpClientFactory httpClientFactory, CancellationToken token)
     {
         try
         {

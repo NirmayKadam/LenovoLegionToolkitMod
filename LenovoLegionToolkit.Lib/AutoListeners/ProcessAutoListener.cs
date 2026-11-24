@@ -51,6 +51,18 @@ public class ProcessAutoListener(
 
     private readonly Dictionary<int, ProcessInfo> _processCache = [];
 
+    /// <summary>The cache size at which the next clean-up runs (see <see cref="NextCleanUpAt"/>).</summary>
+    private int _cleanUpAt = MinCleanUpAt;
+
+    private const int MinCleanUpAt = 250;
+
+    /// <summary>
+    /// When to clean up next, given how many entries are left after a clean-up. With many programs really running (browser
+    /// tabs), the cache can't shrink below 250, and a fixed limit then took a snapshot of every process on every start
+    /// and stop. The limit grows with what is left instead.
+    /// </summary>
+    internal static int NextCleanUpAt(int leftAfterCleanUp) => Math.Max(MinCleanUpAt, leftAfterCleanUp * 2);
+
     protected override async Task StartAsync()
     {
         await instanceStartedEventAutoAutoListener.SubscribeChangedAsync(InstanceStartedEventAutoListener_Changed).ConfigureAwait(false);
@@ -63,7 +75,10 @@ public class ProcessAutoListener(
         await instanceStoppedEventAutoAutoListener.UnsubscribeChangedAsync(InstanceStoppedEventAutoListener_Changed).ConfigureAwait(false);
 
         lock (Lock)
+        {
             _processCache.Clear();
+            _cleanUpAt = MinCleanUpAt;
+        }
     }
 
     private void InstanceStartedEventAutoListener_Changed(object? sender, InstanceStartedEventAutoAutoListener.ChangedEventArgs e)
@@ -87,7 +102,10 @@ public class ProcessAutoListener(
             if (!string.IsNullOrEmpty(processPath) && IgnoredPaths.Any(p => processPath.StartsWith(p, StringComparison.OrdinalIgnoreCase)))
                 return;
 
-            var processInfo = new ProcessInfo(e.ProcessName, processPath);
+            // With a path, the name comes from it: the start event cuts long names to 15 characters.
+            var processInfo = string.IsNullOrEmpty(processPath)
+                ? new ProcessInfo(e.ProcessName, null)
+                : ProcessInfo.FromPath(processPath);
             _processCache[e.ProcessId] = processInfo;
 
             CleanUpCacheIfNecessary();
@@ -120,7 +138,7 @@ public class ProcessAutoListener(
 
     private void CleanUpCacheIfNecessary()
     {
-        if (_processCache.Count < 250)
+        if (_processCache.Count < _cleanUpAt)
             return;
 
         Log.Instance.Trace($"Cleaning up process cache. Current size: {_processCache.Count}.");
@@ -141,6 +159,7 @@ public class ProcessAutoListener(
         foreach (var processId in _processCache.Keys.Where(id => !running.Contains(id)).ToList())
             _processCache.Remove(processId);
 
-        Log.Instance.Trace($"Cleaned up process cache. Current size: {_processCache.Count}.");
+        _cleanUpAt = NextCleanUpAt(_processCache.Count);
+        Log.Instance.Trace($"Cleaned up process cache. Current size: {_processCache.Count}; next clean-up at {_cleanUpAt}.");
     }
 }

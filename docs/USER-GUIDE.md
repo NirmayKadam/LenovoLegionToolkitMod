@@ -16,7 +16,7 @@ LLT replaces Lenovo's own apps (Vantage, Legion Zone, Legion Space) on Legion, L
 - driver and BIOS downloads from Lenovo;
 - an on-screen display and a command-line tool.
 
-This mod adds bug and security fixes ([BUG-FIXES.md](BUG-FIXES.md), [SECURITY.md](SECURITY.md)) and three UI styles with a live status strip ([SKINS.md](SKINS.md)).
+Indra, this mod, adds stability and security fixes, new features (Custom mode fan curves, power mode profiles, game profiles, game-safe mode, the game session report) and three UI styles with a live status strip. What it changes on your laptop, and how to undo it, is in [SAFETY.md](SAFETY.md).
 
 ## Requirements
 
@@ -27,12 +27,12 @@ This mod adds bug and security fixes ([BUG-FIXES.md](BUG-FIXES.md), [SECURITY.md
 
 ## Installing this mod
 
-Build an installer as described in [BUILDING.md](BUILDING.md) (`make.bat`, signed with your own certificate) and run it. Keep the default **Program Files** location, because Windows only starts the app from a protected folder.
+Download the installer from the project's [Releases](https://github.com/NirmayKadam/LenovoLegionToolkitMod/releases) page and run it (or build your own as described in [BUILDING.md](BUILDING.md)). Keep the default **Program Files** location, because Windows only starts the app from a protected folder. The installer adds Indra's signing certificate to the computer's trusted root certificates (needed for the same reason); uninstalling removes it.
 
 **Before you start:**
 - **Smart App Control** must be off. It doesn't trust self-made certificates.
 - **Lenovo's apps:** Vantage, Legion Zone and Legion Space fight LLT for control of the same hardware. LLT can turn their services off for you (Settings → Software control).
-- **Updates:** don't accept the app's update offers. They install the official release, which replaces this mod.
+- **Updates:** Settings → Updates checks this mod's own releases and only opens the release page. Pre-releases are offered on the Beta channel only.
 
 ## The window
 

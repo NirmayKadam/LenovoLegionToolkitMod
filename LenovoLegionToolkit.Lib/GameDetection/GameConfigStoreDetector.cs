@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using LenovoLegionToolkit.Lib.System;
 using LenovoLegionToolkit.Lib.Utils;
@@ -84,9 +85,10 @@ internal class GameConfigStoreDetector
             result.Add(ProcessInfo.FromPath(exePath));
         }
 
-        Log.Instance.Trace($"Detected games:");
-        foreach (var r in result)
-            Log.Instance.Trace($" - {r}");
+        // One line: it used to write a line per game every time the list was read (40 games, 1,720 lines in a day).
+        // Built only with Detailed log on: the sorted list was put together on every read even with logging off.
+        if (Log.Instance.IsTraceEnabled)
+            Log.Instance.Trace($"Known games ({result.Count}): {string.Join(", ", result.Select(r => r.Name).Order(StringComparer.OrdinalIgnoreCase))}");
 
         return result;
     }

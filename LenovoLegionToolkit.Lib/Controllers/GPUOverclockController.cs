@@ -104,16 +104,7 @@ public class GPUOverclockController
             isSupported = await WMI.LenovoGameZoneData.IsSupportGpuOCAsync().ConfigureAwait(false) > 0;
 
             if (!isSupported)
-            {
-                Log.Instance.Trace($"Clearing settings...");
-
-                _settings.Store.Enabled = false;
-                _settings.Store.Info = GPUOverclockInfo.Zero;
-                _settings.SynchronizeStore();
-
-                // Nothing will be applied, so a pending "apply in progress" note would only cause a false warning.
-                _guard.Abandon();
-            }
+                ClearBecauseUnsupported();
         }
         catch
         {
@@ -123,6 +114,21 @@ public class GPUOverclockController
         Log.Instance.Trace($"Supports GPU OC status: {isSupported}");
 
         return isSupported;
+    }
+
+    /// <summary>
+    /// The firmware says this laptop can't overclock its GPU: the overclock is switched off and its values cleared.
+    /// Nothing will be applied, so a pending "apply in progress" note would only cause a false warning at the next start.
+    /// </summary>
+    internal void ClearBecauseUnsupported()
+    {
+        Log.Instance.Trace($"Clearing settings...");
+
+        _settings.Store.Enabled = false;
+        _settings.Store.Info = GPUOverclockInfo.Zero;
+        _settings.SynchronizeStore();
+
+        _guard.Abandon();
     }
 
     /// <summary>Whether the overclock is off because a previous run's apply was never confirmed stable.</summary>

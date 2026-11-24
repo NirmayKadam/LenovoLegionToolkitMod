@@ -176,15 +176,25 @@ public partial class SpectrumKeyboardBacklightControl
         foreach (var profileButton in ProfileButtons)
             profileButton.IsEnabled = false;
 
-        if (await _controller.GetProfileAsync() != profile)
+        try
         {
-            await _controller.SetProfileAsync(profile);
-            await RefreshProfileDescriptionAsync();
+            if (await _controller.GetProfileAsync() != profile)
+            {
+                await _controller.SetProfileAsync(profile);
+                await RefreshProfileDescriptionAsync();
+            }
         }
-
-        foreach (var profileButton in ProfileButtons)
-            profileButton.IsEnabled = true;
-        _brightnessSlider.IsEnabled = true;
+        catch (Exception ex)
+        {
+            UiErrors.Report("Switching the keyboard lighting profile", ex);
+        }
+        finally
+        {
+            // Always back on: after a failed switch the profile buttons and brightness stayed greyed out.
+            foreach (var profileButton in ProfileButtons)
+                profileButton.IsEnabled = true;
+            _brightnessSlider.IsEnabled = true;
+        }
 
         if (IsVisible)
             await StartAnimationAsync();
@@ -221,9 +231,11 @@ public partial class SpectrumKeyboardBacklightControl
         _settings.Store.KeyboardLayout = keyboardLayout;
         _settings.SynchronizeStore();
 
-        var (spectrumLayout, _, keys) = await _controller.GetKeyboardLayoutAsync();
-
-        _device.SetLayout(spectrumLayout, keyboardLayout, keys);
+        await UiErrors.RunAsync("Switching the keyboard layout", async () =>
+        {
+            var (spectrumLayout, _, keys) = await _controller.GetKeyboardLayoutAsync();
+            _device.SetLayout(spectrumLayout, keyboardLayout, keys);
+        });
 
         if (IsVisible)
             await StartAnimationAsync();
@@ -309,10 +321,10 @@ public partial class SpectrumKeyboardBacklightControl
 
         var keyboardKeyCodes = _device.GetVisibleKeyboardButtons().Select(b => b.KeyCode).ToArray();
 
-        await CreateEffectAsync(selectedKeyCodes, keyboardKeyCodes);
+        await UiErrors.RunAsync("Adding a keyboard lighting effect", () => CreateEffectAsync(selectedKeyCodes, keyboardKeyCodes));
     }
 
-    private async void ResetToDefaultButton_Click(object sender, RoutedEventArgs e) => await ResetToDefaultAsync();
+    private async void ResetToDefaultButton_Click(object sender, RoutedEventArgs e) => await UiErrors.RunAsync("Resetting the keyboard lighting", ResetToDefaultAsync);
 
     protected override async Task OnRefreshAsync()
     {

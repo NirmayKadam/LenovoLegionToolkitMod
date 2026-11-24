@@ -142,6 +142,24 @@ public class SensorsGroupController : IDisposable
     public event Action<HardwareSensorSnapshot>? SensorsUpdated;
 
     /// <summary>
+    /// Raised once (on a background thread) when detailed sensors become available. They are set up after the window
+    /// opens, so a card that subscribed before then got nothing to read and must subscribe again on this.
+    /// </summary>
+    public event EventHandler? Initialized;
+
+    private void RaiseInitialized()
+    {
+        try
+        {
+            Initialized?.Invoke(this, EventArgs.Empty);
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Handling 'detailed sensors ready' failed.", ex);
+        }
+    }
+
+    /// <summary>
     /// True while game-safe mode has paused detailed sensors: no readings go through LibreHardwareMonitor or
     /// the PawnIO driver, and <see cref="Snapshot"/> reports every reading as missing (-1) instead of stale values.
     /// </summary>
@@ -401,6 +419,8 @@ public class SensorsGroupController : IDisposable
             await Task.Run(GetHardware).ConfigureAwait(false);
             _initialized = true;
             InitialState = _hardware.Count == 0 ? LibreHardwareMonitorInitialState.Fail : LibreHardwareMonitorInitialState.Success;
+            if (InitialState == LibreHardwareMonitorInitialState.Success)
+                RaiseInitialized();
             return InitialState;
         }
         catch (DllNotFoundException) { HandleInitException("DLL Not Found"); InitialState = LibreHardwareMonitorInitialState.PawnIONotInstalled; return InitialState; }
@@ -408,12 +428,14 @@ public class SensorsGroupController : IDisposable
         finally { _initSemaphore.Release(); }
     }
 
+    /// <summary>
+    /// Detailed sensors aren't available in this run. The user's sensor settings are left as they are: a one-off
+    /// failure (for example PawnIO starting slowly after boot) used to switch them off for good. The next start tries
+    /// again.
+    /// </summary>
     private void HandleInitException(string reason)
     {
-        var settings = IoCContainer.Resolve<ApplicationSettings>();
-        settings.Store.EnableHardwareSensors = false;
-        settings.Store.UseNewSensorDashboard = false;
-        settings.SynchronizeStore();
+        Log.Instance.Trace($"Detailed sensors aren't available in this run: {reason}. Settings are left as they are.");
         InitialState = LibreHardwareMonitorInitialState.Fail;
     }
 
@@ -492,8 +514,8 @@ public class SensorsGroupController : IDisposable
 
     #region Update
 
-    private Task? _activeUpdateTask;
-    private readonly Lock _updateTaskLock = new();
+    /// <summary>One update at a time; callers during an update share it. See <see cref="SingleFlight"/>.</summary>
+    private readonly SingleFlight _update = new();
 
     public async Task UpdateAsync(bool force = false, HardwareUpdateScope scope = HardwareUpdateScope.All)
     {
@@ -502,23 +524,11 @@ public class SensorsGroupController : IDisposable
         var now = Environment.TickCount64;
         if (!force && now - _lastUpdateTick < MIN_UPDATE_INTERVAL_MS) return;
 
-        Task? updateTask;
-        lock (_updateTaskLock)
-        {
-            if (_activeUpdateTask == null)
-            {
-                _activeUpdateTask = PerformUpdateInternal(scope);
-            }
-            updateTask = _activeUpdateTask;
-        }
-
-        if (updateTask != null)
-            await updateTask.ConfigureAwait(false);
+        await _update.RunAsync(() => PerformUpdateInternal(scope)).ConfigureAwait(false);
     }
 
     private async Task PerformUpdateInternal(HardwareUpdateScope scope)
     {
-        try
         {
             var now = Environment.TickCount64;
             _lastUpdateTick = now;
@@ -593,11 +603,7 @@ public class SensorsGroupController : IDisposable
                             _storageProvider.Read();
 
                         // Merge all provider values into a single snapshot
-                        var snap = new HardwareSensorSnapshot();
-                        snap = snap.WithValues(_cpuProvider.Values);
-                        snap = snap.WithValues(gpuValues);
-                        snap = snap.WithValues(_memoryProvider.Values);
-                        snap = snap.WithValues(_storageProvider.Values);
+                        var snap = new HardwareSensorSnapshot().WithValues(_cpuProvider.Values, gpuValues, _memoryProvider.Values, _storageProvider.Values);
 
                         // Game-safe mode may have started while this read was running (the read itself can't be
                         // stopped half-way). Its result is dropped, so the cleared snapshot stays.
@@ -618,13 +624,6 @@ public class SensorsGroupController : IDisposable
                     }
                 }
             }).ConfigureAwait(false);
-        }
-        finally
-        {
-            lock (_updateTaskLock)
-            {
-                _activeUpdateTask = null;
-            }
         }
     }
 
@@ -729,6 +728,10 @@ public class SensorsGroupController : IDisposable
         _producerTask = null;
     }
 
+    /// <summary>The time between sensor reads: at least <see cref="MIN_UPDATE_INTERVAL_MS"/>.</summary>
+    internal static TimeSpan ClampInterval(TimeSpan requested) =>
+        requested < TimeSpan.FromMilliseconds(MIN_UPDATE_INTERVAL_MS) ? TimeSpan.FromMilliseconds(MIN_UPDATE_INTERVAL_MS) : requested;
+
     private async Task ProducerLoop(CancellationToken token)
     {
         while (!token.IsCancellationRequested)
@@ -738,7 +741,9 @@ public class SensorsGroupController : IDisposable
             lock (_subscribers)
             {
                 if (_subscribers.Count == 0) return;
-                minInterval = _subscribers.Values.Min(s => s.Interval);
+                // Never faster than the update gate: a refresh interval of 0 in a hand-edited settings file made this
+                // a busy loop of full sensor reads (disks included).
+                minInterval = ClampInterval(_subscribers.Values.Min(s => s.Interval));
                 scope = _subscribers.Values.Aggregate(HardwareUpdateScope.None, (current, s) => current | s.Scope);
             }
 

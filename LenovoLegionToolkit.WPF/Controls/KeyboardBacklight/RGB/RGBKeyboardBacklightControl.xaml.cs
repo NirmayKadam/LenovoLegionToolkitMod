@@ -10,6 +10,7 @@ using LenovoLegionToolkit.Lib.Listeners;
 using LenovoLegionToolkit.Lib.Messaging;
 using LenovoLegionToolkit.Lib.Messaging.Messages;
 using LenovoLegionToolkit.Lib.SoftwareDisabler;
+using LenovoLegionToolkit.WPF.Utils;
 using LenovoLegionToolkit.WPF.Extensions;
 using Wpf.Ui.Common;
 using Wpf.Ui.Controls;
@@ -101,10 +102,13 @@ public partial class RGBKeyboardBacklightControl
         ClearPendingChanges();
 
         var selectedPreset = (RGBKeyboardBacklightPreset)presetButton.Tag;
-        var state = await _controller.GetStateAsync();
-        await _controller.SetStateAsync(new(selectedPreset, state.Presets));
+        await UiErrors.RunAsync("Switching the keyboard lighting preset", async () =>
+        {
+            var state = await _controller.GetStateAsync();
+            await _controller.SetStateAsync(new(selectedPreset, state.Presets));
+        });
 
-        await RefreshAsync();
+        await RefreshAsync();   // shows what the keyboard really uses, after a failure too
     }
 
     private void SynchroniseZonesMenuItem_Click(object sender, RoutedEventArgs e)
@@ -120,7 +124,7 @@ public partial class RGBKeyboardBacklightControl
 
     private async void ApplyButton_Click(object sender, RoutedEventArgs e)
     {
-        await CommitChangesAsync();
+        await UiErrors.RunAsync("Applying the keyboard lighting", CommitChangesAsync);
     }
 
     private async Task CommitChangesAsync()

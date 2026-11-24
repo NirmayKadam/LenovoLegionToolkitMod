@@ -65,6 +65,7 @@ public class PipeServerIdentityTests
         Assert.Equal(TimeSpan.FromSeconds(expectedSeconds), PipeServerIdentity.CreationBackoff(failures));
     }
 
+    /// <summary>An assumption check on .NET's pipe API, which the server's protection relies on: asking for the first instance of a name someone else already owns fails.</summary>
     [Fact]
     public async Task FirstPipeInstance_FailsWhenNameIsAlreadyOwned()
     {

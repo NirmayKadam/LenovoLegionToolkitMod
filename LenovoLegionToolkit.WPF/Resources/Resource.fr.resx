@@ -1220,7 +1220,7 @@ Le changement de mode peut nécessiter un redémarrage.</value>
     <value>Verrouillage de Fn</value>
   </data>
   <data name="GB" xml:space="preserve">
-    <value>GR</value>
+    <value>GB</value>
   </data>
   <data name="Generation" xml:space="preserve">
     <value>Générer</value>
@@ -3743,7 +3743,7 @@ La journalisation sera activée automatiquement si vous choisissez de continuer.
     <value>Garantie</value>
   </data>
   <data name="Watt" xml:space="preserve">
-    <value>SM</value>
+    <value>W</value>
   </data>
   <data name="WhiteKeyboardBacklightAutomationStepControl_Message" xml:space="preserve">
     <value>Ajustez la luminosité du rétroéclairage du clavier.</value>

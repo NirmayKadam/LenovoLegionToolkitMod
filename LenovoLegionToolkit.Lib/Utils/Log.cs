@@ -5,20 +5,25 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 
 namespace LenovoLegionToolkit.Lib.Utils;
 
 public class Log
 {
     private static Log? _instance;
-    public static Log Instance
+
+    /// <summary>The app's log. Two threads asking first at the same moment get the same one (one log file).</summary>
+    public static Log Instance => Volatile.Read(ref _instance) ?? CreateInstance();
+
+    private static Log CreateInstance()
     {
-        get
-        {
-            _instance ??= new Log();
-            return _instance;
-        }
+        var created = new Log();
+        return Interlocked.CompareExchange(ref _instance, created, null) ?? created;
     }
+
+    /// <summary>For tests: puts <paramref name="log"/> in place of the app's log and returns the one it replaced.</summary>
+    internal static Log? ReplaceInstance(Log? log) => Interlocked.Exchange(ref _instance, log);
 
     private readonly object _lock = new();
     private readonly string _folderPath;
@@ -79,6 +84,35 @@ public class Log
         catch
         {
             // Ignored
+        }
+    }
+
+    /// <summary>
+    /// The last <paramref name="count"/> lines of this run's log (empty when there's no log, for example with Detailed
+    /// log off). Read while the log may still be written; never throws.
+    /// </summary>
+    public IReadOnlyList<string> TailLines(int count)
+    {
+        try
+        {
+            if (count <= 0 || !File.Exists(_logPath))
+                return [];
+
+            using var stream = new FileStream(_logPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+            using var reader = new StreamReader(stream);
+            var lines = new Queue<string>(count);
+            while (reader.ReadLine() is { } line)
+            {
+                if (lines.Count == count)
+                    lines.Dequeue();
+                lines.Enqueue(line);
+            }
+
+            return [.. lines];
+        }
+        catch
+        {
+            return [];
         }
     }
 

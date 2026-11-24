@@ -188,7 +188,29 @@ public class AIController(
         return true;
     }
 
-    private static async Task EnableAsync()
+    /// <summary>True while AI mode has the firmware's game boost ("intelligent sub mode") switched on.</summary>
+    public bool IsBoosting { get; private set; }
+
+    /// <summary>Raised (on any thread) when <see cref="IsBoosting"/> changes.</summary>
+    public event EventHandler? BoostChanged;
+
+    private void SetBoosting(bool boosting)
+    {
+        if (IsBoosting == boosting)
+            return;
+
+        IsBoosting = boosting;
+        try
+        {
+            BoostChanged?.Invoke(this, EventArgs.Empty);
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"An AI-mode listener failed.", ex);
+        }
+    }
+
+    private async Task EnableAsync()
     {
         try
         {
@@ -207,6 +229,7 @@ public class AIController(
             }
 
             await WMI.LenovoGameZoneData.SetIntelligentSubModeAsync(targetSubMode).ConfigureAwait(false);
+            SetBoosting(true);
 
             Log.Instance.Trace($"Initial sub mode set.");
         }
@@ -216,13 +239,14 @@ public class AIController(
         }
     }
 
-    private static async Task DisableAsync()
+    private async Task DisableAsync()
     {
         try
         {
             Log.Instance.Trace($"Stopping...");
 
             await WMI.LenovoGameZoneData.SetIntelligentSubModeAsync(0).ConfigureAwait(false);
+            SetBoosting(false);
 
             Log.Instance.Trace($"Stopped");
         }

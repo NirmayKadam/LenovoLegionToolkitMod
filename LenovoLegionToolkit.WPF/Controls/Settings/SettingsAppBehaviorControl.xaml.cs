@@ -337,7 +337,7 @@ public partial class SettingsAppBehaviorControl
         _settings.Store.EnableLogging = state.Value;
         _settings.SynchronizeStore();
 
-        await Compatibility.PrintMachineInfoAsync();
+        await UiErrors.RunAsync("Writing the laptop's details to the log", Compatibility.PrintMachineInfoAsync);
 
         mainWindow._openLogIndicator.Visibility = Utils.BooleanToVisibilityConverter.Convert(_settings.Store.EnableLogging);
     }
@@ -385,7 +385,18 @@ public partial class SettingsAppBehaviorControl
             var sensorsController = IoCContainer.Resolve<SensorsGroupController>();
             if (!sensorsController.IsLibreHardwareMonitorInitialized())
             {
-                await sensorsController.IsSupportedAsync();
+                try
+                {
+                    await sensorsController.IsSupportedAsync();
+                }
+                catch (Exception ex)
+                {
+                    // PawnIO is installed but its driver couldn't be opened. This used to end in the "Unexpected
+                    // exception" message with the switch left on and nothing saved; the switch now goes back off.
+                    Log.Instance.Trace($"Detailed sensors couldn't be started from Settings.", ex);
+                    _hardwareSensorsToggle.IsChecked = false;
+                    return;
+                }
             }
         }
         else

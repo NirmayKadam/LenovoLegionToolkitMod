@@ -51,7 +51,7 @@ public partial class SettingsIntegrationsControl
         _integrationsSettings.Store.HWiNFO = _hwinfoIntegrationToggle.IsChecked ?? false;
         _integrationsSettings.SynchronizeStore();
 
-        await _hwinfoIntegration.StartStopIfNeededAsync();
+        await UiErrors.RunAsync("Starting or stopping the HWiNFO integration", _hwinfoIntegration.StartStopIfNeededAsync);
     }
 
     private async void CLIInterfaceToggle_Click(object sender, RoutedEventArgs e)
@@ -62,7 +62,7 @@ public partial class SettingsIntegrationsControl
         _integrationsSettings.Store.CLI = _cliInterfaceToggle.IsChecked ?? false;
         _integrationsSettings.SynchronizeStore();
 
-        await _ipcServer.StartStopIfNeededAsync();
+        await UiErrors.RunAsync("Starting or stopping the command line interface", _ipcServer.StartStopIfNeededAsync);
     }
 
     private void CLIPathToggle_Click(object sender, RoutedEventArgs e)

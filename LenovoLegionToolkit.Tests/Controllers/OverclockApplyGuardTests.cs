@@ -3,6 +3,7 @@ using System.IO;
 using LenovoLegionToolkit.Lib;
 using LenovoLegionToolkit.Lib.Controllers;
 using LenovoLegionToolkit.Lib.Settings;
+using LenovoLegionToolkit.Lib.SoftwareDisabler;
 using Xunit;
 
 namespace LenovoLegionToolkit.Tests.Controllers;
@@ -176,16 +177,21 @@ public sealed class OverclockApplyGuardTests : IDisposable
     [Fact]
     public void NoteRemovedWhenOverclockingTurnsOutUnsupported_NextRunShowsNoSafetyWarning()
     {
-        // IsSupportedAsync clears the settings when the laptop doesn't support GPU overclocking; it now also
-        // removes a pending note, so the next start doesn't claim a crash.
-        var (_, first) = FirstRunWithOverclockOn(Values);
+        // The step IsSupportedAsync runs when the firmware says no GPU overclocking (the firmware question itself
+        // can't be asked in a test): settings cleared and the pending note removed, so the next start claims no crash.
+        var (settings, first) = FirstRunWithOverclockOn(Values);
         first.Begin(Values);
-        first.Abandon();
+        var controller = new GPUOverclockController(settings, first,
+            new VantageDisabler(), new LegionSpaceDisabler(), new LegionZoneDisabler(), () => false);
 
-        var (_, guard) = NewRun();
+        controller.ClearBecauseUnsupported();
 
+        var (next, guard) = NewRun();
         Assert.False(guard.RecoverFromInterruptedApply());
         Assert.False(guard.DisabledAfterInterruptedApply);
+        Assert.False(next.Store.Enabled);
+        Assert.Equal(GPUOverclockInfo.Zero, next.Store.Info);
+        Assert.Null(next.Store.PendingInfo);
     }
 
     // ---- Limits on what is sent to the driver ----

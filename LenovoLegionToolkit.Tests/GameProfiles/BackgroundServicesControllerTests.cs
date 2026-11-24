@@ -33,15 +33,30 @@ public sealed class BackgroundServicesControllerTests : IDisposable
         public List<string> Calls { get; } = [];
         public HashSet<string> WontStart { get; } = new(StringComparer.OrdinalIgnoreCase);
 
+        /// <summary>Every question asked of Windows (service reads), separate from the stops and starts in <see cref="Calls"/>.</summary>
+        public int Reads { get; private set; }
+
+        /// <summary>Called at the moment of each stop, before the service changes (to check what was already noted).</summary>
+        public Action<string>? BeforeStop { get; set; }
+
         public void Add(string name, bool running = true, bool canStop = true, bool driver = false, bool dependents = false) =>
             Services[name] = new ServiceInfo(name, name + " service", driver, running, canStop, dependents);
 
-        public bool IsRunning(string name) => Services[name].Running;
+        public bool IsRunning(string name)
+        {
+            Reads++;
+            return Services[name].Running;
+        }
 
-        public ServiceInfo? ReadService(string name) => Services.TryGetValue(name, out var s) ? s : null;
+        public ServiceInfo? ReadService(string name)
+        {
+            Reads++;
+            return Services.TryGetValue(name, out var s) ? s : null;
+        }
 
         public Task<bool> StopServiceAsync(string name, TimeSpan timeout)
         {
+            BeforeStop?.Invoke(name);
             Calls.Add($"stop {name}");
             Services[name] = Services[name] with { Running = false };
             return Task.FromResult(true);
@@ -84,12 +99,35 @@ public sealed class BackgroundServicesControllerTests : IDisposable
     {
         var system = new ScriptedServices();
         system.Add("SysMain");
+        var notedWhenStopped = new List<string>();
+        system.BeforeStop = _ => notedWhenStopped.AddRange(Noted());   // what is on disk at the moment of the stop
         var (controller, _, _) = Create(system, true, "SysMain");
 
         await controller.ApplyAsync();
 
-        Assert.False(system.IsRunning("SysMain"));
+        Assert.Equal(["SysMain"], notedWhenStopped);   // noted before it was stopped, so a crash can't lose it
+        Assert.False(system.Services["SysMain"].Running);
         Assert.Equal(["SysMain"], Noted());
+    }
+
+    [Fact]
+    public async Task TheCountForActiveNow_FollowsWhatIndraNoted_WithoutAskingWindows()
+    {
+        var system = new ScriptedServices();
+        system.Add("SysMain");
+        var (controller, _, _) = Create(system, true, "SysMain");
+        Assert.Equal(0, controller.NotedCount);
+
+        await controller.ApplyAsync();
+        var callsBefore = system.Calls.Count;
+        var readsBefore = system.Reads;
+
+        Assert.Equal(1, controller.NotedCount);
+        Assert.Equal(readsBefore, system.Reads);   // reading the count asked Windows nothing
+        Assert.Equal(callsBefore, system.Calls.Count);
+
+        await controller.RestoreAllAsync();
+        Assert.Equal(0, controller.NotedCount);
     }
 
     [Fact]

@@ -1218,7 +1218,7 @@ Ein Wechsel des Modus kann einen Neustart erfordern.</value>
     <value>Fn Lock</value>
   </data>
   <data name="GB" xml:space="preserve">
-    <value>SF</value>
+    <value>GB</value>
   </data>
   <data name="Generation" xml:space="preserve">
     <value>Generierung</value>

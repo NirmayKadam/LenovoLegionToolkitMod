@@ -12,7 +12,7 @@ namespace LenovoLegionToolkit.Tests.Security;
 // Uses real files and a real copy of the Microsoft-signed dotnet.exe.
 public class ExternalHelperTests : IDisposable
 {
-    private static readonly string DotnetExe = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "dotnet", "dotnet.exe");
+    private static readonly string DotnetExe = LenovoLegionToolkit.Tests.Utils.TestFiles.SignedDotnetExe;
 
     private readonly string _dir = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), $"llt_test_{Guid.NewGuid():N}")).FullName;
 
@@ -75,7 +75,7 @@ public class ExternalHelperTests : IDisposable
             var (exitCode, output) = await CMD.RunAsync(copy, string.Empty, token: cts.Token);
 
             Assert.Equal(0, exitCode);
-            Assert.Equal(Environment.MachineName, output.Trim(), ignoreCase: true);
+            Assert.Equal(global::System.Net.Dns.GetHostName(), output.Trim(), ignoreCase: true);   // hostname prints the DNS host name, which can be longer than the 15-character NetBIOS name
         }
 
         // Once released, it can be removed again.

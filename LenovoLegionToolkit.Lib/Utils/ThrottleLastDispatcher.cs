@@ -12,12 +12,14 @@ public class ThrottleLastDispatcher(TimeSpan interval, string? tag = null)
     {
         try
         {
-            if (_cancellationTokenSource is not null)
-                await _cancellationTokenSource.CancelAsync().ConfigureAwait(false);
+            // Swapped in one step: two events at once (plugging in the charger raises two) used to both cancel the
+            // same earlier wait and then both run. Now each newer call cancels the one before it, and only the last runs.
+            var mine = new CancellationTokenSource();
+            var previous = Interlocked.Exchange(ref _cancellationTokenSource, mine);
+            if (previous is not null)
+                await previous.CancelAsync().ConfigureAwait(false);
 
-            _cancellationTokenSource = new();
-
-            var token = _cancellationTokenSource.Token;
+            var token = mine.Token;
 
             await Task.Delay(interval, token).ConfigureAwait(false);
             token.ThrowIfCancellationRequested();
@@ -54,10 +56,8 @@ public class ThrottleLastDispatcher(TimeSpan interval, string? tag = null)
     {
         try
         {
-            if (_cancellationTokenSource is not null)
-            {
-                await _cancellationTokenSource.CancelAsync().ConfigureAwait(false);
-            }
+            if (Volatile.Read(ref _cancellationTokenSource) is { } waiting)
+                await waiting.CancelAsync().ConfigureAwait(false);
         }
         catch (OperationCanceledException) { }
 

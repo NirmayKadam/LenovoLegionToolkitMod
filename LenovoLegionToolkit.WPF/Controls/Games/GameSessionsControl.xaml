@@ -1,0 +1,30 @@
+<controls:AbstractRefreshingControl
+    x:Class="LenovoLegionToolkit.WPF.Controls.Games.GameSessionsControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="clr-namespace:LenovoLegionToolkit.WPF.Controls"
+    xmlns:custom="clr-namespace:LenovoLegionToolkit.WPF.Controls.Custom"
+    xmlns:resources="clr-namespace:LenovoLegionToolkit.WPF.Resources"
+    xmlns:wpfui="http://schemas.lepo.co/wpfui/2022/xaml">
+    <custom:CardControl Margin="0,0,0,8" Icon="DataHistogram24">
+        <custom:CardControl.Header>
+            <controls:CardHeaderControl
+                x:Name="_cardHeader"
+                Title="{x:Static resources:Resource.GameSessions_Title}"
+                HelpKey="Help_Settings_GameSessions"
+                Subtitle="{x:Static resources:Resource.GameSessions_Message}" />
+        </custom:CardControl.Header>
+        <StackPanel Orientation="Horizontal">
+            <wpfui:Button
+                x:Name="_historyButton"
+                MinWidth="100"
+                Margin="0,0,12,0"
+                Click="HistoryButton_Click"
+                Content="{x:Static resources:Resource.GameSessions_History}" />
+            <wpfui:ToggleSwitch
+                x:Name="_toggle"
+                AutomationProperties.Name="{x:Static resources:Resource.GameSessions_Title}"
+                Click="Toggle_Click" />
+        </StackPanel>
+    </custom:CardControl>
+</controls:AbstractRefreshingControl>

@@ -1338,7 +1338,10 @@ public struct PluginDiscoveryInfo(IExtensionProvider provider, string typeName, 
 
 public sealed record HardwareSensorSnapshot
 {
-    private readonly float[] _values = new float[Enum.GetValues<SensorItem>().Length];
+    /// <summary>How many sensor items there are (worked out once; each snapshot used to build the list of all items again).</summary>
+    private static readonly int ItemCount = Enum.GetValues<SensorItem>().Length;
+
+    private readonly float[] _values = new float[ItemCount];
 
     public HardwareSensorSnapshot()
     {
@@ -1359,6 +1362,17 @@ public sealed record HardwareSensorSnapshot
         var copy = new HardwareSensorSnapshot();
         Array.Copy(_values, copy._values, _values.Length);
         copy._values[(int)item] = value;
+        return copy;
+    }
+
+    /// <summary>A copy with all of <paramref name="sets"/> applied in order: one copy instead of one per set.</summary>
+    public HardwareSensorSnapshot WithValues(params IReadOnlyDictionary<SensorItem, float>[] sets)
+    {
+        var copy = new HardwareSensorSnapshot();
+        Array.Copy(_values, copy._values, _values.Length);
+        foreach (var values in sets)
+            foreach (var (item, val) in values)
+                copy._values[(int)item] = val;
         return copy;
     }
 

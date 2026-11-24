@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Management;
 using System.Runtime.InteropServices;
@@ -10,6 +11,7 @@ using LenovoLegionToolkit.Lib.System.Management;
 using LenovoLegionToolkit.Lib.Utils;
 using NvAPIWrapper.Native;
 using NvAPIWrapper.Native.GPU;
+using NvAPIWrapper.Native.Interfaces.GPU;
 using Windows.Win32;
 using Windows.Win32.System.Power;
 
@@ -281,9 +283,19 @@ public abstract class AbstractSensorsController(GPUController gpuController) : I
                     break;
             }
 
-            var states = GPUApi.GetPerformanceStates20(gpu.Handle);
-            var maxCoreClockOffset = states.Clocks[PerformanceStateId.P0_3DPerformance][0].FrequencyDeltaInkHz.DeltaValue / 1000;
-            var maxMemoryClockOffset = states.Clocks[PerformanceStateId.P0_3DPerformance][1].FrequencyDeltaInkHz.DeltaValue / 1000;
+            // The overclock offsets only add to the maximum clocks. A driver or GPU that doesn't report them used to make
+            // this whole reading fail, so the GPU's load, clocks and temperature were all dropped every time.
+            int maxCoreClockOffset = 0, maxMemoryClockOffset = 0;
+            try
+            {
+                var clocks = GPUApi.GetPerformanceStates20(gpu.Handle).Clocks;
+                maxCoreClockOffset = ClockOffsetMhz(clocks, 0);
+                maxMemoryClockOffset = ClockOffsetMhz(clocks, 1);
+            }
+            catch (Exception ex)
+            {
+                Log.Instance.Trace($"GPU clock offsets not readable; maximum clocks shown without them.", ex);
+            }
 
             var temperatureSensor = gpu.ThermalInformation.ThermalSensors.FirstOrDefault();
             var currentTemperature = temperatureSensor?.CurrentTemperature ?? -1;
@@ -302,6 +314,12 @@ public abstract class AbstractSensorsController(GPUController gpuController) : I
             return GPUInfo.Empty;
         }
     }
+
+    /// <summary>The P0 (3D) clock offset in MHz at <paramref name="index"/> (0 = core, 1 = memory); 0 when not reported.</summary>
+    internal static int ClockOffsetMhz(IReadOnlyDictionary<PerformanceStateId, IPerformanceStates20ClockEntry[]> clocks, int index) =>
+        clocks.TryGetValue(PerformanceStateId.P0_3DPerformance, out var entries) && index < entries.Length
+            ? entries[index].FrequencyDeltaInkHz.DeltaValue / 1000
+            : 0;
 
     protected int GetCpuUtilization(int maxUtilization)
     {

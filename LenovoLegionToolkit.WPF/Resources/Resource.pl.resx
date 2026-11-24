@@ -3744,7 +3744,7 @@ Jeśli zdecydujesz się kontynuować, logowanie zostanie włączone automatyczni
     <value>Gwarancja</value>
   </data>
   <data name="Watt" xml:space="preserve">
-    <value>Pr</value>
+    <value>W</value>
   </data>
   <data name="WhiteKeyboardBacklightAutomationStepControl_Message" xml:space="preserve">
     <value>Dostosuj jasność podświetlenia klawiatury.</value>

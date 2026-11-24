@@ -1,4 +1,5 @@
 using System;
+using LenovoLegionToolkit.Lib.GameSessions;
 using System.Collections.Generic;
 using System.Diagnostics.Eventing.Reader;
 using System.Globalization;
@@ -35,15 +36,17 @@ public sealed class GpuDriverErrorMonitor : IDisposable
 
     private readonly PowerModeListener _powerModeListener;
     private readonly GameProfileController _gameProfiles;
+    private readonly GameSessionRecorder _gameSessions;
     private readonly object _lock = new();
     private readonly Dictionary<DateTime, string> _contexts = [];
     private EventLogWatcher? _watcher;
     private PowerModeChange? _lastPowerMode;
 
-    public GpuDriverErrorMonitor(PowerModeListener powerModeListener, GameProfileController gameProfiles)
+    public GpuDriverErrorMonitor(PowerModeListener powerModeListener, GameProfileController gameProfiles, GameSessionRecorder gameSessions)
     {
         _powerModeListener = powerModeListener;
         _gameProfiles = gameProfiles;
+        _gameSessions = gameSessions;
     }
 
     public void Start()
@@ -136,7 +139,11 @@ public sealed class GpuDriverErrorMonitor : IDisposable
             lock (_lock)
                 lastPowerMode = _lastPowerMode;
 
-            var context = DescribeContext(utc, lastPowerMode, AfterburnerProgram.LastStarted, _gameProfiles.ActiveGameName);
+            // What the GPU was doing just before (only during a recorded game session, and only if fresh): what an
+            // undervolt test needs to know.
+            var readings = _gameSessions.GpuReadingsBefore(utc);
+            var context = DescribeContext(utc, lastPowerMode, AfterburnerProgram.LastStarted, _gameProfiles.ActiveGameName, readings);
+            _gameSessions.NoteDriverError(utc, readings);
             lock (_lock)
                 _contexts[utc] = context ?? string.Empty;
 
@@ -155,9 +162,12 @@ public sealed class GpuDriverErrorMonitor : IDisposable
             : string.Format(Resource.GpuDriverError_NotificationWithContext, localTime.ToString("HH:mm:ss", CultureInfo.CurrentCulture), context);
 
     /// <summary>What happened shortly before the error, or null when nothing did. Pure: everything comes in.</summary>
-    internal static string? DescribeContext(DateTime errorUtc, PowerModeChange? lastPowerMode, AfterburnerStart? lastAfterburner, string? game)
+    internal static string? DescribeContext(DateTime errorUtc, PowerModeChange? lastPowerMode, AfterburnerStart? lastAfterburner, string? game, string? gpuReadings = null)
     {
         var parts = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(gpuReadings))
+            parts.Add(gpuReadings);
 
         if (lastPowerMode is { } mode && IsShortlyBefore(mode.Utc, errorUtc))
             parts.Add(string.Format(Resource.GpuDriverError_AfterPowerMode, Seconds(errorUtc - mode.Utc), mode.Mode.GetDisplayName()));

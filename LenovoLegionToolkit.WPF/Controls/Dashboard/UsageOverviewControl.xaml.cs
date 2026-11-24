@@ -7,6 +7,7 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using LenovoLegionToolkit.Lib;
 using LenovoLegionToolkit.Lib.Controllers.Sensors;
+using LenovoLegionToolkit.Lib.Settings;
 using LenovoLegionToolkit.Lib.System;
 using LenovoLegionToolkit.Lib.Utils;
 using LenovoLegionToolkit.WPF.Extensions;
@@ -31,6 +32,13 @@ public partial class UsageOverviewControl
 
     private readonly SensorsController _sensors = IoCContainer.Resolve<SensorsController>();
     private readonly DashboardSettings _dashboardSettings = IoCContainer.Resolve<DashboardSettings>();
+    private readonly ApplicationSettings _applicationSettings = IoCContainer.Resolve<ApplicationSettings>();
+    private readonly SensorsControlSettings _sensorsControlSettings = IoCContainer.Resolve<SensorsControlSettings>();
+
+    /// <summary>The same interval as the rest of the Dashboard (it ignored the new sensor dashboard's, and had no lower limit).</summary>
+    private TimeSpan RefreshInterval() => DashboardRefresh.Interval(_applicationSettings.Store.EnableHardwareSensors,
+        _applicationSettings.Store.UseNewSensorDashboard, _sensorsControlSettings.Store.SensorsRefreshIntervalSeconds,
+        _dashboardSettings.Store.SensorsRefreshIntervalSeconds);
 
     private readonly ReadingHistory _cpuTemperatures = new(Window);
     private readonly ReadingHistory _gpuTemperatures = new(Window);
@@ -74,6 +82,13 @@ public partial class UsageOverviewControl
         {
             try
             {
+                // Minimized still counts as visible to WPF; nothing is read while nobody can see the rings.
+                if (!Motion.IsWindowShown)
+                {
+                    await Task.Delay(RefreshInterval(), token).ConfigureAwait(false);
+                    continue;
+                }
+
                 SensorsData? data = null;
                 if (sensorsSupported)
                 {
@@ -91,7 +106,7 @@ public partial class UsageOverviewControl
                 var now = DateTime.UtcNow;
                 Dispatcher.Post(() => Show(data, memory, now));
 
-                await Task.Delay(TimeSpan.FromSeconds(_dashboardSettings.Store.SensorsRefreshIntervalSeconds), token).ConfigureAwait(false);
+                await Task.Delay(RefreshInterval(), token).ConfigureAwait(false);
             }
             catch (OperationCanceledException)
             {

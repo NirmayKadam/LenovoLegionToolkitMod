@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using LenovoLegionToolkit.Lib.Automation.Resources;
@@ -23,21 +22,21 @@ public class ProcessesAreRunningAutomationPipelineTrigger(ProcessInfo[]? process
 
         if (automationEvent is StartupAutomationEvent)
         {
-            var result = Processes.SelectMany(p => Process.GetProcessesByName(p.Name)).Any();
-            return Task.FromResult(result);
+            return Task.FromResult(ProcessTriggerMatching.IsAnyRunning(Processes));
         }
 
         var e = (ProcessAutomationEvent)automationEvent;
-        Log.Instance.Trace($"Checking for {e.ProcessInfo.Name}... [processes={string.Join(",", Processes.Select(p => p.Name))}]");
+        if (Log.Instance.IsTraceEnabled)
+            Log.Instance.Trace($"Checking for {e.ProcessInfo.Name}... [processes={string.Join(",", Processes.Select(p => p.Name))}]");
 
-        if (!Processes.Contains(e.ProcessInfo) && !Processes.Select(p => p.Name).Contains(e.ProcessInfo.Name))
+        if (!ProcessTriggerMatching.IsListed(Processes, e.ProcessInfo))
         {
             Log.Instance.Trace($"Process name {e.ProcessInfo.Name} not in the list.");
 
             return Task.FromResult(false);
         }
 
-        var isRunning = Processes.SelectMany(p => Process.GetProcessesByName(p.Name)).Any();
+        var isRunning = ProcessTriggerMatching.IsAnyRunning(Processes);
 
         Log.Instance.Trace($"Process name {e.ProcessInfo.Name} found in process list: {isRunning}.");
 
@@ -46,8 +45,7 @@ public class ProcessesAreRunningAutomationPipelineTrigger(ProcessInfo[]? process
 
     public Task<bool> IsMatchingState()
     {
-        var result = Processes.SelectMany(p => Process.GetProcessesByName(p.Name)).Any();
-        return Task.FromResult(result);
+        return Task.FromResult(ProcessTriggerMatching.IsAnyRunning(Processes));
     }
 
     public void UpdateEnvironment(AutomationEnvironment environment)

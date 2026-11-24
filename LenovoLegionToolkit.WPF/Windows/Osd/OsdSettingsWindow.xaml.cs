@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 using LenovoLegionToolkit.Lib;
@@ -114,6 +115,23 @@ public partial class OsdSettingsWindow
     {
         InitializeComponent();
         this.Loaded += OsdSettingsWindow_Loaded;
+    }
+
+    /// <summary>Dragging the window by its title.</summary>
+    private void TitleArea_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ButtonState != MouseButtonState.Pressed)
+            return;
+
+        try
+        {
+            DragMove();
+            e.Handled = true;
+        }
+        catch (InvalidOperationException)
+        {
+            // The button was already released (DragMove needs it held down).
+        }
     }
 
     private void OsdSettingsWindow_Loaded(object sender, RoutedEventArgs e)

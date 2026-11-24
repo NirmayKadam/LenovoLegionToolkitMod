@@ -13,6 +13,7 @@ using LenovoLegionToolkit.Lib.System.Management;
 using LenovoLegionToolkit.Lib.Utils;
 using LenovoLegionToolkit.WPF.Extensions;
 using LenovoLegionToolkit.WPF.Resources;
+using LenovoLegionToolkit.WPF.Utils;
 using LenovoLegionToolkit.WPF.Windows.Settings;
 
 namespace LenovoLegionToolkit.WPF.Controls.Settings;
@@ -98,9 +99,21 @@ public partial class SettingsPowerControl
 
         _godModeFnQSwitchableToggle.IsEnabled = false;
 
-        await WMI.LenovoOtherMethod.SetFeatureValueAsync(CapabilityID.GodModeFnQSwitchable, state.Value ? 1 : 0);
-
-        _godModeFnQSwitchableToggle.IsEnabled = true;
+        try
+        {
+            await WMI.LenovoOtherMethod.SetFeatureValueAsync(CapabilityID.GodModeFnQSwitchable, state.Value ? 1 : 0);
+        }
+        catch (Exception ex)
+        {
+            // The firmware refused: the switch goes back to what is set (it used to stay on the new position, greyed
+            // out for good, with the general "Unexpected exception" message).
+            _godModeFnQSwitchableToggle.IsChecked = !state.Value;
+            UiErrors.Report("Changing Custom mode in Fn+Q", ex);
+        }
+        finally
+        {
+            _godModeFnQSwitchableToggle.IsEnabled = true;
+        }
     }
 
     private async void PowerModeMappingComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -115,8 +128,19 @@ public partial class SettingsPowerControl
             return;
         }
 
-        var isPowerModeFeatureSupported = await _powerModeFeature.IsSupportedAsync();
-        var isITSModeFeatureSupported = await _itsModeFeature.IsSupportedAsync();
+        // Read before anything is saved; a failure leaves the setting as it was and says so (it used to end in the
+        // general "Unexpected exception" message).
+        bool isPowerModeFeatureSupported, isITSModeFeatureSupported;
+        try
+        {
+            isPowerModeFeatureSupported = await _powerModeFeature.IsSupportedAsync();
+            isITSModeFeatureSupported = await _itsModeFeature.IsSupportedAsync();
+        }
+        catch (Exception ex)
+        {
+            UiErrors.Report("Reading the power modes for the mapping", ex);
+            return;
+        }
         var isAnyPowerFeatureSupported = isPowerModeFeatureSupported || isITSModeFeatureSupported;
         var isWindowsPowerModeSupported = WindowsPowerModeController.IsOverlaySupported;
         if (!isWindowsPowerModeSupported && powerModeMappingMode == PowerModeMappingMode.WindowsPowerMode)
@@ -140,7 +164,9 @@ public partial class SettingsPowerControl
 
         if (powerModeMappingMode != PowerModeMappingMode.Disabled)
         {
-            await _powerModeFeature.EnsureCorrectWindowsPowerSettingsAreSetAsync();
+            // The mapping is saved; putting Windows' power settings in line can fail on its own and is reported.
+            await UiErrors.RunAsync("Setting the Windows power plan or mode for the mapping",
+                () => _powerModeFeature.EnsureCorrectWindowsPowerSettingsAreSetAsync());
         }
     }
 

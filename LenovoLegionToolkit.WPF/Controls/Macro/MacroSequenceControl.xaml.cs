@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,6 +8,7 @@ using LenovoLegionToolkit.Lib;
 using LenovoLegionToolkit.Lib.Macro;
 using LenovoLegionToolkit.WPF.Extensions;
 using LenovoLegionToolkit.WPF.Resources;
+using LenovoLegionToolkit.WPF.Utils;
 using LenovoLegionToolkit.WPF.Windows.Macro;
 
 namespace LenovoLegionToolkit.WPF.Controls.Macro;
@@ -119,7 +120,21 @@ public partial class MacroSequenceControl
         if (!_settingsComboBox.TryGetSelectedItem(out MacroRecorderSettings settings))
             return;
 
-        await RecordAsync(settings);
+        try
+        {
+            await RecordAsync(settings);
+        }
+        catch (Exception ex)
+        {
+            // Recording couldn't start (for example the keyboard hook was refused). The wait cursor used to stay on
+            // over the whole app, and the Record button greyed out.
+            Mouse.OverrideCursor = null;
+            _recordingWindow?.Close();
+            _recordingWindow = null;
+            _recordButton.IsEnabled = true;
+            _clearButton.Visibility = Visibility.Visible;
+            UiErrors.Report("Starting a macro recording", ex);
+        }
     }
 
     private async Task RecordAsync(MacroRecorderSettings settings)

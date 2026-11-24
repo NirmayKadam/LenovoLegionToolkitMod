@@ -22,7 +22,8 @@ public class TimeAutomationPipelineTrigger(bool isSunrise, bool isSunset, Time? 
 
     public string DisplayName => Resource.TimeAutomationPipelineTrigger_DisplayName;
 
-    private readonly SunriseSunset _sunriseSunset = IoCContainer.Resolve<SunriseSunset>();
+    /// <summary>Resolved when first needed (only sunrise and sunset triggers need it).</summary>
+    private static SunriseSunset SunriseSunset => IoCContainer.Resolve<SunriseSunset>();
 
     public async Task<bool> IsMatchingEvent(IAutomationEvent automationEvent)
     {
@@ -55,7 +56,12 @@ public class TimeAutomationPipelineTrigger(bool isSunrise, bool isSunset, Time? 
         if (Time is { } utcTime && utcTime.UtcToLocal() == time && (Days.IsEmpty() || Days.Contains(dayOfWeek)))
             return true;
 
-        var (sunrise, sunset) = await _sunriseSunset.GetSunriseSunsetAsync().ConfigureAwait(false);
+        // A plain "at 22:00" trigger never needs sunrise or sunset (asked every second, that lookup used to go out
+        // every second too).
+        if (!IsSunrise && !IsSunset)
+            return false;
+
+        var (sunrise, sunset) = await SunriseSunset.GetSunriseSunsetAsync().ConfigureAwait(false);
 
         if (IsSunrise && sunrise?.UtcToLocal() == time)
             return true;

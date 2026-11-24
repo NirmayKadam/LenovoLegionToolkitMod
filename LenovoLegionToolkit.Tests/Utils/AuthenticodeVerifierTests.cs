@@ -11,7 +11,7 @@ public class AuthenticodeVerifierTests : IDisposable
 {
     private const int TRUST_E_BAD_DIGEST = unchecked((int)0x80096010);
 
-    private static readonly string SignedFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "dotnet", "dotnet.exe");
+    private static readonly string SignedFile = TestFiles.SignedDotnetExe;
 
     private readonly string _tempDir = Path.Combine(Path.GetTempPath(), $"llt_test_{Guid.NewGuid():N}");
 

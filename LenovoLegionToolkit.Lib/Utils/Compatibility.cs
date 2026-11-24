@@ -222,10 +222,31 @@ public static partial class Compatibility
 #endif
     }
 
+    // A scan in which a probe got no answer in time, used until a later scan gets every answer.
+    private static MachineInformation? _partialMachineInformation;
+    private static long _partialAtMs;
+    private static int _rescanRunning;
+
+    /// <summary>How long a scan with an unanswered probe is used before it is read again (in the background).</summary>
+    internal static readonly TimeSpan RescanAfterTimeout = TimeSpan.FromMinutes(5);
+
+    /// <summary>Whether a scan with an unanswered probe, made at <paramref name="partialAtMs"/>, is old enough to read again.</summary>
+    internal static bool ShouldRescan(long partialAtMs, long nowMs) => nowMs - partialAtMs >= RescanAfterTimeout.TotalMilliseconds;
+
     public static async Task<MachineInformation> GetMachineInformationAsync()
     {
         if (_machineInformation is { } cached)
             return cached;
+
+        // A probe Windows didn't answer in time isn't the same as "not supported", so that scan isn't kept for good.
+        // Before, every caller (there are dozens, some every few seconds) then scanned again, up to 30 s per hung
+        // probe each time. Now that scan is used, and read again in the background at most every few minutes.
+        if (_partialMachineInformation is { } partial)
+        {
+            if (ShouldRescan(Volatile.Read(ref _partialAtMs), Environment.TickCount64) && Interlocked.CompareExchange(ref _rescanRunning, 1, 0) == 0)
+                _ = Task.Run(RescanAsync);
+            return partial;
+        }
 
         // One scan at a time: callers that arrive during the first scan wait for it instead of starting their own.
         await MachineInformationLock.WaitAsync().ConfigureAwait(false);
@@ -233,24 +254,59 @@ public static partial class Compatibility
         {
             if (_machineInformation is { } loaded)
                 return loaded;
+            if (_partialMachineInformation is { } partialMeanwhile)
+                return partialMeanwhile;
 
-            _probeTimedOut = false;
-            var machineInformation = await ReadMachineInformationAsync().ConfigureAwait(false);
-
-            // A probe Windows didn't answer in time isn't the same as "not supported": that scan is used now but not
-            // kept, so the next caller asks again instead of hiding features for the whole session.
-            if (_probeTimedOut)
-            {
-                Log.Instance.Trace($"Machine information not kept: a probe got no answer in time. It will be read again.");
-                return machineInformation;
-            }
-
-            _machineInformation = machineInformation;
-            return machineInformation;
+            return await ScanAsync().ConfigureAwait(false);
         }
         finally
         {
             MachineInformationLock.Release();
+        }
+    }
+
+    /// <summary>One scan; called under <see cref="MachineInformationLock"/>.</summary>
+    private static async Task<MachineInformation> ScanAsync()
+    {
+        _probeTimedOut = false;
+        var machineInformation = await ReadMachineInformationAsync().ConfigureAwait(false);
+
+        if (_probeTimedOut)
+        {
+            Log.Instance.Trace($"Machine information not kept for good: a probe got no answer in time. It will be read again in {RescanAfterTimeout.TotalMinutes:0} minutes.");
+            Volatile.Write(ref _partialAtMs, Environment.TickCount64);
+            _partialMachineInformation = machineInformation;
+            return machineInformation;
+        }
+
+        _machineInformation = machineInformation;
+        _partialMachineInformation = null;
+        return machineInformation;
+    }
+
+    private static async Task RescanAsync()
+    {
+        try
+        {
+            await MachineInformationLock.WaitAsync().ConfigureAwait(false);
+            try
+            {
+                if (_machineInformation is null)
+                    await ScanAsync().ConfigureAwait(false);
+            }
+            finally
+            {
+                MachineInformationLock.Release();
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Reading the machine information again failed.", ex);
+            Volatile.Write(ref _partialAtMs, Environment.TickCount64);
+        }
+        finally
+        {
+            Interlocked.Exchange(ref _rescanRunning, 0);
         }
     }
 
@@ -260,7 +316,7 @@ public static partial class Compatibility
     /// thread, so it never waits on the caller's own thread and can't deadlock it.
     /// </summary>
     public static MachineInformation GetMachineInformation() =>
-        _machineInformation ?? Task.Run(GetMachineInformationAsync).GetAwaiter().GetResult();
+        _machineInformation ?? _partialMachineInformation ?? Task.Run(GetMachineInformationAsync).GetAwaiter().GetResult();
 
     private static async Task<MachineInformation> ReadMachineInformationAsync()
     {

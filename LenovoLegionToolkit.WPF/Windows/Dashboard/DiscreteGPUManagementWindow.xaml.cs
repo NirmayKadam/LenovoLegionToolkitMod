@@ -241,11 +241,12 @@ public partial class DiscreteGPUManagementWindow : BaseWindow
 
         _settings.Store.KeepDgpuAwake = _keepDgpuAwakeToggle.IsChecked == true;
         _settings.SynchronizeStore();
-        
-        _ = IoCContainer.Resolve<DgpuAwakeManager>().UpdateStateAsync();
+
+        // Started and left to run; a failure used to be lost without a trace.
+        IoCContainer.Resolve<DgpuAwakeManager>().UpdateStateAsync().Forget("Keeping the discrete GPU awake");
     }
 
-    private void PStateComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    private async void PStateComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (_isInitializing || _pStateComboBox.SelectedItem is not PStateItemViewModel item)
             return;
@@ -253,7 +254,9 @@ public partial class DiscreteGPUManagementWindow : BaseWindow
         if (item.Id == _settings.Store.LockedPStateId)
             return;
 
-        _ = _gpuController.SetPStateAsync(item.Id);
+        // The choice is saved first and applied later when MSI Afterburner runs, so the list keeps it. A driver
+        // failure is said, instead of being lost while the list showed a P-state the GPU wasn't in.
+        await UiErrors.RunAsync("Locking the GPU P-state", () => _gpuController.SetPStateAsync(item.Id));
     }
 
 
@@ -334,7 +337,7 @@ public partial class DiscreteGPUManagementWindow : BaseWindow
             {
                 await Task.Delay(_settings.Store.GPUKillProcessDelay);
                 await _gpuController.RefreshNowAsync();
-            });
+            }).Forget("Refreshing the GPU list after Kill");
         }
     }
 }

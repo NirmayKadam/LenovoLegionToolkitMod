@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using LenovoLegionToolkit.Lib.Utils;
 
 namespace LenovoLegionToolkit.Lib.System;
@@ -105,8 +106,27 @@ public static class ProcessImagePath
         if (devicePath.StartsWith(network, StringComparison.OrdinalIgnoreCase))
             return @"\\" + devicePath[network.Length..];
 
-        return Match(devicePath, _drivesByDevice) ?? Match(devicePath, _drivesByDevice = ReadDrives());
+        if (Match(devicePath, _drivesByDevice) is { } path)
+            return path;
+
+        // A miss may mean a drive was just added, so the drive letters are read again, but at most every 30 s. Some
+        // names never map to a letter (the Registry and Memory Compression processes, volumes without a letter), and
+        // each of them used to ask Windows about all 26 letters again, at every process start and every scan.
+        var now = Environment.TickCount64;
+        if (!ShouldRereadDrives(Interlocked.Read(ref _drivesReadAtMs), now))
+            return null;
+
+        Interlocked.Exchange(ref _drivesReadAtMs, now);
+        return Match(devicePath, _drivesByDevice = ReadDrives());
     }
+
+    /// <summary>How often a miss may read the drive letters again.</summary>
+    internal static readonly TimeSpan RereadDrivesAfter = TimeSpan.FromSeconds(30);
+
+    private static long _drivesReadAtMs = long.MinValue / 2;
+
+    /// <summary>Whether a miss at <paramref name="nowMs"/> reads the drive letters again, last read at <paramref name="lastReadMs"/>.</summary>
+    internal static bool ShouldRereadDrives(long lastReadMs, long nowMs) => nowMs - lastReadMs >= RereadDrivesAfter.TotalMilliseconds;
 
     private static string? Match(string devicePath, IReadOnlyDictionary<string, string> drivesByDevice)
     {

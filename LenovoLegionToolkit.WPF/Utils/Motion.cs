@@ -178,10 +178,22 @@ public static class Motion
     /// </summary>
     public static void AnimateNumber(TextBlock textBlock, double to, int decimals, string suffix = "")
     {
+        // The same value as last time: nothing to animate. A new 600 ms animation each refresh kept WPF drawing at
+        // full rate the whole time the dashboard was open, even when nothing changed.
+        if (IsSameTarget(textBlock, to) && (int)textBlock.GetValue(NumberDecimalsProperty) == decimals
+            && (string)textBlock.GetValue(NumberSuffixProperty) == suffix)
+            return;
+        textBlock.SetValue(TargetProperty, to);
+
         SetNumberDecimals(textBlock, decimals);
         SetNumberSuffix(textBlock, suffix);
 
-        if (Level != AnimationLevel.Full || !textBlock.IsLoaded)
+        // After a text ("—"), the number is put back at once: an animation to the number shown before the text
+        // wouldn't change the value, so the text used to stay.
+        var afterText = (bool)textBlock.GetValue(ShowingTextProperty);
+        textBlock.ClearValue(ShowingTextProperty);
+
+        if (afterText || Level != AnimationLevel.Full || !textBlock.IsLoaded)
         {
             textBlock.BeginAnimation(NumberValueProperty, null);
             SetNumberValue(textBlock, to);
@@ -200,6 +212,9 @@ public static class Motion
     public static void AnimateFill(FrameworkElement bar, double fraction)
     {
         var target = ClampFraction(fraction);
+        if (IsSameTarget(bar, target) && bar.RenderTransform is ScaleTransform { IsFrozen: false })
+            return;   // unchanged: no new 400 ms animation
+        bar.SetValue(TargetProperty, target);
 
         if (bar.RenderTransform is not ScaleTransform scale || scale.IsFrozen)
         {
@@ -282,7 +297,17 @@ public static class Motion
             return;
         _windowShown = shown;
         UpdateLoops();
+        WindowShownChanged?.Invoke(null, EventArgs.Empty);
     }
+
+    /// <summary>
+    /// True while the main window is on screen (not hidden in the tray, not minimized). A minimized window still counts
+    /// as visible to WPF, so cards that refresh every second kept reading sensors while minimized; they check this.
+    /// </summary>
+    public static bool IsWindowShown => _windowShown;
+
+    /// <summary>Raised on the UI thread when <see cref="IsWindowShown"/> changes.</summary>
+    public static event EventHandler? WindowShownChanged;
 
     private static void UpdateLoops()
     {
@@ -385,6 +410,28 @@ public static class Motion
     }
 
     // ---- Internals ----
+
+    /// <summary>The value the element was last asked to show (NaN before the first).</summary>
+    private static readonly DependencyProperty TargetProperty = DependencyProperty.RegisterAttached(
+        "MotionTarget", typeof(double), typeof(Motion), new PropertyMetadata(double.NaN));
+
+    internal static bool IsSameTarget(DependencyObject d, double target) => ((double)d.GetValue(TargetProperty)).Equals(target);
+
+    /// <summary>
+    /// Shows <paramref name="text"/> in a number that <see cref="AnimateNumber"/> animates (for example "—" for a
+    /// missing reading). The last number is forgotten, so the next one is shown even if it is the same as before.
+    /// </summary>
+    public static void ShowText(TextBlock textBlock, string text)
+    {
+        textBlock.BeginAnimation(NumberValueProperty, null);
+        textBlock.ClearValue(TargetProperty);
+        textBlock.SetValue(ShowingTextProperty, true);
+        textBlock.Text = text;
+    }
+
+    /// <summary>True while a text from <see cref="ShowText"/> is shown instead of the number.</summary>
+    private static readonly DependencyProperty ShowingTextProperty = DependencyProperty.RegisterAttached(
+        "MotionShowingText", typeof(bool), typeof(Motion), new PropertyMetadata(false));
 
     /// <summary>
     /// The element's translate transform, created if it has none. Returns null when the element already uses

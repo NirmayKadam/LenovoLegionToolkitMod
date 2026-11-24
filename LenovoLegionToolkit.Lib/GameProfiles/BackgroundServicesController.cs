@@ -124,6 +124,12 @@ public class BackgroundServicesController
         Changed?.Invoke(this, EventArgs.Empty);
     }
 
+    /// <summary>
+    /// How many services Indra has stopped and will start again, from its own note (no service is queried, so this
+    /// is cheap enough for the dashboard's "Active now" strip).
+    /// </summary>
+    public int NotedCount => _session.Store.StoppedServices.Count;
+
     /// <summary>What each chosen or noted service is doing now, for the window.</summary>
     public IReadOnlyList<BackgroundServiceStatus> GetStatus()
     {

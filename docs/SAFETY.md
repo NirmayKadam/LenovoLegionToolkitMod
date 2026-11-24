@@ -106,7 +106,7 @@ Automations change the same settings as the rest of LLT, with the same limits. W
   - LLT warns when the program or its folder can be changed by programs that aren't elevated, when no folder is given, or when the program is missing. The warning appears on the step, under the automation and in the safety report.
   - The program still runs: you chose warn only.
   - **Limit:** only the program itself is checked, not a script named in its arguments (`cmd /c script.bat`).
-- **Sunrise and sunset** times need your location. Leave Settings → App behaviour → "Location for sunrise and sunset" empty, and LLT asks ip-api.com once a day (unencrypted). Type a latitude and longitude there, and nothing is looked up online.
+- **Sunrise and sunset** times need your location. Leave Settings → App behaviour → "Location for sunrise and sunset" empty, and LLT asks ip-api.com once a day (unencrypted). If that fails (offline, or the service refuses), it asks again after an hour at the earliest. Only sunrise and sunset triggers ask at all. Type a latitude and longitude there, and nothing is looked up online.
 - **The MSI Afterburner profile step** only ever starts the genuine program.
   - The file must be named `MSIAfterburner.exe` and validly signed by Micro-Star; otherwise it isn't started and a notification says why.
   - The file is locked from the check until it has started.
@@ -127,6 +127,29 @@ Kernel anti-cheats (Vanguard, Easy Anti-Cheat, BattlEye) watch for other program
 - **File paths** are read from Windows' process list by process id, without opening the process.
 - **A game counts as ended** when Windows reports it stopped, or when the process list no longer shows it.
 - **The only exception is your own action:** Kill in the discrete GPU window opens the program you chose, to end it.
+
+## Safe start
+
+If Indra's previous start didn't finish (it crashed, froze and was ended, or the laptop went down while it was starting), the next start is a safe start:
+- **Skipped once:** God Mode and the Windows power settings, ITS mode, the GPU overclock and locked P-state, AMD overclocking, the first fan-curve apply, and automations that run at start-up. A notification says so, and the dashboard shows "Safe start".
+- **Still done:** putting back what a game profile or the background services changed, and anything you do yourself.
+- The note behind it, `startup_in_progress`, sits next to the log folder, not with the settings. It is removed 30 seconds after a start finishes and on every normal exit. The next start is normal again.
+
+## Game session report
+
+After each game (one minute or longer), Indra shows a short summary and keeps the last 30 in `game_sessions.json` in the settings folder (not part of backups).
+- **It only reads:** temperatures, GPU clock and load (Lenovo and NVIDIA sensors), GPU power when detailed sensors are on and not paused, and FPS when the OSD measures it.
+- **A GPU driver error during a game** is shown with the GPU clock, temperature, load and power from up to 5 seconds before it. GPU voltage isn't read, because that would need riskier NVIDIA calls.
+- **While it is on, game detection keeps running.** Detection never opens a game's process. You can turn the report off on its card in the Games group.
+- **The MSI Afterburner profile** listed with a session is one Indra applied (by an automation or a game profile). A profile you switch in Afterburner itself isn't seen.
+- **Export CSV** in the History window writes one file, only where you choose in the Save dialog.
+
+## Freeze watchdog
+
+While Indra runs, a small background thread checks every 2 seconds that Indra's own window still answers.
+- **If the window doesn't answer for 15 seconds,** it writes an error report with the last 60 lines of the log to the log folder. When the window answers again, a notification says how long it was stuck.
+- **It only watches:** it never ends, restarts or changes anything, in Indra or elsewhere.
+- **Sleep isn't a freeze:** a long gap between two checks (sleep, hibernate, a paused process) starts the count again. The watchdog starts after start-up and stops first thing on exit.
 
 ## GPU driver errors
 

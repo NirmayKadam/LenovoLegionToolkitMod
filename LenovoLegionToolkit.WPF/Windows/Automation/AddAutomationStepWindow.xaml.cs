@@ -1,4 +1,5 @@
 using System;
+using LenovoLegionToolkit.Lib.Extensions;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows;
@@ -61,7 +62,7 @@ public partial class AddAutomationStepWindow
 
     private void _searchBox_TextChanged(object sender, TextChangedEventArgs e)
     {
-        _ = RefreshAsync();
+        RefreshAsync().Forget("Refreshing the automation list");   // a failure is logged, not lost
     }
 
     private Task RefreshAsync()

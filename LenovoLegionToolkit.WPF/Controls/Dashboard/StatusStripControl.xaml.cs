@@ -70,7 +70,11 @@ public partial class StatusStripControl
         {
             Subscribe(true);
             await RefreshPowerAsync();
-            StartPolling();
+
+            // Hidden again while the power mode was read: the hide already ran and found no polling to stop, so
+            // starting it now would poll every second while hidden.
+            if (IsVisible)
+                StartPolling();
             return;
         }
 
@@ -179,10 +183,8 @@ public partial class StatusStripControl
     private TimeSpan RefreshInterval()
     {
         // Same interval as whichever sensors section the dashboard shows.
-        var seconds = _applicationSettings.Store.EnableHardwareSensors && _applicationSettings.Store.UseNewSensorDashboard
-            ? _sensorsControlSettings.Store.SensorsRefreshIntervalSeconds
-            : _dashboardSettings.Store.SensorsRefreshIntervalSeconds;
-        return TimeSpan.FromSeconds(Math.Max(0.5, seconds));
+        return DashboardRefresh.Interval(_applicationSettings.Store.EnableHardwareSensors, _applicationSettings.Store.UseNewSensorDashboard,
+            _sensorsControlSettings.Store.SensorsRefreshIntervalSeconds, _dashboardSettings.Store.SensorsRefreshIntervalSeconds);
     }
 
     private void StartPolling()
@@ -207,6 +209,20 @@ public partial class StatusStripControl
 
             while (!token.IsCancellationRequested)
             {
+                // Minimized still counts as visible to WPF; nothing is read while nobody can see the strip.
+                if (!Motion.IsWindowShown)
+                {
+                    try
+                    {
+                        await Task.Delay(RefreshInterval(), token);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        break;
+                    }
+                    continue;
+                }
+
                 var data = SensorsData.Empty;
                 if (sensorsSupported)
                 {
@@ -250,15 +266,18 @@ public partial class StatusStripControl
             await _cts.CancelAsync();
         _cts = null;
 
-        if (_pollTask is not null)
+        // The task to wait for is taken now: by the time it ends, a newer polling may have started, and clearing the
+        // field afterwards used to forget that one (it could then never be stopped).
+        var polling = _pollTask;
+        _pollTask = null;
+        if (polling is not null)
         {
             try
             {
-                await _pollTask;
+                await polling;
             }
             catch (OperationCanceledException) { }
         }
-        _pollTask = null;
     }
 
     private void UpdateValues(SensorsData data, BatteryInformation? battery)
@@ -331,8 +350,7 @@ public partial class StatusStripControl
 
     private static string ShowUnavailable(TextBlock textBlock)
     {
-        textBlock.BeginAnimation(Motion.NumberValueProperty, null);
-        textBlock.Text = Unavailable;
+        Motion.ShowText(textBlock, Unavailable);   // also forgets the last number, so the next reading shows again
         return Unavailable;
     }
 

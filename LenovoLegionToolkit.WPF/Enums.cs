@@ -42,7 +42,8 @@ public enum DashboardItem
     GameDetection,
     GameSafeMode,
     GameProfiles,
-    BackgroundServices
+    BackgroundServices,
+    GameSessions
 }
 
 public enum GradientDirection

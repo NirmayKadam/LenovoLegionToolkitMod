@@ -15764,5 +15764,419 @@ namespace LenovoLegionToolkit.WPF.Resources {
                 return ResourceManager.GetString("App_RestartFailed_Message", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Safe start: Indra&apos;s last start didn&apos;t finish, so this time it didn&apos;t apply power mode, overclock or fan curve settings. The next start applies them normally..
+        /// </summary>
+        public static string SafeStart_Notification {
+            get {
+                return ResourceManager.GetString("SafeStart_Notification", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Active now.
+        /// </summary>
+        public static string ActiveNow_Label {
+            get {
+                return ResourceManager.GetString("ActiveNow_Label", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Safe start.
+        /// </summary>
+        public static string ActiveNow_SafeStart {
+            get {
+                return ResourceManager.GetString("ActiveNow_SafeStart", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Indra&apos;s last start didn&apos;t finish, so this time it didn&apos;t apply power mode, overclock or fan curve settings. The next start applies them normally..
+        /// </summary>
+        public static string ActiveNow_SafeStart_Tip {
+            get {
+                return ResourceManager.GetString("ActiveNow_SafeStart_Tip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Game: {0}.
+        /// </summary>
+        public static string ActiveNow_Game {
+            get {
+                return ResourceManager.GetString("ActiveNow_Game", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Game detection counts this as a running game; AI mode and automations react to it. If it isn&apos;t a game, exclude it in Games → Game detection → Process Rules..
+        /// </summary>
+        public static string ActiveNow_Game_Tip {
+            get {
+                return ResourceManager.GetString("ActiveNow_Game_Tip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Game profile: {0}.
+        /// </summary>
+        public static string ActiveNow_GameProfile {
+            get {
+                return ResourceManager.GetString("ActiveNow_GameProfile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This game&apos;s profile is in effect. Everything it changed is put back when the game ends..
+        /// </summary>
+        public static string ActiveNow_GameProfile_Tip {
+            get {
+                return ResourceManager.GetString("ActiveNow_GameProfile_Tip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Game-safe mode.
+        /// </summary>
+        public static string ActiveNow_GameSafe {
+            get {
+                return ResourceManager.GetString("ActiveNow_GameSafe", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A game with a kernel anti-cheat runs: detailed sensors, macros and the keyboard hook are paused until it ends..
+        /// </summary>
+        public static string ActiveNow_GameSafe_Tip {
+            get {
+                return ResourceManager.GetString("ActiveNow_GameSafe_Tip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to AI mode boost.
+        /// </summary>
+        public static string ActiveNow_AiBoost {
+            get {
+                return ResourceManager.GetString("ActiveNow_AiBoost", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to AI mode has the firmware&apos;s game boost on (Balance mode, a game running, charger connected). It turns off when the game ends..
+        /// </summary>
+        public static string ActiveNow_AiBoost_Tip {
+            get {
+                return ResourceManager.GetString("ActiveNow_AiBoost_Tip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fan curve: {0}.
+        /// </summary>
+        public static string ActiveNow_FanCurve {
+            get {
+                return ResourceManager.GetString("ActiveNow_FanCurve", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your own fan curve for this power mode is in use instead of the firmware&apos;s. Change it in Fan curves..
+        /// </summary>
+        public static string ActiveNow_FanCurve_Tip {
+            get {
+                return ResourceManager.GetString("ActiveNow_FanCurve_Tip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} services stopped.
+        /// </summary>
+        public static string ActiveNow_Services {
+            get {
+                return ResourceManager.GetString("ActiveNow_Services", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Background services Indra keeps stopped while it runs (Games → Background services). They start again when Indra exits..
+        /// </summary>
+        public static string ActiveNow_Services_Tip {
+            get {
+                return ResourceManager.GetString("ActiveNow_Services_Tip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MSI Afterburner.
+        /// </summary>
+        public static string ActiveNow_Afterburner {
+            get {
+                return ResourceManager.GetString("ActiveNow_Afterburner", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MSI Afterburner is running, so Indra leaves GPU clocks and overclocking to it..
+        /// </summary>
+        public static string ActiveNow_Afterburner_Tip {
+            get {
+                return ResourceManager.GetString("ActiveNow_Afterburner_Tip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Game session report.
+        /// </summary>
+        public static string GameSessions_Title {
+            get {
+                return ResourceManager.GetString("GameSessions_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to After each game: play time, FPS, highest temperatures and any GPU driver errors, with what the GPU was doing just before. Only reads; changes nothing..
+        /// </summary>
+        public static string GameSessions_Message {
+            get {
+                return ResourceManager.GetString("GameSessions_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No game sessions yet..
+        /// </summary>
+        public static string GameSessions_None {
+            get {
+                return ResourceManager.GetString("GameSessions_None", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Last: {0}.
+        /// </summary>
+        public static string GameSessions_Last {
+            get {
+                return ResourceManager.GetString("GameSessions_Last", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to History.
+        /// </summary>
+        public static string GameSessions_History {
+            get {
+                return ResourceManager.GetString("GameSessions_History", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Game sessions.
+        /// </summary>
+        public static string GameSessions_WindowTitle {
+            get {
+                return ResourceManager.GetString("GameSessions_WindowTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} FPS.
+        /// </summary>
+        public static string GameSessions_Fps {
+            get {
+                return ResourceManager.GetString("GameSessions_Fps", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} FPS ({1} at 1% low).
+        /// </summary>
+        public static string GameSessions_FpsWithLow {
+            get {
+                return ResourceManager.GetString("GameSessions_FpsWithLow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to FPS not measured (show FPS in the OSD to include it).
+        /// </summary>
+        public static string GameSessions_NoFps {
+            get {
+                return ResourceManager.GetString("GameSessions_NoFps", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CPU {0} max.
+        /// </summary>
+        public static string GameSessions_CpuMax {
+            get {
+                return ResourceManager.GetString("GameSessions_CpuMax", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to GPU {0} max.
+        /// </summary>
+        public static string GameSessions_GpuMax {
+            get {
+                return ResourceManager.GetString("GameSessions_GpuMax", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} GPU driver error(s).
+        /// </summary>
+        public static string GameSessions_DriverErrors {
+            get {
+                return ResourceManager.GetString("GameSessions_DriverErrors", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Game.
+        /// </summary>
+        public static string GameSessions_UnknownGame {
+            get {
+                return ResourceManager.GetString("GameSessions_UnknownGame", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Started {0}.
+        /// </summary>
+        public static string GameSessions_Started {
+            get {
+                return ResourceManager.GetString("GameSessions_Started", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to GPU clock {0} MHz on average.
+        /// </summary>
+        public static string GameSessions_GpuClock {
+            get {
+                return ResourceManager.GetString("GameSessions_GpuClock", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to GPU power up to {0} W.
+        /// </summary>
+        public static string GameSessions_GpuPower {
+            get {
+                return ResourceManager.GetString("GameSessions_GpuPower", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to GPU driver error at {0}: {1}.
+        /// </summary>
+        public static string GameSessions_DriverError {
+            get {
+                return ResourceManager.GetString("GameSessions_DriverError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to GPU driver error at {0} (no GPU readings from just before).
+        /// </summary>
+        public static string GameSessions_DriverErrorNoReadings {
+            get {
+                return ResourceManager.GetString("GameSessions_DriverErrorNoReadings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to While a game runs, Indra notes temperatures, GPU clock and load every 2 seconds, GPU power when detailed sensors are on, and FPS when the OSD measures it. When the game ends you get a short summary; the last 30 are kept here..
+        /// </summary>
+        public static string Help_Settings_GameSessions_What {
+            get {
+                return ResourceManager.GetString("Help_Settings_GameSessions_What", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Useful when tuning an undervolt or overclock: a GPU driver error during a game shows the GPU clock, temperature and power from just before it. Sessions under a minute aren&apos;t kept..
+        /// </summary>
+        public static string Help_Settings_GameSessions_When {
+            get {
+                return ResourceManager.GetString("Help_Settings_GameSessions_When", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to It only reads. While on, game detection keeps running; it never opens a game&apos;s process..
+        /// </summary>
+        public static string Help_Settings_GameSessions_Risk {
+            get {
+                return ResourceManager.GetString("Help_Settings_GameSessions_Risk", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MSI Afterburner profile applied by Indra: {0}.
+        /// </summary>
+        public static string GameSessions_Afterburner {
+            get {
+                return ResourceManager.GetString("GameSessions_Afterburner", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Afterburner profile {0}.
+        /// </summary>
+        public static string GameSessions_AfterburnerShort {
+            get {
+                return ResourceManager.GetString("GameSessions_AfterburnerShort", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Afterburner profiles shown are the ones Indra applied (automations); profiles you switch in Afterburner itself aren&apos;t seen..
+        /// </summary>
+        public static string GameSessions_AfterburnerNote {
+            get {
+                return ResourceManager.GetString("GameSessions_AfterburnerNote", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Export CSV.
+        /// </summary>
+        public static string GameSessions_ExportCsv {
+            get {
+                return ResourceManager.GetString("GameSessions_ExportCsv", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Saved: {0}.
+        /// </summary>
+        public static string GameSessions_Exported {
+            get {
+                return ResourceManager.GetString("GameSessions_Exported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Couldn&apos;t save the file: {0}.
+        /// </summary>
+        public static string GameSessions_ExportFailed {
+            get {
+                return ResourceManager.GetString("GameSessions_ExportFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Indra&apos;s window didn&apos;t respond for {0} s ({1}). A report was saved in the log folder..
+        /// </summary>
+        public static string UiFreeze_Notification {
+            get {
+                return ResourceManager.GetString("UiFreeze_Notification", resourceCulture);
+            }
+        }
     }
 }

@@ -100,7 +100,10 @@ public static partial class WMI
         {
             try
             {
-                handler(e.NewEvent.Properties);
+                // Released right after the handler has read it (one per process start or stop; left to the finalizer
+                // before, which piled up work on the finalizer thread).
+                using var newEvent = e.NewEvent;
+                handler(newEvent.Properties);
             }
             catch (Exception ex)
             {

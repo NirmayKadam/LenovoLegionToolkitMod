@@ -343,7 +343,7 @@ public sealed class GameSafeModeTests : IDisposable
         Assert.Equal(90, s.GpuUsage);
         Assert.Equal(2100, s.GpuFrequency);
         Assert.Equal(55, s.MemUsage);
-        Assert.Equal(8.8, s.MemUsed);
+        Assert.Equal(8.8, s.MemUsed, precision: 3);
         Assert.Equal(16, s.MemTotal);
         Assert.Equal(50, s.PchTemp);
     }

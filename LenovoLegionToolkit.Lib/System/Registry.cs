@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Management;
@@ -37,7 +37,7 @@ public static class Registry
                 using var baseKey = GetBaseKey(hive);
                 using var key = baseKey.OpenSubKey(subKey) ?? throw new InvalidOperationException($"Key {subKey} could not be opened");
 
-                var resetEvent = new ManualResetEvent(false);
+                using var resetEvent = new ManualResetEvent(false);
 
                 while (true)
                 {
@@ -51,10 +51,17 @@ public static class Registry
 
                     WaitHandle.WaitAny([resetEvent, token.WaitHandle]);
                     token.ThrowIfCancellationRequested();
-
-                    handler();
-
                     resetEvent.Reset();
+
+                    // A failing listener used to end the watch for the rest of the run (new games went unnoticed).
+                    try
+                    {
+                        handler();
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Instance.Trace($"Handling a change of {subKey} failed; still watching.", ex);
+                    }
                 }
             }
             catch (OperationCanceledException) { }
@@ -128,13 +135,15 @@ public static class Registry
     public static string[] GetSubKeys(string hive, string subKey)
     {
         using var baseKey = GetBaseKey(hive);
-        return baseKey.OpenSubKey(subKey)?.GetSubKeyNames().Select(s => Path.Combine(subKey, s)).ToArray() ?? [];
+        using var key = baseKey.OpenSubKey(subKey);
+        return key?.GetSubKeyNames().Select(s => Path.Combine(subKey, s)).ToArray() ?? [];
     }
 
     public static T GetValue<T>(string hive, string subKey, string valueName, T defaultValue, bool doNotExpand = false)
     {
         using var baseKey = GetBaseKey(hive);
-        var value = baseKey.OpenSubKey(subKey)?.GetValue(valueName, defaultValue, doNotExpand ? RegistryValueOptions.DoNotExpandEnvironmentNames : RegistryValueOptions.None);
+        using var key = baseKey.OpenSubKey(subKey);
+        var value = key?.GetValue(valueName, defaultValue, doNotExpand ? RegistryValueOptions.DoNotExpandEnvironmentNames : RegistryValueOptions.None);
 
         if (value is not T t)
             return defaultValue;

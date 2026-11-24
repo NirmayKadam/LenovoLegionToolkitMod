@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using LenovoLegionToolkit.Lib.AutoListeners;
+using LenovoLegionToolkit.Lib.Extensions;
 using LenovoLegionToolkit.Lib.Settings;
 using LenovoLegionToolkit.Lib.Utils;
 
@@ -68,7 +69,7 @@ public class GameProfileController
         _stoppedListener = stoppedListener;
 
         _signals = new WindowsGameSignals();
-        _signals.KnownGamesChanged += (_, _) => _ = Task.Run(RefreshAsync);
+        _signals.KnownGamesChanged += (_, _) => Task.Run(RefreshAsync).Forget("Refreshing game profiles");
         _signals.GameModeGameStarted += (_, game) => _ = ProcessStartedAsync(game.Name, game.ProcessId, fromWindowsGameMode: true);
     }
 
@@ -115,7 +116,26 @@ public class GameProfileController
     }
 
     /// <summary>After the profiles changed: ends a session whose profile is gone or off, and updates what is watched.</summary>
+    /// <summary>
+    /// Refreshes run one at a time. The window and Windows' list of known games changing used to refresh at the same
+    /// moment; both then subscribed to process events, and switching profiles off later left one subscription running.
+    /// </summary>
+    private readonly SemaphoreSlim _refreshing = new(1, 1);
+
     public async Task RefreshAsync()
+    {
+        await _refreshing.WaitAsync().ConfigureAwait(false);
+        try
+        {
+            await RefreshOnceAsync().ConfigureAwait(false);
+        }
+        finally
+        {
+            _refreshing.Release();
+        }
+    }
+
+    private async Task RefreshOnceAsync()
     {
         try
         {

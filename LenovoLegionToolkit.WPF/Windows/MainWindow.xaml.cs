@@ -549,7 +549,20 @@ public partial class MainWindow
         ShowUpdateWindow();
     }
 
+    /// <summary>Shows the laptop's model in the title bar. An error only leaves it out (it used to reach the "Unexpected exception" message).</summary>
     private async void LoadDeviceInfo()
+    {
+        try
+        {
+            await LoadDeviceInfoAsync();
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"The laptop's model couldn't be shown.", ex);
+        }
+    }
+
+    private async Task LoadDeviceInfoAsync()
     {
         string? modelName;
 
@@ -607,7 +620,7 @@ public partial class MainWindow
             _ = await _legionSpaceDisabler.GetStatusAsync().ConfigureAwait(false);
             _ = await _legionZoneDisabler.GetStatusAsync().ConfigureAwait(false);
             _ = await _fnKeysDisabler.GetStatusAsync().ConfigureAwait(false);
-        });
+        }).Forget("Checking Vantage, Legion Space, Legion Zone and Fn keys");
     }
 
     // Raised on the checkers' threads.
@@ -771,13 +784,30 @@ public partial class MainWindow
         ShowInTaskbar = true;
     }
 
+    /// <summary>The decoded background image, the file it came from and that file's last change.</summary>
+    private (string Path, DateTime ChangedUtc, BitmapImage Image)? _backgroundCache;
+
+    /// <summary>
+    /// Shows the background image. It was read and decoded from disk on the UI thread on every page change; now it
+    /// is decoded once and reused until the file or its path changes.
+    /// </summary>
     public void SetMainWindowBackgroundImage(string filePath)
     {
+        var changedUtc = File.GetLastWriteTimeUtc(filePath);
+        if (_backgroundCache is { } cached && cached.Path == filePath && cached.ChangedUtc == changedUtc)
+        {
+            if (!ReferenceEquals(_backgroundImage.ImageSource, cached.Image))
+                _backgroundImage.ImageSource = cached.Image;
+            return;
+        }
+
         BitmapImage bitmap = new BitmapImage();
         bitmap.BeginInit();
         bitmap.UriSource = new Uri(filePath);
         bitmap.CacheOption = BitmapCacheOption.OnLoad;
         bitmap.EndInit();
+        bitmap.Freeze();   // read-only: WPF can share it without copying
+        _backgroundCache = (filePath, changedUtc, bitmap);
         _backgroundImage.ImageSource = bitmap;
     }
 

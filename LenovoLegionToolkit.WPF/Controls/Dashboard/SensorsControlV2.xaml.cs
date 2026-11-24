@@ -18,6 +18,7 @@ using LenovoLegionToolkit.Lib.Utils;
 using LenovoLegionToolkit.WPF.Extensions;
 using LenovoLegionToolkit.WPF.Resources;
 using LenovoLegionToolkit.WPF.Settings;
+using LenovoLegionToolkit.WPF.Utils;
 using LenovoLegionToolkit.WPF.Windows.Dashboard;
 using Wpf.Ui.Common;
 using MenuItem = Wpf.Ui.Controls.MenuItem;
@@ -90,43 +91,52 @@ public partial class SensorsControlV2
             _pchGridName.Text = Resource.SensorsControl_Motherboard_Temperature;
         }
 
-        MessagingCenter.Subscribe<DashboardElementChangedMessage>(this, message =>
+        // Only while on the page: the message bus keeps each handler (and through it this card) alive, so a card
+        // subscribed in its constructor stayed in memory after every sensor-dashboard swap and kept reacting.
+        this.WhileLoaded(() =>
         {
-            Dispatcher.Post(() =>
+            MessagingCenter.Subscribe<DashboardElementChangedMessage>(this, message =>
             {
-                lock (_updateLock)
+                Dispatcher.Post(() =>
                 {
-                    _activeSensorItems.Clear();
-
-                    foreach (var item in message.Items)
+                    lock (_updateLock)
                     {
-                        _activeSensorItems.Add(item);
+                        _activeSensorItems.Clear();
+
+                        foreach (var item in message.Items)
+                        {
+                            _activeSensorItems.Add(item);
+                        }
+
+                        UpdateControlsVisibility();
+                        if (IsVisible && _applicationSettings.Store.EnableHardwareSensors)
+                            StartSensorUpdates();
                     }
-
-                    UpdateControlsVisibility();
-                    if (IsVisible && _applicationSettings.Store.EnableHardwareSensors)
-                        StartSensorUpdates();
-                }
+                });
             });
-        });
 
-        MessagingCenter.Subscribe<FeatureStateMessage<HardwareSensorsState>>(this, message =>
-        {
-            Dispatcher.Post(() =>
+            MessagingCenter.Subscribe<FeatureStateMessage<HardwareSensorsState>>(this, message =>
             {
-                if (message.State == HardwareSensorsState.Off)
+                Dispatcher.Post(() =>
                 {
-                    _sensorSubscription?.Dispose();
-                    _sensorsGroupControllers.SensorsUpdated -= OnSensorsUpdated;
-                    ClearAllSensorValues();
-                }
-                else if (IsVisible)
-                {
-                    StartSensorUpdates();
-                    _sensorsGroupControllers.SensorsUpdated -= OnSensorsUpdated;
-                    _sensorsGroupControllers.SensorsUpdated += OnSensorsUpdated;
-                }
+                    if (message.State == HardwareSensorsState.Off)
+                    {
+                        _sensorSubscription?.Dispose();
+                        _sensorsGroupControllers.SensorsUpdated -= OnSensorsUpdated;
+                        ClearAllSensorValues();
+                    }
+                    else if (IsVisible)
+                    {
+                        StartSensorUpdates();
+                        _sensorsGroupControllers.SensorsUpdated -= OnSensorsUpdated;
+                        _sensorsGroupControllers.SensorsUpdated += OnSensorsUpdated;
+                    }
+                });
             });
+        }, () =>
+        {
+            MessagingCenter.Unsubscribe<DashboardElementChangedMessage>(this);
+            MessagingCenter.Unsubscribe<FeatureStateMessage<HardwareSensorsState>>(this);
         });
 
         _cardWrapPanel.Drop += (s, e) => SaveCardOrder();
@@ -220,13 +230,28 @@ public partial class SensorsControlV2
             StartSensorUpdates();
             _sensorsGroupControllers.SensorsUpdated -= OnSensorsUpdated;
             _sensorsGroupControllers.SensorsUpdated += OnSensorsUpdated;
+            _sensorsGroupControllers.Initialized -= SensorsGroup_Initialized;
+            _sensorsGroupControllers.Initialized += SensorsGroup_Initialized;
         }
         else
         {
             _sensorSubscription?.Dispose();
             _sensorsGroupControllers.SensorsUpdated -= OnSensorsUpdated;
+            _sensorsGroupControllers.Initialized -= SensorsGroup_Initialized;
         }
     }
+
+    /// <summary>
+    /// Detailed sensors are set up a few seconds after the window opens. A card shown before then subscribed to
+    /// nothing (no sensor was available yet) and stayed on "-"; it subscribes again once they are ready.
+    /// </summary>
+    private void SensorsGroup_Initialized(object? sender, EventArgs e) => Dispatcher.Post(() =>
+    {
+        if (!IsVisible || !_applicationSettings.Store.EnableHardwareSensors)
+            return;
+
+        StartSensorUpdates();
+    });
 
     private void RestoreCardOrder()
     {
@@ -273,8 +298,21 @@ public partial class SensorsControlV2
         _sensorSubscription = _sensorsGroupControllers.Subscribe(TimeSpan.FromSeconds(intervalSeconds ?? _sensorsControlSettings.Store.SensorsRefreshIntervalSeconds), _activeSensorItems);
     }
 
+    /// <summary>When the cards were last updated (steady clock), and whether an update is waiting for the UI thread.</summary>
+    private long _lastCardsUpdateMs = long.MinValue / 2;
+    private int _cardsUpdateQueued;
+
     private async void OnSensorsUpdated(HardwareSensorSnapshot snapshot)
     {
+        // Sensor readings come at the fastest rate any part of Indra asked for (the OSD may ask every 0.5 s). The cards
+        // follow their own interval, not while the window is minimized, and never queue a second update behind one
+        // the UI thread hasn't drawn yet.
+        var now = Environment.TickCount64;
+        var interval = _sensorsControlSettings.Store.SensorsRefreshIntervalSeconds * 1000 * 0.9;
+        if (!Motion.IsWindowShown || now - _lastCardsUpdateMs < interval || Interlocked.CompareExchange(ref _cardsUpdateQueued, 1, 0) != 0)
+            return;
+        _lastCardsUpdateMs = now;
+
         try
         {
             var dataTask = Task.Run(async () =>
@@ -300,6 +338,10 @@ public partial class SensorsControlV2
         {
             Log.Instance.Trace($"Sensor refresh failed: {ex}");
             await Dispatcher.BeginInvoke(ClearAllSensorValues);
+        }
+        finally
+        {
+            Interlocked.Exchange(ref _cardsUpdateQueued, 0);
         }
     }
 
@@ -590,7 +632,8 @@ public partial class SensorsControlV2
 
     private static void UpdateValue(TextBlock label, string str)
     {
-        var processedStr = str.Replace("W", "");
+        // The unit as this language writes it; a missing reading (-1 W) shows as "-".
+        var processedStr = str.Replace(Resource.Watt, string.Empty).Trim();
         if (int.TryParse(processedStr, out var result))
         {
             label.Text = result <= 0 ? "-" : str;

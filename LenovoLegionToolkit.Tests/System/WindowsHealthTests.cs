@@ -24,16 +24,16 @@ public class WindowsHealthTests
         Assert.InRange(info.CriticalLevelPercent, 0, 100);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Updates_AreRead_WithAPlausibleLastDate()
     {
         var info = await WindowsHealth.GetUpdatesAsync();
 
-        if (info.LastInstalledDate is { } date)
-            Assert.InRange(date, new DateTime(2000, 1, 1), DateTime.Now.Date.AddDays(1));
+        Skip.If(info.LastInstalledDate is null, "This Windows lists no installed update with a date (CI images often don't).");
+        Assert.InRange(info.LastInstalledDate!.Value, new DateTime(2000, 1, 1), DateTime.Now.Date.AddDays(1));
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task VirusProtection_IsRead_OrSecurityCenterIsMissing()
     {
         try
@@ -43,25 +43,34 @@ public class WindowsHealthTests
         }
         catch (ManagementException ex) when (ex.ErrorCode == ManagementStatus.InvalidNamespace)
         {
-            // Windows Server: no Security Center or no Defender WMI namespace.
+            throw new SkipException("Windows Server: no Security Center or no Defender WMI namespace.");
         }
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task MemoryIntegrity_IsRead_OrNeedsAdministratorRights()
     {
         try
         {
+            // Either answer is valid on a given PC; what's checked is that Windows answers the query Indra sends.
             _ = await WindowsHealth.IsMemoryIntegrityRunningAsync();
         }
         catch (ManagementException ex) when (ex.ErrorCode is ManagementStatus.AccessDenied or ManagementStatus.InvalidNamespace)
         {
-            // Device Guard's class can need administrator rights (Indra has them) or be missing on some editions.
+            throw new SkipException("Device Guard's class needs administrator rights here (Indra has them) or is missing on this edition.");
         }
     }
 
     [Fact]
-    public void SecurityNotifications_AreRead() => _ = WindowsHealth.AreSecurityNotificationsOff();
+    public void SecurityNotifications_AgreeWithTheirSettingInTheRegistry()
+    {
+        // Read a second way: through the current user's key object rather than the full key path Indra uses.
+        using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(
+            @"Software\Microsoft\Windows\CurrentVersion\Notifications\Settings\Windows.SystemToast.SecurityAndMaintenance");
+        var switchedOff = key?.GetValue("Enabled") is int enabled && enabled == 0;
+
+        Assert.Equal(switchedOff, WindowsHealth.AreSecurityNotificationsOff());
+    }
 
     [Fact]
     public void ServiceStartModes_AreRead_AndAMissingServiceIsNull()

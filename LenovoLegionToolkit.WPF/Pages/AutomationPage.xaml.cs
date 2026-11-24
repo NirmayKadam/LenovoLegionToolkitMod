@@ -50,7 +50,7 @@ public partial class AutomationPage
         var isChecked = _enableAutomaticPipelinesToggle.IsChecked;
         if (isChecked.HasValue)
         {
-            await _automationProcessor.SetEnabledAsync(isChecked.Value);
+            await UiErrors.RunAsync("Turning automations on or off", () => _automationProcessor.SetEnabledAsync(isChecked.Value));
         }
     }
 
@@ -97,6 +97,10 @@ public partial class AutomationPage
             await RefreshAsync();
 
             await SnackbarHelper.ShowAsync(Resource.AutomationPage_Saved_Title, Resource.AutomationPage_Saved_Message);
+        }
+        catch (Exception ex)
+        {
+            UiErrors.Report("Saving the automations", ex);
         }
         finally
         {

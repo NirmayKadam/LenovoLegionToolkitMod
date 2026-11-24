@@ -9,6 +9,7 @@ using LenovoLegionToolkit.Lib.Extensions;
 using LenovoLegionToolkit.Lib.Messaging;
 using LenovoLegionToolkit.Lib.Messaging.Messages;
 using LenovoLegionToolkit.Lib.SoftwareDisabler;
+using LenovoLegionToolkit.WPF.Utils;
 using LenovoLegionToolkit.WPF.Extensions;
 using Wpf.Ui.Common;
 using Wpf.Ui.Controls;
@@ -60,14 +61,14 @@ public partial class SpectrumRGBKeyboard1ZoneControl
         ClearPendingChanges();
 
         var selectedPreset = Convert.ToInt32(presetButton.Tag);
-        await _controller.SetProfileAsync(selectedPreset);
+        await UiErrors.RunAsync("Switching the keyboard lighting profile", () => _controller.SetProfileAsync(selectedPreset));
 
-        await RefreshAsync();
+        await RefreshAsync();   // shows what the keyboard really uses, after a failure too
     }
 
     private async void ApplyButton_Click(object sender, RoutedEventArgs e)
     {
-        await CommitChangesAsync();
+        await UiErrors.RunAsync("Applying the keyboard lighting", CommitChangesAsync);
     }
 
     private async Task CommitChangesAsync()

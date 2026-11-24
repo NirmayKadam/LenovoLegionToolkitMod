@@ -65,8 +65,19 @@ public static class PawnIOHelper
     {
         var state = GetPawnIOState();
         if (state != PawnIOState.Installed)
+            _ = ShowDialogLoggingErrorsAsync(state);
+    }
+
+    /// <summary>The dialog runs on its own; a failure in it is logged rather than lost.</summary>
+    private static async Task ShowDialogLoggingErrorsAsync(PawnIOState state)
+    {
+        try
         {
-            TryShowPawnIODialogAsync(state).ConfigureAwait(false);
+            await TryShowPawnIODialogAsync(state).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"The PawnIO notice failed.", ex);
         }
     }
 

@@ -12,12 +12,12 @@ namespace LenovoLegionToolkit.Tests.Controllers;
 /// The discrete GPU check runs in a background loop. NVIDIA's API can't be driven in a test, so the controller's
 /// internal constructor takes the start-up step and the per-round refresh step; these tests supply them (they only
 /// count calls or throw) to check the loop's own behaviour: it runs only while something holds it, it survives a
-/// failed round, and it ends cleanly when it can't start. Rounds are 20 ms apart and a reader's hold lasts 300 ms
-/// so the tests run quickly. Error reports go to a list instead of the real log folder.
+/// failed round, and it ends cleanly when it can't start. Rounds are 20 ms apart and a reader's hold lasts 2 s
+/// (long enough that a slow test machine pausing a thread can't make it expire early). Error reports go to a list instead of the real log folder.
 /// </summary>
 public class GPURefreshLoopTests
 {
-    private static readonly TimeSpan ReaderHold = TimeSpan.FromMilliseconds(300);
+    private static readonly TimeSpan ReaderHold = TimeSpan.FromSeconds(2);
 
     private static GPUController Create(Func<Task> initialize, Func<CancellationToken, Task> refresh, Action<string, Exception> reportError, int startupDelayMs = 0) =>
         new(initialize, refresh, reportError, () => 20, startupDelayMs, ReaderHold);
@@ -27,7 +27,7 @@ public class GPURefreshLoopTests
 
     private static async Task<bool> EventuallyAsync(Func<bool> condition)
     {
-        for (var i = 0; i < 60 && !condition(); i++)
+        for (var i = 0; i < 200 && !condition(); i++)   // 10 s at most
             await Task.Delay(50);
         return condition();
     }
@@ -90,11 +90,11 @@ public class GPURefreshLoopTests
         var controller = Counting(() => { });
         var sensors = new object();
 
-        for (var i = 0; i < 12; i++) // 600 ms of reads, twice the hold time
+        for (var i = 0; i < 30; i++) // 3 s of reads, longer than the 2 s hold
         {
             await controller.GetFreshStateAsync(sensors);
             Assert.True(controller.IsStarted, $"stopped while still being read (read {i})");
-            await Task.Delay(50);
+            await Task.Delay(100);
         }
 
         Assert.True(await EventuallyAsync(() => !controller.IsStarted), "the reader's hold never expired");

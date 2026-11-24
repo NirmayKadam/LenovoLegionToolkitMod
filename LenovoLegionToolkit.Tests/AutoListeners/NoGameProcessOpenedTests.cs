@@ -1,4 +1,6 @@
 using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 using LenovoLegionToolkit.Tests.UI;
 using Xunit;
 
@@ -12,17 +14,23 @@ namespace LenovoLegionToolkit.Tests.AutoListeners;
 /// </summary>
 public class NoGameProcessOpenedTests
 {
-    private static readonly string[] OpensAProcess =
-    [
-        "GetProcessById",
-        "EnableRaisingEvents",
-        "HasExited",
-        ".SafeHandle",
-        "MainModule",
-        "OpenProcess",
-        "WaitForExit",
-        ".StartTime",
-    ];
+    /// <summary>Process calls and properties that open the process (each needs a handle to it), as whole words.</summary>
+    private static readonly Regex OpensAProcess = new(
+        @"\b(GetProcessById|EnableRaisingEvents|HasExited|OpenProcess|WaitForExit|MainModule)\b" +
+        @"|\.(SafeHandle|StartTime|Modules|PriorityClass|PriorityBoostEnabled|ProcessorAffinity|TotalProcessorTime|UserProcessorTime|ExitCode|ExitTime|Kill)\b" +
+        @"|(?<!\bgpu)\.Handle\b");   // NVIDIA's GPU handle (gpu.Handle) is not a process handle
+
+    [Fact]
+    public void TheCheck_FindsEachCall_ButNotLookAlikes()
+    {
+        Assert.Matches(OpensAProcess, "var t = process.StartTime;");
+        Assert.Matches(OpensAProcess, "process.Kill(true);");
+        Assert.Matches(OpensAProcess, "_ = process.Handle;");
+        Assert.Matches(OpensAProcess, "process.PriorityClass = ProcessPriorityClass.High;");
+        Assert.DoesNotMatch(OpensAProcess, "var h = key.HandleCount;");
+        Assert.DoesNotMatch(OpensAProcess, "GPUApi.QueryActiveApps(gpu.Handle)");
+        Assert.DoesNotMatch(OpensAProcess, "StartTimeUtc = info.StartTimeUtc");
+    }
 
     [Theory]
     [InlineData("LenovoLegionToolkit.Lib", "AutoListeners", "GameAutoListener.cs")]
@@ -35,6 +43,6 @@ public class NoGameProcessOpenedTests
     {
         var source = File.ReadAllText(Path.Combine([HelpContentTests.FindRepositoryRoot(), .. relativePath]));
 
-        Assert.All(OpensAProcess, call => Assert.DoesNotContain(call, source));
+        Assert.Empty(OpensAProcess.Matches(source).Select(m => m.Value));
     }
 }

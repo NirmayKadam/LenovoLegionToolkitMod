@@ -142,7 +142,7 @@ public class MacroController
             return;
 
         _suspended = true;
-        _player.Stop();
+        _player.IsSuspended = true;   // stops what plays, and keeps a key pressed just before from starting one
         OnHookThread(RemoveHook);
 
         StateChanged?.Invoke(this, EventArgs.Empty);
@@ -155,6 +155,7 @@ public class MacroController
             return;
 
         _suspended = false;
+        _player.IsSuspended = false;
 
         if (_started)
             OnHookThread(InstallHook);
@@ -192,7 +193,7 @@ public class MacroController
         return new LRESULT(96);
     }
 
-    private void Play(MacroSequence sequence) => Task.Run(() => _player.StartPlayingAsync(sequence));
+    private void Play(MacroSequence sequence) => Task.Run(() => _player.StartPlayingAsync(sequence)).Forget("Playing a macro");
 
     private static void CleanUp(ref Dictionary<MacroIdentifier, MacroSequence> sequences)
     {

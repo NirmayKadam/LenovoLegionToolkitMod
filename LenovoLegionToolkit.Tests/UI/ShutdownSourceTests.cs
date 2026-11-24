@@ -24,7 +24,8 @@ public class ShutdownSourceTests
         Assert.True(end > start, "The end of ShutdownCoreAsync not found in App.xaml.cs");
 
         var shutdown = app[start..end];
-        Assert.DoesNotContain("GodModeController>", shutdown);
-        Assert.DoesNotContain("RestoreDefaultsInOtherPowerModeAsync", shutdown);
+        // The controller in any form (resolved, a field, the firmware seam) and the calls that send limits.
+        foreach (var sendsLimits in new[] { "GodModeController", "IGodModeFirmware", "RestoreDefaultsInOtherPowerModeAsync", "SetFeatureValueAsync", "ApplyStateAsync" })
+            Assert.DoesNotContain(sendsLimits, shutdown);
     }
 }

@@ -21,9 +21,16 @@ public partial class MacroPage
         InitializeComponent();
     }
 
+    private void Controller_StateChanged(object? sender, EventArgs e) => Dispatcher.Post(() => _enableMacroToggle.IsChecked = _controller.IsEnabled);
+
     private void MacroPage_Initialized(object? sender, EventArgs e)
     {
-        _controller.StateChanged += (_, _) => Dispatcher.Post(() => _enableMacroToggle.IsChecked = _controller.IsEnabled);
+        // Only while shown: the controller lives as long as the app, and kept every replaced page (and window) alive.
+        this.WhileLoaded(() =>
+        {
+            _controller.StateChanged += Controller_StateChanged;
+            _enableMacroToggle.IsChecked = _controller.IsEnabled;   // may have changed while the page was away
+        }, () => _controller.StateChanged -= Controller_StateChanged);
 
         _enableMacroToggle.IsChecked = _controller.IsEnabled;
 

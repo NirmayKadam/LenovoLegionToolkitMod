@@ -130,6 +130,28 @@ public partial class StatusWindow
         {
             LogReadFailure("the first status", ex);
         }
+
+        await ShowActiveNowAsync();
+    }
+
+    /// <summary>
+    /// The "Active now" line (game, AI boost, game-safe, fan curve…), read once per hover: the window is made anew each
+    /// time. A failed read only leaves the line hidden.
+    /// </summary>
+    private async Task ShowActiveNowAsync()
+    {
+        try
+        {
+            var (state, _) = await Task.Run(() => new WPF.Utils.ActiveNowReader().ReadAsync());
+            var line = WPF.Utils.ActiveNow.Line(WPF.Utils.ActiveNow.Build(state));
+            _activeNowLabel.Text = line ?? string.Empty;
+            _activeNowLabel.Visibility = line is null ? Visibility.Collapsed : Visibility.Visible;
+        }
+        catch (Exception ex)
+        {
+            LogReadFailure("what is active now", ex);
+            _activeNowLabel.Visibility = Visibility.Collapsed;
+        }
     }
 
     public StatusWindow()
@@ -248,12 +270,25 @@ public partial class StatusWindow
         }
     }
 
+    /// <summary>The last reading of the slow parts (power mode, GPU state, battery, updates) and when it was taken.</summary>
+    private StatusWindowData? _lastFull;
+    private long _lastFullAtMs;
+
+    /// <summary>How often the slow parts are read again while the window stays open; sensor values follow every tick.</summary>
+    private const int SLOW_PARTS_EVERY_MS = 5000;
+
     private async void OnSensorsUpdated(HardwareSensorSnapshot snapshot)
     {
+        // One update at a time: a tick that arrives while the previous one is still reading is skipped. Before, each
+        // tick read everything again (a full GPU refresh included) and slow reads piled up and finished out of order.
+        if (!_refreshLock.Wait(0))
+            return;
+
         var token = _cancellationTokenSource.Token;
         try
         {
-            var data = await GetStatusWindowDataAsync(token, snapshot: snapshot);
+            var slowParts = _lastFull is null || Environment.TickCount64 - _lastFullAtMs >= SLOW_PARTS_EVERY_MS;
+            var data = await GetStatusWindowDataAsync(token, snapshot: snapshot, slowParts: slowParts);
             if (token.IsCancellationRequested) return;
 
             if ((DateTime.Now - _lastUpdate).TotalMilliseconds >= UI_UPDATE_THROTTLE_MS)
@@ -264,11 +299,15 @@ public partial class StatusWindow
         }
         catch (Exception ex)
         {
-            Log.Instance.Trace($"StatusWindow update failed: {ex}");
+            LogReadFailure("the sensors", ex);
+        }
+        finally
+        {
+            _refreshLock.Release();
         }
     }
 
-    private async Task<StatusWindowData> GetStatusWindowDataAsync(CancellationToken token, HardwareSensorSnapshot? snapshot = null)
+    private async Task<StatusWindowData> GetStatusWindowDataAsync(CancellationToken token, HardwareSensorSnapshot? snapshot = null, bool slowParts = true)
     {
         if (!_machineInfo.HasValue)
         {
@@ -285,6 +324,8 @@ public partial class StatusWindow
         SensorsData? sensorsData = null;
         double cpuPower = -1, gpuPower = -1, cpuClock = -1, cpuTemp = -1, gpuClock = -1, gpuTemp = -1;
 
+        if (slowParts || _lastFull is null)
+        {
         var tasks = new List<Task>
         {
             Task.Run(async () =>
@@ -324,6 +365,12 @@ public partial class StatusWindow
         };
 
         await Task.WhenAll(tasks);
+        }
+        else if (_lastFull is { } last)
+        {
+            (state, mode, godModePresetName, gpuStatus, batteryInfo, batteryState, hasUpdate) =
+                (last.PowerModeState, last.ITSMode, last.GodModePresetName, last.GPUStatus, last.BatteryInformation, last.BatteryState, last.HasUpdate);
+        }
 
         if (_settings.Store.EnableHardwareSensors)
         {
@@ -363,7 +410,13 @@ public partial class StatusWindow
             catch { /* Ignore */ }
         }
 
-        return new(state, mode, godModePresetName, gpuStatus, batteryInfo, batteryState, hasUpdate, sensorsData, cpuPower, gpuPower, cpuClock, cpuTemp, gpuClock, gpuTemp);
+        var result = new StatusWindowData(state, mode, godModePresetName, gpuStatus, batteryInfo, batteryState, hasUpdate, sensorsData, cpuPower, gpuPower, cpuClock, cpuTemp, gpuClock, gpuTemp);
+        if (slowParts || _lastFull is null)
+        {
+            _lastFull = result;
+            _lastFullAtMs = Environment.TickCount64;
+        }
+        return result;
     }
 
     private void ApplyDataToUI(StatusWindowData data)
