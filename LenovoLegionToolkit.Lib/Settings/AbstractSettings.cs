@@ -12,7 +12,7 @@ public abstract class AbstractSettings<T> where T : class, new()
     protected readonly JsonSerializerSettings JsonSerializerSettings;
     private readonly string _settingsStorePath;
     private readonly string _fileName;
-    private T? _store;
+    private volatile T? _store;
 
     protected virtual T Default => new();
 
@@ -95,6 +95,9 @@ public abstract class AbstractSettings<T> where T : class, new()
         SynchronizeStore();
     }
 
+    /// <summary>A file written by an older version, made readable before it is read (see <see cref="SettingsMigration"/>).</summary>
+    protected virtual string MigrateJson(string json) => json;
+
     public virtual T? LoadStore()
     {
         T? store = null;
@@ -102,7 +105,7 @@ public abstract class AbstractSettings<T> where T : class, new()
         {
             if (!File.Exists(_settingsStorePath)) return null;
 
-            var settingsSerialized = File.ReadAllText(_settingsStorePath);
+            var settingsSerialized = MigrateJson(File.ReadAllText(_settingsStorePath));
             store = JsonConvert.DeserializeObject<T>(settingsSerialized, JsonSerializerSettings);
 
             if (store is null)

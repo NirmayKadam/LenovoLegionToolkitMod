@@ -46,6 +46,7 @@ public partial class SpectrumKeyboardBacklightControl
     private CancellationTokenSource? _refreshStateCancellationTokenSource;
     private Task? _refreshStateTask;
     private bool _refreshingProfile;
+    private Task? _switchKeyboardLayoutTask;
 
     private RadioButton[] ProfileButtons =>
     [
@@ -212,14 +213,7 @@ public partial class SpectrumKeyboardBacklightControl
 
     private async void SwitchKeyboardLayout_Click(object sender, RoutedEventArgs e)
     {
-        await StopAnimationAsync();
-
-        var buttons = _device.GetVisibleButtons();
-        foreach (var button in buttons)
-            button.IsChecked = false;
-
-        var currentKeyboardLayout = _settings.Store.KeyboardLayout;
-        var keyboardLayout = currentKeyboardLayout switch
+        _settings.Store.KeyboardLayout = _settings.Store.KeyboardLayout switch
         {
             KeyboardLayout.Ansi => KeyboardLayout.Iso,
             KeyboardLayout.Iso => KeyboardLayout.Jis,
@@ -227,15 +221,33 @@ public partial class SpectrumKeyboardBacklightControl
             KeyboardLayout.Keyboard24Zone => KeyboardLayout.Ansi,
             _ => KeyboardLayout.Ansi
         };
-
-        _settings.Store.KeyboardLayout = keyboardLayout;
         _settings.SynchronizeStore();
 
         await UiErrors.RunAsync("Switching the keyboard layout", async () =>
         {
-            var (spectrumLayout, _, keys) = await _controller.GetKeyboardLayoutAsync();
-            _device.SetLayout(spectrumLayout, keyboardLayout, keys);
+            _switchKeyboardLayoutTask ??= SwitchKeyboardLayoutAsync();
+            await _switchKeyboardLayoutTask;
         });
+    }
+
+    private async Task SwitchKeyboardLayoutAsync()
+    {
+        try
+        {
+            await StopAnimationAsync();
+
+            var buttons = _device.GetVisibleButtons();
+            foreach (var button in buttons)
+                button.IsChecked = false;
+
+            var (spectrumLayout, _, keys) = await _controller.GetKeyboardLayoutAsync();
+
+            _device.SetLayout(spectrumLayout, _settings.Store.KeyboardLayout ?? KeyboardLayout.Ansi, keys);
+        }
+        finally
+        {
+            _switchKeyboardLayoutTask = null;
+        }
 
         if (IsVisible)
             await StartAnimationAsync();
@@ -354,22 +366,31 @@ public partial class SpectrumKeyboardBacklightControl
         if (vantageStatus is SoftwareStatus.Enabled || legionSpaceStatus is SoftwareStatus.Enabled ||
             legionZoneStatus is SoftwareStatus.Enabled)
         {
-            _vantageWarningInfoBar.IsOpen = true;
+            _softwareWarningInfoBar.IsOpen = true;
             _device.SetLayout(spectrumLayout, keyboardLayout, keys);
             _content.IsEnabled = false;
             _noEffectsText.Visibility = Visibility.Collapsed;
             return;
         }
 
-        _vantageWarningInfoBar.IsOpen = false;
+        _softwareWarningInfoBar.IsOpen = false;
 
         if (!isFixedZoneLayout)
         {
-            if (!_settings.Store.KeyboardLayout.HasValue)
+            var storedKeyboardLayout = _settings.Store.KeyboardLayout;
+            var detectedIsDefinitive = keyboardLayout is KeyboardLayout.Iso or KeyboardLayout.Jis;
+
+            if (keys.Count == 0)
             {
+                Log.Instance.Trace($"Skipping keyboard layout update because no keys were reported.");
+            }
+            else if (storedKeyboardLayout is null || detectedIsDefinitive && storedKeyboardLayout is KeyboardLayout.Ansi)
+            {
+                Log.Instance.Trace($"Using detected keyboard layout {keyboardLayout}, stored layout was {storedKeyboardLayout?.ToString() ?? "none"}.");
                 _settings.Store.KeyboardLayout = keyboardLayout;
                 _settings.SynchronizeStore();
             }
+
             keyboardLayout = _settings.Store.KeyboardLayout ?? keyboardLayout;
         }
 

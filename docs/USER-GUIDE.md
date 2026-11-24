@@ -36,7 +36,7 @@ Download the installer from the project's [Releases](https://github.com/NirmayKa
 
 ## The window
 
-The left rail has the pages. The title bar shows the version and, if logging is on, a "Log" badge you can click to open the log. Closing or minimizing can send LLT to the tray (Settings → App behavior), where it keeps running automations and listening for Fn keys.
+The left rail has the pages. The title bar shows the version, a **theme button** (sun, moon or half circle) that switches between light, dark and the Windows theme, and, if logging is on, a "Log" badge you can click to open the log. Closing or minimizing can send LLT to the tray (Settings → App behavior), where it keeps running automations and listening for Fn keys.
 
 **Hover help (this mod).** Every setting, dashboard card, automation action and trigger has a small ⓘ next to its name. Hover over it (or tab to it with the keyboard) to see what the setting does, when to use it and, where there is one, the risk. Turn this off or change the delay in Settings → App behavior → Help on hover.
 
@@ -47,7 +47,7 @@ The status strip comes first (this mod; turn it off in Customize):
 - one tile each for **power mode, CPU, GPU, fans and battery**;
 - a **power-mode selector** with one button per mode your laptop has.
 
-Below it are the **sensors** (temperatures, clocks, fan speeds, usage; right-click for the refresh rate) and the **cards**. **Customize** at the bottom lets you reorder, hide and regroup the cards, or show/hide the sensors and status strip.
+Below it are the **sensors** (temperatures, clocks, fan speeds including every system fan the laptop reports, usage; right-click for the refresh rate; which CPU temperature is shown is chosen in Settings → App behavior → sensor options) and the **cards**. **Customize** at the bottom lets you reorder, hide and regroup the cards, or show/hide the sensors and status strip.
 
 **Power mode details (this mod)** sits under the selector. It shows what the current power mode sets and what changed from the previous mode ("55 → 80 W"), whether you switched from the dashboard, Fn+Q or an automation:
 
@@ -68,7 +68,7 @@ Values come from the firmware's own per-mode table, or from the active preset in
 | Hybrid mode / GPU working mode | Which GPU drives the screen: Hybrid, Hybrid-iGPU, Hybrid-Auto, UMA, or dGPU (discrete only). Options depend on the model; some changes need a restart. |
 | Discrete GPU | Shows whether the NVIDIA GPU is active and which apps keep it awake; can deactivate it |
 | GPU overclock | Core/memory offsets for the NVIDIA GPU |
-| Resolution, Refresh rate, DPI scale, HDR, Overdrive, Auto color management | Display settings for the built-in screen |
+| Resolution, Refresh rate, DPI scale, HDR, Overdrive, Auto color management | Display settings for the built-in screen. Open the Refresh rate card for **Dynamic refresh rate**, on displays that support it |
 | Turn off monitors | Turns the screens off without sleeping |
 | Microphone | Mutes or unmutes all microphones |
 | Flip to start | Opening the lid powers the laptop on |
@@ -126,15 +126,20 @@ Live battery details:
 - manufacture and first-use dates;
 - time on battery.
 
-It warns when a low-wattage charger is connected.
+It warns when a low-wattage charger is connected. Laptops whose battery isn't reported have no Battery page.
+
+**Charge threshold** (dashboard card, only on laptops with Lenovo's power management driver, mostly ThinkPads): charging stops at **Stop** and starts again below **Start**, so the battery doesn't sit at 100%. The new range takes effect once the battery is unplugged and drops below Stop.
 
 ### Keyboard
 
 Depends on your keyboard:
 
+- **White backlight:** off, low, high and, where the firmware has it, **Auto**.
 - **4-zone RGB:** presets with effect, speed, brightness and a color per zone.
 - **Spectrum (per-key RGB):** profiles, brightness, and effects per key or zone, including screen-sync ambient effects.
-- **Dynamic Lighting (LampArray):** on newer models such as the Legion Pro 7 Gen 10, the zones Windows exposes, with effects.
+- **Dynamic Lighting (LampArray):** on newer models (Gen 10 and later), the zones Windows exposes, with effects.
+
+**Power button light** (dashboard card, where the firmware has it): its brightness, or let it follow the keyboard backlight.
 
 ### Actions (automation)
 
@@ -178,8 +183,8 @@ Lists Lenovo driver, BIOS and software updates for your exact machine type and W
 | **Appearance** | Language, **Style** (Fluent glass / Neon / Retro CRT), **Animations**, theme, accent color, background image, backdrop, hardware acceleration |
 | **Display** | Custom boot logo, brightness sync across power plans |
 | **Power** | What power mode, Windows power plan and Windows power mode each do (see below); link power modes to Windows power plans or Windows power modes; fan curves per power mode; reset the "on battery since" timer |
-| **Software control** | Turn Lenovo Vantage, Legion Zone, Legion Space and Lenovo's hotkey software off or back on |
-| **Special keys** | Smart keys, Smart Fn Lock, key discovery, refresh rates to skip when cycling |
+| **Software control** | Turn Lenovo Vantage, Legion Zone, Legion Space and Lenovo's hotkey software off or back on. If something keeps running, a message names the services or programs that are still running, or that need a restart |
+| **Special keys** | Smart keys, Smart Fn Lock, key discovery, refresh rates to skip when cycling. Fn+I, Fn+K and the media keys can be given an action too (see *Anti-cheat and game-safe mode* for how they are listened to) |
 | **Integrations** | The **CLI** pipe (off by default) and adding `llt` to PATH, HWiNFO sensor sharing (fan speeds and battery temperature, updated every 2 s, HWiNFO's own default; turn it off if you don't use HWiNFO) |
 | **Updates** | Update checks, channel, frequency and method |
 
@@ -215,6 +220,7 @@ The OSD no longer needs hardware sensors. Without them it shows what Lenovo's fi
 - detailed sensor reads through the PawnIO driver stop. The OSD keeps going with driver-free readings and shows a **GAME-SAFE** label; values that need the driver show "—";
 - macros are stopped and their keyboard hook is removed;
 - the Caps Lock / Num Lock keyboard hook is removed;
+- the keyboard hook and media-key listener for Fn+I, Fn+K and the media keys are removed. They are only installed at all while one of those keys has an action.
 - FPS keeps working through Windows' event tracing (ETW). LLT finds the game in the process list without opening it.
 
 Everything comes back when the service stops. The user-inactivity trigger doesn't use hooks at all: it reads Windows' last-input time.

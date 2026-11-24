@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -71,10 +70,12 @@ public abstract class OsdWindowBase : Window
     private CancellationTokenSource? _cts;
     private IDisposable? _sensorSubscription;
     protected bool _positionSet;
+    private bool _isDragging;
     private bool _fpsMonitoringStarted;
     private bool _hasLenovoController;
     private bool _wasVisibleBeforeLock;
 
+    private int VisibleSystemFanCount { get; set; }
     protected HashSet<OsdItem> _activeItems = [];
     protected Dictionary<OsdItem, FrameworkElement> _itemsMap = [];
     protected Dictionary<FrameworkElement, (List<OsdItem> Items, FrameworkElement? Separator)> _measurementGroups = [];
@@ -94,9 +95,9 @@ public abstract class OsdWindowBase : Window
         SourceInitialized += OnSourceInitialized;
         Closed += OnWindowClosed;
         Loaded += OnLoaded;
-        LocationChanged += OnLocationChanged;
         MouseLeftButtonDown += OnMouseLeftButtonDown;
         SizeChanged += OnSizeChanged;
+        DpiChanged += OnDpiChanged;
 
         SystemEvents.DisplaySettingsChanged += OnDisplaySettingsChanged;
         _sessionListener.Changed += OnSessionLockStateChanged;
@@ -124,15 +125,13 @@ public abstract class OsdWindowBase : Window
             _hasLenovoController = false;
         }
 
+        if (IsLoaded)
+            UpdateMeasurementControlsVisibility();
+
         var mi = await Compatibility.GetMachineInformationAsync();
         if (!IsLoaded)
             return;
-
-        if (mi.Properties.IsAmdDevice)
-            OnAmdDeviceDetected();
     }
-
-    protected abstract void OnAmdDeviceDetected();
 
     private void SubscribeEvents()
     {
@@ -143,9 +142,8 @@ public abstract class OsdWindowBase : Window
                 if (App.Current.OsdWindow == null) return;
 
                 var newItemsSet = new HashSet<OsdItem>(message.Items);
-                if (_activeItems.SetEquals(newItemsSet)) return;
-
                 _activeItems = newItemsSet;
+                UpdateSystemFans(_controller.SystemFans);
                 UpdateMeasurementControlsVisibility();
                 if (IsVisible && _applicationSettings.Store.EnableHardwareSensors)
                     StartHardwareSensorUpdates();
@@ -155,6 +153,15 @@ public abstract class OsdWindowBase : Window
         MessagingCenter.Subscribe<OsdAppearanceChangedMessage>(this, _ =>
         {
             Dispatcher.Post(ApplyAppearanceSettings);
+        });
+
+        MessagingCenter.Subscribe<SensorDashboardSwappedMessage>(this, _ =>
+        {
+            Dispatcher.Invoke(() =>
+            {
+                if (IsVisible)
+                    StartHardwareSensorUpdates();
+            });
         });
     }
 
@@ -177,10 +184,18 @@ public abstract class OsdWindowBase : Window
     {
         if (!_OsdSettings.Store.IsLocked && e.ChangedButton == MouseButton.Left)
         {
-            DragMove();
+            _isDragging = true;
+            try
+            {
+                DragMove();
+            }
+            finally
+            {
+                _isDragging = false;
+            }
 
-            var screen = WpfScreenHelper.Screen.FromWindow(this);
-            if (screen != null)
+            var screen = Screen.FromWindow(this);
+            if (screen is not null)
             {
                 var workArea = screen.WpfWorkingArea;
 
@@ -188,8 +203,8 @@ public abstract class OsdWindowBase : Window
 
                 double left = this.Left;
                 double top = this.Top;
-                double width = this.ActualWidth > 0 ? this.ActualWidth : this.Width;
-                double height = this.ActualHeight > 0 ? this.ActualHeight : this.Height;
+                double width = WindowWidth;
+                double height = WindowHeight;
 
                 if (Math.Abs(left - workArea.Left) < snapThreshold)
                 {
@@ -218,6 +233,8 @@ public abstract class OsdWindowBase : Window
                 this.Left = left;
                 this.Top = top;
 
+                SavePosition();
+                SetWindowPosition();
                 _OsdSettings.SynchronizeStore();
             }
         }
@@ -228,6 +245,7 @@ public abstract class OsdWindowBase : Window
         await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.Render);
 
         ShowGameSafeBadge();
+        UpdateMeasurementControlsVisibility();
         UpdateLayout();
         SetWindowPosition();
     }
@@ -246,88 +264,103 @@ public abstract class OsdWindowBase : Window
 
     private void OnSizeChanged(object sender, SizeChangedEventArgs e)
     {
-        if (SavedPositionX.HasValue)
+        if (_isDragging)
+            return;
+
+        if (SavedPosition is not null)
             return;
 
         if (!_positionSet)
             return;
 
-        var workArea = SystemParameters.WorkArea;
-
-        Left = workArea.Left + (workArea.Width - ActualWidth) / 2;
+        SetDefaultWindowPosition();
     }
 
-    protected virtual void SetWindowPosition()
+    public virtual void SetWindowPosition()
     {
-        if (SavedPositionX.HasValue && SavedPositionY.HasValue)
+        if (_isDragging)
+            return;
+
+        var savedPosition = SavedPosition;
+        var workArea = ScreenWorkArea(savedPosition?.MonitorName);
+
+        MaxWidth = workArea.Width;
+        MaxHeight = workArea.Height;
+
+        if (savedPosition is null)
         {
-            var savedX = SavedPositionX.Value;
-            var savedY = SavedPositionY.Value;
-
-            if (IsPositionOnScreen(savedX, savedY))
-            {
-                Left = savedX;
-                Top = savedY;
-                _positionSet = true;
-                return;
-            }
-
-            SavedPositionX = null;
-            SavedPositionY = null;
-            _OsdSettings.SynchronizeStore();
+            SetDefaultWindowPosition();
+            return;
         }
 
-        SetDefaultWindowPosition();
+        UpdateLayout();
+
+        var freeWidth = Math.Max(workArea.Width - WindowWidth, 0);
+        var freeHeight = Math.Max(workArea.Height - WindowHeight, 0);
+
+        Left = Math.Clamp(workArea.Left + savedPosition.XRatio * freeWidth, workArea.Left, workArea.Left + freeWidth);
+        Top = Math.Clamp(workArea.Top + savedPosition.YRatio * freeHeight, workArea.Top, workArea.Top + freeHeight);
+        _positionSet = true;
     }
 
     protected abstract void SetDefaultWindowPosition();
-    protected abstract double? SavedPositionX { get; set; }
-    protected abstract double? SavedPositionY { get; set; }
+    protected abstract OsdPosition? SavedPosition { get; set; }
 
-    public void RecalculatePosition()
+    private double WindowWidth => ActualWidth > 0 ? ActualWidth : 0;
+    private double WindowHeight => ActualHeight > 0 ? ActualHeight : 0;
+
+    protected Rect CurrentWorkArea => Screen.FromWindow(this).WpfWorkingArea;
+
+    private Rect ScreenWorkArea(string? deviceName)
     {
-        SavedPositionX = null;
-        SavedPositionY = null;
-        _OsdSettings.SynchronizeStore();
+        if (!string.IsNullOrEmpty(deviceName))
+        {
+            foreach (var screen in Screen.AllScreens)
+            {
+                if (string.Equals(screen.DeviceName, deviceName, StringComparison.OrdinalIgnoreCase))
+                    return screen.WpfWorkingArea;
+            }
+        }
 
-        SetDefaultWindowPosition();
+        return CurrentWorkArea;
     }
 
-    private const int MONITOR_DEFAULTTONULL = 0;
-
-    [DllImport("user32.dll")]
-    private static extern IntPtr MonitorFromPoint(POINT pt, int dwFlags);
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct POINT
+    private void SavePosition()
     {
-        public int X;
-        public int Y;
-    }
+        try
+        {
+            var screen = Screen.FromWindow(this);
+            if (screen is null)
+                return;
 
-    private static bool IsPositionOnScreen(double x, double y)
-    {
-        var pt = new POINT { X = (int)x, Y = (int)y };
-        return MonitorFromPoint(pt, MONITOR_DEFAULTTONULL) != IntPtr.Zero;
-    }
+            var workArea = screen.WpfWorkingArea;
+            if (workArea.Width <= 0 || workArea.Height <= 0)
+                return;
 
-    private void OnLocationChanged(object? sender, EventArgs e)
-    {
-        if (!IsLoaded) return;
+            var freeWidth = Math.Max(workArea.Width - WindowWidth, 0);
+            var freeHeight = Math.Max(workArea.Height - WindowHeight, 0);
 
-        SavedPositionX = Left;
-        SavedPositionY = Top;
+            SavedPosition = new OsdPosition
+            {
+                XRatio = freeWidth > 0 ? Math.Clamp((Left - workArea.Left) / freeWidth, 0, 1) : 0,
+                YRatio = freeHeight > 0 ? Math.Clamp((Top - workArea.Top) / freeHeight, 0, 1) : 0,
+                MonitorName = screen.DeviceName
+            };
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Failed to save the OSD position.", ex);
+        }
     }
 
     private void OnDisplaySettingsChanged(object? sender, EventArgs e)
     {
-        Dispatcher.BeginInvoke(() =>
-        {
-            if (!IsPositionOnScreen(Left, Top))
-            {
-                SetDefaultWindowPosition();
-            }
-        });
+        Dispatcher.BeginInvoke(SetWindowPosition);
+    }
+
+    private void OnDpiChanged(object sender, DpiChangedEventArgs e)
+    {
+        SetWindowPosition();
     }
 
     private void OnSessionLockStateChanged(object? sender, SessionLockUnlockListener.ChangedEventArgs e)
@@ -359,10 +392,6 @@ public abstract class OsdWindowBase : Window
         {
             if (IsVisible)
             {
-                _sensorsGroupControllers.ShowAverageCpuFrequency = _hardwareSensorSettings.Store.ShowCpuAverageFrequency;
-                _sensorsGroupControllers.CpuVoltageMode = _hardwareSensorSettings.Store.CpuVoltageMode;
-                _sensorsGroupControllers.CpuVoltageCoreIndex = _hardwareSensorSettings.Store.CpuVoltageCoreIndex;
-
                 _cts?.Cancel();
                 _cts?.Dispose();
                 _cts = new CancellationTokenSource();
@@ -402,8 +431,6 @@ public abstract class OsdWindowBase : Window
 
     private void OnWindowClosed(object? sender, EventArgs e)
     {
-        SavedPositionX = Left;
-        SavedPositionY = Top;
         _OsdSettings.SynchronizeStore();
 
         SystemEvents.DisplaySettingsChanged -= OnDisplaySettingsChanged;
@@ -440,7 +467,7 @@ public abstract class OsdWindowBase : Window
 
         this.SetClickThrough(_OsdSettings.Store.IsLocked);
 
-        if (!SavedPositionX.HasValue || !SavedPositionY.HasValue)
+        if (SavedPosition is null)
         {
             SetDefaultWindowPosition();
         }
@@ -481,13 +508,19 @@ public abstract class OsdWindowBase : Window
 
     #region Visibility
 
+    private bool IsMeasurementAvailable(OsdItem item) => item switch
+    {
+        OsdItem.SystemFans => _controller.SystemFans.Any(fan => _OsdSettings.Store.VisibleSystemFanIds is not { } ids || ids.Contains(fan.FanId)),
+        _ => true
+    };
+
     protected void UpdateMeasurementControlsVisibility()
     {
         bool isHybrid = _sensorsGroupControllers.IsHybrid;
 
         foreach (var (item, element) in _itemsMap)
         {
-            bool shouldShow = _activeItems.Contains(item);
+            bool shouldShow = _activeItems.Contains(item) && IsMeasurementAvailable(item);
 
             if (isHybrid)
             {
@@ -509,7 +542,7 @@ public abstract class OsdWindowBase : Window
         {
             bool isGroupActive = items.Any(item =>
             {
-                if (!_activeItems.Contains(item)) return false;
+                if (!_activeItems.Contains(item) || !IsMeasurementAvailable(item)) return false;
                 if (isHybrid && item == OsdItem.CpuFrequency) return false;
                 if (!isHybrid && item is OsdItem.CpuPCoreFrequency or OsdItem.CpuECoreFrequency) return false;
                 return true;
@@ -532,6 +565,24 @@ public abstract class OsdWindowBase : Window
         CheckAndUpdateFpsMonitoring();
         this.EscalateZBand();
     }
+
+    protected void UpdateSystemFans(IReadOnlyList<FanData> fans)
+    {
+        var visibleIds = _OsdSettings.Store.VisibleSystemFanIds;
+        var visible = visibleIds is null
+            ? fans
+            : fans.Where(fan => visibleIds.Contains(fan.FanId)).ToArray();
+
+        UpdateSystemFansCore(visible);
+
+        if (VisibleSystemFanCount != visible.Count)
+        {
+            VisibleSystemFanCount = visible.Count;
+            UpdateMeasurementControlsVisibility();
+        }
+    }
+
+    protected abstract void UpdateSystemFansCore(IReadOnlyList<FanData> fans);
 
     protected virtual void OnItemVisibilityChanged(FrameworkElement element, bool visible) { }
 
@@ -823,9 +874,6 @@ public abstract class OsdWindowBase : Window
 
     private async Task RefreshSensorsDataAsync(CancellationToken token)
     {
-        _sensorsGroupControllers.CpuVoltageMode = _hardwareSensorSettings.Store.CpuVoltageMode;
-        _sensorsGroupControllers.CpuVoltageCoreIndex = _hardwareSensorSettings.Store.CpuVoltageCoreIndex;
-
         var groupSnapshot = _sensorsGroupControllers.Snapshot;
 
         SensorsData? mainData = null;
@@ -847,7 +895,7 @@ public abstract class OsdWindowBase : Window
             useDetailed ? groupSnapshot : null,
             mainData,
             useDetailed ? null : SystemMemory.GetStatus(),
-            _sensorsGroupControllers.ShowAverageCpuFrequency);
+            _hardwareSensorSettings.Store.ShowCpuAverageFrequency);
 
         // Read only while shown, and like the other NVIDIA readings only with hardware sensors on and outside game-safe mode.
         // The NVIDIA call runs on a worker thread: on the UI thread it held up the overlay's drawing each refresh.

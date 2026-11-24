@@ -1,8 +1,10 @@
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
-using LenovoLegionToolkit.Lib;
-using LenovoLegionToolkit.WPF.Resources;
 using System.Windows.Media;
+using LenovoLegionToolkit.Lib;
+using LenovoLegionToolkit.Lib.Settings;
+using LenovoLegionToolkit.WPF.Resources;
 
 namespace LenovoLegionToolkit.WPF.Windows.Osd;
 
@@ -52,8 +54,8 @@ public partial class OsdPanelWindow : OsdWindowBase
             { OsdItem.Disk2Temperature, _disk1Temperature },
 
             // Motherboard
-            { OsdItem.PchTemperature, _pchTemperature },
-            { OsdItem.PchFan, _pchFanSpeed },
+            { OsdItem.MotherboardTemperature, _motherboardTemperature },
+            { OsdItem.SystemFans, _systemFansControl },
         };
 
         _measurementGroups = new()
@@ -62,16 +64,16 @@ public partial class OsdPanelWindow : OsdWindowBase
             { _fpsGroup, ([OsdItem.Fps, OsdItem.LowFps, OsdItem.FrameTime, OsdItem.FrameTimeGraph], _separatorFps) },
 
             // CPU
-            { _cpuGroup, ([OsdItem.CpuFrequency, OsdItem.CpuPCoreFrequency, OsdItem.CpuECoreFrequency, OsdItem.CpuUtilization, OsdItem.CpuTemperature, OsdItem.CpuPower, OsdItem.CpuVoltage, OsdItem.CpuFan], null) },
+            { _cpuGroup, ([OsdItem.CpuFrequency, OsdItem.CpuPCoreFrequency, OsdItem.CpuECoreFrequency, OsdItem.CpuUtilization, OsdItem.CpuTemperature, OsdItem.CpuPower, OsdItem.CpuVoltage, OsdItem.CpuFan], _separatorCpu) },
 
             // GPU
-            { _gpuGroup, ([OsdItem.GpuFrequency, OsdItem.GpuUtilization, OsdItem.GpuTemperature, OsdItem.GpuVramUtilization, OsdItem.GpuVramTemperature, OsdItem.GpuPower, OsdItem.GpuFan, OsdItem.GpuLimit], null) },
+            { _gpuGroup, ([OsdItem.GpuFrequency, OsdItem.GpuUtilization, OsdItem.GpuTemperature, OsdItem.GpuVramUtilization, OsdItem.GpuVramTemperature, OsdItem.GpuPower, OsdItem.GpuFan, OsdItem.GpuLimit], _separatorGpu) },
 
             // RAM
-            { _memoryGroup, ([OsdItem.MemoryUtilization, OsdItem.MemoryTemperature], null) },
+            { _memoryGroup, ([OsdItem.MemoryUtilization, OsdItem.MemoryTemperature], _separatorMemory) },
 
             // Storage / Motherboard
-            { _pchGroup, ([OsdItem.Disk1Temperature, OsdItem.Disk2Temperature, OsdItem.PchTemperature, OsdItem.PchFan], null) }
+            { _systemGroup, ([OsdItem.Disk1Temperature, OsdItem.Disk2Temperature, OsdItem.MotherboardTemperature, OsdItem.SystemFans], null) }
         };
 
         if (_sensorsPanel.Resources["SensorLabelStyle"] is Style labelStyle)
@@ -82,21 +84,10 @@ public partial class OsdPanelWindow : OsdWindowBase
         InitOsd();
     }
 
-    protected override double? SavedPositionX
+    protected override OsdPosition? SavedPosition
     {
-        get => _OsdSettings.Store.PanelPositionX;
-        set => _OsdSettings.Store.PanelPositionX = value;
-    }
-
-    protected override double? SavedPositionY
-    {
-        get => _OsdSettings.Store.PanelPositionY;
-        set => _OsdSettings.Store.PanelPositionY = value;
-    }
-
-    protected override void OnAmdDeviceDetected()
-    {
-        _pchName.Text = Resource.SensorsControl_Motherboard_Title;
+        get => _OsdSettings.Store.PanelPosition;
+        set => _OsdSettings.Store.PanelPosition = value;
     }
 
     protected override void ApplyAppearanceSettings()
@@ -137,7 +128,12 @@ public partial class OsdPanelWindow : OsdWindowBase
         _cpuHeader.Foreground = _categoryBrush;
         _gpuHeader.Foreground = _categoryBrush;
         _memHeader.Foreground = _categoryBrush;
-        _pchHeader.Foreground = _categoryBrush;
+        _motherboardHeader.Foreground = _categoryBrush;
+
+        _separatorFps.Background = _categoryBrush;
+        _separatorCpu.Background = _categoryBrush;
+        _separatorGpu.Background = _categoryBrush;
+        _separatorMemory.Background = _categoryBrush;
 
         ApplyCornerRadius(_rootBorder);
     }
@@ -146,7 +142,7 @@ public partial class OsdPanelWindow : OsdWindowBase
     {
         if (double.IsNaN(ActualWidth) || ActualWidth <= 0) return;
 
-        var workArea = SystemParameters.WorkArea;
+        var workArea = CurrentWorkArea;
 
         Left = workArea.Left;
         Top = workArea.Top + (workArea.Height - ActualHeight) / 2;
@@ -157,9 +153,9 @@ public partial class OsdPanelWindow : OsdWindowBase
     {
         var visibility = visible ? Visibility.Visible : Visibility.Collapsed;
 
-        // The graph has no label of its own; its parent is the FPS group, whose header must stay.
-        if (element is FrameTimeGraph) return;
-        if (element.Parent is not Panel panel) return;
+        // Only text rows have a label; the frame-time graph (in the FPS group, whose header must stay) and other
+        // elements are left alone.
+        if (element is not TextBlock || element.Parent is not Panel panel) return;
 
         foreach (var child in System.Linq.Enumerable.OfType<TextBlock>(panel.Children))
         {
@@ -189,6 +185,7 @@ public partial class OsdPanelWindow : OsdWindowBase
 
     protected override void UpdateSensorData(SensorSnapshot data)
     {
+        UpdateSystemFans(data.SystemFans);
         var store = _OsdSettings.Store;
 
         UpdateTextBlock(_cpuFrequency, data.CpuFrequency, $"{{0:F0}} {Resource.MHz}");
@@ -212,10 +209,29 @@ public partial class OsdPanelWindow : OsdWindowBase
         UpdateTextBlock(_memUsage, data.MemUsage, GetMemoryDisplayText(data), store.UsageThresholdWarning, store.UsageThresholdCritical);
         UpdateTemperatureTextBlock(_memTemperature, data.MemTemp, store.TempThresholdWarning, store.TempThresholdCritical);
 
-        UpdateTemperatureTextBlock(_pchTemperature, data.PchTemp, store.TempThresholdWarning, store.TempThresholdCritical);
-        UpdateTextBlock(_pchFanSpeed, data.PchFanSpeed);
+        UpdateTemperatureTextBlock(_motherboardTemperature, data.MotherboardTemp, store.TempThresholdWarning, store.TempThresholdCritical);
 
         UpdateTemperatureTextBlock(_disk0Temperature, data.Disk1Temp, store.TempThresholdWarning, store.TempThresholdCritical);
         UpdateTemperatureTextBlock(_disk1Temperature, data.Disk2Temp, store.TempThresholdWarning, store.TempThresholdCritical);
+    }
+
+    protected override void UpdateSystemFansCore(IReadOnlyList<FanData> fans)
+    {
+        var showNumber = fans.Count > 1;
+        UpdateSystemFanRow(_systemFan1Row, _systemFan1Name, _systemFan1Value, fans.Count > 0 ? fans[0] : null, showNumber);
+        UpdateSystemFanRow(_systemFan2Row, _systemFan2Name, _systemFan2Value, fans.Count > 1 ? fans[1] : null, showNumber);
+    }
+
+    private void UpdateSystemFanRow(Grid row, TextBlock name, TextBlock value, FanData? fan, bool showNumber)
+    {
+        if (fan is not { } data)
+        {
+            row.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        row.Visibility = Visibility.Visible;
+        SetTextIfChanged(name, showNumber ? $"{Resource.SensorsControl_Fan_Title} {data.DisplayNumber}" : Resource.SensorsControl_Fan_Title);
+        SetTextIfChanged(value, data.Speed < 0 ? "-" : $"{data.Speed} {Resource.RPM}");
     }
 }

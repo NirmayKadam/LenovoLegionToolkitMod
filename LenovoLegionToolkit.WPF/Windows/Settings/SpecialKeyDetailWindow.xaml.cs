@@ -46,6 +46,9 @@ public partial class SpecialKeyDetailWindow
         Title = _title.Text = string.Format(Resource.SelectSpecialKeyPipelinesWindow_Configure_Title, displayName);
 
         IsVisibleChanged += SpecialKeyDetailWindow_IsVisibleChanged;
+
+        // A key's action may have been set or removed: the extra Fn key listeners run only while one needs them.
+        Closed += (_, _) => IoCContainer.Resolve<Lib.Listeners.ExtraKeyListeners>().UpdateAsync().Forget("Updating the extra Fn key listeners");
     }
 
     private async void SpecialKeyDetailWindow_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
@@ -79,9 +82,10 @@ public partial class SpecialKeyDetailWindow
             ? desc : "";
         _descriptionDirty = false;
 
-        var isDriverKey = _keyCode >= SpecialKeySettings.SpecialKeySettingsStore.DriverKeyCodeOffset
-            && Enum.IsDefined(typeof(DriverKey), (DriverKey)(_keyCode - SpecialKeySettings.SpecialKeySettingsStore.DriverKeyCodeOffset));
-        var isBuiltIn = Enum.IsDefined(typeof(SpecialKey), (SpecialKey)_keyCode) || isDriverKey;
+        var isBuiltIn = Enum.IsDefined(typeof(SpecialKey), (SpecialKey)_keyCode)
+            || SpecialKeyCodes.IsDriverKey(_keyCode)
+            || SpecialKeyCodes.IsConsumerControlKey(_keyCode)
+            || SpecialKeyCodes.IsKeyboardKey(_keyCode);
         _deleteButton.Visibility = isBuiltIn ? Visibility.Collapsed : Visibility.Visible;
 
         _pendingMode = _settings.Store.KeyModes.TryGetValue(_keyCode, out var m) ? m : CustomSpecialKey.Default;
@@ -220,13 +224,7 @@ public partial class SpecialKeyDetailWindow
         Close();
     }
 
-    private static string FormatDefaultDisplayName(SpecialKey key)
-    {
-        string str = key.ToString();
-        if (str.StartsWith("Fn", StringComparison.OrdinalIgnoreCase) && str.Length > 2)
-            return string.Concat("Fn + ", str.AsSpan(2));
-        return str;
-    }
+    private static string FormatDefaultDisplayName(SpecialKey key) => SpecialKeyDisplayName.GetKey(key);
 
     private class PipelineListItem : UserControl
     {

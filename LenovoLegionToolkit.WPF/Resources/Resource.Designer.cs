@@ -3249,14 +3249,6 @@ namespace LenovoLegionToolkit.WPF.Resources {
             }
         }
         
-        /// <summary>
-        ///   Looks up a localized string similar to PCH.
-        /// </summary>
-        public static string FanCurveControl_PCH {
-            get {
-                return ResourceManager.GetString("FanCurveControl_PCH", resourceCulture);
-            }
-        }
         
         /// <summary>
         ///   Looks up a localized string similar to Set fan to maximum speed..
@@ -5086,23 +5078,7 @@ namespace LenovoLegionToolkit.WPF.Resources {
             }
         }
         
-        /// <summary>
-        ///   Looks up a localized string similar to Lenovo Hotkeys is running in the background..
-        /// </summary>
-        public static string MainWindows_FnKeysRunning {
-            get {
-                return ResourceManager.GetString("MainWindows_FnKeysRunning", resourceCulture);
-            }
-        }
         
-        /// <summary>
-        ///   Looks up a localized string similar to Lenovo Vantage and/or ImController is running in the background..
-        /// </summary>
-        public static string MainWindows_VantageRunning {
-            get {
-                return ResourceManager.GetString("MainWindows_VantageRunning", resourceCulture);
-            }
-        }
         
         /// <summary>
         ///   Looks up a localized string similar to Don&apos;t show again..
@@ -6099,23 +6075,7 @@ namespace LenovoLegionToolkit.WPF.Resources {
             }
         }
         
-        /// <summary>
-        ///   Looks up a localized string similar to PCH.
-        /// </summary>
-        public static string Osd_Pch {
-            get {
-                return ResourceManager.GetString("Osd_Pch", resourceCulture);
-            }
-        }
         
-        /// <summary>
-        ///   Looks up a localized string similar to PCH Fan.
-        /// </summary>
-        public static string Osd_PCH_Fan {
-            get {
-                return ResourceManager.GetString("Osd_PCH_Fan", resourceCulture);
-            }
-        }
         
         /// <summary>
         ///   Looks up a localized string similar to P-Core Clock.
@@ -7883,23 +7843,7 @@ namespace LenovoLegionToolkit.WPF.Resources {
             }
         }
         
-        /// <summary>
-        ///   Looks up a localized string similar to PCH Fan Speed.
-        /// </summary>
-        public static string SensorItem_PchFanSpeed {
-            get {
-                return ResourceManager.GetString("SensorItem_PchFanSpeed", resourceCulture);
-            }
-        }
         
-        /// <summary>
-        ///   Looks up a localized string similar to PCH Temperature.
-        /// </summary>
-        public static string SensorItem_PchTemperature {
-            get {
-                return ResourceManager.GetString("SensorItem_PchTemperature", resourceCulture);
-            }
-        }
         
         /// <summary>
         ///   Looks up a localized string similar to Battery.
@@ -8054,32 +7998,8 @@ namespace LenovoLegionToolkit.WPF.Resources {
             }
         }
         
-        /// <summary>
-        ///   Looks up a localized string similar to Board Temperature.
-        /// </summary>
-        public static string SensorsControl_Motherboard_Temperature {
-            get {
-                return ResourceManager.GetString("SensorsControl_Motherboard_Temperature", resourceCulture);
-            }
-        }
         
-        /// <summary>
-        ///   Looks up a localized string similar to Motherboard.
-        /// </summary>
-        public static string SensorsControl_Motherboard_Title {
-            get {
-                return ResourceManager.GetString("SensorsControl_Motherboard_Title", resourceCulture);
-            }
-        }
         
-        /// <summary>
-        ///   Looks up a localized string similar to PCH Temperature.
-        /// </summary>
-        public static string SensorsControl_PchTemperature_Title {
-            get {
-                return ResourceManager.GetString("SensorsControl_PchTemperature_Title", resourceCulture);
-            }
-        }
         
         /// <summary>
         ///   Looks up a localized string similar to Refresh Interval.
@@ -16176,6 +16096,358 @@ namespace LenovoLegionToolkit.WPF.Resources {
         public static string UiFreeze_Notification {
             get {
                 return ResourceManager.GetString("UiFreeze_Notification", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Limit the charging range to extend the battery lifespan..
+        /// </summary>
+        public static string ChargeThresholdControl_Message {
+            get {
+                return ResourceManager.GetString("ChargeThresholdControl_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Start.
+        /// </summary>
+        public static string ChargeThresholdControl_Start {
+            get {
+                return ResourceManager.GetString("ChargeThresholdControl_Start", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Stop.
+        /// </summary>
+        public static string ChargeThresholdControl_Stop {
+            get {
+                return ResourceManager.GetString("ChargeThresholdControl_Stop", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Charge Threshold.
+        /// </summary>
+        public static string ChargeThresholdControl_Title {
+            get {
+                return ResourceManager.GetString("ChargeThresholdControl_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Takes effect after the battery is unplugged and drops below the stop value..
+        /// </summary>
+        public static string ChargeThresholdControl_Warning {
+            get {
+                return ResourceManager.GetString("ChargeThresholdControl_Warning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The discrete GPU did not accept the selected performance state..
+        /// </summary>
+        public static string DiscreteGPUControl_PStateApplyFailedMessage {
+            get {
+                return ResourceManager.GetString("DiscreteGPUControl_PStateApplyFailedMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to P-State not applied.
+        /// </summary>
+        public static string DiscreteGPUControl_PStateApplyFailedTitle {
+            get {
+                return ResourceManager.GetString("DiscreteGPUControl_PStateApplyFailedTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Max pins the highest clock of the selected state, Min pins the lowest, and None locks the state without a clock pin..
+        /// </summary>
+        public static string DiscreteGPUControl_PStatePinInfo {
+            get {
+                return ResourceManager.GetString("DiscreteGPUControl_PStatePinInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Max.
+        /// </summary>
+        public static string DiscreteGPUControl_PStatePinMax {
+            get {
+                return ResourceManager.GetString("DiscreteGPUControl_PStatePinMax", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Min.
+        /// </summary>
+        public static string DiscreteGPUControl_PStatePinMin {
+            get {
+                return ResourceManager.GetString("DiscreteGPUControl_PStatePinMin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to None.
+        /// </summary>
+        public static string DiscreteGPUControl_PStatePinNone {
+            get {
+                return ResourceManager.GetString("DiscreteGPUControl_PStatePinNone", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to P0 TDP.
+        /// </summary>
+        public static string DiscreteGPUControl_PStateRatedTdp {
+            get {
+                return ResourceManager.GetString("DiscreteGPUControl_PStateRatedTdp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to System.
+        /// </summary>
+        public static string FanCurveControl_SystemFan {
+            get {
+                return ResourceManager.GetString("FanCurveControl_SystemFan", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to At the maximum value, the extended GPU power target range above 255 W is unlocked on supported GPUs..
+        /// </summary>
+        public static string GodModeSettingsWindow_Advanced_MaxOffset_Tooltip {
+            get {
+                return ResourceManager.GetString("GodModeSettingsWindow_Advanced_MaxOffset_Tooltip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The keyboard backlight cannot be controlled while another Lenovo app or its services are running..
+        /// </summary>
+        public static string Keyboard_SoftwareEnabledWarning_Message {
+            get {
+                return ResourceManager.GetString("Keyboard_SoftwareEnabledWarning_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Another Lenovo app is running.
+        /// </summary>
+        public static string Keyboard_SoftwareEnabledWarning_Title {
+            get {
+                return ResourceManager.GetString("Keyboard_SoftwareEnabledWarning_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lenovo Hotkeys is running in the background..
+        /// </summary>
+        public static string MainWindow_FnKeysRunning {
+            get {
+                return ResourceManager.GetString("MainWindow_FnKeysRunning", resourceCulture);
+            }
+        }
+        
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lenovo Vantage and/or ImController is running in the background..
+        /// </summary>
+        public static string MainWindow_VantageRunning {
+            get {
+                return ResourceManager.GetString("MainWindow_VantageRunning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Brightness.
+        /// </summary>
+        public static string PowerButtonLed_Brightness {
+            get {
+                return ResourceManager.GetString("PowerButtonLed_Brightness", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Adjust the light brightness or sync it with the keyboard backlight..
+        /// </summary>
+        public static string PowerButtonLed_Message {
+            get {
+                return ResourceManager.GetString("PowerButtonLed_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Power Button Light.
+        /// </summary>
+        public static string PowerButtonLed_Title {
+            get {
+                return ResourceManager.GetString("PowerButtonLed_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Adjusts the refresh rate up to the selected rate to save power..
+        /// </summary>
+        public static string RefreshRateControl_Dynamic_Message {
+            get {
+                return ResourceManager.GetString("RefreshRateControl_Dynamic_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dynamic refresh rate.
+        /// </summary>
+        public static string RefreshRateControl_Dynamic_Title {
+            get {
+                return ResourceManager.GetString("RefreshRateControl_Dynamic_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MOBO.
+        /// </summary>
+        public static string SensorsControl_MOBO_Title {
+            get {
+                return ResourceManager.GetString("SensorsControl_MOBO_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Choose which CPU temperature sensor is displayed on the Dashboard and OSD..
+        /// </summary>
+        public static string SensorSettingsPage_CPU_Temperature_Source_Message {
+            get {
+                return ResourceManager.GetString("SensorSettingsPage_CPU_Temperature_Source_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CPU Temperature Source.
+        /// </summary>
+        public static string SensorSettingsPage_CPU_Temperature_Source_Title {
+            get {
+                return ResourceManager.GetString("SensorSettingsPage_CPU_Temperature_Source_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Auto.
+        /// </summary>
+        public static string SensorSettingsPage_TemperatureSource_Auto {
+            get {
+                return ResourceManager.GetString("SensorSettingsPage_TemperatureSource_Auto", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Average.
+        /// </summary>
+        public static string SensorSettingsPage_TemperatureSource_Average {
+            get {
+                return ResourceManager.GetString("SensorSettingsPage_TemperatureSource_Average", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Core Max.
+        /// </summary>
+        public static string SensorSettingsPage_TemperatureSource_CoreMax {
+            get {
+                return ResourceManager.GetString("SensorSettingsPage_TemperatureSource_CoreMax", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Package.
+        /// </summary>
+        public static string SensorSettingsPage_TemperatureSource_Package {
+            get {
+                return ResourceManager.GetString("SensorSettingsPage_TemperatureSource_Package", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Couldn&apos;t fully disable everything, some items may still be running.
+        /// </summary>
+        public static string SettingsPage_DisableIncomplete_Title {
+            get {
+                return ResourceManager.GetString("SettingsPage_DisableIncomplete_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not apply the GPU preference..
+        /// </summary>
+        public static string SettingsPage_HWA_GPUPreference_Error_Message {
+            get {
+                return ResourceManager.GetString("SettingsPage_HWA_GPUPreference_Error_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fn shortcuts are handled by Lenovo Hotkeys, so Exclude Refresh Rates, Smart Keys and Key Discovery have no effect while it is running..
+        /// </summary>
+        public static string SettingsPage_LenovoHotkeysRunningWarning_Message {
+            get {
+                return ResourceManager.GetString("SettingsPage_LenovoHotkeysRunningWarning_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lenovo Hotkeys is running.
+        /// </summary>
+        public static string SettingsPage_LenovoHotkeysRunningWarning_Title {
+            get {
+                return ResourceManager.GetString("SettingsPage_LenovoHotkeysRunningWarning_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Automatically restore the last ITS mode when the app starts..
+        /// </summary>
+        public static string SettingsPage_RestoreITSModeOnStartup_Message {
+            get {
+                return ResourceManager.GetString("SettingsPage_RestoreITSModeOnStartup_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Restore ITS Mode on Startup.
+        /// </summary>
+        public static string SettingsPage_RestoreITSModeOnStartup_Title {
+            get {
+                return ResourceManager.GetString("SettingsPage_RestoreITSModeOnStartup_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Settings were saved but not applied to the GPU..
+        /// </summary>
+        public static string Snackbar_SettingsNotApplied_Message {
+            get {
+                return ResourceManager.GetString("Snackbar_SettingsNotApplied_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (HID).
+        /// </summary>
+        public static string SpecialKey_ConsumerSuffix {
+            get {
+                return ResourceManager.GetString("SpecialKey_ConsumerSuffix", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (Key).
+        /// </summary>
+        public static string SpecialKey_KeyboardSuffix {
+            get {
+                return ResourceManager.GetString("SpecialKey_KeyboardSuffix", resourceCulture);
             }
         }
     }

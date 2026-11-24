@@ -111,6 +111,7 @@ public sealed class GodModeApplyTests : IDisposable
             return Task.CompletedTask;
         }
 
+        public bool IsGpuPowerTargetOffsetAvailable() => false; // no NVIDIA GPU in this script
         public Task<int> GetGpuPowerTargetOffsetAsync() => Task.FromResult(0);
         public Task SetGpuPowerTargetOffsetAsync(int offsetInWatts) => throw new InvalidOperationException("No NVIDIA GPU in this script");
         public Task ResetGpuPowerTargetOffsetAsync() => Task.CompletedTask;
@@ -135,7 +136,7 @@ public sealed class GodModeApplyTests : IDisposable
             return Task.CompletedTask;
         }
 
-        public Task EnsureWindowsPowerSettingsAsync(Preset preset)
+        public Task EnsureWindowsPowerSettingsAsync(Preset preset, SoftwareStatus? vantageStatus = null)
         {
             PowerSettingsCalls++;
             return Task.CompletedTask;

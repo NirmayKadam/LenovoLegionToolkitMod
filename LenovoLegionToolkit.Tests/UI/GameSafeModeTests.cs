@@ -328,7 +328,8 @@ public sealed class GameSafeModeTests : IDisposable
     private static SensorsData Lenovo(int cpuTemp = 71, int cpuUse = 40, int cpuClock = 3800, int cpuFan = 3100, int gpuTemp = 65, int gpuUse = 90, int gpuClock = 2100, int gpuFan = 3300) =>
         new(new SensorData(cpuUse, 100, cpuClock, 5000, -1, -1, cpuTemp, 100, cpuFan, 5000),
             new SensorData(gpuUse, 100, gpuClock, 2500, 8000, 9000, gpuTemp, 87, gpuFan, 5000),
-            new SensorData(-1, -1, -1, -1, -1, -1, 50, 100, 2000, 4000));
+            50,
+            [new FanData(FanId: 4, DisplayNumber: 1, Speed: 2000, MaxSpeed: 4000)]);
 
     [Fact]
     public void DriverFree_UsesLenovoSensorsAndWindowsMemory()
@@ -345,7 +346,8 @@ public sealed class GameSafeModeTests : IDisposable
         Assert.Equal(55, s.MemUsage);
         Assert.Equal(8.8, s.MemUsed, precision: 3);
         Assert.Equal(16, s.MemTotal);
-        Assert.Equal(50, s.PchTemp);
+        Assert.Equal(50, s.MotherboardTemp);
+        Assert.Equal(2000, Assert.Single(s.SystemFans).Speed);
     }
 
     [Fact]

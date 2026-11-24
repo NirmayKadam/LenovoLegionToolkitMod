@@ -1,11 +1,11 @@
-using LenovoLegionToolkit.Lib;
-using LenovoLegionToolkit.Lib.Utils;
-using LenovoLegionToolkit.WPF.Resources;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
+using LenovoLegionToolkit.Lib;
+using LenovoLegionToolkit.Lib.Utils;
+using LenovoLegionToolkit.WPF.Resources;
 
 namespace LenovoLegionToolkit.WPF;
 
@@ -92,10 +92,10 @@ public class AmdCoreItem : INotifyPropertyChanged
 
 public readonly struct DashboardGroup(DashboardGroupType type, string? customName, params DashboardItem[] items)
 {
-    public static DashboardGroup[] DefaultGroups => GetDefaultGroups(Compatibility.GetMachineInformation().Properties.SupportsITSMode);
+    public static DashboardGroup[] DefaultGroups => GetDefaultGroups(Compatibility.GetMachineInformation().Properties.SupportsITSMode, Compatibility.HasLenovoPowerManagementDevice());
 
     /// <summary>The layout before any customising; ITS mode is shown first when the laptop has it.</summary>
-    internal static DashboardGroup[] GetDefaultGroups(bool supportsItsMode)
+    internal static DashboardGroup[] GetDefaultGroups(bool supportsItsMode, bool supportsChargeThreshold = false)
     {
         var groups = new List<DashboardGroup>
         {
@@ -130,10 +130,18 @@ public readonly struct DashboardGroup(DashboardGroupType type, string? customNam
                 DashboardItem.WhiteKeyboardBacklight,
                 DashboardItem.PanelLogoBacklight,
                 DashboardItem.PortsBacklight,
+                DashboardItem.PowerButtonLed,
                 DashboardItem.TouchpadLock,
                 DashboardItem.FnLock,
                 DashboardItem.WinKeyLock)
         };
+
+        if (supportsChargeThreshold)
+        {
+            var powerItems = groups[0].Items.ToList();
+            powerItems.Insert(Math.Min(3, powerItems.Count), DashboardItem.ChargeThreshold);
+            groups[0] = new(DashboardGroupType.Power, null, powerItems.ToArray());
+        }
 
         if (!supportsItsMode)
         {
@@ -191,8 +199,8 @@ public readonly struct SensorGroup(SensorGroupType type, params SensorItem[] ite
             SensorItem.GpuTemperatures,
             SensorItem.GpuPower),
         new(SensorGroupType.Motherboard,
-            SensorItem.PchFanSpeed,
-            SensorItem.PchTemperature),
+            SensorItem.SystemFans,
+            SensorItem.MotherboardTemperature),
         new(SensorGroupType.Battery,
             SensorItem.BatteryState,
             SensorItem.BatteryLevel),
@@ -260,8 +268,9 @@ public readonly struct SensorSnapshot
     public double MemUsed { get; init; }
     public double MemTotal { get; init; }
     public double MemTemp { get; init; }
-    public double PchTemp { get; init; }
-    public int PchFanSpeed { get; init; }
+    public double MotherboardTemp { get; init; }
+    private readonly IReadOnlyList<FanData>? _systemFans;
+    public IReadOnlyList<FanData> SystemFans { get => _systemFans ?? []; init => _systemFans = value; }
     public double Disk1Temp { get; init; }
     public double Disk2Temp { get; init; }
 }

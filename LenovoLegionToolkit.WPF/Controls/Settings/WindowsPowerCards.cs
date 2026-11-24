@@ -172,6 +172,6 @@ public static class WindowsPowerCards
         settings.SynchronizeStore();
 
         if (await feature.GetStateAsync() == state)
-            await feature.EnsureCorrectWindowsPowerSettingsAreSetAsync();
+            await feature.EnsureCorrectWindowsPowerSettingsAreSetAsync(skipThrottle: true);
     }
 }

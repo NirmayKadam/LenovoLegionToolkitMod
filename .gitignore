@@ -22,6 +22,7 @@ build_installer/
 TemporarySolution/LibreHardwareMonitorLib.dll
 LenovoLegionToolkit.Plugin/
 FanCurveExtension/
+website/
 
 # AI Tooling and Agents
 # (Standard ignore patterns for AI caches, history, and state)
@@ -55,6 +56,7 @@ agent/
 agents/
 .crewai/
 .autogen/
+AGENTS.md
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

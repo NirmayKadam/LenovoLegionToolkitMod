@@ -14,6 +14,8 @@ public class GodModeSettings : AbstractSettings<GodModeSettingsStore>
     /// <summary>Keeps the file in <paramref name="folder"/>, so tests never touch the real settings.</summary>
     internal GodModeSettings(string folder) : base(FILE_NAME, folder) { }
 
+    protected override string MigrateJson(string json) => SettingsMigration.RenameEnumValues(json, SettingsMigration.FanTableTypeRenames, onlyProperty: "Type");
+
     public class GodModeSettingsStore
     {
         public record Preset

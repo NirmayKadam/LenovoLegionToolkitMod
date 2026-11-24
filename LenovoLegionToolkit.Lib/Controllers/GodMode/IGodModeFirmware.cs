@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using LenovoLegionToolkit.Lib.Features;
 using LenovoLegionToolkit.Lib.Settings;
 using LenovoLegionToolkit.Lib.SoftwareDisabler;
+using LenovoLegionToolkit.Lib.System;
 using LenovoLegionToolkit.Lib.System.Management;
 using LenovoLegionToolkit.Lib.Utils;
 using NvAPIWrapper.GPU;
@@ -32,6 +33,9 @@ internal interface IGodModeFirmware
     Task<int> GetFeatureValueAsync(uint idRaw);
     Task SetFeatureValueAsync(uint idRaw, int value);
 
+    /// <summary>Whether NVIDIA's power control (PCF) answers on this laptop.</summary>
+    bool IsGpuPowerTargetOffsetAvailable();
+
     /// <summary>The GPU's total processing power target offset over its default, in watts (NVIDIA PCF).</summary>
     Task<int> GetGpuPowerTargetOffsetAsync();
     Task SetGpuPowerTargetOffsetAsync(int offsetInWatts);
@@ -46,7 +50,7 @@ internal interface IGodModeFirmware
     Task SetCpuOcDataAsync(byte mode, uint tuneId, int value);
 
     /// <summary>The Windows power plan / power mode that goes with the preset (best effort).</summary>
-    Task EnsureWindowsPowerSettingsAsync(GodModeSettings.GodModeSettingsStore.Preset preset);
+    Task EnsureWindowsPowerSettingsAsync(GodModeSettings.GodModeSettingsStore.Preset preset, SoftwareStatus? vantageStatus = null);
 
     Task DelayAsync(TimeSpan delay);
 }
@@ -69,6 +73,24 @@ internal sealed class WmiGodModeFirmware(
 
     public Task<int> GetFeatureValueAsync(uint idRaw) => WMI.LenovoOtherMethod.GetFeatureValueAsync(idRaw);
     public Task SetFeatureValueAsync(uint idRaw, int value) => WMI.LenovoOtherMethod.SetFeatureValueAsync(idRaw, value);
+
+    public bool IsGpuPowerTargetOffsetAvailable()
+    {
+        if (!NVAPI.IsAvailable())
+            return false;
+
+        try
+        {
+            using var controller = new PcfPowerController();
+            controller.GetPowerValues();
+            return true;
+        }
+        catch (Exception ex) when (ex is NvAPIWrapper.Native.Exceptions.NVIDIANotSupportedException || ex is NvAPIWrapper.Native.Exceptions.NVIDIAApiException)
+        {
+            Log.Instance.Trace($"NVIDIA PCF power control is not available.", ex);
+            return false;
+        }
+    }
 
     public Task<int> GetGpuPowerTargetOffsetAsync() => Task.Run(() =>
     {
@@ -102,12 +124,12 @@ internal sealed class WmiGodModeFirmware(
     public Task<int> GetBiosOcModeAsync() => WMI.LenovoGameZoneData.GetBIOSOCMode();
     public Task SetCpuOcDataAsync(byte mode, uint tuneId, int value) => WMI.LenovoCpuMethod.CPUSetOCDataAsync(mode, tuneId, value);
 
-    public async Task EnsureWindowsPowerSettingsAsync(GodModeSettings.GodModeSettingsStore.Preset preset)
+    public async Task EnsureWindowsPowerSettingsAsync(GodModeSettings.GodModeSettingsStore.Preset preset, SoftwareStatus? vantageStatus = null)
     {
         try
         {
             var feature = IoCContainer.Resolve<PowerModeFeature>();
-            await feature.EnsureCorrectWindowsPowerSettingsAreSetAsync(preset).ConfigureAwait(false);
+            await feature.EnsureCorrectWindowsPowerSettingsAreSetAsync(preset, true, vantageStatus).ConfigureAwait(false);
         }
         catch { /* feature may not be available in all contexts */ }
     }

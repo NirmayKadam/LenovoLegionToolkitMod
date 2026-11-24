@@ -1,3 +1,4 @@
+using System;
 using LenovoLegionToolkit.Lib;
 using LenovoLegionToolkit.Lib.Controllers.Sensors;
 
@@ -7,7 +8,7 @@ namespace LenovoLegionToolkit.WPF.Windows.Osd;
 /// Combines the OSD's data sources into one <see cref="SensorSnapshot"/>.
 /// <list type="bullet">
 /// <item><b>Detailed</b> (hardware sensors on, not in game-safe mode): readings from LibreHardwareMonitor,
-/// fans and chipset from Lenovo's WMI sensors, exactly as before.</item>
+/// fans and motherboard temperature from Lenovo's WMI sensors, exactly as before.</item>
 /// <item><b>Driver-free</b> (sensors off, or game-safe mode): CPU/GPU temperature, usage, clock and fans from
 /// Lenovo's WMI sensors, memory from Windows. Readings only the driver provides (power, voltage, per-core-type
 /// clocks, VRAM, memory and disk temperatures) are reported as missing (-1), which the OSD shows as "-".</item>
@@ -50,8 +51,8 @@ public static class OsdSnapshotBuilder
                 MemTotal = memory?.TotalGb ?? -1,
                 MemTemp = -1,
 
-                PchTemp = main?.PCH.Temperature ?? -1,
-                PchFanSpeed = main?.PCH.FanSpeed ?? -1,
+                MotherboardTemp = main?.MotherboardTemperature ?? -1,
+                SystemFans = main?.SystemFans ?? Array.Empty<FanData>(),
 
                 Disk1Temp = -1,
                 Disk2Temp = -1,
@@ -85,8 +86,8 @@ public static class OsdSnapshotBuilder
             MemTotal = g[SensorItem.MemoryTotal],
             MemTemp = g[SensorItem.MemoryTemperature],
 
-            PchTemp = main?.PCH.Temperature ?? -1,
-            PchFanSpeed = main?.PCH.FanSpeed ?? -1,
+            MotherboardTemp = main?.MotherboardTemperature ?? -1,
+            SystemFans = main?.SystemFans ?? Array.Empty<FanData>(),
 
             Disk1Temp = g[SensorItem.Disk1Temperature],
             Disk2Temp = g[SensorItem.Disk2Temperature],

@@ -19,7 +19,8 @@ namespace LenovoLegionToolkit.WPF.Utils;
 /// <list type="bullet">
 /// <item>detailed sensors through LibreHardwareMonitor and the PawnIO kernel driver (paused);</item>
 /// <item>macros, which send simulated key presses, and their keyboard hook (paused);</item>
-/// <item>the Caps Lock / Num Lock keyboard hook (removed).</item>
+/// <item>the Caps Lock / Num Lock keyboard hook (removed);</item>
+/// <item>the keyboard hook and media-key listener for the extra Fn keys (removed).</item>
 /// </list>
 /// The OSD keeps working from driver-free sources (Lenovo WMI, NVIDIA's API, Windows memory status, ETW frame
 /// timing). Everything resumes when the game ends. LLT can't promise any game won't flag it; this only avoids
@@ -33,8 +34,8 @@ public sealed class GameSafeMode
     private readonly Action<string, Exception> _reportError;
     private readonly Func<bool> _forcedByProfile;
 
-    public GameSafeMode(AntiCheatMonitor monitor, ApplicationSettings settings, SensorsGroupController sensors, MacroController macros, NativeWindowsMessageListener nativeListener, GameProfileController gameProfiles)
-        : this(monitor, () => settings.Store.GameSafeMode, active => SwitchAsync(active, sensors, macros, nativeListener), Log.Instance.ErrorReport, () => gameProfiles.ForceGameSafe)
+    public GameSafeMode(AntiCheatMonitor monitor, ApplicationSettings settings, SensorsGroupController sensors, MacroController macros, NativeWindowsMessageListener nativeListener, GameProfileController gameProfiles, ExtraKeyListeners extraKeys)
+        : this(monitor, () => settings.Store.GameSafeMode, active => SwitchAsync(active, sensors, macros, nativeListener, extraKeys), Log.Instance.ErrorReport, () => gameProfiles.ForceGameSafe)
     {
         gameProfiles.ForceGameSafeChanged += (_, _) => _ = ApplyAsync();
     }
@@ -127,7 +128,7 @@ public sealed class GameSafeMode
     }
 
     /// <summary>Pauses (true) or resumes (false) everything game-safe mode covers, and says so.</summary>
-    private static async Task SwitchAsync(bool active, SensorsGroupController sensors, MacroController macros, NativeWindowsMessageListener nativeListener)
+    private static async Task SwitchAsync(bool active, SensorsGroupController sensors, MacroController macros, NativeWindowsMessageListener nativeListener, ExtraKeyListeners extraKeys)
     {
         sensors.SetPaused(active);
 
@@ -143,6 +144,15 @@ public sealed class GameSafeMode
         catch (Exception ex)
         {
             Log.Instance.Trace($"Couldn't change the Caps/Num Lock hook.", ex);
+        }
+
+        try
+        {
+            await extraKeys.SetSuspendedAsync(active).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            Log.Instance.Trace($"Couldn't change the extra Fn key listeners.", ex);
         }
 
         MessagingCenter.Publish(new NotificationMessage(active ? NotificationType.GameSafeModeOn : NotificationType.GameSafeModeOff));

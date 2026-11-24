@@ -1,16 +1,12 @@
 using System;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.Win32;
-using Windows.Win32.Foundation;
-using Windows.Win32.System.Power;
-using Windows.Win32.UI.WindowsAndMessaging;
 using LenovoLegionToolkit.Lib.Controllers;
 using LenovoLegionToolkit.Lib.Controllers.GodMode;
 using LenovoLegionToolkit.Lib.Features;
 using LenovoLegionToolkit.Lib.Features.Hybrid.Notify;
-using System.Linq;
 using LenovoLegionToolkit.Lib.Messaging;
 using LenovoLegionToolkit.Lib.Messaging.Messages;
 using LenovoLegionToolkit.Lib.Overclocking.Amd;
@@ -18,6 +14,10 @@ using LenovoLegionToolkit.Lib.Station.Core;
 using LenovoLegionToolkit.Lib.System;
 using LenovoLegionToolkit.Lib.Utils;
 using Microsoft.Win32;
+using Windows.Win32;
+using Windows.Win32.Foundation;
+using Windows.Win32.System.Power;
+using Windows.Win32.UI.WindowsAndMessaging;
 
 namespace LenovoLegionToolkit.Lib.Listeners;
 
@@ -234,8 +234,7 @@ public sealed class PowerStateListener : IListener<PowerStateListener.ChangedEve
 
     private async Task HandleSuspendAsync()
     {
-        if (await _powerModeFeature.IsSupportedAsync().ConfigureAwait(false) &&
-            await _powerModeFeature.GetStateAsync().ConfigureAwait(false) == PowerModeState.GodMode)
+        if (await _powerModeFeature.IsSupportedAsync().ConfigureAwait(false) && await _powerModeFeature.GetStateAsync().ConfigureAwait(false) == PowerModeState.GodMode)
         {
             Log.Instance.Trace($"Going to dark.");
             await _powerModeFeature.SuspendMode(PowerModeState.Balance).ConfigureAwait(false);
@@ -300,10 +299,13 @@ public sealed class PowerStateListener : IListener<PowerStateListener.ChangedEve
             if (!await _powerModeFeature.IsSupportedAsync().ConfigureAwait(false))
                 return;
 
-            if (_powerModeFeature.LastPowerModeState == PowerModeState.GodMode)
+            var restoreMode = _powerModeFeature.LastPowerModeState;
+            _powerModeFeature.LastPowerModeState = null;
+
+            if (currentAdapterStatus == PowerAdapterStatus.Connected && restoreMode is PowerModeState.GodMode)
             {
-                Log.Instance.Trace($"Restore to {_powerModeFeature.LastPowerModeState}");
-                await _powerModeFeature.SetStateAsync(_powerModeFeature.LastPowerModeState).ConfigureAwait(false);
+                Log.Instance.Trace($"Restore to {restoreMode.Value}");
+                await _powerModeFeature.SetStateAsync(restoreMode.Value).ConfigureAwait(false);
             }
 
             await _powerModeFeature.EnsureGodModeStateIsAppliedAsync().ConfigureAwait(false);

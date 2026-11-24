@@ -62,6 +62,14 @@ public class SpectrumKeyboardBacklightController
 
     private async void Listener_Changed(object? sender, SpecialKeyListener.ChangedEventArgs e)
     {
+        if (e.SpecialKey is not (SpecialKey.SpectrumPreset1
+            or SpecialKey.SpectrumPreset2
+            or SpecialKey.SpectrumPreset3
+            or SpecialKey.SpectrumPreset4
+            or SpecialKey.SpectrumPreset5
+            or SpecialKey.SpectrumPreset6))
+            return;
+
         try
         {
             if (!await IsSupportedAsync().ConfigureAwait(false))
@@ -70,19 +78,7 @@ public class SpectrumKeyboardBacklightController
             if (await _vantageDisabler.GetStatusAsync().ConfigureAwait(false) == SoftwareStatus.Enabled)
                 return;
 
-            switch (e.SpecialKey)
-            {
-                case SpecialKey.SpectrumPreset1
-                    or SpecialKey.SpectrumPreset2
-                    or SpecialKey.SpectrumPreset3
-                    or SpecialKey.SpectrumPreset4
-                    or SpecialKey.SpectrumPreset5
-                    or SpecialKey.SpectrumPreset6:
-                    {
-                        await StartAuroraIfNeededAsync().ConfigureAwait(false);
-                        break;
-                    }
-            }
+            await StartAuroraIfNeededAsync().ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -109,25 +105,19 @@ public class SpectrumKeyboardBacklightController
     public async Task<IReadOnlyList<SpectrumKeyboardBacklightEffectType>> GetHiddenEffectTypesAsync()
     {
         var mi = await Compatibility.GetMachineInformationAsync().ConfigureAwait(false);
-        return GetHiddenEffectTypes(mi);
+        var keyboardType = await WMI.LenovoLightingData.GetKeyboardTypeAsync().ConfigureAwait(false);
+        return GetHiddenEffectTypes(mi, keyboardType);
     }
 
     public async Task<bool> Is1ZoneKeyboardAsync()
     {
         var mi = await Compatibility.GetMachineInformationAsync().ConfigureAwait(false);
-        var machineTypeFallback = Is1ZoneKeyboard(mi);
-        try
-        {
-            var keyboardType = await WMI.LenovoLightingData.GetKeyboardTypeAsync().ConfigureAwait(false);
-            var result = keyboardType is 4 || keyboardType is null && machineTypeFallback;
-            Log.Instance.Trace($"Checked 1-zone Spectrum keyboard. [machineType={mi.MachineType}, generation={mi.Generation}, keyboardType={keyboardType?.ToString() ?? "null"}, machineTypeFallback={machineTypeFallback}, result={result}]");
-            return result;
-        }
-        catch (Exception ex)
-        {
-            Log.Instance.Trace($"Failed to get Spectrum keyboard type; using machine type fallback. [machineType={mi.MachineType}, generation={mi.Generation}, result={machineTypeFallback}]", ex);
-            return machineTypeFallback;
-        }
+        var keyboardType = await WMI.LenovoLightingData.GetKeyboardTypeAsync().ConfigureAwait(false);
+        var result = Is1ZoneKeyboard(keyboardType, mi);
+
+        Log.Instance.Trace($"Checked 1-zone Spectrum keyboard. [machineType={mi.MachineType}, generation={mi.Generation}, keyboardType={keyboardType?.ToString() ?? "null"}, result={result}]");
+
+        return result;
     }
 
     public async Task<bool> IsFixedZoneKeyboardAsync()
@@ -155,7 +145,11 @@ public class SpectrumKeyboardBacklightController
             "83JF",
             "83JG",
             "83JH",
-            "83Q1"
+            "83Q1",
+            "83Q6",
+            "83Q8",
+            "83RW",
+            "83VK"
         };
 
         return machineTypes.Contains(mi.MachineType);
@@ -171,7 +165,8 @@ public class SpectrumKeyboardBacklightController
             "83F6",
             "83F4",
             "83RU",
-            "83RV"
+            "83RV",
+            "83EY"
         };
 
         return machineTypes.Contains(mi.MachineType);
@@ -182,27 +177,13 @@ public class SpectrumKeyboardBacklightController
         !IsPerKeyKeyboard(mi) &&
         mi.Generation >= 10;
 
-    private static IReadOnlyList<SpectrumKeyboardBacklightEffectType> GetHiddenEffectTypes(MachineInformation mi)
-    {
-        // The 24 Zone keyboard does not support the following effects.
-        // Therefore, they are hidden from the UI.
-        if (Is24ZoneKeyboard(mi))
-        {
-            return
-            [
-                SpectrumKeyboardBacklightEffectType.AuroraSync,
-                SpectrumKeyboardBacklightEffectType.AudioRipple,
-                SpectrumKeyboardBacklightEffectType.ColorChange,
-                SpectrumKeyboardBacklightEffectType.Rain,
-                SpectrumKeyboardBacklightEffectType.RainbowScrew,
-                SpectrumKeyboardBacklightEffectType.RainbowWave,
-                SpectrumKeyboardBacklightEffectType.Ripple,
-                SpectrumKeyboardBacklightEffectType.Type
-            ];
-        }
+    private static bool Is1ZoneKeyboard(int? keyboardType, MachineInformation mi) =>
+        keyboardType is 4 ||
+        keyboardType is null && Is1ZoneKeyboard(mi);
 
-        // The 1-zone Spectrum exposes only the same basic effect.
-        if (Is1ZoneKeyboard(mi))
+    private static IReadOnlyList<SpectrumKeyboardBacklightEffectType> GetHiddenEffectTypes(MachineInformation mi, int? keyboardType)
+    {
+        if (Is1ZoneKeyboard(keyboardType, mi))
         {
             return
             [
@@ -211,15 +192,25 @@ public class SpectrumKeyboardBacklightController
                 SpectrumKeyboardBacklightEffectType.AudioRipple,
                 SpectrumKeyboardBacklightEffectType.ColorChange,
                 SpectrumKeyboardBacklightEffectType.ColorWave,
-                SpectrumKeyboardBacklightEffectType.Rain,
-                SpectrumKeyboardBacklightEffectType.RainbowScrew,
-                SpectrumKeyboardBacklightEffectType.Ripple,
+                SpectrumKeyboardBacklightEffectType.Raining,
+                SpectrumKeyboardBacklightEffectType.SpiralRainbow,
+                SpectrumKeyboardBacklightEffectType.Ripples,
                 SpectrumKeyboardBacklightEffectType.Smooth,
-                SpectrumKeyboardBacklightEffectType.Type
+                SpectrumKeyboardBacklightEffectType.Lighting
             ];
         }
 
-        // Aurora Sync has been moved into Dynamic Lighting start from Gen 10.
+        if (Is24ZoneKeyboard(mi))
+        {
+            return
+            [
+                SpectrumKeyboardBacklightEffectType.AuroraSync,
+                SpectrumKeyboardBacklightEffectType.Lighting,
+                SpectrumKeyboardBacklightEffectType.Raining,
+                SpectrumKeyboardBacklightEffectType.Ripples
+            ];
+        }
+
         if (mi.Generation >= 10)
         {
             return [SpectrumKeyboardBacklightEffectType.AuroraSync];
@@ -759,18 +750,21 @@ public class SpectrumKeyboardBacklightController
         var effectType = effect.EffectHeader.EffectType switch
         {
             LENOVO_SPECTRUM_EFFECT_TYPE.Always => SpectrumKeyboardBacklightEffectType.Always,
-            LENOVO_SPECTRUM_EFFECT_TYPE.LegionAuraSync => SpectrumKeyboardBacklightEffectType.AuroraSync,
-            LENOVO_SPECTRUM_EFFECT_TYPE.AudioBounceLighting => SpectrumKeyboardBacklightEffectType.AudioBounce,
-            LENOVO_SPECTRUM_EFFECT_TYPE.AudioRippleLighting => SpectrumKeyboardBacklightEffectType.AudioRipple,
+            LENOVO_SPECTRUM_EFFECT_TYPE.AuroraSync => SpectrumKeyboardBacklightEffectType.AuroraSync,
+            LENOVO_SPECTRUM_EFFECT_TYPE.AudioBounce => SpectrumKeyboardBacklightEffectType.AudioBounce,
+            LENOVO_SPECTRUM_EFFECT_TYPE.AudioRipple => SpectrumKeyboardBacklightEffectType.AudioRipple,
             LENOVO_SPECTRUM_EFFECT_TYPE.ColorChange => SpectrumKeyboardBacklightEffectType.ColorChange,
             LENOVO_SPECTRUM_EFFECT_TYPE.ColorPulse => SpectrumKeyboardBacklightEffectType.ColorPulse,
             LENOVO_SPECTRUM_EFFECT_TYPE.ColorWave => SpectrumKeyboardBacklightEffectType.ColorWave,
-            LENOVO_SPECTRUM_EFFECT_TYPE.Rain => SpectrumKeyboardBacklightEffectType.Rain,
-            LENOVO_SPECTRUM_EFFECT_TYPE.ScrewRainbow => SpectrumKeyboardBacklightEffectType.RainbowScrew,
+            LENOVO_SPECTRUM_EFFECT_TYPE.Raining => SpectrumKeyboardBacklightEffectType.Raining,
+            LENOVO_SPECTRUM_EFFECT_TYPE.SpiralRainbow => SpectrumKeyboardBacklightEffectType.SpiralRainbow,
             LENOVO_SPECTRUM_EFFECT_TYPE.RainbowWave => SpectrumKeyboardBacklightEffectType.RainbowWave,
-            LENOVO_SPECTRUM_EFFECT_TYPE.Ripple => SpectrumKeyboardBacklightEffectType.Ripple,
+            LENOVO_SPECTRUM_EFFECT_TYPE.Ripples => SpectrumKeyboardBacklightEffectType.Ripples,
             LENOVO_SPECTRUM_EFFECT_TYPE.Smooth => SpectrumKeyboardBacklightEffectType.Smooth,
-            LENOVO_SPECTRUM_EFFECT_TYPE.TypeLighting => SpectrumKeyboardBacklightEffectType.Type,
+            LENOVO_SPECTRUM_EFFECT_TYPE.HorseRaceLamp => SpectrumKeyboardBacklightEffectType.HorseRaceLamp,
+            LENOVO_SPECTRUM_EFFECT_TYPE.Breath => SpectrumKeyboardBacklightEffectType.Breath,
+            LENOVO_SPECTRUM_EFFECT_TYPE.Wave => SpectrumKeyboardBacklightEffectType.Wave,
+            LENOVO_SPECTRUM_EFFECT_TYPE.Lighting => SpectrumKeyboardBacklightEffectType.Lighting,
             _ => throw new ArgumentException("Unsupported Lenovo Spectrum Effect Preset.")
         };
 
@@ -842,18 +836,21 @@ public class SpectrumKeyboardBacklightController
         var effectType = effect.Type switch
         {
             SpectrumKeyboardBacklightEffectType.Always => LENOVO_SPECTRUM_EFFECT_TYPE.Always,
-            SpectrumKeyboardBacklightEffectType.AuroraSync => LENOVO_SPECTRUM_EFFECT_TYPE.LegionAuraSync,
-            SpectrumKeyboardBacklightEffectType.AudioBounce => LENOVO_SPECTRUM_EFFECT_TYPE.AudioBounceLighting,
-            SpectrumKeyboardBacklightEffectType.AudioRipple => LENOVO_SPECTRUM_EFFECT_TYPE.AudioRippleLighting,
+            SpectrumKeyboardBacklightEffectType.AuroraSync => LENOVO_SPECTRUM_EFFECT_TYPE.AuroraSync,
+            SpectrumKeyboardBacklightEffectType.AudioBounce => LENOVO_SPECTRUM_EFFECT_TYPE.AudioBounce,
+            SpectrumKeyboardBacklightEffectType.AudioRipple => LENOVO_SPECTRUM_EFFECT_TYPE.AudioRipple,
             SpectrumKeyboardBacklightEffectType.ColorChange => LENOVO_SPECTRUM_EFFECT_TYPE.ColorChange,
             SpectrumKeyboardBacklightEffectType.ColorPulse => LENOVO_SPECTRUM_EFFECT_TYPE.ColorPulse,
             SpectrumKeyboardBacklightEffectType.Smooth => LENOVO_SPECTRUM_EFFECT_TYPE.Smooth,
             SpectrumKeyboardBacklightEffectType.ColorWave => LENOVO_SPECTRUM_EFFECT_TYPE.ColorWave,
-            SpectrumKeyboardBacklightEffectType.Rain => LENOVO_SPECTRUM_EFFECT_TYPE.Rain,
-            SpectrumKeyboardBacklightEffectType.RainbowScrew => LENOVO_SPECTRUM_EFFECT_TYPE.ScrewRainbow,
+            SpectrumKeyboardBacklightEffectType.Raining => LENOVO_SPECTRUM_EFFECT_TYPE.Raining,
+            SpectrumKeyboardBacklightEffectType.SpiralRainbow => LENOVO_SPECTRUM_EFFECT_TYPE.SpiralRainbow,
             SpectrumKeyboardBacklightEffectType.RainbowWave => LENOVO_SPECTRUM_EFFECT_TYPE.RainbowWave,
-            SpectrumKeyboardBacklightEffectType.Ripple => LENOVO_SPECTRUM_EFFECT_TYPE.Ripple,
-            SpectrumKeyboardBacklightEffectType.Type => LENOVO_SPECTRUM_EFFECT_TYPE.TypeLighting,
+            SpectrumKeyboardBacklightEffectType.Ripples => LENOVO_SPECTRUM_EFFECT_TYPE.Ripples,
+            SpectrumKeyboardBacklightEffectType.Lighting => LENOVO_SPECTRUM_EFFECT_TYPE.Lighting,
+            SpectrumKeyboardBacklightEffectType.HorseRaceLamp => LENOVO_SPECTRUM_EFFECT_TYPE.HorseRaceLamp,
+            SpectrumKeyboardBacklightEffectType.Breath => LENOVO_SPECTRUM_EFFECT_TYPE.Breath,
+            SpectrumKeyboardBacklightEffectType.Wave => LENOVO_SPECTRUM_EFFECT_TYPE.Wave,
             _ => throw new ArgumentException("Unsupported Spectrum Keyboard Effect Preset.")
         };
 

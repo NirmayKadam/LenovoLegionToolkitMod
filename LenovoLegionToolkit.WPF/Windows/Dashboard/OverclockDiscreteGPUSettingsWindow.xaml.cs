@@ -25,44 +25,42 @@ public partial class OverclockDiscreteGPUSettingsWindow
 
         _applyCloseGrid.Visibility = enabled ? Visibility.Visible : Visibility.Collapsed;
         _saveGrid.Visibility = enabled ? Visibility.Collapsed : Visibility.Visible;
+        _contentGrid.IsEnabled = false;
 
-        _coreSlider.Minimum = GPUOverclockController.GetMinCoreDeltaMhz();
-        _coreSlider.Maximum = GPUOverclockController.GetMaxCoreDeltaMhz();
-        _coreSlider.Value = info.CoreDeltaMhz;
-        _memorySlider.Minimum = GPUOverclockController.GetMinMemoryDeltaMhz();
-        _memorySlider.Maximum = GPUOverclockController.GetMaxMemoryDeltaMhz();
-        _memorySlider.Value = info.MemoryDeltaMhz;
-        
-        int minCap = GPUOverclockController.GetMinVoltageCapMv();
-        _voltageCapSlider.Minimum = minCap - _voltageCapSlider.TickFrequency;
-        _voltageCapSlider.Maximum = GPUOverclockController.GetMaxVoltageCapMv();
-        if (info.VoltageCapMv >= minCap)
-        {
-            _voltageCapSlider.Value = info.VoltageCapMv;
-        }
-        else
-        {
-            _voltageCapSlider.Value = _voltageCapSlider.Minimum;
-        }
+        Loaded += async (_, _) => await UiErrors.RunAsync("Reading the GPU's overclock ranges", () => PopulateAsync(info));
+    }
 
-        int minLock = GPUOverclockController.GetMinVoltageLockMv();
-        _voltageLockSlider.Minimum = minLock - _voltageLockSlider.TickFrequency;
-        // The slider stops at the top of this GPU's own voltage range when it can be read. When it can't, the
-        // fixed limit is shown, but applying then sets no voltage lock at all (the result message says so).
-        _voltageLockSlider.Maximum = _gpuOverclockController.GetVoltageLockLimitMv() ?? GPUOverclockController.GetMaxVoltageLockMv();
-        if (info.VoltageLockMv >= minLock)
-        {
-            _voltageLockSlider.Value = info.VoltageLockMv;
-        }
-        else
-        {
-            _voltageLockSlider.Value = _voltageLockSlider.Minimum;
-        }
+    private async Task PopulateAsync(GPUOverclockInfo info)
+    {
+        var ((minCoreDeltaMhz, maxCoreDeltaMhz), (minMemoryDeltaMhz, maxMemoryDeltaMhz), (minVoltageMv, maxVoltageMv)) =
+            await Task.Run(_gpuOverclockController.GetRanges);
+
+        _coreSlider.Minimum = minCoreDeltaMhz;
+        _coreSlider.Maximum = maxCoreDeltaMhz;
+        _coreSlider.Value = Math.Clamp(info.CoreDeltaMhz, minCoreDeltaMhz, maxCoreDeltaMhz);
+
+        _memorySlider.Minimum = minMemoryDeltaMhz;
+        _memorySlider.Maximum = maxMemoryDeltaMhz;
+        _memorySlider.Value = Math.Clamp(info.MemoryDeltaMhz, minMemoryDeltaMhz, maxMemoryDeltaMhz);
+
+        _voltageCapSlider.Minimum = minVoltageMv - _voltageCapSlider.TickFrequency;
+        _voltageCapSlider.Maximum = maxVoltageMv;
+        _voltageCapSlider.Value = info.VoltageCapMv >= minVoltageMv
+            ? Math.Min(info.VoltageCapMv, maxVoltageMv)
+            : _voltageCapSlider.Minimum;
+
+        _voltageLockSlider.Minimum = minVoltageMv - _voltageLockSlider.TickFrequency;
+        _voltageLockSlider.Maximum = maxVoltageMv;
+        _voltageLockSlider.Value = info.VoltageLockMv >= minVoltageMv
+            ? Math.Min(info.VoltageLockMv, maxVoltageMv)
+            : _voltageLockSlider.Minimum;
 
         _coreLabel.Content = $"{(int)_coreSlider.Value:+0;-0;0} {Resource.MHz}";
         _memoryLabel.Content = $"{(int)_memorySlider.Value:+0;-0;0} {Resource.MHz}";
         _voltageCapLabel.Content = _voltageCapSlider.Value <= _voltageCapSlider.Minimum ? Resource.Off : $"{(int)_voltageCapSlider.Value} {Resource.mV}";
         _voltageLockLabel.Content = _voltageLockSlider.Value <= _voltageLockSlider.Minimum ? Resource.Off : $"{(int)_voltageLockSlider.Value} {Resource.mV}";
+
+        _contentGrid.IsEnabled = true;
     }
 
     private void CoreSlider_OnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -149,6 +147,7 @@ public partial class OverclockDiscreteGPUSettingsWindow
 
         SnackbarHelper.Show(Resource.OverclockDiscreteGPUSettingsWindow_Title, message, type);
     }
+
 
     private void SaveButton_Click(object sender, RoutedEventArgs e)
     {

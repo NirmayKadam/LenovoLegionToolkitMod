@@ -78,7 +78,7 @@
                 Severity="Warning" />
         </StackPanel>
 
-        <Grid Grid.Row="2" Margin="12,16,16,12">
+        <Grid x:Name="_presetsGrid" Grid.Row="2" Margin="12,16,16,12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
@@ -224,7 +224,6 @@
                                 Title="{x:Static resources:Resource.GodModeSettingsWindow_GPU_TotalProcessingPowerTargetOnAcOffsetFromBaselineControl}"
                                 Description="{x:Static resources:Resource.GodModeSettingsWindow_GPU_TotalProcessingPowerTargetOnAcOffsetFromBaselineControl_Description}"
                                 Info="{x:Static resources:Resource.GodModeSettingsWindow_GPU_TotalProcessingPowerTargetOnAcOffsetFromBaselineControl_Info}"
-                                AllowValuesAbove255="True"
                                 Unit="{x:Static resources:Resource.Watt}" />
                             <godMode:GodModeValueControl
                                 x:Name="_gpuToCpuDynamicBoostControl" HelpKey="Help_GodMode_GpuToCpuBoost"

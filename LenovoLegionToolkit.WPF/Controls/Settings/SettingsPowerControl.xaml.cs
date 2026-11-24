@@ -21,6 +21,7 @@ namespace LenovoLegionToolkit.WPF.Controls.Settings;
 public partial class SettingsPowerControl
 {
     private readonly ApplicationSettings _settings = IoCContainer.Resolve<ApplicationSettings>();
+    private readonly ITSModeSettings _itsModeSettings = IoCContainer.Resolve<ITSModeSettings>();
     private readonly PowerModeFeature _powerModeFeature = IoCContainer.Resolve<PowerModeFeature>();
     private readonly ITSModeFeature _itsModeFeature = IoCContainer.Resolve<ITSModeFeature>();
 
@@ -57,6 +58,9 @@ public partial class SettingsPowerControl
 
         var isPowerModeFeatureSupported = await _powerModeFeature.IsSupportedAsync();
         var isITSModeFeatureSupported = await _itsModeFeature.IsSupportedAsync();
+        _restoreITSModeOnStartupCard.Visibility = isITSModeFeatureSupported ? Visibility.Visible : Visibility.Collapsed;
+        _restoreITSModeOnStartupToggle.IsChecked = _itsModeSettings.Store.RestoreLastStateOnStartup;
+        _restoreITSModeOnStartupToggle.Visibility = Visibility.Visible;
         var isAnyPowerFeatureSupported = isPowerModeFeatureSupported || isITSModeFeatureSupported;
         var isWindowsPowerModeSupported = WindowsPowerModeController.IsOverlaySupported;
         var powerModeMappingMode = _settings.Store.PowerModeMappingMode;
@@ -82,6 +86,19 @@ public partial class SettingsPowerControl
         _powerModeMappingComboBox.Visibility = Visibility.Visible;
 
         _isRefreshing = false;
+    }
+
+    private void RestoreITSModeOnStartupToggle_Click(object sender, RoutedEventArgs e)
+    {
+        if (_isRefreshing)
+            return;
+
+        var state = _restoreITSModeOnStartupToggle.IsChecked;
+        if (state is null)
+            return;
+
+        _itsModeSettings.Store.RestoreLastStateOnStartup = state.Value;
+        _itsModeSettings.SynchronizeStore();
     }
 
     private async void GodModeFnQSwitchableToggle_Click(object sender, RoutedEventArgs e)
@@ -166,7 +183,7 @@ public partial class SettingsPowerControl
         {
             // The mapping is saved; putting Windows' power settings in line can fail on its own and is reported.
             await UiErrors.RunAsync("Setting the Windows power plan or mode for the mapping",
-                () => _powerModeFeature.EnsureCorrectWindowsPowerSettingsAreSetAsync());
+                () => _powerModeFeature.EnsureCorrectWindowsPowerSettingsAreSetAsync(skipThrottle: true));
         }
     }
 

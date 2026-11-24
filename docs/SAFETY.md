@@ -28,7 +28,11 @@ LLT does **not** flash the BIOS or any other firmware. The Packages page only do
 | Flip to Start | A UEFI variable | On or off only | Toggle it in LLT, or in BIOS setup |
 | Hybrid mode / GPU working mode | A BIOS setting (`SetBiosSetting` + save), or a firmware flag on newer models | One of a fixed list of modes | Toggle it in LLT, or in BIOS setup |
 | G-Sync, OverDrive, Instant Boot, Always-on USB, Fn Lock, touchpad lock, Windows key lock, battery charge mode, keyboard backlight | The embedded controller / firmware flags | On/off or a fixed list of modes | Toggle it in LLT. Most are also in BIOS setup or on an Fn key |
-| LLT's own settings (God Mode presets, fan curves, GPU overclock values, automations) | Files in `Program Files\LenovoLegionToolkit\UserData\<SID>` | See the rows below for what is sent to the hardware | Change them in LLT, or delete the file while LLT is closed |
+| Charge threshold (only on laptops with Lenovo's power management driver, mostly ThinkPads) | Lenovo's power management settings in the registry (`HKLM\SOFTWARE\WOW6432Node\Lenovo\PWRMGRV`), and the same values sent to that driver | Start and Stop between 2 and 99 %, Start below Stop; anything else is refused before it is written | Turn it off on the card; the battery charges to 100% again |
+| Power button light (where the firmware has it) | The firmware | Brightness 1 to 4, or following the keyboard backlight; each change is read back | Change it on the card |
+| Startup entries of Lenovo Vantage and Legion Zone (Settings → Software control) | Windows' list of enabled startup apps (the same switch as Task Manager → Startup apps) | Only entries that start Lenovo Vantage or Legion Zone | Enable the software again in Software control, or in Task Manager |
+| AMD Ryzen Master driver installed by Legion Zone (only when Legion Zone's folder exists) | The driver's start setting, disabled together with Legion Zone | Only that driver | Enable Legion Zone again in Software control |
+| LLT's own settings (God Mode presets, fan curves, GPU overclock values, automations) | Files in `Program Files\LenovoLegionToolkit\UserData\<SID>` | See the rows below for what is sent to the hardware. Settings saved by an older version with names that have since changed are read with the new names | Change them in LLT, or delete the file while LLT is closed |
 
 ## Changes expected to be gone after a restart
 
@@ -40,10 +44,11 @@ These are sent to the running firmware or GPU driver. LLT applies them again whe
 | God Mode: CPU and GPU power limits, temperature limits | Each value is checked against the firmware's own minimum, maximum and steps **every time it is applied** (the ranges are read once per run and again after sleep). A setting the preset doesn't save gets the firmware's own Performance (or Extreme) default on current models. The "min/max value offset" fields can only narrow that range. When the ranges can't be read, your saved values are not sent; the firmware's own Performance (or Extreme) default for each setting is sent instead | Switch to another power mode; the firmware loads that mode's own limits |
 | Fan curve (Custom mode, and per-mode fan curves) | Never below the laptop's minimum curve, never above level 10. Every write is read back. A curve is only written for the mode the laptop is in at that moment | Switch power mode, or turn per-mode fan curves off; the firmware's curve returns. **Use firmware curve** (Fan curves window, or the power-mode details card) removes your curve for one mode or all modes and, if that curve is in use, applies the same power mode again; it writes no fan table itself |
 | Fan full speed | On or off | Turn it off in LLT, or switch power mode |
-| GPU clock offsets (core, memory) | LLT's fixed limits, and inside the range the NVIDIA driver reports for this GPU (per clock). When the driver allows only one value (e.g. 0 when overclocking is locked), only that value is sent. **Nothing is sent while MSI Afterburner runs**, not even the zero offsets of switching it off, and the same goes for the voltage lock/cap and LLT's P-state lock | Turn GPU overclock off in LLT, or restart with LLT closed |
-| GPU voltage lock / voltage cap | Never above the highest voltage on the GPU's own stock voltage/frequency curve. If that curve cannot be read, the voltage lock is not applied | Set it to Off in LLT, or restart with LLT closed |
-| GPU power target offset (PCF) | Firmware-reported range, as for God Mode | Switch power mode; LLT resets it |
-| AMD Precision Boost Overdrive / Curve Optimizer (AMD models only, and only when BIOS overclocking is enabled) | Fixed ranges (scaler 0–7, boost 0–200 MHz, curve 0–20), checked every time they are applied | Turn overclocking off in the God Mode preset |
+| GPU clock offsets (core, memory) | Sent through the GPU's voltage/frequency curve when the driver offers it (as MSI Afterburner does), otherwise as a plain offset. LLT's fixed limits, and inside the range the NVIDIA driver reports for this GPU (per clock). When the driver allows only one value (e.g. 0 when overclocking is locked), only that value is sent. **Nothing is sent while MSI Afterburner runs**, not even the zero offsets of switching it off, and the same goes for the voltage lock/cap and LLT's P-state lock | Turn GPU overclock off in LLT, or restart with LLT closed |
+| GPU voltage lock / voltage cap | Within LLT's fixed 700–1200 mV, and placed on a point that exists on the GPU's own voltage/frequency curve (never above its highest point). If that curve cannot be read, no lock or cap is sent and LLT says so | Set it to Off in LLT, or restart with LLT closed |
+| GPU P-state lock (Discrete GPU window), with the pin mode (the state's highest or lowest clock) or the rated TDP | Only the P-states the driver reports for this GPU | Set it back to Dynamic, or restart with LLT closed |
+| GPU power target offset (PCF) | The firmware's own setting: its reported range, as for God Mode (values above 255 W can only go through NVIDIA's power control, and only when the firmware's range allows them; the max offset field never widens it). NVIDIA's power control setting on GPUs that have one: 0 to 500 W over the default, and the driver applies its own limits | Switch power mode; LLT resets it |
+| AMD Precision Boost Overdrive / Curve Optimizer (AMD models only, and only when BIOS overclocking is enabled) | Fixed ranges (scaler 1–7, boost 0–200 MHz, curve 0–20), checked every time they are applied | Turn overclocking off in the God Mode preset |
 
 ### Undo within 30 seconds
 
@@ -119,6 +124,13 @@ A game profile, or Game mode, can switch the laptop to a power mode while its ga
 - **When the game starts:** the earlier mode is written to the session note first, then the new mode is set the same way Fn+Q sets it. High-power modes on battery follow your battery setting.
 - **When the game ends:** the earlier mode comes back only if the laptop is still in the mode LLT set. A mode you chose during the game is kept.
 - **If LLT was ended mid-game:** the next start does the same.
+
+## Keyboard listeners for the extra Fn keys
+
+Fn+I, Fn+K and the media keys (Fn+F1 to F3, Fn+F12, Fn+Home/End/PgUp/PgDn) can be given an action in Settings → Special keys. Two listeners make that work: a low-level keyboard hook, and a raw-input listener for the media keys. They only read key presses (and, for a key with an action, keep Windows from also doing that key's own action, such as changing the volume). They change nothing that lasts.
+
+- They are only installed while one of these keys has an action, or while the key discovery window listens.
+- **Game-safe mode removes both** while an anti-cheat game runs, like the macro hook, and they come back afterwards. At start they are installed only after game-safe mode has checked once for such a game.
 
 ## Game processes are never opened
 

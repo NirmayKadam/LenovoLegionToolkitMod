@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using LenovoLegionToolkit.Lib;
+using LenovoLegionToolkit.Lib.Controllers.Sensors;
 using LenovoLegionToolkit.Lib.Messaging;
 using LenovoLegionToolkit.Lib.Messaging.Messages;
 using LenovoLegionToolkit.WPF.Converters;
@@ -15,12 +16,20 @@ namespace LenovoLegionToolkit.WPF.Windows.Dashboard;
 public partial class EditSensorGroupWindow
 {
     private readonly SensorsControlSettings _settings = IoCContainer.Resolve<SensorsControlSettings>();
+    private readonly SensorsController _fanController = IoCContainer.Resolve<SensorsController>();
     public event EventHandler? Apply;
 
     public EditSensorGroupWindow()
     {
         InitializeComponent();
         InitializeCheckboxes();
+        _groupsStackPanel.IsEnabled = false;
+        Loaded += async (_, _) =>
+        {
+            await _fanController.IsSupportedAsync();
+            InitializeCheckboxes();
+            _groupsStackPanel.IsEnabled = true;
+        };
     }
 
     private void InitializeCheckboxes()
@@ -45,6 +54,21 @@ public partial class EditSensorGroupWindow
                     continue;
                 }
 
+                if (item == SensorItem.SystemFans)
+                {
+                    foreach (var fan in _fanController.SystemFans)
+                    {
+                        stackPanel.Children.Add(new CheckBox
+                        {
+                            Content = $"{Resource.SensorsControl_Fan_Title} {fan.DisplayNumber}",
+                            Tag = fan.FanId,
+                            IsChecked = activeItems.Contains(item) &&
+                                (_settings.Store.VisibleSystemFanIds is not { } ids || ids.Contains(fan.FanId))
+                        });
+                    }
+                    continue;
+                }
+
                 var checkBox = new CheckBox
                 {
                     Content = EnumToLocalizedStringConverter.Convert(item),
@@ -64,7 +88,7 @@ public partial class EditSensorGroupWindow
     {
         SensorGroupType.CPU => Resource.SensorsControl_CPU_Title,
         SensorGroupType.GPU => Resource.SensorsControl_GPU_Title,
-        SensorGroupType.Motherboard => Resource.SensorsControl_Motherboard_Title,
+        SensorGroupType.Motherboard => Resource.SensorsControl_MOBO_Title,
         SensorGroupType.Battery => Resource.SensorsControl_Battery_Title,
         SensorGroupType.Memory => Resource.SensorsControl_Memory_Title,
         SensorGroupType.Disk => Resource.SensorsControl_Disk_Title,
@@ -74,6 +98,8 @@ public partial class EditSensorGroupWindow
     private void ApplyButton_Click(object sender, RoutedEventArgs e)
     {
         var selectedItems = new List<SensorItem>();
+        var selectedFanIds = new List<int>();
+        var hasSystemFanCheckBoxes = false;
 
         foreach (var groupBox in _groupsStackPanel.Children.OfType<GroupBox>())
         {
@@ -81,6 +107,16 @@ public partial class EditSensorGroupWindow
             {
                 foreach (var child in stackPanel.Children.OfType<CheckBox>())
                 {
+                    if (child.Tag is int fanId)
+                    {
+                        hasSystemFanCheckBoxes = true;
+
+                        if (child.IsChecked == true)
+                        {
+                            selectedFanIds.Add(fanId);
+                        }
+                    }
+
                     if (child is { IsChecked: true, Tag: SensorItem item })
                     {
                         selectedItems.Add(item);
@@ -98,6 +134,12 @@ public partial class EditSensorGroupWindow
             }
         }
 
+        if (selectedFanIds.Count > 0)
+        {
+            selectedItems.Add(SensorItem.SystemFans);
+        }
+
+        _settings.Store.VisibleSystemFanIds = hasSystemFanCheckBoxes ? selectedFanIds.ToArray() : null;
         _settings.Store.VisibleItems = selectedItems.ToArray();
         _settings.SynchronizeStore();
 
@@ -116,6 +158,7 @@ public partial class EditSensorGroupWindow
     {
         var defaultItems = SensorGroup.DefaultGroups.SelectMany(g => g.Items).ToArray();
         _settings.Store.VisibleItems = defaultItems;
+        _settings.Store.VisibleSystemFanIds = null;
         InitializeCheckboxes();
     }
 }

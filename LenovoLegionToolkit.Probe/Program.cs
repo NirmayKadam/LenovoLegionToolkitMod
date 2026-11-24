@@ -2,6 +2,7 @@ using System.Management;
 using System.Text;
 
 using LenovoLegionToolkit.Lib;
+using LenovoLegionToolkit.Lib.Controllers.GodMode;
 using LenovoLegionToolkit.Lib.System;
 using LenovoLegionToolkit.Lib.System.Management;
 using LenovoLegionToolkit.Lib.Utils;
@@ -385,17 +386,12 @@ Console.WriteLine(@"------------------------------------------------------------
 try
 {
     var data = await WMI.LenovoFanTableData.ReadAsync().ConfigureAwait(false);
+    var mi = await Compatibility.GetMachineInformationAsync().ConfigureAwait(false);
     var fanTableData = data
         .Where(d => d.mode == 255)
         .Select(d =>
         {
-            var type = (d.fanId, d.sensorId) switch
-            {
-                (1, 1) or (1, 4) => FanTableType.CPU,
-                (2, 5) => FanTableType.GPU,
-                (4, 4) or (5, 5) or (4, 1) => FanTableType.PCH,
-                _ => FanTableType.Unknown,
-            };
+            var type = FanTableTypeResolver.Resolve(d.fanId, d.sensorId, mi.SmartFanVersion, mi);
             return new FanTableData(type, d.fanId, d.sensorId, d.fanTableData, d.sensorTableData);
         })
         .ToArray();
@@ -424,10 +420,11 @@ Console.WriteLine(@"------------------------------------------------------------
 await TryGetCapability(CapabilityID.FanFullSpeed, "Fan Full Speed", supportedCapabilities);
 await TryGetCapability(CapabilityID.CpuCurrentFanSpeed, "CPU Current Fan Speed", supportedCapabilities);
 await TryGetCapability(CapabilityID.GpuCurrentFanSpeed, "GPU Current Fan Speed", supportedCapabilities);
-await TryGetCapability(CapabilityID.PchCurrentFanSpeed, "PCH Current Fan Speed", supportedCapabilities);
+await TryGetCapability(CapabilityID.SystemCurrentFanSpeed, "System Current Fan Speed", supportedCapabilities);
+await TryGetCapability(CapabilityID.ExtraSystemCurrentFanSpeed, "Extra System Current Fan Speed", supportedCapabilities);
 await TryGetCapability(CapabilityID.CpuCurrentTemperature, "CPU Current Temperature", supportedCapabilities);
 await TryGetCapability(CapabilityID.GpuCurrentTemperature, "GPU Current Temperature", supportedCapabilities);
-await TryGetCapability(CapabilityID.PchCurrentTemperature, "PCH Current Temperature", supportedCapabilities);
+await TryGetCapability(CapabilityID.MotherboardCurrentTemperature, "Motherboard Current Temperature", supportedCapabilities);
 
 // Section 10: Battery
 Console.WriteLine();

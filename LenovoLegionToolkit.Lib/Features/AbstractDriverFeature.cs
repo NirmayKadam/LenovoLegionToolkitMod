@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,6 +26,7 @@ public abstract class AbstractDriverFeature<T>(
     where T : struct, Enum, IComparable
 {
     private const int DRIVER_COOLDOWN_MS = 20;
+    private const int SLOW_CALL_THRESHOLD_MS = 25;
 
     protected readonly uint ControlCode = controlCode;
     protected readonly Func<SafeFileHandle> DriverHandle = driverHandleHandle;
@@ -121,9 +123,12 @@ public abstract class AbstractDriverFeature<T>(
             return await TimeLimit.WithinAsync(CoreAction(), GlobalDriverLock.AnswerTimeLimit, what).ConfigureAwait(false);
         }
 
+        var queueSw = Stopwatch.StartNew();
         if (!await GlobalDriverLock.Queue.WaitAsync(GlobalDriverLock.AnswerTimeLimit).ConfigureAwait(false))
             throw new TimeoutException($"The Lenovo driver is still busy with an earlier request. [{what}]");
+        queueSw.Stop();
 
+        var callSw = Stopwatch.StartNew();
         Task<uint> work;
         try
         {

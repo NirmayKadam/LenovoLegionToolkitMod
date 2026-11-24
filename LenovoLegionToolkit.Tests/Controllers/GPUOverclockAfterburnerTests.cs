@@ -63,7 +63,7 @@ public sealed class GPUOverclockAfterburnerTests : IDisposable
     {
         var gpu = new GPUController(() => Task.CompletedTask, _ => Task.CompletedTask, (_, _) => { }, () => 1000, 0, TimeSpan.FromSeconds(1), () => true);
 
-        Assert.False(await gpu.ApplyPStateAsync(pState));
+        Assert.Equal(PStateApplyResult.Skipped, await gpu.ApplyPStateAsync(pState));
     }
 
     /// <summary>Switching LLT's overclock off sends zero offsets; with Afterburner running that would undo its undervolt.</summary>

@@ -24,6 +24,7 @@ public partial class SettingsAppearanceControl
 {
     private readonly ApplicationSettings _settings = IoCContainer.Resolve<ApplicationSettings>();
     private readonly ThemeManager _themeManager = IoCContainer.Resolve<ThemeManager>();
+    private readonly GPUController _gpuController = IoCContainer.Resolve<GPUController>();
 
     // Sliders re-apply the theme; this keeps that to a few times a second while dragging.
     private readonly ThrottleLastDispatcher _skinOptionThrottle = new(TimeSpan.FromMilliseconds(150), nameof(SettingsAppearanceControl));
@@ -43,6 +44,11 @@ public partial class SettingsAppearanceControl
 
         UpdateAccentColorPicker();
         UpdateForSkin();
+
+        // The theme can change from the title bar's quick toggle too.
+        _isRefreshing = true;
+        _themeComboBox.SelectItem(_settings.Store.Theme);
+        _isRefreshing = false;
     }
 
     public async Task RefreshAsync()
@@ -109,7 +115,7 @@ public partial class SettingsAppearanceControl
         {
             _gpuPreferenceComboBox.Visibility = Visibility.Visible;
             var exePath = Environment.ProcessPath ?? string.Empty;
-            var pref = IoCContainer.Resolve<GPUController>().GetGpuPreference(exePath);
+            var pref = _gpuController.GetGpuPreference(exePath);
             _gpuPreferenceComboBox.SelectedIndex = pref switch
             {
                 GpuPreference.Integrated => 1,
@@ -461,7 +467,11 @@ public partial class SettingsAppearanceControl
             _ => GpuPreference.Default
         };
 
-        IoCContainer.Resolve<GPUController>().SetGpuPreference(exePath, preference);
+        if (!_gpuController.SetGpuPreference(exePath, preference))
+        {
+            SnackbarHelper.Show(Resource.Error, Resource.SettingsPage_HWA_GPUPreference_Error_Message, SnackbarType.Error);
+            return;
+        }
 
         SnackbarHelper.Show(Resource.SettingsPage_HardwareAcceleration_Title, Resource.SettingsPage_RestartRequired_Message, SnackbarType.Success);
     }

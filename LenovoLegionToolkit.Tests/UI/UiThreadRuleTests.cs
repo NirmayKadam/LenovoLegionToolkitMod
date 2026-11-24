@@ -25,11 +25,11 @@ public class UiThreadRuleTests
         [Path.Combine("Windows", "MainWindow.xaml.cs")] = (4, "inside Task.Run: the conflicting-software checks, whose results arrive through events"),
         [Path.Combine("Windows", "Dashboard", "GodModeSettingsWindow.xaml.cs")] = (1, "IsBiosOcEnabledAsync only reads WMI and returns a bool"),
         // App services in Utils that hold no window or control and are not called for UI results.
-        [Path.Combine("Utils", "GameSafeMode.cs")] = (3, "switches listeners and the keyboard hook; no UI objects"),
+        [Path.Combine("Utils", "GameSafeMode.cs")] = (4, "switches listeners and the keyboard hooks (Caps/Num Lock, extra Fn keys); no UI objects"),
         [Path.Combine("Utils", "HealthCollector.cs")] = (11, "reads Windows for the Health page and returns the inputs"),
         [Path.Combine("Utils", "HealthMonitor.cs")] = (2, "daily background check; notifies through the message bus"),
         [Path.Combine("Utils", "SafetyReportCollector.cs")] = (3, "reads settings and the power mode and returns the inputs"),
-        [Path.Combine("Utils", "SpecialKeyActionManager.cs")] = (10, "runs automations for special keys on the key listener's thread"),
+        [Path.Combine("Utils", "SpecialKeyActionManager.cs")] = (12, "runs automations for special keys on the key listeners' threads (Fn keys, keyboard and media keys)"),
     };
 
     /// <summary>

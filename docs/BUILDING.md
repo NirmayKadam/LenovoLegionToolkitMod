@@ -24,7 +24,7 @@ The five `LLT.*` packages are pinned to the versions that were current when v2.3
 
 ## Installer and signing
 
-`make.bat` (local) and `make_action.bat` (release workflow) publish all projects, build the identity package, compile the Inno Setup installer (`make_installer.iss`, shared by both) and sign it. Both need the version as their first argument (`make.bat 2.36.26.0`), and the installer script refuses to build without one. A plain `dotnet build` gets the version in `Directory.Build.props`.
+`make.bat` (local) and `make_action.bat` (release workflow) publish all projects, build the identity package, compile the Inno Setup installer (`make_installer.iss`, shared by both) and sign it. Both need the version as their first argument (`make.bat 2.36.27.0`), and the installer script refuses to build without one. A plain `dotnet build` gets the version in `Directory.Build.props`.
 
 Signing matters for more than trust prompts: the app manifest requests `uiAccess="true"`, and **Windows only starts uiAccess executables that are signed by a trusted certificate and installed in a protected folder** (such as Program Files). The official certificate's private key is not part of this repository, so to produce a runnable installer you need your own:
 

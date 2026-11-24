@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using LenovoLegionToolkit.Lib.Controllers;
 using Newtonsoft.Json;
 using static LenovoLegionToolkit.Lib.Settings.ApplicationSettings;
 
@@ -47,6 +48,7 @@ public class ApplicationSettings : AbstractSettings<ApplicationSettingsStore>
         public List<string> IncludedProcesses { get; set; } = [];
         public GameDetectionSettings GameDetection { get; set; } = new();
         public bool DynamicLightingWarningDontShowAgain { get; set; }
+        public int PowerButtonLedBrightness { get; set; } = PowerButtonLedController.MaxBrightness;
         public bool CustomModeWarningDontShowAgain { get; set; }
         public bool EnableHardwareAcceleration { get; set; }
         public int GPUMonitoringInterval { get; set; } = 5000;
@@ -54,7 +56,8 @@ public class ApplicationSettings : AbstractSettings<ApplicationSettingsStore>
         public int GPUKillProcessDelay { get; set; } = 500;
         public WindowBackdropType BackdropType { get; set; } = WindowBackdropType.Mica;
         public bool KeepDgpuAwake { get; set; }
-        public int LockedPStateId { get; set; } = -1;
+        public int LockedPStateId { get; set; } = GPUController.AutoPStateId;
+        public PStatePinMode PStatePinMode { get; set; } = PStatePinMode.Max;
         public UiSkin Skin { get; set; } = UiSkin.Fluent;
         public int NeonGlow { get; set; } = 60;
         public RetroPhosphor RetroPhosphor { get; set; } = RetroPhosphor.Green;

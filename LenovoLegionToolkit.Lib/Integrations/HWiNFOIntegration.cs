@@ -20,8 +20,6 @@ public class HWiNFOIntegration(SensorsController sensorController, IntegrationsS
     private const string GPU_FAN_SENSOR_NAME = "GPU Fan";
     private const string BATTERY_TEMP_SENSOR_NAME = "Battery Temperature";
 
-    private string? _pchFanSensorName;
-
     // HWiNFO reads its custom sensors every 2 s by default, so a 1 s update was half wasted. The reads below are
     // shared with the dashboard and status strip (SensorsController, Battery), so they cost nothing extra there.
     private readonly TimeSpan _refreshInterval = TimeSpan.FromSeconds(2);
@@ -84,15 +82,12 @@ public class HWiNFOIntegration(SensorsController sensorController, IntegrationsS
 
         FanSpeedTable fanSpeedTable = await sensorController.GetFanSpeedsAsync().ConfigureAwait(false);
 
-        if (fanSpeedTable.PchFanSpeed >= 0)
+        foreach (var fan in fanSpeedTable.SystemFans)
         {
-            if (_pchFanSensorName is null)
-            {
-                var mi = await Compatibility.GetMachineInformationAsync().ConfigureAwait(false);
-                _pchFanSensorName = mi.Properties.IsAmdDevice ? "System Fan" : "PCH Fan";
-            }
+            if (fan.Speed < 0)
+                continue;
 
-            SetValue(SENSOR_TYPE_FAN, 2, _pchFanSensorName, fanSpeedTable.PchFanSpeed, firstRun);
+            SetValue(SENSOR_TYPE_FAN, fan.DisplayNumber + 1, $"System Fan {fan.DisplayNumber}", fan.Speed, firstRun);
         }
 
         var batteryTemp = Battery.GetBatteryTemperatureC();

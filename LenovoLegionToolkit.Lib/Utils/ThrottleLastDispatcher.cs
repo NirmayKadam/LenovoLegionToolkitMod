@@ -6,22 +6,54 @@ namespace LenovoLegionToolkit.Lib.Utils;
 
 public class ThrottleLastDispatcher(TimeSpan interval, string? tag = null)
 {
+    private readonly object _sync = new();
     private CancellationTokenSource? _cancellationTokenSource;
+    private int _immediateRequests;
+
+    public IDisposable SuppressThrottle()
+    {
+        lock (_sync)
+        {
+            _immediateRequests++;
+            _cancellationTokenSource?.Cancel();
+        }
+
+        var disposed = 0;
+        return new LambdaDisposable(() =>
+        {
+            if (Interlocked.Exchange(ref disposed, 1) != 0)
+            {
+                return;
+            }
+
+            lock (_sync)
+            {
+                _immediateRequests--;
+            }
+        });
+    }
 
     public async Task DispatchAsync(Func<Task> task)
     {
+        var source = new CancellationTokenSource();
+        bool skipDelay;
+
+        lock (_sync)
+        {
+            _cancellationTokenSource?.Cancel();
+            _cancellationTokenSource = source;
+            skipDelay = _immediateRequests > 0;
+        }
+
         try
         {
-            // Swapped in one step: two events at once (plugging in the charger raises two) used to both cancel the
-            // same earlier wait and then both run. Now each newer call cancels the one before it, and only the last runs.
-            var mine = new CancellationTokenSource();
-            var previous = Interlocked.Exchange(ref _cancellationTokenSource, mine);
-            if (previous is not null)
-                await previous.CancelAsync().ConfigureAwait(false);
+            var token = source.Token;
 
-            var token = mine.Token;
+            if (!skipDelay)
+            {
+                await Task.Delay(interval, token).ConfigureAwait(false);
+            }
 
-            await Task.Delay(interval, token).ConfigureAwait(false);
             token.ThrowIfCancellationRequested();
 
             if (tag is not null)
@@ -33,6 +65,18 @@ public class ThrottleLastDispatcher(TimeSpan interval, string? tag = null)
         {
             if (tag is not null)
                 Log.Instance.Trace($"Throttling... [tag={tag}]");
+        }
+        finally
+        {
+            lock (_sync)
+            {
+                if (ReferenceEquals(_cancellationTokenSource, source))
+                {
+                    _cancellationTokenSource = null;
+                }
+
+                source.Dispose();
+            }
         }
     }
 
@@ -54,12 +98,7 @@ public class ThrottleLastDispatcher(TimeSpan interval, string? tag = null)
 
     public async Task DispatchImmediateAsync(Func<Task> task)
     {
-        try
-        {
-            if (Volatile.Read(ref _cancellationTokenSource) is { } waiting)
-                await waiting.CancelAsync().ConfigureAwait(false);
-        }
-        catch (OperationCanceledException) { }
+        using var immediate = SuppressThrottle();
 
         if (tag is not null)
             Log.Instance.Trace($"Immediate dispatch... [tag={tag}]");

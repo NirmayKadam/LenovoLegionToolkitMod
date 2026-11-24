@@ -1455,23 +1455,7 @@ namespace LenovoLegionToolkit.Lib.Resources {
             }
         }
         
-        /// <summary>
-        ///   Looks up a localized string similar to Rain.
-        /// </summary>
-        public static string SpectrumKeyboardBacklightEffectType_Rain {
-            get {
-                return ResourceManager.GetString("SpectrumKeyboardBacklightEffectType_Rain", resourceCulture);
-            }
-        }
         
-        /// <summary>
-        ///   Looks up a localized string similar to Rainbow Screw.
-        /// </summary>
-        public static string SpectrumKeyboardBacklightEffectType_RainbowScrew {
-            get {
-                return ResourceManager.GetString("SpectrumKeyboardBacklightEffectType_RainbowScrew", resourceCulture);
-            }
-        }
         
         /// <summary>
         ///   Looks up a localized string similar to Rainbow Wave.
@@ -1482,14 +1466,6 @@ namespace LenovoLegionToolkit.Lib.Resources {
             }
         }
         
-        /// <summary>
-        ///   Looks up a localized string similar to Ripple.
-        /// </summary>
-        public static string SpectrumKeyboardBacklightEffectType_Ripple {
-            get {
-                return ResourceManager.GetString("SpectrumKeyboardBacklightEffectType_Ripple", resourceCulture);
-            }
-        }
         
         /// <summary>
         ///   Looks up a localized string similar to Smooth.
@@ -1500,14 +1476,6 @@ namespace LenovoLegionToolkit.Lib.Resources {
             }
         }
         
-        /// <summary>
-        ///   Looks up a localized string similar to Type.
-        /// </summary>
-        public static string SpectrumKeyboardBacklightEffectType_Type {
-            get {
-                return ResourceManager.GetString("SpectrumKeyboardBacklightEffectType_Type", resourceCulture);
-            }
-        }
         
         /// <summary>
         ///   Looks up a localized string similar to Slow.
@@ -1983,6 +1951,105 @@ namespace LenovoLegionToolkit.Lib.Resources {
         public static string GpuLimit_Unknown {
             get {
                 return ResourceManager.GetString("GpuLimit_Unknown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Processes still running: {0}..
+        /// </summary>
+        public static string SoftwareDisabler_ProcessesStillRunning_Message {
+            get {
+                return ResourceManager.GetString("SoftwareDisabler_ProcessesStillRunning_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Services that need a restart: {0}..
+        /// </summary>
+        public static string SoftwareDisabler_ServicesRequiringRestart_Message {
+            get {
+                return ResourceManager.GetString("SoftwareDisabler_ServicesRequiringRestart_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Services still running: {0}..
+        /// </summary>
+        public static string SoftwareDisabler_ServicesStillRunning_Message {
+            get {
+                return ResourceManager.GetString("SoftwareDisabler_ServicesStillRunning_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Breath.
+        /// </summary>
+        public static string SpectrumKeyboardBacklightEffectType_Breath {
+            get {
+                return ResourceManager.GetString("SpectrumKeyboardBacklightEffectType_Breath", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Horse Race Lamp.
+        /// </summary>
+        public static string SpectrumKeyboardBacklightEffectType_HorseRaceLamp {
+            get {
+                return ResourceManager.GetString("SpectrumKeyboardBacklightEffectType_HorseRaceLamp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lighting.
+        /// </summary>
+        public static string SpectrumKeyboardBacklightEffectType_Lighting {
+            get {
+                return ResourceManager.GetString("SpectrumKeyboardBacklightEffectType_Lighting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Raining.
+        /// </summary>
+        public static string SpectrumKeyboardBacklightEffectType_Raining {
+            get {
+                return ResourceManager.GetString("SpectrumKeyboardBacklightEffectType_Raining", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ripples.
+        /// </summary>
+        public static string SpectrumKeyboardBacklightEffectType_Ripples {
+            get {
+                return ResourceManager.GetString("SpectrumKeyboardBacklightEffectType_Ripples", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Spiral Rainbow.
+        /// </summary>
+        public static string SpectrumKeyboardBacklightEffectType_SpiralRainbow {
+            get {
+                return ResourceManager.GetString("SpectrumKeyboardBacklightEffectType_SpiralRainbow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Wave.
+        /// </summary>
+        public static string SpectrumKeyboardBacklightEffectType_Wave {
+            get {
+                return ResourceManager.GetString("SpectrumKeyboardBacklightEffectType_Wave", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Auto.
+        /// </summary>
+        public static string WhiteKeyboardBacklightState_Auto {
+            get {
+                return ResourceManager.GetString("WhiteKeyboardBacklightState_Auto", resourceCulture);
             }
         }
     }

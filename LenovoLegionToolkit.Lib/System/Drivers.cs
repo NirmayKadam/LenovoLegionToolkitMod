@@ -18,9 +18,16 @@ public static class Drivers
     public const uint IOCTL_KEY_VALUE = 0x831020CC;
     public const uint IOCTL_DYTC = 0x831E003C;
 
+    public const uint IOCTL_IBMPMDRV_CHARGE_THRESHOLD_MODE = 0x22261C;
+    public const uint IOCTL_IBMPMDRV_CHARGE_THRESHOLD_START_STATUS = 0x22262C;
+    public const uint IOCTL_IBMPMDRV_CHARGE_THRESHOLD_START = 0x222630;
+    public const uint IOCTL_IBMPMDRV_CHARGE_THRESHOLD_STOP_STATUS = 0x222634;
+    public const uint IOCTL_IBMPMDRV_CHARGE_THRESHOLD_STOP = 0x222638;
+
     private static readonly object Lock = new();
 
     private static SafeFileHandle? _energy;
+    private static SafeFileHandle? _ibmPmDrv;
 
     public static SafeFileHandle GetEnergy()
     {
@@ -70,4 +77,30 @@ public static class Drivers
 
     /// <summary>Errors that mean the handle itself is gone (rather than the request being refused).</summary>
     public static bool IsStaleHandleError(int win32Error) => win32Error is 6 /* ERROR_INVALID_HANDLE */ or 1167 /* ERROR_DEVICE_NOT_CONNECTED */;
+    public static SafeFileHandle GetIbmPmDrv()
+    {
+        if (_ibmPmDrv is not null)
+            return _ibmPmDrv;
+
+        lock (Lock)
+        {
+            if (_ibmPmDrv is not null)
+                return _ibmPmDrv;
+
+            var handle = PInvoke.CreateFile(@"\\.\IBMPmDrv",
+                (uint)FILE_ACCESS_RIGHTS.FILE_READ_DATA,
+                FILE_SHARE_MODE.FILE_SHARE_READ | FILE_SHARE_MODE.FILE_SHARE_WRITE,
+                null,
+                FILE_CREATION_DISPOSITION.OPEN_EXISTING,
+                FILE_FLAGS_AND_ATTRIBUTES.FILE_ATTRIBUTE_NORMAL,
+                null);
+
+            if (handle.IsInvalid)
+                throw new InvalidOperationException("handle is invalid");
+
+            _ibmPmDrv = handle;
+        }
+
+        return _ibmPmDrv;
+    }
 }

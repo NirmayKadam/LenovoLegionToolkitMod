@@ -38,4 +38,6 @@ public class PeriodicAutomationPipelineTrigger(TimeSpan period) : IPeriodicAutom
     }
 
     public void UpdateEnvironment(AutomationEnvironment environment) => environment.Period = Period;
+
+    public override string ToString() => $"{nameof(Period)}: {Period}";
 }

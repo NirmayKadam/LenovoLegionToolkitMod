@@ -3,9 +3,9 @@
 
   # Indra – Legion Toolkit Mod
 
-  **A fork of [Lenovo Legion Toolkit](https://github.com/LenovoLegionToolkit-Team/LenovoLegionToolkit) v2.36.0.0, developed and maintained by Nirmay Kadam**
+  **A fork of [Lenovo Legion Toolkit](https://github.com/LenovoLegionToolkit-Team/LenovoLegionToolkit) v2.36.0.0, with the v2.38.0.0 changes merged in, developed and maintained by Nirmay Kadam**
 
-  ![Base](https://img.shields.io/badge/based%20on-LLT%20v2.36.0.0-blue)
+  ![Base](https://img.shields.io/badge/synced%20with-LLT%20v2.38.0.0-blue)
   ![.NET](https://img.shields.io/badge/.NET-9.0-512BD4?logo=dotnet&logoColor=white)
   ![Platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-0078D6?logo=windows&logoColor=white)
   ![Status](https://img.shields.io/badge/status-pre--release-orange)
@@ -30,7 +30,8 @@ Indra is a lightweight Windows app for Lenovo gaming laptops that replaces Lenov
 - **Game session report:** a short summary after each game (FPS, temperatures, GPU clock and power, driver errors), with history and CSV export.
 - **On-screen display** with FPS, frame times and sensors, and a quick toggle.
 - **A calmer, safer app:** safe start after a crash, a freeze watchdog, a health check of your Windows settings, and a read-only safety report of what Indra changed.
-- **Three looks:** Fluent glass, Neon and Retro CRT, with an animation setting and a live status strip.
+- **Three looks:** Fluent glass, Neon and Retro CRT, with an animation setting, a live status strip and a quick light/dark toggle in the title bar.
+- **From Lenovo Legion Toolkit 2.38:** more supported laptops, readings for every system fan, a choice of CPU temperature source, dynamic refresh rate, the power button light, charge thresholds (on laptops with Lenovo's power management driver), more Fn keys (Fn+I, Fn+K and the media keys), an Auto setting for the white keyboard backlight, and a report of what is still running when Lenovo's software can't be fully disabled. The extra Fn keys use a keyboard hook only while one of them has an action, and game-safe mode removes it while an anti-cheat game runs.
 
 ![Power mode profiles](assets/screenshots/02-power-mode-profiles.png)
 
@@ -72,7 +73,7 @@ Open an [issue](https://github.com/NirmayKadam/LenovoLegionToolkitMod/issues) wi
 
 - **Nirmay Kadam**: developer and maintainer of Indra (this fork), 2026
 - **Bartosz Cichecki**: original author of Lenovo Legion Toolkit
-- **LenovoLegionToolkit-Team** (Kaguya, Dr. Skinner and contributors): maintainers of v2.36.0.0, on which this fork is based
+- **LenovoLegionToolkit-Team** (Kaguya, Dr. Skinner and contributors): maintainers of v2.36.0.0, on which this fork is based, and of v2.38.0.0, whose changes are merged in
 - Third-party components and their licenses: [NOTICE](NOTICE)
 
 In the app, About shows the original project's copyright and licence under **Original project and licence**.

@@ -7,7 +7,8 @@ namespace LenovoLegionToolkit.Tests.Controllers;
 
 public class ControllerHelpersTests
 {
-    // Locks in the Smart Fan <= 7 mapping exactly as it behaved before the dead patterns were removed.
+    // Locks in the Smart Fan <= 7 mapping exactly as it behaved before the dead patterns were removed. (The mapping
+    // moved to FanTableTypeResolver with Lenovo Legion Toolkit 2.38; for these versions the machine isn't consulted.)
     [Theory]
     [InlineData(1, 4, FanTableType.CPU)]
     [InlineData(1, 1, FanTableType.CPUSensor)]
@@ -17,7 +18,8 @@ public class ControllerHelpersTests
     [InlineData(9, 9, FanTableType.Unknown)]
     public void FanTableType_UpToSmartFanV7(byte fanId, byte sensorId, FanTableType expected)
     {
-        Assert.Equal(expected, GodModeController.ResolveFanTableTypeUpToV7(fanId, sensorId));
+        for (var smartFanVersion = 0; smartFanVersion <= 7; smartFanVersion++)
+            Assert.Equal(expected, FanTableTypeResolver.Resolve(fanId, sensorId, smartFanVersion, default));
     }
 
     [Fact]

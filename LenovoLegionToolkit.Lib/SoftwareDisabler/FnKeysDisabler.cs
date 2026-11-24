@@ -36,12 +36,15 @@ public class FnKeysDisabler : AbstractSoftwareDisabler
         {
             foreach (var process in Process.GetProcessesByName("utility"))
             {
-                var description = process.MainModule?.FileVersionInfo.FileDescription;
-                if (description is null)
-                    continue;
+                using (process)
+                {
+                    var description = process.MainModule?.FileVersionInfo.FileDescription;
+                    if (description is null)
+                        continue;
 
-                if (description.Equals("Lenovo Hotkeys", StringComparison.InvariantCultureIgnoreCase))
-                    result.Add(process.ProcessName);
+                    if (description.Equals("Lenovo Hotkeys", StringComparison.InvariantCultureIgnoreCase))
+                        result.Add(process.ProcessName);
+                }
             }
         }
         catch {  /* Ignore */ }

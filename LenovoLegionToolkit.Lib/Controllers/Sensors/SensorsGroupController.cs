@@ -26,7 +26,7 @@ public class SensorsGroupController : IDisposable
     private const string UNKNOWN_NAME = "UNKNOWN";
     private const string HARDWARE_ID_NVIDIA_GPU = "NvidiaGPU";
 
-    private const string REGEX_STRIP_AMD = @"\s+with\s+Radeon\s+Graphics$";
+    private const string REGEX_STRIP_AMD = @"\s+(?:with|w/)\s+(?:Radeon|Vega)\b.*$";
     private const string REGEX_STRIP_INTEL = @"\s*\d+(?:th|st|nd|rd)?\s+Gen\b";
     private const string REGEX_STRIP_NVIDIA = @"(?i)\b(?:Nvidia\s+)?(GeForce\s+(?:RTX|GTX)\s+\d{3,4}(?:\s+(Ti|SUPER|Ti\s+SUPER|M))?)\b(?:\s+Laptop\s+GPU)?(?!\S)";
     private const string REGEX_CLEAN_SPACES = @"\s+";
@@ -42,6 +42,7 @@ public class SensorsGroupController : IDisposable
 
     private Computer? _computer;
 
+    private readonly HardwareSensorSettings _settings;
     private readonly CpuSensorProvider _cpuProvider;
     private readonly GpuSensorProvider _gpuProvider;
     private readonly MemorySensorProvider _memoryProvider;
@@ -49,84 +50,30 @@ public class SensorsGroupController : IDisposable
     private readonly List<ISensorProvider> _allProviders = [];
 
     private volatile bool _isResetting;
-    private volatile bool _needRefreshGpuHardware;
     private bool _dgpuHardwareSkipped;
 
-    private bool _selectedGpuIsIgpu;
-    public bool SelectedGpuIsIgpu
+    public float GetCpuFrequency(HardwareSensorSnapshot snapshot)
     {
-        get => _selectedGpuIsIgpu;
-        set
+        var showAverageFrequency = _settings.Store.ShowCpuAverageFrequency;
+        if (IsHybrid)
         {
-            lock (_configLock)
-            {
-                if (_selectedGpuIsIgpu != value)
-                {
-                    _selectedGpuIsIgpu = value;
-                    _cachedGpuName = string.Empty;
-                }
-            }
+            return snapshot[showAverageFrequency ? SensorItem.CpuPAverageFrequency : SensorItem.CpuPMaxFrequency];
         }
-    }
 
-    private bool _showAverageCpuFrequency;
-    public bool ShowAverageCpuFrequency
-    {
-        get => _showAverageCpuFrequency;
-        set
-        {
-            lock (_configLock)
-            {
-                _showAverageCpuFrequency = value;
-            }
-        }
-    }
-
-    public CpuVoltageMode CpuVoltageMode
-    {
-        get => _cpuProvider.VoltageMode;
-        set
-        {
-            lock (_configLock)
-            {
-                _cpuProvider.VoltageMode = value;
-            }
-        }
-    }
-
-    public int CpuVoltageCoreIndex
-    {
-        get => _cpuProvider.VoltageCoreIndex;
-        set
-        {
-            lock (_configLock)
-            {
-                _cpuProvider.VoltageCoreIndex = value;
-            }
-        }
+        return snapshot[showAverageFrequency ? SensorItem.CpuAverageFrequency : SensorItem.CpuMaxFrequency];
     }
 
     public int AvailableVoltageCoreCount => _cpuProvider.AvailableCoreCount;
 
-    private bool _isDgpuConnected = true;
+    private volatile bool _isDgpuConnected = true;
     public bool IsDgpuConnected
     {
         get => _isDgpuConnected;
-        set
-        {
-            lock (_configLock)
-            {
-                if (_isDgpuConnected != value)
-                {
-                    _isDgpuConnected = value;
-                    _cachedGpuName = string.Empty;
-                }
-            }
-        }
+        set => _isDgpuConnected = value;
     }
 
     private string _cachedCpuName = string.Empty;
-    private string _cachedGpuName = string.Empty;
+    private (IHardware? Hardware, string? Name) _cachedGpuName;
 
     private readonly Lock _hardwareLock = new();
     private readonly Lock _configLock = new();
@@ -193,6 +140,7 @@ public class SensorsGroupController : IDisposable
     }
 
     private readonly GPUController _gpuController = IoCContainer.Resolve<GPUController>();
+    private readonly HybridModeFeature _hybridModeFeature = IoCContainer.Resolve<HybridModeFeature>();
 
     private readonly struct SensorSubscription(TimeSpan interval, HardwareUpdateScope scope)
     {
@@ -202,10 +150,11 @@ public class SensorsGroupController : IDisposable
 
     private static readonly IDisposable NoOpDisposable = new LambdaDisposable(() => { });
 
-    private static bool IsDgpuEjectInProgress() => IoCContainer.Resolve<HybridModeFeature>().ShouldKeepDGPUAsleep();
+    private bool IsDgpuEjectInProgress() => _hybridModeFeature.ShouldKeepDGPUAsleep();
 
-    public SensorsGroupController()
+    public SensorsGroupController(HardwareSensorSettings settings)
     {
+        _settings = settings;
         _cpuProvider = IoCContainer.Resolve<CpuSensorProvider>();
         _gpuProvider = IoCContainer.Resolve<GpuSensorProvider>();
         _memoryProvider = IoCContainer.Resolve<MemorySensorProvider>();
@@ -328,7 +277,7 @@ public class SensorsGroupController : IDisposable
         return LibreHardwareMonitorInitialState.Fail;
     }
 
-    private void PopulateHardware()
+    private void PopulateHardware(bool updateSensors)
     {
         if (_computer is null)
         {
@@ -346,7 +295,11 @@ public class SensorsGroupController : IDisposable
                     continue;
                 }
 
-                h.Update();
+                if (updateSensors)
+                {
+                    h.Update();
+                }
+
                 _hardware.Add(h);
             }
             catch { /* Ignore */ }
@@ -381,12 +334,14 @@ public class SensorsGroupController : IDisposable
                 };
 
                 _computer.Open();
-                if (!IsDgpuEjectInProgress())
+
+                var dgpuEjectInProgress = IsDgpuEjectInProgress();
+                if (!dgpuEjectInProgress)
                 {
                     _computer.Accept(new UpdateVisitor());
                 }
 
-                PopulateHardware();
+                PopulateHardware(updateSensors: dgpuEjectInProgress);
                 DiscoverHardware();
             }
             catch (Exception ex)
@@ -403,10 +358,14 @@ public class SensorsGroupController : IDisposable
 
     private void DiscoverHardware()
     {
+        _cachedGpuName = default;
+
         foreach (var provider in _allProviders)
         {
             provider.Discover(_hardware);
         }
+
+        LogGpuFallback();
     }
 
     private async Task<LibreHardwareMonitorInitialState> InitializeAsync()
@@ -453,29 +412,69 @@ public class SensorsGroupController : IDisposable
             if (!string.IsNullOrEmpty(_cachedCpuName))
                 return Task.FromResult(_cachedCpuName);
 
-            var cpuHardware = _hardware.FirstOrDefault(h => h.HardwareType == HardwareType.Cpu);
-            _cachedCpuName = cpuHardware != null ? StripName(cpuHardware.Name) : UNKNOWN_NAME;
-            return Task.FromResult(_cachedCpuName);
+            var cpu = _hardware.FirstOrDefault(h => h.HardwareType == HardwareType.Cpu);
+            var name = cpu is not null ? StripName(cpu.Name) : UNKNOWN_NAME;
+
+            if (name != UNKNOWN_NAME)
+            {
+                _cachedCpuName = name;
+            }
+
+            return Task.FromResult(name);
         }
     }
 
-    public Task<string> GetGpuNameAsync()
+    private string? GetGpuName(IHardware? gpu)
     {
-        lock (_configLock)
+        if (gpu is null)
+            return null;
+
+        if (ReferenceEquals(gpu, _cachedGpuName.Hardware))
+            return _cachedGpuName.Name;
+
+        var name = StripName(gpu.Name);
+        if (!string.IsNullOrEmpty(name) && name != UNKNOWN_NAME)
         {
-            if (_isResetting || !IsLibreHardwareMonitorInitialized())
-                return Task.FromResult(UNKNOWN_NAME);
-
-            if (!string.IsNullOrEmpty(_cachedGpuName) && !_needRefreshGpuHardware)
-                return Task.FromResult(_cachedGpuName);
-
-            var dGpu = _gpuProvider.DgpuHardware;
-            var forceIgpu = !SelectedGpuIsIgpu && (dGpu == null || !_isDgpuConnected);
-            var gpu = (SelectedGpuIsIgpu || forceIgpu) ? _gpuProvider.IgpuHardware : dGpu;
-            _cachedGpuName = gpu != null ? StripName(gpu.Name) : UNKNOWN_NAME;
-            _needRefreshGpuHardware = false;
-            return Task.FromResult(_cachedGpuName);
+            _cachedGpuName = (gpu, name);
         }
+
+        return name;
+    }
+
+    #endregion
+
+    #region GPU Selection
+
+    private readonly record struct GpuSelection(IHardware? Hardware, bool IsIgpu, bool IsFallback);
+
+    private GpuSelection ResolveGpuSelection(bool preferIgpu)
+    {
+        var iGpu = _gpuProvider.IgpuHardware;
+        var dGpu = _gpuProvider.DgpuHardware;
+        var dGpuAvailable = dGpu is not null && _isDgpuConnected;
+
+        if (preferIgpu)
+        {
+            return iGpu is not null
+                ? new GpuSelection(iGpu, IsIgpu: true, IsFallback: false)
+                : new GpuSelection(dGpuAvailable ? dGpu : null, IsIgpu: false, IsFallback: true);
+        }
+
+        return dGpuAvailable
+            ? new GpuSelection(dGpu, IsIgpu: false, IsFallback: false)
+            : new GpuSelection(iGpu, IsIgpu: true, IsFallback: true);
+    }
+
+    private void LogGpuFallback()
+    {
+        var preferIgpu = _settings.Store.SelectedGpuIsIgpu;
+        var selection = ResolveGpuSelection(preferIgpu);
+        if (!selection.IsFallback)
+        {
+            return;
+        }
+
+        Log.Instance.Trace($"Selected GPU is unavailable — falling back. [selected={(preferIgpu ? "iGPU" : "dGPU")}, used={(selection.IsIgpu ? "iGPU" : "dGPU")}, hardware={selection.Hardware?.Name ?? "<null>"}]");
     }
 
     #endregion
@@ -505,8 +504,6 @@ public class SensorsGroupController : IDisposable
                 // Without NVAPI the NVIDIA sensors stay empty; the others still work.
                 Log.Instance.Trace($"NVAPI could not be initialized for sensors.", ex);
             }
-
-            _needRefreshGpuHardware = true;
         }
     }
 
@@ -524,7 +521,8 @@ public class SensorsGroupController : IDisposable
         var now = Environment.TickCount64;
         if (!force && now - _lastUpdateTick < MIN_UPDATE_INTERVAL_MS) return;
 
-        await _update.RunAsync(() => PerformUpdateInternal(scope)).ConfigureAwait(false);
+        // On the thread pool: the sensor library's reads are synchronous and can take a while.
+        await _update.RunAsync(() => Task.Run(() => PerformUpdateInternal(scope))).ConfigureAwait(false);
     }
 
     private async Task PerformUpdateInternal(HardwareUpdateScope scope)
@@ -551,7 +549,6 @@ public class SensorsGroupController : IDisposable
                     if (_isResetting || _computer == null || !_hardwareInitialized) return;
                     try
                     {
-                        var brokenHardware = new List<IHardware>();
                         foreach (var h in _hardware)
                         {
                             if (h == null) continue;
@@ -562,14 +559,8 @@ public class SensorsGroupController : IDisposable
                             }
                             catch (Exception ex)
                             {
-                                Log.Instance.Trace($"Failed to update hardware {h.Name}: {ex.Message}. It will be removed from the update list.", ex);
-                                brokenHardware.Add(h);
+                                Log.Instance.Trace($"Failed to update hardware {h.Name}: {ex.Message}. It will be retried on the next update.", ex);
                             }
-                        }
-
-                        foreach (var h in brokenHardware)
-                        {
-                            _hardware.Remove(h);
                         }
 
                         if (!dgpuEjectInProgress && _dgpuHardwareSkipped)
@@ -578,22 +569,36 @@ public class SensorsGroupController : IDisposable
                             _dgpuHardwareSkipped = false;
                         }
 
-                        // Read from providers — each populates provider.Values
+                        var settings = _settings.Store;
                         if (_cpuProvider.IsAvailable && Includes(scope, HardwareUpdateScope.Cpu))
-                            _cpuProvider.Read();
+                        {
+                            _cpuProvider.Read(settings);
+                        }
 
+                        string? gpuName = null;
                         IReadOnlyDictionary<SensorItem, float> gpuValues = new Dictionary<SensorItem, float>();
-                        var dGpu = _gpuProvider.DgpuHardware;
-                        var forceIgpu = !SelectedGpuIsIgpu && (dGpu == null || !_isDgpuConnected);
 
                         if (_gpuProvider.IsAvailable && Includes(scope, HardwareUpdateScope.Gpu))
                         {
-                            if (SelectedGpuIsIgpu || forceIgpu)
-                                gpuValues = _gpuProvider.ReadIgpu();
-                            else if (!gpuInactive)
-                                gpuValues = _gpuProvider.ReadDgpu();
-                            else
+                            var selection = ResolveGpuSelection(settings.SelectedGpuIsIgpu);
+                            gpuName = GetGpuName(selection.Hardware);
+
+                            if (selection.Hardware is null)
+                            {
                                 gpuValues = GpuSensorProvider.ReadInactive();
+                            }
+                            else if (selection.IsIgpu)
+                            {
+                                gpuValues = _gpuProvider.ReadIgpu();
+                            }
+                            else if (gpuInactive)
+                            {
+                                gpuValues = GpuSensorProvider.ReadInactive();
+                            }
+                            else
+                            {
+                                gpuValues = _gpuProvider.ReadDgpu();
+                            }
                         }
 
                         if (_memoryProvider.IsAvailable && Includes(scope, HardwareUpdateScope.Memory))
@@ -603,7 +608,7 @@ public class SensorsGroupController : IDisposable
                             _storageProvider.Read();
 
                         // Merge all provider values into a single snapshot
-                        var snap = new HardwareSensorSnapshot().WithValues(_cpuProvider.Values, gpuValues, _memoryProvider.Values, _storageProvider.Values);
+                        var snap = new HardwareSensorSnapshot { GpuName = gpuName }.WithValues(_cpuProvider.Values, gpuValues, _memoryProvider.Values, _storageProvider.Values);
 
                         // Game-safe mode may have started while this read was running (the read itself can't be
                         // stopped half-way). Its result is dropped, so the cleared snapshot stays.
@@ -611,8 +616,6 @@ public class SensorsGroupController : IDisposable
                             return;
 
                         Snapshot = snap;
-
-                        SensorsUpdated?.Invoke(Snapshot);
                     }
                     catch (Exception ex)
                     {
@@ -621,8 +624,10 @@ public class SensorsGroupController : IDisposable
                             RequestReset("its hardware list changed during a read", ex);
                         else
                             Log.Instance.Trace($"Sensor read failed.", ex);
+                        return;
                     }
                 }
+                SensorsUpdated?.Invoke(Snapshot);
             }).ConfigureAwait(false);
         }
     }
@@ -642,12 +647,13 @@ public class SensorsGroupController : IDisposable
                     return;
                 }
 
-                if (!IsDgpuEjectInProgress())
+                var dgpuEjectInProgress = IsDgpuEjectInProgress();
+                if (!dgpuEjectInProgress)
                 {
                     _computer.Accept(new UpdateVisitor());
                 }
 
-                PopulateHardware();
+                PopulateHardware(updateSensors: dgpuEjectInProgress);
                 DiscoverHardware();
             }
         }
@@ -749,6 +755,12 @@ public class SensorsGroupController : IDisposable
 
             try
             {
+                if (!IsLibreHardwareMonitorInitialized())
+                {
+                    await Task.Delay(50, token).ConfigureAwait(false);
+                    continue;
+                }
+
                 await UpdateAsync(true, scope).ConfigureAwait(false);
 
                 await Task.Delay(minInterval, token).ConfigureAwait(false);

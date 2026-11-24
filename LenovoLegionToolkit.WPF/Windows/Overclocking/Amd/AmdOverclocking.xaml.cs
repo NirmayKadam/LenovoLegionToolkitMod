@@ -1,3 +1,10 @@
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows;
 using LenovoLegionToolkit.Lib;
 using LenovoLegionToolkit.Lib.Overclocking.Amd;
 using LenovoLegionToolkit.Lib.System;
@@ -7,13 +14,6 @@ using LenovoLegionToolkit.WPF.Resources;
 using LenovoLegionToolkit.WPF.Utils;
 using LenovoLegionToolkit.WPF.Windows.Utils;
 using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows;
 using Wpf.Ui.Controls;
 
 namespace LenovoLegionToolkit.WPF.Windows.Overclocking.Amd;
@@ -104,6 +104,11 @@ public partial class AmdOverclocking : UiWindow
 
     private async Task InitializeAndLoadAsync(OverclockingProfile? existingProfile)
     {
+        if (!await EnsurePawnIOReadyAsync())
+        {
+            return;
+        }
+
         try
         {
             await _controller.InitializeAsync();
@@ -112,10 +117,17 @@ public partial class AmdOverclocking : UiWindow
         }
         catch (Exception ex)
         {
-            Log.Instance.Trace($"Init Failed: {ex.Message}");
+            Log.Instance.Trace($"Init Failed.", ex);
+
+            SetEnableToggle(false);
+            SaveEnabledState(false);
+            SetControlsEnabled(false);
+            ShowStatus(Resource.Error, ex.Message, InfoBarSeverity.Error, true);
+
             return;
         }
 
+        SaveEnabledState(true);
         SetControlsEnabled(true);
 
         await LoadFromHardwareAsync();
@@ -220,7 +232,6 @@ public partial class AmdOverclocking : UiWindow
             });
 
             _fMaxNumberBox.Value = result.FMax;
-            _fMaxToggle.IsChecked = true;
 
             if (_x3dGamingToggle != null)
             {
@@ -260,10 +271,11 @@ public partial class AmdOverclocking : UiWindow
     {
         if (profile == null) return;
 
+        _fMaxToggle.IsChecked = profile.Value.FMax.HasValue;
+
         if (profile.Value.FMax.HasValue)
         {
             _fMaxNumberBox.Value = profile.Value.FMax.Value;
-            _fMaxToggle.IsChecked = true;
         }
 
         if (profile.Value.PowerLimit1.HasValue) _powerLimit1Box.Value = profile.Value.PowerLimit1.Value;
@@ -372,7 +384,7 @@ public partial class AmdOverclocking : UiWindow
             }
         }
         _fMaxNumberBox.Value = 0;
-        _fMaxToggle.IsChecked = true;
+        _fMaxToggle.IsChecked = false;
     }
 
     private void OnGlobalDecrementClick(object sender, RoutedEventArgs e)
@@ -444,13 +456,48 @@ public partial class AmdOverclocking : UiWindow
 
         if (_isInitialized)
         {
+            if (!await EnsurePawnIOReadyAsync())
+            {
+                return;
+            }
+
             SaveEnabledState(true);
             SetControlsEnabled(true);
             return;
         }
 
-        SaveEnabledState(true);
         await InitializeAndLoadAsync(_controller.LoadProfile());
+    }
+
+    private async Task<bool> EnsurePawnIOReadyAsync()
+    {
+        PawnIOHelper.InvalidateStateCache();
+        var state = PawnIOHelper.GetPawnIOState();
+
+        if (state == PawnIOState.Installed)
+        {
+            return true;
+        }
+
+        SetEnableToggle(false);
+        SaveEnabledState(false);
+        SetControlsEnabled(false);
+        await PawnIOHelper.TryShowPawnIODialogAsync(state, disableHardwareSensors: false);
+
+        return false;
+    }
+
+    private void SetEnableToggle(bool isChecked)
+    {
+        try
+        {
+            _isUpdatingUi = true;
+            _enableToggle.IsChecked = isChecked;
+        }
+        finally
+        {
+            _isUpdatingUi = false;
+        }
     }
 
     private void EnableToggle_Unchecked(object sender, RoutedEventArgs e)

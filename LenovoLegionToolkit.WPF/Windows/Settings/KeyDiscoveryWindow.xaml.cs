@@ -2,13 +2,16 @@ using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using LenovoLegionToolkit.Lib;
 using LenovoLegionToolkit.Lib.Listeners;
 using LenovoLegionToolkit.Lib.Settings;
+using LenovoLegionToolkit.Lib.Extensions;
 using LenovoLegionToolkit.WPF.Extensions;
 using LenovoLegionToolkit.WPF.Resources;
+using LenovoLegionToolkit.WPF.Utils;
 
 namespace LenovoLegionToolkit.WPF.Windows.Settings;
 
@@ -16,7 +19,10 @@ public partial class KeyDiscoveryWindow
 {
     private readonly SpecialKeyListener _specialKeyListener = IoCContainer.Resolve<SpecialKeyListener>();
     private readonly DriverKeyListener _driverKeyListener = IoCContainer.Resolve<DriverKeyListener>();
+    private readonly ConsumerControlKeyListener _consumerControlKeyListener = IoCContainer.Resolve<ConsumerControlKeyListener>();
     private readonly SpecialKeySettings _settings = IoCContainer.Resolve<SpecialKeySettings>();
+    private readonly ExtraKeyListeners _extraKeyListeners = IoCContainer.Resolve<ExtraKeyListeners>();
+    private IAsyncDisposable? _extraKeysHold;
     private readonly ObservableCollection<DetectedKeyEvent> _events = [];
     private bool _isDiscovering;
 
@@ -61,6 +67,29 @@ public partial class KeyDiscoveryWindow
 
         _driverKeyListener.DiscoveryMode = true;
         _driverKeyListener.Changed += OnDriverKeyDetected;
+
+        _consumerControlKeyListener.DiscoveryMode = true;
+        _consumerControlKeyListener.Changed += OnConsumerControlKeyDetected;
+
+        // The media-key listener normally runs only while a media key has an action; it listens while this window does.
+        HoldExtraKeysAsync().Forget("Starting the media-key listener for key discovery");
+    }
+
+    private async Task HoldExtraKeysAsync()
+    {
+        var hold = await _extraKeyListeners.HoldForDiscoveryAsync();
+        if (_isDiscovering && _extraKeysHold is null)
+            _extraKeysHold = hold;
+        else
+            await hold.DisposeAsync();   // discovery stopped meanwhile
+    }
+
+    private async Task ReleaseExtraKeysAsync()
+    {
+        var hold = _extraKeysHold;
+        _extraKeysHold = null;
+        if (hold is not null)
+            await hold.DisposeAsync();
     }
 
     private void StopKeyDiscovery()
@@ -73,6 +102,10 @@ public partial class KeyDiscoveryWindow
 
         _driverKeyListener.Changed -= OnDriverKeyDetected;
         _driverKeyListener.DiscoveryMode = false;
+
+        _consumerControlKeyListener.Changed -= OnConsumerControlKeyDetected;
+        _consumerControlKeyListener.DiscoveryMode = false;
+        ReleaseExtraKeysAsync().Forget("Stopping the media-key listener after key discovery");
 
         _isDiscovering = false;
         _listeningOverlay.Visibility = Visibility.Collapsed;
@@ -89,17 +122,34 @@ public partial class KeyDiscoveryWindow
 
     private void OnDriverKeyDetected(object? sender, DriverKeyListener.ChangedEventArgs e)
     {
-        var rawValue = (int)e.RawValue;
-        var isKnown = Enum.IsDefined(typeof(DriverKey), (DriverKey)e.RawValue);
-        var name = GetDriverKeyDisplayName(rawValue, isKnown);
-        InsertEvent(rawValue, "IOCTL", name, isKnown);
+        for (var bit = 1u; bit != 0; bit <<= 1)
+        {
+            if ((e.RawValue & bit) == 0)
+                continue;
+
+            var rawValue = (int)bit;
+            var isKnown = Enum.IsDefined(typeof(DriverKey), (DriverKey)bit);
+            var name = GetDriverKeyDisplayName(rawValue, isKnown);
+            InsertEvent(rawValue, "IOCTL", name, isKnown);
+        }
+    }
+
+    private void OnConsumerControlKeyDetected(object? sender, ConsumerControlKeyListener.ChangedEventArgs e)
+    {
+        var rawValue = (int)e.Key;
+        var isKnown = Enum.IsDefined(typeof(ConsumerControlKey), e.Key);
+        var name = GetConsumerControlKeyDisplayName(rawValue, isKnown);
+        InsertEvent(rawValue, "HID", name, isKnown);
     }
 
     private void InsertEvent(int code, string channel, string displayName, bool isKnown)
     {
-        var storageCode = channel == "IOCTL"
-            ? code + SpecialKeySettings.SpecialKeySettingsStore.DriverKeyCodeOffset
-            : code;
+        var storageCode = channel switch
+        {
+            "IOCTL" => code + SpecialKeySettings.SpecialKeySettingsStore.DriverKeyCodeOffset,
+            "HID" => code + SpecialKeySettings.SpecialKeySettingsStore.ConsumerControlKeyCodeOffset,
+            _ => code,
+        };
         var canAdd = !isKnown && !_settings.Store.KeyDescriptions.ContainsKey(storageCode);
         var time = DateTime.Now.ToString("HH:mm:ss");
 
@@ -149,33 +199,17 @@ public partial class KeyDiscoveryWindow
             _events[i] = entry;
     }
 
-    private string GetSpecialKeyDisplayName(int code, bool isKnown)
-    {
-        if (isKnown)
-        {
-            var key = (SpecialKey)code;
-            string str = key.ToString();
-            if (str.StartsWith("Fn", StringComparison.OrdinalIgnoreCase) && str.Length > 2)
-                return string.Concat("Fn + ", str.AsSpan(2));
-            return str;
-        }
+    private static string GetSpecialKeyDisplayName(int code, bool isKnown) => isKnown
+        ? SpecialKeyDisplayName.GetKey((SpecialKey)code)
+        : SpecialKeyDisplayName.GetUnknownKey(code, 2);
 
-        return $"Fn + 0x{code:X2}";
-    }
+    private static string GetDriverKeyDisplayName(int code, bool isKnown) => isKnown
+        ? SpecialKeyDisplayName.GetKey((DriverKey)code, Resource.SpecialKey_DriverSuffix)
+        : SpecialKeyDisplayName.GetUnknownKey(code, 2, Resource.SpecialKey_DriverSuffix);
 
-    private static string GetDriverKeyDisplayName(int code, bool isKnown)
-    {
-        if (isKnown)
-        {
-            var key = (DriverKey)code;
-            string str = key.ToString();
-            if (str.StartsWith("Fn", StringComparison.OrdinalIgnoreCase) && str.Length > 2)
-                return $"Fn + {str[2..]} {Resource.SpecialKey_DriverSuffix}";
-            return $"{str} {Resource.SpecialKey_DriverSuffix}";
-        }
-
-        return $"Fn + 0x{code:X2} {Resource.SpecialKey_DriverSuffix}";
-    }
+    private static string GetConsumerControlKeyDisplayName(int code, bool isKnown) => isKnown
+        ? SpecialKeyDisplayName.GetKey((ConsumerControlKey)code, Resource.SpecialKey_ConsumerSuffix)
+        : SpecialKeyDisplayName.GetUnknownKey(code, 4, Resource.SpecialKey_ConsumerSuffix);
 }
 
 public class DetectedKeyEvent : INotifyPropertyChanged

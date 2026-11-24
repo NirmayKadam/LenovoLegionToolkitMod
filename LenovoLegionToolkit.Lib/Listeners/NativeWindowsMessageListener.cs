@@ -247,9 +247,9 @@ public class NativeWindowsMessageListener : NativeWindow, IListener<NativeWindow
 
             if (str.PowerSetting == PInvoke.GUID_POWER_SAVING_STATUS && str.Data[0] == 0)
             {
-                Log.Instance.Trace($"Event received: Battery Saver enabled");
+                Log.Instance.Trace($"Event received: Battery Saver disabled");
 
-                OnBatterySaverEnabled();
+                OnBatterySaverDisabled();
             }
         }
 
@@ -358,11 +358,9 @@ public class NativeWindowsMessageListener : NativeWindow, IListener<NativeWindow
         RaiseChanged(NativeWindowsMessage.LidClosed);
     }
 
-    private void OnBatterySaverEnabled()
+    private void OnBatterySaverDisabled()
     {
-        Task.Run(() => _powerModeFeature.EnsureCorrectWindowsPowerSettingsAreSetAsync()).Forget("Re-applying the Windows power settings after battery saver turned on");
-
-        RaiseChanged(NativeWindowsMessage.BatterySaverEnabled);
+        Task.Run(() => _powerModeFeature.EnsureCorrectWindowsPowerSettingsAreSetAsync()).Forget("Re-applying the Windows power settings after battery saver turned off");
     }
 
     private void OnDeviceConnected(string name)
@@ -386,16 +384,12 @@ public class NativeWindowsMessageListener : NativeWindow, IListener<NativeWindow
 
     private void OnMonitorConnected(bool isExternal)
     {
-        RaiseChanged(NativeWindowsMessage.MonitorConnected);
-
         if (isExternal)
             RaiseChanged(NativeWindowsMessage.ExternalMonitorConnected);
     }
 
     private void OnMonitorDisconnected(bool isExternal)
     {
-        RaiseChanged(NativeWindowsMessage.MonitorDisconnected);
-
         if (isExternal)
             RaiseChanged(NativeWindowsMessage.ExternalMonitorDisconnected);
     }

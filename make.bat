@@ -32,5 +32,5 @@ exit /b 0
 
 :usage
 echo Usage: make.bat ^<version^> [raw]
-echo   for example: make.bat 2.36.26.0
+echo   for example: make.bat 2.36.27.0
 exit /b 1

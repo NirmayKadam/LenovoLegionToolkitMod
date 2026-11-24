@@ -7,6 +7,8 @@ namespace LenovoLegionToolkit.Lib.Settings;
 
 public class OsdSettings() : AbstractSettings<OsdSettings.OsdSettingsStore>("osd.json")
 {
+    protected override string MigrateJson(string json) => SettingsMigration.RenameEnumValues(json, SettingsMigration.OsdItemRenames);
+
     public class OsdSettingsStore
     {
         public bool ShowOsd { get; set; }
@@ -16,6 +18,7 @@ public class OsdSettings() : AbstractSettings<OsdSettings.OsdSettingsStore>("osd
         public double OsdRefreshInterval { get; set; } = 1;
         public int SelectedStyleIndex { get; set; } = 0;
         public List<OsdItem> Items { get; set; } = Enum.GetValues<OsdItem>().ToList();
+        public int[]? VisibleSystemFanIds { get; set; }
 
         public double BackgroundOpacity { get; set; } = 0.6;
         public string BackgroundColor { get; set; } = "#1E1E1E";
@@ -23,10 +26,8 @@ public class OsdSettings() : AbstractSettings<OsdSettings.OsdSettingsStore>("osd
         public int CornerRadiusTop { get; set; } = 6;
         public int CornerRadiusBottom { get; set; } = 6;
         public bool IsLocked { get; set; } = false;
-        public double? PanelPositionX { get; set; }
-        public double? PanelPositionY { get; set; }
-        public double? BarPositionX { get; set; }
-        public double? BarPositionY { get; set; }
+        public OsdPosition? PanelPosition { get; set; }
+        public OsdPosition? BarPosition { get; set; }
 
         public int TempThresholdWarning { get; set; } = 75;
         public int TempThresholdCritical { get; set; } = 90;
@@ -42,4 +43,11 @@ public class OsdSettings() : AbstractSettings<OsdSettings.OsdSettingsStore>("osd
         public string CriticalColor { get; set; } = "#FF0000";
         public int SnapThreshold { get; set; } = 20;
     }
+}
+
+public class OsdPosition
+{
+    public double XRatio { get; set; }
+    public double YRatio { get; set; }
+    public string? MonitorName { get; set; }
 }

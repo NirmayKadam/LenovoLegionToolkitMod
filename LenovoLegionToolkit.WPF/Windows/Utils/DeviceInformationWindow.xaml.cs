@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using LenovoLegionToolkit.Lib;
 using LenovoLegionToolkit.Lib.Extensions;
+using LenovoLegionToolkit.Lib.System;
 using LenovoLegionToolkit.Lib.Utils;
 using LenovoLegionToolkit.Lib.Utils.Warranty;
 using LenovoLegionToolkit.WPF.Extensions;
@@ -136,10 +137,11 @@ public partial class DeviceInformationWindow
                 { CapabilityID.FanFullSpeed, "Full Fan Speed Control" },
                 { CapabilityID.CpuCurrentFanSpeed, "CPU Fan Speed Monitoring" },
                 { CapabilityID.GpuCurrentFanSpeed, "GPU Fan Speed Monitoring" },
-                { CapabilityID.PchCurrentFanSpeed, "PCH Fan Speed Monitoring" },
+                { CapabilityID.SystemCurrentFanSpeed, "System Fan Speed Monitoring" },
+                { CapabilityID.ExtraSystemCurrentFanSpeed, "Extra System Fan Speed Monitoring" },
                 { CapabilityID.CpuCurrentTemperature, "CPU Temp Monitoring" },
                 { CapabilityID.GpuCurrentTemperature, "GPU Temp Monitoring" },
-                { CapabilityID.PchCurrentTemperature, "PCH Temp Monitoring" },
+                { CapabilityID.MotherboardCurrentTemperature, "Motherboard Temp Monitoring" },
                 { CapabilityID.CPUShortTermPowerLimit, "CPU Short Term Power Limit Control" },
                 { CapabilityID.CPULongTermPowerLimit, "CPU Long Term Power Limit Control" },
                 { CapabilityID.CPUPeakPowerLimit, "CPU Peak Power Limit Control" },
@@ -185,7 +187,7 @@ public partial class DeviceInformationWindow
             var diskInfos = LenovoLegionToolkit.Lib.System.DeviceInformation.GetDiskInfos();
             var displayInfos = LenovoLegionToolkit.Lib.System.DeviceInformation.GetDisplayInfos();
             var mbInfo = LenovoLegionToolkit.Lib.System.DeviceInformation.GetMotherboardInfo();
-            var batteryInfo = LenovoLegionToolkit.Lib.System.Battery.GetBatteryInformation();
+            Battery.TryGetBatteryInformation(out var batteryInfo);
             var logicalDrives = LenovoLegionToolkit.Lib.System.DeviceInformation.GetLogicalDrives();
             var networkAdapters = LenovoLegionToolkit.Lib.System.DeviceInformation.GetNetworkAdapters();
 
@@ -330,6 +332,7 @@ public partial class DeviceInformationWindow
                     else
                     {
                         _warrantyDaysRemainingLabel.Text = Resource.Expired;
+                        _warrantyDaysRemainingLabel.Foreground = (System.Windows.Media.Brush)FindResource("PaletteRedBrush");
                         _warrantyStatusLabel.Text = Resource.Expired;
                         _warrantyStatusLabel.Foreground = (System.Windows.Media.Brush)FindResource("PaletteRedBrush");
                         _warrantyStatusIcon.Foreground = (System.Windows.Media.Brush)FindResource("PaletteRedBrush");

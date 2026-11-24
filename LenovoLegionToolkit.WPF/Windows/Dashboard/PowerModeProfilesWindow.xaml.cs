@@ -221,7 +221,7 @@ public partial class PowerModeProfilesWindow
         await RunBusyAsync(Resource.PowerModeProfiles_Applying, async () =>
         {
             var fan = await Task.Run(() => _fanProfileController.ApplyForModeAsync(mode));
-            await Task.Run(() => _powerModeFeature.EnsureCorrectWindowsPowerSettingsAreSetAsync());
+            await Task.Run(() => _powerModeFeature.EnsureCorrectWindowsPowerSettingsAreSetAsync(skipThrottle: true));
 
             var fanText = fan switch
             {

@@ -87,6 +87,8 @@ public partial class App
     private EventWaitHandle? _singleInstanceWaitHandle;
     private bool _showPawnIONotify;
 
+    private readonly List<Task> _deferredInitTasks = [];
+
     public new static App Current => (App)Application.Current;
     public static MainWindow? MainWindowInstance;
 
@@ -124,10 +126,10 @@ public partial class App
                     Log.Instance.Trace($"Lenovo Legion Toolkit Version {Assembly.GetEntryAssembly()?.GetName().Version}");
                 }
 
-                _ = LogFailureAsync(Compatibility.PrintControllerVersionAsync(), "Printing the controller version");
                 InitOsd();
                 IoCContainer.Resolve<GlobalHotkeyService>().Start();
                 IoCContainer.Resolve<GameSafeMode>().Start();
+                StartExtraKeyListeners();
                 StartFanProfiles();
                 StartGameProfiles();
                 InitAppMessages();
@@ -260,6 +262,8 @@ public partial class App
         if (!compatible.Result)
             return false;
 
+        await Compatibility.GetMachineInformationAsync();
+
         if (AppFlags.Instance.Debug)
         {
             Console.WriteLine(@"[Startup] Configuring Render Options...");
@@ -354,6 +358,8 @@ public partial class App
             await SafeInitAsync(InitSensorsGroupControllerFeatureAsync, "Sensors Group");
             await Dispatcher.InvokeAsync(ShowPawnIONotifyIfNeeded);
         });
+
+        await Task.WhenAll(_deferredInitTasks);
     }
 
     /// <summary>
@@ -402,9 +408,13 @@ public partial class App
 
         if (AppFlags.Instance.Minimized)
         {
+            var minimizeToTray = IoCContainer.Resolve<ApplicationSettings>().Store.MinimizeToTray;
+
             mainWindow.WindowState = WindowState.Minimized;
             mainWindow.Show();
-            mainWindow.SendToTray();
+
+            if (minimizeToTray)
+                mainWindow.Hide();
         }
         else
         {
@@ -832,7 +842,7 @@ public partial class App
 
         var settingsStore = IoCContainer.Resolve<OsdSettings>().Store;
 
-        if (!settingsStore.ShowOsd)
+        if (!settingsStore.ShowOsd || !IoCContainer.Resolve<ApplicationSettings>().Store.EnableHardwareSensors)
         {
             return;
         }
@@ -1039,7 +1049,7 @@ public partial class App
 
             if (await feature.IsSupportedAsync())
             {
-                await feature.EnsureGodModeStateIsAppliedAsync();
+                await feature.EnsureGodModeStateIsAppliedAsync(skipThrottle: true);
             }
 
             return true;
@@ -1163,42 +1173,31 @@ public partial class App
         }
     }
 
-    private static async Task<bool> InitSensorsGroupControllerFeatureAsync()
+    private Task<bool> InitSensorsGroupControllerFeatureAsync()
     {
-        var settings = IoCContainer.Resolve<ApplicationSettings>();
-        var OsdSettings = IoCContainer.Resolve<OsdSettings>();
-
-        try
+        if (IoCContainer.Resolve<ApplicationSettings>().Store is { EnableHardwareSensors: false })
         {
-            if (settings.Store is { EnableHardwareSensors: false })
-            {
-                return false;
-            }
-
-            var state = await IoCContainer.Resolve<SensorsGroupController>().IsSupportedAsync();
-
-            if (state is not (LibreHardwareMonitorInitialState.Initialized or LibreHardwareMonitorInitialState.Success))
-            {
-                Current._showPawnIONotify = true;
-            }
-            else if (PawnIOHelper.GetPawnIOState() is PawnIOState.UpdateRequired or PawnIOState.ServiceNotRunning)
-            {
-                Current._showPawnIONotify = true;
-            }
-
-            return true;
+            return Task.FromResult(false);
         }
-        catch (Exception ex)
-        {
-            Log.Instance.Trace($"InitSensorsGroupControllerFeatureAsync() raised exception:", ex);
 
-            if (!ex.Message.Contains("LibreHardwareMonitor initialization failed"))
-            {
-                Current._showPawnIONotify = true;
-            }
+        _showPawnIONotify = PawnIOHelper.GetPawnIOState() is not PawnIOState.Installed;
 
-            return false;
-        }
+        _deferredInitTasks.Add(SafeInitAsync(InitSensorsHardwareAsync, "Sensors Hardware"));
+        _deferredInitTasks.Add(SafeInitAsync(InitSensorsControllerAsync, "Sensors Controller"));
+
+        return Task.FromResult(true);
+    }
+
+    private static async Task<bool> InitSensorsHardwareAsync()
+    {
+        await IoCContainer.Resolve<SensorsGroupController>().IsSupportedAsync().ConfigureAwait(false);
+        return true;
+    }
+
+    private static async Task<bool> InitSensorsControllerAsync()
+    {
+        await IoCContainer.Resolve<SensorsController>().IsSupportedAsync().ConfigureAwait(false);
+        return true;
     }
 
     private static async Task<bool> InitRgbKeyboardControllerAsync()
@@ -1283,14 +1282,9 @@ public partial class App
 
             return false;
         }
-        catch (InvalidOperationException)
-        {
-            Log.Instance.Trace($"Profile apply has been canceled due to AC issue.");
-            return false;
-        }
         catch (Exception ex)
         {
-            Log.Instance.Trace($"Failed to apply profile on startup: {ex.Message}", ex);
+            Log.Instance.Trace($"Failed to initialize AMD Overclocking Controller.", ex);
             return false;
         }
     }
@@ -1331,13 +1325,14 @@ public partial class App
         {
             Dispatcher.Post(() =>
             {
-                HandleOsdCommand(message.State, notify: true);
+                HandleOsdCommand(message.State, notify: true, setPreference: message.SetPreference);
             });
         });
 
         var OsdSettings = IoCContainer.Resolve<OsdSettings>();
+        var settings = IoCContainer.Resolve<ApplicationSettings>();
 
-        if (OsdSettings.Store.ShowOsd)
+        if (OsdSettings.Store.ShowOsd && settings.Store.EnableHardwareSensors)
         {
             HandleOsdCommand(ToggleState.On);
         }
@@ -1371,6 +1366,20 @@ public partial class App
         if (!SafeStart.Skips("the fan curve"))
             Task.Run(controller.ApplyForCurrentModeAsync).Forget("Applying the fan curve");
     }
+
+    /// <summary>
+    /// The keyboard hook and media-key listener for the extra Fn keys start only after game-safe mode has checked
+    /// for an anti-cheat game once, so they are never installed while one already runs.
+    /// </summary>
+    private static void StartExtraKeyListeners() => Task.Run(async () =>
+    {
+        var gameSafeMode = IoCContainer.Resolve<GameSafeMode>();
+        if (IoCContainer.Resolve<ApplicationSettings>().Store.GameSafeMode)
+            IoCContainer.Resolve<AntiCheatMonitor>().Poll();
+        await gameSafeMode.RefreshAsync().ConfigureAwait(false);
+
+        await IoCContainer.Resolve<ExtraKeyListeners>().UpdateAsync().ConfigureAwait(false);
+    }).Forget("Starting the extra Fn key listeners");
 
     /// <summary>
     /// Puts back what a game profile left behind if LLT was ended mid-game, then watches for profiled games; each
@@ -1409,7 +1418,7 @@ public partial class App
         _ = LogFailureAsync(Task.Run(gameSessions.ApplySettingAsync), "Starting the game session report");
     }
 
-    private void HandleOsdCommand(ToggleState command, bool notify = false)
+    private void HandleOsdCommand(ToggleState command, bool notify = false, bool setPreference = true)
     {
         var wasVisible = OsdWindow?.IsVisible ?? false;
         var OsdSettings = IoCContainer.Resolve<OsdSettings>();
@@ -1434,8 +1443,13 @@ public partial class App
         }
 
         var isVisible = OsdWindow?.IsVisible ?? false;
-        OsdSettings.Store.ShowOsd = isVisible;
-        OsdSettings.SynchronizeStore();
+
+        // Hidden because hardware sensors were switched off: the user's choice stays, so it comes back with them.
+        if (setPreference)
+        {
+            OsdSettings.Store.ShowOsd = isVisible;
+            OsdSettings.SynchronizeStore();
+        }
 
         // A short confirmation when the user toggles it (hotkey, Fn key, quick action), not when restoring at startup.
         if (notify && isVisible != wasVisible)

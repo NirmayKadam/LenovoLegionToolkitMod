@@ -65,10 +65,15 @@ public partial class DiscreteGPUManagementWindow : BaseWindow
     {
         var items = new List<PStateItemViewModel>
         {
-            new() { Id = -1, DisplayName = Resource.DiscreteGPUControl_PStateAuto }
+            new() { Id = GPUController.AutoPStateId, DisplayName = Resource.DiscreteGPUControl_PStateAuto }
         };
 
         var supportedStates = _gpuController.GetSupportedPerformanceStates();
+        if (supportedStates.Contains(PerformanceStateId.P0_3DPerformance))
+        {
+            items.Add(new PStateItemViewModel { Id = GPUController.RatedTdpPStateId, DisplayName = Resource.DiscreteGPUControl_PStateRatedTdp });
+        }
+
         foreach (var state in supportedStates)
         {
             items.Add(new PStateItemViewModel { Id = (int)state, DisplayName = $"P{(uint)state}" });
@@ -82,6 +87,30 @@ public partial class DiscreteGPUManagementWindow : BaseWindow
 
         var selected = items.FirstOrDefault(i => i.Id == previouslySelectedId) ?? items[0];
         _pStateComboBox.SelectedItem = selected;
+
+        InitializePinModeOptions();
+        UpdatePinModeEnabled();
+    }
+
+    private void InitializePinModeOptions()
+    {
+        var items = new List<PStatePinModeItemViewModel>
+        {
+            new() { Mode = PStatePinMode.Max, DisplayName = Resource.DiscreteGPUControl_PStatePinMax },
+            new() { Mode = PStatePinMode.Min, DisplayName = Resource.DiscreteGPUControl_PStatePinMin },
+            new() { Mode = PStatePinMode.None, DisplayName = Resource.DiscreteGPUControl_PStatePinNone }
+        };
+
+        _pinModeComboBox.ItemsSource = items;
+        _pinModeComboBox.DisplayMemberPath = nameof(PStatePinModeItemViewModel.DisplayName);
+        _pinModeComboBox.SelectedValuePath = nameof(PStatePinModeItemViewModel.Mode);
+        _pinModeComboBox.SelectedItem = items.FirstOrDefault(i => i.Mode == _settings.Store.PStatePinMode) ?? items[0];
+    }
+
+    private void UpdatePinModeEnabled()
+    {
+        var id = (_pStateComboBox.SelectedItem as PStateItemViewModel)?.Id ?? GPUController.AutoPStateId;
+        _pinModeComboBox.IsEnabled = id >= 0;
     }
 
     private void DiscreteGPUManagementWindow_Loaded(object sender, RoutedEventArgs e)
@@ -136,11 +165,7 @@ public partial class DiscreteGPUManagementWindow : BaseWindow
                 var configuredApps = new List<string>();
                 try
                 {
-                    using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\DirectX\UserGpuPreferences", false);
-                    if (key != null)
-                    {
-                        configuredApps.AddRange(key.GetValueNames());
-                    }
+                    configuredApps.AddRange(Registry.GetValueNames(GPUController.GPU_PREFERENCES_HIVE, GPUController.GPU_PREFERENCES_KEY));
                 }
                 catch (Exception ex)
                 {
@@ -251,12 +276,35 @@ public partial class DiscreteGPUManagementWindow : BaseWindow
         if (_isInitializing || _pStateComboBox.SelectedItem is not PStateItemViewModel item)
             return;
 
+        UpdatePinModeEnabled();
+
         if (item.Id == _settings.Store.LockedPStateId)
             return;
 
         // The choice is saved first and applied later when MSI Afterburner runs, so the list keeps it. A driver
         // failure is said, instead of being lost while the list showed a P-state the GPU wasn't in.
-        await UiErrors.RunAsync("Locking the GPU P-state", () => _gpuController.SetPStateAsync(item.Id));
+        await UiErrors.RunAsync("Locking the GPU P-state", () => NotifyPStateFailureAsync(_gpuController.SetPStateAsync(item.Id)));
+    }
+
+    private async void PinModeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_isInitializing || _pinModeComboBox.SelectedItem is not PStatePinModeItemViewModel item)
+            return;
+
+        if (item.Mode == _settings.Store.PStatePinMode)
+            return;
+
+        await UiErrors.RunAsync("Changing the GPU P-state pin mode", () => NotifyPStateFailureAsync(_gpuController.SetPStatePinModeAsync(item.Mode)));
+    }
+
+    private static async Task NotifyPStateFailureAsync(Task<PStateApplyResult> apply)
+    {
+        if (await apply != PStateApplyResult.Failed)
+            return;
+
+        SnackbarHelper.Show(Resource.DiscreteGPUControl_PStateApplyFailedTitle,
+            Resource.DiscreteGPUControl_PStateApplyFailedMessage,
+            SnackbarType.Error);
     }
 
 
@@ -280,8 +328,11 @@ public partial class DiscreteGPUManagementWindow : BaseWindow
 
         try
         {
-            _gpuController.SetGpuPreference(vm.Path, preference);
-            SnackbarHelper.Show(Resource.DiscreteGPUControl_Title, Resource.SettingsPage_RestartRequired_Message, SnackbarType.Success);
+            if (!_gpuController.SetGpuPreference(vm.Path, preference))
+                SnackbarHelper.Show(Resource.Error, Resource.SettingsPage_HWA_GPUPreference_Error_Message, SnackbarType.Error);
+            else
+                SnackbarHelper.Show(Resource.DiscreteGPUControl_Title, Resource.SettingsPage_RestartRequired_Message, SnackbarType.Success);
+
             _ = RefreshAppListAsync();
         }
         catch (Exception ex)
@@ -434,6 +485,14 @@ public class DiscreteGPUAppViewModel : INotifyPropertyChanged
 public class PStateItemViewModel
 {
     public int Id { get; set; }
+    public string DisplayName { get; set; } = string.Empty;
+
+    public override string ToString() => DisplayName;
+}
+
+public class PStatePinModeItemViewModel
+{
+    public PStatePinMode Mode { get; set; }
     public string DisplayName { get; set; } = string.Empty;
 
     public override string ToString() => DisplayName;

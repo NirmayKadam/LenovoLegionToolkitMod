@@ -62,7 +62,12 @@ public partial class BatteryPage
             {
                 try
                 {
-                    var batteryInfo = Battery.GetBatteryInformation();
+                    if (!Battery.TryGetBatteryInformation(out var batteryInfo))
+                    {
+                        Log.Instance.Trace($"Battery not present, stopping refresh.");
+                        break;
+                    }
+
                     var powerAdapterStatus = await Power.IsPowerAdapterConnectedAsync();
                     var onBatterySince = Battery.GetOnBatterySince();
                     Dispatcher.Post(() => Set(batteryInfo, powerAdapterStatus, onBatterySince));
@@ -120,7 +125,7 @@ public partial class BatteryPage
             _onBatterySinceText.Text = "-";
         }
 
-        _batteryDischargeRateText.Text = $"{batteryInfo.DischargeRate / 1000.0:+0.00;-0.00;0.00} {Resource.Watt}";
+        _batteryDischargeRateText.Text = batteryInfo.DischargeRate == int.MinValue ? "-" : $"{batteryInfo.DischargeRate / 1000.0:+0.00;-0.00;0.00} {Resource.Watt}";
         _batteryMinDischargeRateText.Text = $"{batteryInfo.MinDischargeRate / 1000.0:+0.00;-0.00;0.00} {Resource.Watt}";
         _batteryMaxDischargeRateText.Text = $"{batteryInfo.MaxDischargeRate / 1000.0:+0.00;-0.00;0.00} {Resource.Watt}";
         _batteryCapacityText.Text = $"{batteryInfo.EstimateChargeRemaining / 1000.0:0.00} Wh";

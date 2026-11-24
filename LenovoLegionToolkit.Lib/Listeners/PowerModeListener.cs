@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.ExceptionServices;
+using System.Threading;
 using System.Threading.Tasks;
 using LenovoLegionToolkit.Lib.Controllers;
 using LenovoLegionToolkit.Lib.Controllers.GodMode;
@@ -32,44 +33,72 @@ public class PowerModeListener(
 
     protected override ChangedEventArgs GetEventArgs(PowerModeState value) => new(value);
 
-    protected override async Task OnChangedAsync(PowerModeState value)
+    private readonly SemaphoreSlim _changeLock = new(1, 1);
+    private PowerModeState? _lastState;
+
+    // Changed is raised by ProcessChangeAsync once the follow-up steps ran, not straight after the WMI event.
+    protected override bool RaiseChangedAutomatically => false;
+
+    /// <summary>Fn+Q or the firmware changed the mode: the same mode twice in a row is handled once.</summary>
+    protected override Task OnChangedAsync(PowerModeState value) =>
+        ProcessChangeAsync(value, rethrowStepFailure: false);
+
+    public Task NotifyAsync(PowerModeState value) =>
+        ProcessChangeAsync(value, force: true, showNotification: false);
+
+    /// <summary>
+    /// Runs <paramref name="change"/> (the actual mode switch) and everything that follows it as one step, so a WMI
+    /// event raised by the switch itself waits instead of applying the same mode a second time.
+    /// </summary>
+    public Task ChangeAsync(PowerModeState value, Func<Task> change, bool applyGodModePreset = true) =>
+        ProcessChangeAsync(value, change, applyGodModePreset, force: true, showNotification: false);
+
+    private async Task ProcessChangeAsync(PowerModeState value, Func<Task>? change = null,
+        bool applyGodModePreset = true, bool force = false, bool showNotification = true, bool rethrowStepFailure = true)
     {
-        Log.Instance.Trace($"PowerModeListener.OnChangedAsync (WMI event path): value={value}");
-        var sw = Stopwatch.StartNew();
+        await _changeLock.WaitAsync().ConfigureAwait(false);
         try
         {
-            await ChangeDependenciesAsync(value).ConfigureAwait(false);
+            if (!force && _lastState == value)
+            {
+                Log.Instance.Trace($"Power mode {value} already handled; skipping the repeat.");
+                return;
+            }
+
+            _lastState = null;
+            if (change is not null)
+                await change().ConfigureAwait(false);
+
+            if (showNotification)
+                PublishNotification(value);
+
+            Log.Instance.Trace($"Power mode changed to {value}. [force={force}, applyGodModePreset={applyGodModePreset}]");
+            var sw = Stopwatch.StartNew();
+            ExceptionDispatchInfo? failure = null;
+            try
+            {
+                await ChangeDependenciesAsync(value, applyGodModePreset).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                // Each failed step is logged where it failed. The mode did change, so it is still reported: the
+                // dashboard and the fan curves keep up with the laptop. An explicit change still gets the error to show.
+                Log.Instance.Trace($"Not everything for {value} could be set; the change is still reported.", ex);
+                failure = ExceptionDispatchInfo.Capture(ex);
+            }
+            Log.Instance.Trace($"ChangeDependenciesAsync completed [elapsed={sw.ElapsedMilliseconds}ms]");
+
+            RaiseChanged(value);
+            _lastState = value;
+
+            if (rethrowStepFailure)
+                failure?.Throw();
         }
-        catch (Exception ex)
+        finally
         {
-            // Each failed step is logged where it failed. The mode did change (Fn+Q), so it is still announced and
-            // the Changed event still follows: the dashboard and the fan curves keep up with the laptop.
-            Log.Instance.Trace($"Not everything for {value} could be set; the change is still reported.", ex);
+            _changeLock.Release();
         }
-        Log.Instance.Trace($"ChangeDependenciesAsync completed [elapsed={sw.ElapsedMilliseconds}ms]");
-        PublishNotification(value);
     }
-
-    public async Task NotifyAsync(PowerModeState value)
-    {
-        Log.Instance.Trace($"PowerModeListener.NotifyAsync (explicit path): value={value}");
-        var sw = Stopwatch.StartNew();
-        ExceptionDispatchInfo? failure = null;
-        try
-        {
-            await ChangeDependenciesAsync(value).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            failure = ExceptionDispatchInfo.Capture(ex);
-        }
-        Log.Instance.Trace($"ChangeDependenciesAsync completed [elapsed={sw.ElapsedMilliseconds}ms]");
-
-        // The mode is set either way, so the change is reported; the caller still gets the error to show.
-        RaiseChanged(value);
-        failure?.Throw();
-    }
-
     protected override async Task<bool> CanStartAsync()
     {
         var mi = await Compatibility.GetMachineInformationAsync().ConfigureAwait(false);
@@ -80,14 +109,14 @@ public class PowerModeListener(
     /// Everything that follows a power-mode change. A step that fails (the firmware refusing a Custom-mode limit, for
     /// example) no longer skips the ones after it: the Windows power mode and plan still follow the new mode.
     /// </summary>
-    private async Task ChangeDependenciesAsync(PowerModeState value)
+    private async Task ChangeDependenciesAsync(PowerModeState value, bool applyGodModePreset = true)
     {
         var sw = Stopwatch.StartNew();
 
         await RunInOrderAsync(
-            ("God Mode", () => ApplyGodModeSideAsync(value)),
-            ("Windows power mode", () => windowsPowerModeController.SetPowerModeAsync(value)),
-            ("Windows power plan", () => windowsPowerPlanController.SetPowerPlanAsync(value)),
+            ("God Mode", () => ApplyGodModeSideAsync(value, applyGodModePreset)),
+            ("Windows power mode", () => windowsPowerModeController.SetPowerModeAsync(value, skipThrottle: true)),
+            ("Windows power plan", () => windowsPowerPlanController.SetPowerPlanAsync(value, skipThrottle: true)),
             ("GPU overclock", ScheduleGpuOverclockAsync),
             ("AMD overclocking", ApplyAmdDefaultsIfNeededAsync)
         ).ConfigureAwait(false);
@@ -119,12 +148,18 @@ public class PowerModeListener(
         firstFailure?.Throw();
     }
 
-    private async Task ApplyGodModeSideAsync(PowerModeState value)
+    private async Task ApplyGodModeSideAsync(PowerModeState value, bool applyGodModePreset)
     {
         if (value is PowerModeState.GodMode)
         {
-            Log.Instance.Trace($"Delaying GodMode apply...");
+            Log.Instance.Trace($"Delaying GodMode apply... [applyGodModePreset={applyGodModePreset}]");
             await Task.Delay(TimeSpan.FromMilliseconds(100)).ConfigureAwait(false);
+
+            if (!applyGodModePreset)
+            {
+                Log.Instance.Trace($"Suppressed God Mode preset apply, caller takes over.");
+                return;
+            }
 
             Log.Instance.Trace($"Calling GodModeController.ApplyStateAsync...");
             var godSw = Stopwatch.StartNew();

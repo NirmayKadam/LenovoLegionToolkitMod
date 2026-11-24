@@ -9,7 +9,6 @@
     Title="OsdPanelWindow"
     Width="Auto"
     Height="Auto"
-    MinWidth="220"
     AllowsTransparency="True"
     Background="Transparent"
     Left="0"
@@ -18,12 +17,15 @@
     SizeToContent="WidthAndHeight"
     Top="20"
     Topmost="True"
+    UseLayoutRounding="True"
     WindowStartupLocation="Manual"
     WindowStyle="None">
 
+    <Viewbox Stretch="Uniform" StretchDirection="DownOnly">
     <Border
         x:Name="_rootBorder"
-        Padding="15"
+        MinWidth="220"
+        Padding="15,8"
         Background="Transparent"
         ClipToBounds="True"
         CornerRadius="12">
@@ -74,9 +76,22 @@
                             </Setter.Value>
                         </Setter>
                     </Style>
+                    <Style x:Key="SeparatorStyle" TargetType="Separator">
+                        <Setter Property="Opacity" Value="0.4" />
+                        <Setter Property="OpacityMask">
+                            <Setter.Value>
+                                <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                                    <GradientStop Offset="0.0" Color="Transparent" />
+                                    <GradientStop Offset="0.2" Color="Black" />
+                                    <GradientStop Offset="0.8" Color="Black" />
+                                    <GradientStop Offset="1.0" Color="Transparent" />
+                                </LinearGradientBrush>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
                 </StackPanel.Resources>
 
-                <StackPanel x:Name="_fpsGroup" Margin="0,5,0,0">
+                <StackPanel x:Name="_fpsGroup">
                     <TextBlock
                         x:Name="_fpsHeader"
                         Margin="0,0,0,5"
@@ -140,12 +155,12 @@
                         Margin="0,4,0,2" />
                 </StackPanel>
 
-                <Rectangle
+                <Separator
                     x:Name="_separatorFps"
-                    Height="8"
-                    Fill="Transparent" />
+                    Margin="0,4"
+                    Style="{StaticResource SeparatorStyle}" />
 
-                <StackPanel x:Name="_cpuGroup" Margin="0,5,0,0">
+                <StackPanel x:Name="_cpuGroup">
                     <TextBlock
                         x:Name="_cpuHeader"
                         Margin="0,0,0,5"
@@ -283,7 +298,10 @@
                     </Grid>
                 </StackPanel>
 
-                <Separator Margin="0,8" Background="#3A3A3A" />
+                <Separator
+                    x:Name="_separatorCpu"
+                    Margin="0,4"
+                    Style="{StaticResource SeparatorStyle}" />
 
                 <StackPanel x:Name="_gpuGroup">
                     <TextBlock
@@ -423,7 +441,10 @@
                     </Grid>
                 </StackPanel>
 
-                <Separator Margin="0,8" Background="#3A3A3A" />
+                <Separator
+                    x:Name="_separatorGpu"
+                    Margin="0,4"
+                    Style="{StaticResource SeparatorStyle}" />
 
                 <StackPanel x:Name="_memoryGroup">
                     <TextBlock
@@ -467,16 +488,19 @@
                     </Grid>
                 </StackPanel>
 
-                <Separator Margin="0,8" Background="#3A3A3A" />
+                <Separator
+                    x:Name="_separatorMemory"
+                    Margin="0,4"
+                    Style="{StaticResource SeparatorStyle}" />
 
-                <StackPanel x:Name="_pchGroup">
+                <StackPanel x:Name="_systemGroup">
                     <TextBlock
-                        x:Name="_pchHeader"
+                        x:Name="_motherboardHeader"
                         Margin="0,0,0,5"
                         FontSize="14"
                         FontWeight="Bold"
                         Style="{DynamicResource SensorLabelStyle}"
-                        Text="{Binding Source={x:Static resources:Resource.Osd_Pch}, StringFormat='— {0} —'}" />
+                        Text="{Binding Source={x:Static resources:Resource.SensorsControl_MOBO_Title}, StringFormat='— {0} —'}" />
 
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -484,12 +508,12 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <TextBlock
-                            x:Name="_pchName"
+                            x:Name="_motherboardName"
                             Grid.Column="0"
                             Style="{DynamicResource SensorLabelStyle}"
-                            Text="{x:Static resources:Resource.SensorItem_PchTemperature}" />
+                            Text="{x:Static resources:Resource.SensorsControl_Temperature_Title}" />
                         <TextBlock
-                            x:Name="_pchTemperature"
+                            x:Name="_motherboardTemperature"
                             Grid.Column="1"
                             Style="{DynamicResource SensorValueStyle}"
                             Text="-" />
@@ -527,24 +551,40 @@
                             Text="-" />
                     </Grid>
 
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <TextBlock
-                            Grid.Column="0"
-                            Style="{DynamicResource SensorLabelStyle}"
-                            Text="{x:Static resources:Resource.Osd_PCH_Fan}" />
-                        <TextBlock
-                            x:Name="_pchFanSpeed"
-                            Grid.Column="1"
-                            Style="{DynamicResource SensorValueStyle}"
-                            Text="-" />
-                    </Grid>
+                    <StackPanel x:Name="_systemFansControl">
+                        <Grid x:Name="_systemFan1Row" Visibility="Collapsed">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock
+                                x:Name="_systemFan1Name"
+                                Grid.Column="0"
+                                Style="{DynamicResource SensorLabelStyle}" />
+                            <TextBlock
+                                x:Name="_systemFan1Value"
+                                Grid.Column="1"
+                                Style="{DynamicResource SensorValueStyle}" />
+                        </Grid>
+                        <Grid x:Name="_systemFan2Row" Visibility="Collapsed">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock
+                                x:Name="_systemFan2Name"
+                                Grid.Column="0"
+                                Style="{DynamicResource SensorLabelStyle}" />
+                            <TextBlock
+                                x:Name="_systemFan2Value"
+                                Grid.Column="1"
+                                Style="{DynamicResource SensorValueStyle}" />
+                        </Grid>
+                    </StackPanel>
                 </StackPanel>
 
             </StackPanel>
         </StackPanel>
     </Border>
+    </Viewbox>
 </fg:OsdWindowBase>
